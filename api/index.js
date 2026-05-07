@@ -28,6 +28,27 @@ app.use((req, res, next) => {
     next();
 });
 
+//  Webhook Verification (GET)
+app.get('/api/webhook', (req, res) => {
+    const VERIFY_TOKEN = process.env.WEBHOOK_VERIFY_TOKEN;
+
+    const mode = req.query['hub.mode'];
+    const token = req.query['hub.verify_token'];
+    const challenge = req.query['hub.challenge'];
+
+    if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+        console.log('Webhook verified');
+        return res.status(200).send(challenge);
+    } else {
+        return res.status(403).send('Verification failed');
+    }
+});
+// ✅ Webhook Events (POST)
+app.post('/api/webhook', (req, res) => {
+    console.log('Webhook event:', req.body);
+    return res.status(200).send('EVENT_RECEIVED');
+});
+
 // ── Helper: get user_id from Bearer token ──────────────────
 async function getUserId(req) {
     const auth = req.headers.authorization;
@@ -306,11 +327,11 @@ app.post('/webhook', async (req, res) => {
     const signature = req.headers['x-hub-signature-256'];
 
     let body;
-    try { 
+    try {
         // req.body might be a Buffer if express.raw was used
-        body = JSON.parse(req.body.toString()); 
-    } catch { 
-        return res.sendStatus(400); 
+        body = JSON.parse(req.body.toString());
+    } catch {
+        return res.sendStatus(400);
     }
 
     res.status(200).send('EVENT_RECEIVED');
