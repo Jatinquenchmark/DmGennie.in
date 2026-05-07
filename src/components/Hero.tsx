@@ -5,9 +5,22 @@ import { Link } from 'react-router-dom'
 import { Menu, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import TextType from './ui/TextType'
+import { createClient } from '@supabase/supabase-js'
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL!,
+  import.meta.env.VITE_SUPABASE_ANON_KEY!
+)
 import Particles from './ui/Particles'
 
 export function Hero() {
+  const loginWithGoogle = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: 'https://dm-gennie-in.vercel.app/dashboard'
+      }
+    })
+  }
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -59,12 +72,14 @@ export function Hero() {
             </div>
 
             <div className="flex items-center space-x-3">
-              <Link to="/signup">
-                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className={`hidden sm:block font-semibold px-6 py-3 rounded-xl gentle-animation cursor-pointer ${isScrolled ? 'bg-accent-blue text-white hover:bg-blue-700' : 'bg-white text-accent-blue hover:bg-white/90'
-                  }`}>
-                  Start for Free
-                </motion.button>
-              </Link>
+              <motion.button
+                onClick={loginWithGoogle}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="hidden sm:block font-semibold"
+              >
+                Start for Free
+              </motion.button>
 
               <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-3 rounded-full text-white hover:bg-white/20 cursor-pointer z-[120] relative">
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
