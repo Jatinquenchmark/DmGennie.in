@@ -1,12 +1,20 @@
 import crypto from 'crypto';
 import axios from 'axios';
-import { supabase } from '../_supabase.js';
+import { createClient } from '@supabase/supabase-js';
 
 const API_VERSION = 'v25.0';
 
 export const config = {
     api: { bodyParser: false }
 };
+
+function getSupabase() {
+    return createClient(
+        process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY,
+        { auth: { persistSession: false } }
+    );
+}
 
 async function getRawBody(req) {
     return new Promise((resolve, reject) => {
@@ -18,17 +26,17 @@ async function getRawBody(req) {
 }
 
 export default async function handler(req, res) {
-    // Webhook verification
+    // Webhook verification — no Supabase needed
     if (req.method === 'GET') {
         const mode = req.query['hub.mode'];
         const token = req.query['hub.verify_token'];
         const challenge = req.query['hub.challenge'];
         const verifyToken = process.env.WEBHOOK_VERIFY_TOKEN || 'dmgenie_verify_token_123';
-        console.log('Webhook verify attempt:', { mode, token, verifyToken, match: token === verifyToken });
+
         if (mode === 'subscribe' && token === verifyToken) {
             return res.status(200).send(challenge);
         }
-        return res.status(403).json({ error: 'Forbidden', token, verifyToken });
+        return res.status(403).json({ error: 'Forbidden', received: token });
     }
 
     if (req.method === 'POST') {
@@ -42,15 +50,17 @@ export default async function handler(req, res) {
 
         if (body.object !== 'instagram') return;
 
+        const supabase = getSupabase();
+
         for (const entry of body.entry || []) {
             const changes = entry.changes || [];
             if (!changes.length && entry.field === 'comments') {
-                await processComment(entry.value, entry.id, signature, rawBody);
+                await processComment(supabase, entry.value, entry.id, signature, rawBody);
                 continue;
             }
             for (const change of changes) {
                 if (change.field === 'comments') {
-                    await processComment(change.value, entry.id, signature, rawBody);
+                    await processComment(supabase, change.value, entry.id, signature, rawBody);
                 }
             }
         }
@@ -60,7 +70,7 @@ export default async function handler(req, res) {
     res.status(405).end();
 }
 
-async function processComment(commentValue, igAccountId, signature, rawBody) {
+async function processComment(supabase, commentValue, igAccountId, signature, rawBody) {
     const { data: settingsRows } = await supabase
         .from('user_settings').select('*').eq('instagram_account_id', igAccountId);
 
@@ -80,7 +90,8 @@ async function processComment(commentValue, igAccountId, signature, rawBody) {
 
     if (!commentId || !commentText) return;
 
-    const { data: triggers } = await supabase.from('triggers').select('*').eq('user_id', settings.user_id).eq('enabled', true);
+    const { data: triggers } = await supabase.from('triggers').select('*')
+        .eq('user_id', settings.user_id).eq('enabled', true);
 
     for (const trigger of triggers || []) {
         if (!commentText.includes(trigger.keyword.toLowerCase())) continue;
@@ -101,15 +112,23 @@ async function processComment(commentValue, igAccountId, signature, rawBody) {
 
             if (settings.success_public_reply) {
                 await sendPublicReply(settings, commentId, settings.success_public_reply);
-                await supabase.from('user_settings').update({ total_public_replies: settings.total_public_replies + 1 }).eq('user_id', settings.user_id);
+                await supabase.from('user_settings').update({
+                    total_public_replies: settings.total_public_replies + 1
+                }).eq('user_id', settings.user_id);
             }
         } else {
-            await supabase.from('user_settings').update({ failed_dms: settings.failed_dms + 1 }).eq('user_id', settings.user_id);
+            await supabase.from('user_settings').update({
+                failed_dms: settings.failed_dms + 1
+            }).eq('user_id', settings.user_id);
+
             await supabase.from('activity_log').insert({
                 user_id: settings.user_id, username: `@${username}`,
                 keyword: trigger.keyword, trigger_keyword: trigger.keyword, status: 'failed_dms_closed',
             });
-            if (settings.fallback_public_reply) await sendPublicReply(settings, commentId, settings.fallback_public_reply);
+
+            if (settings.fallback_public_reply) {
+                await sendPublicReply(settings, commentId, settings.fallback_public_reply);
+            }
         }
         break;
     }
