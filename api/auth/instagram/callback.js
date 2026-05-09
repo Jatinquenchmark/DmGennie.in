@@ -13,8 +13,7 @@ export default async function handler(req, res) {
 
     let userId;
     try {
-        const decoded = JSON.parse(Buffer.from(decodeURIComponent(state), 'base64').toString());
-        userId = decoded.userId;
+        const decoded = JSON.parse(Buffer.from(state, 'base64').toString());
     } catch {
         return res.redirect(`${FRONTEND_URL}/dashboard?instagram=error&reason=invalid_state`);
     }
@@ -50,7 +49,7 @@ export default async function handler(req, res) {
                         params: { fields: 'username,name', access_token: pageAccessToken }
                     });
                     igHandle = '@' + igProfile.data.username;
-                } catch {}
+                } catch { }
                 break;
             }
         }
