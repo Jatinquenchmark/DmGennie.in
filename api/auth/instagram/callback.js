@@ -14,6 +14,7 @@ export default async function handler(req, res) {
     let userId;
     try {
         const decoded = JSON.parse(Buffer.from(state, 'base64').toString());
+        userId = decoded.userId;
     } catch {
         return res.redirect(`${FRONTEND_URL}/dashboard?instagram=error&reason=invalid_state`);
     }
