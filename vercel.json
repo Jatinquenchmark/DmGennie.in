@@ -1,7 +1,29 @@
 {
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
     "rewrites": [
         {
-            "source": "/(.*)",
+            "source": "/api/triggers/:id",
+            "destination": "/api/triggers/[id]"
+        },
+        {
+            "source": "/auth/instagram/callback",
+            "destination": "/api/auth/instagram/callback"
+        },
+        {
+            "source": "/auth/instagram/disconnect",
+            "destination": "/api/auth/instagram/disconnect"
+        },
+        {
+            "source": "/auth/instagram",
+            "destination": "/api/auth/instagram"
+        },
+        {
+            "source": "/webhook",
+            "destination": "/api/webhook"
+        },
+        {
+            "source": "/((?!api/).*)",
             "destination": "/index.html"
         }
     ]

@@ -12,18 +12,24 @@ const API_VERSION = 'v25.0';
 
 // ── Supabase (service role for backend — bypasses RLS) ─────
 const supabase = createClient(
-    process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL,
+    process.env.SUPABASE_URL,
     process.env.SUPABASE_SERVICE_ROLE_KEY
 );
-
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.error("❌ Missing Supabase ENV variables");
+}
 // ── Express Setup ──────────────────────────────────────────
 const app = express();
 
 // Middleware for webhook signature verification (needs raw body)
 app.use('/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
-app.use(cors());
-
+app.use(cors({
+    origin: "*",
+}));
+app.get('/api', (req, res) => {
+    res.json({ message: "API working 🚀" });
+});
 // ── Helper: get user_id from Bearer token ──────────────────
 async function getUserId(req) {
     const auth = req.headers.authorization;
