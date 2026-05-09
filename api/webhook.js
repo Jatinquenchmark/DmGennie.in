@@ -23,10 +23,12 @@ export default async function handler(req, res) {
         const mode = req.query['hub.mode'];
         const token = req.query['hub.verify_token'];
         const challenge = req.query['hub.challenge'];
-        if (mode === 'subscribe' && token === process.env.WEBHOOK_VERIFY_TOKEN) {
+        const verifyToken = process.env.WEBHOOK_VERIFY_TOKEN || 'dmgenie_verify_token_123';
+        console.log('Webhook verify attempt:', { mode, token, verifyToken, match: token === verifyToken });
+        if (mode === 'subscribe' && token === verifyToken) {
             return res.status(200).send(challenge);
         }
-        return res.status(403).end();
+        return res.status(403).json({ error: 'Forbidden', token, verifyToken });
     }
 
     if (req.method === 'POST') {
