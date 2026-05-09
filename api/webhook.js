@@ -26,7 +26,7 @@ async function getRawBody(req) {
 }
 
 export default async function handler(req, res) {
-    // Webhook verification — no Supabase needed
+    // Webhook verification
     if (req.method === 'GET') {
         const mode = req.query['hub.mode'];
         const token = req.query['hub.verify_token'];
@@ -46,19 +46,23 @@ export default async function handler(req, res) {
         let body;
         try { body = JSON.parse(rawBody.toString()); } catch { return res.status(400).end(); }
 
+        // Always 200 immediately (Meta requirement)
         res.status(200).send('EVENT_RECEIVED');
 
+        console.log('[Webhook] object:', body.object);
         if (body.object !== 'instagram') return;
 
         const supabase = getSupabase();
 
         for (const entry of body.entry || []) {
+            console.log('[Webhook] entry.id:', entry.id, 'entry.field:', entry.field);
             const changes = entry.changes || [];
             if (!changes.length && entry.field === 'comments') {
                 await processComment(supabase, entry.value, entry.id, signature, rawBody);
                 continue;
             }
             for (const change of changes) {
+                console.log('[Webhook] change.field:', change.field);
                 if (change.field === 'comments') {
                     await processComment(supabase, change.value, entry.id, signature, rawBody);
                 }
@@ -71,38 +75,74 @@ export default async function handler(req, res) {
 }
 
 async function processComment(supabase, commentValue, igAccountId, signature, rawBody) {
-    const { data: settingsRows } = await supabase
-        .from('user_settings').select('*').eq('instagram_account_id', igAccountId);
+    console.log('[processComment] entry.id (igAccountId param):', igAccountId);
 
-    if (!settingsRows || settingsRows.length === 0) return;
+    // BUG FIX: entry.id in Meta webhooks is the commenter's user ID, NOT your business account ID.
+    // First try to match by stored instagram_account_id, then fall back to any connected account.
+    let { data: settingsRows } = await supabase
+        .from('user_settings')
+        .select('*')
+        .eq('instagram_account_id', igAccountId)
+        .not('page_access_token', 'is', null);
+
+    console.log('[processComment] rows by account ID match:', settingsRows?.length ?? 0);
+
+    if (!settingsRows || settingsRows.length === 0) {
+        // Fallback: grab any account that has a token (works for single-user setup)
+        const { data: fallbackRows } = await supabase
+            .from('user_settings')
+            .select('*')
+            .not('page_access_token', 'is', null)
+            .not('instagram_account_id', 'is', null);
+        settingsRows = fallbackRows;
+        console.log('[processComment] fallback rows (any connected):', settingsRows?.length ?? 0);
+    }
+
+    if (!settingsRows || settingsRows.length === 0) {
+        console.warn('[processComment] No connected Instagram account found in DB');
+        return;
+    }
+
     const settings = settingsRows[0];
+    console.log('[processComment] Using account:', settings.instagram_account_id);
 
     if (settings.app_secret && signature) {
         const expected = 'sha256=' + crypto.createHmac('sha256', settings.app_secret).update(rawBody).digest('hex');
-        if (signature !== expected) return;
+        if (signature !== expected) {
+            console.warn('[processComment] Signature mismatch — rejected');
+            return;
+        }
     }
 
-    if (!settings.bot_enabled) return;
+    if (!settings.bot_enabled) {
+        console.log('[processComment] Bot is disabled');
+        return;
+    }
 
     const commentId = commentValue.comment_id || commentValue.id;
     const commentText = (commentValue.text || '').toLowerCase();
     const username = commentValue.from?.username || 'unknown';
+
+    console.log(`[processComment] Comment from @${username}: "${commentText}" (id=${commentId})`);
 
     if (!commentId || !commentText) return;
 
     const { data: triggers } = await supabase.from('triggers').select('*')
         .eq('user_id', settings.user_id).eq('enabled', true);
 
+    console.log('[processComment] Active triggers:', (triggers || []).map(t => `"${t.keyword}"`).join(', ') || 'NONE');
+
     for (const trigger of triggers || []) {
         if (!commentText.includes(trigger.keyword.toLowerCase())) continue;
 
+        console.log(`[processComment] ✅ Matched trigger "${trigger.keyword}"`);
         const dmSuccess = await sendPrivateReply(settings, commentId, trigger.reply_message);
 
         if (dmSuccess) {
             await supabase.from('user_settings').update({
-                total_dms_sent: settings.total_dms_sent + 1,
-                total_links_sent: settings.total_links_sent + 1,
-                dms_sent_today: settings.dms_sent_today + 1,
+                total_dms_sent: (settings.total_dms_sent || 0) + 1,
+                total_links_sent: (settings.total_links_sent || 0) + 1,
+                dms_sent_today: (settings.dms_sent_today || 0) + 1,
             }).eq('user_id', settings.user_id);
 
             await supabase.from('activity_log').insert({
@@ -113,12 +153,12 @@ async function processComment(supabase, commentValue, igAccountId, signature, ra
             if (settings.success_public_reply) {
                 await sendPublicReply(settings, commentId, settings.success_public_reply);
                 await supabase.from('user_settings').update({
-                    total_public_replies: settings.total_public_replies + 1
+                    total_public_replies: (settings.total_public_replies || 0) + 1
                 }).eq('user_id', settings.user_id);
             }
         } else {
             await supabase.from('user_settings').update({
-                failed_dms: settings.failed_dms + 1
+                failed_dms: (settings.failed_dms || 0) + 1
             }).eq('user_id', settings.user_id);
 
             await supabase.from('activity_log').insert({
@@ -135,15 +175,23 @@ async function processComment(supabase, commentValue, igAccountId, signature, ra
 }
 
 async function sendPrivateReply(settings, commentId, message) {
-    if (!settings.page_access_token || !settings.instagram_account_id) return false;
+    if (!settings.page_access_token || !settings.instagram_account_id) {
+        console.warn('[sendPrivateReply] Missing token or account ID');
+        return false;
+    }
     try {
-        await axios.post(
+        const res = await axios.post(
             `https://graph.instagram.com/${API_VERSION}/${settings.instagram_account_id}/messages`,
             { recipient: { comment_id: commentId }, message: { text: message } },
             { headers: { 'Authorization': `Bearer ${settings.page_access_token}`, 'Content-Type': 'application/json' } }
         );
+        console.log('[sendPrivateReply] ✅ DM sent:', res.data.message_id);
         return true;
-    } catch { return false; }
+    } catch (err) {
+        const e = err.response?.data?.error || {};
+        console.error(`[sendPrivateReply] ❌ Failed [${e.code}/${e.error_subcode}]: ${e.message || err.message}`);
+        return false;
+    }
 }
 
 async function sendPublicReply(settings, commentId, message) {
@@ -154,6 +202,10 @@ async function sendPublicReply(settings, commentId, message) {
             { message },
             { headers: { 'Authorization': `Bearer ${settings.page_access_token}`, 'Content-Type': 'application/json' } }
         );
+        console.log('[sendPublicReply] ✅ Public reply sent');
         return true;
-    } catch { return false; }
+    } catch (err) {
+        console.error('[sendPublicReply] ❌ Failed:', err.response?.data?.error?.message || err.message);
+        return false;
+    }
 }

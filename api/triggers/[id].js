@@ -1,4 +1,4 @@
-import { supabase, getUserId, cors } from './_supabase.js';
+import { supabase, getUserId, cors } from '../_supabase.js';
 
 export default async function handler(req, res) {
     cors(res);
