@@ -69,7 +69,9 @@ export default async function handler(req, res) {
 
         return res.redirect(`${FRONTEND_URL}/dashboard?instagram=connected&handle=${encodeURIComponent(igHandle || igAccountId)}`);
     } catch (err) {
-        console.error('OAuth error:', err.response?.data || err.message);
+        console.error('OAuth error full:', JSON.stringify(err.response?.data || err.message));
+        console.error('OAuth error status:', err.response?.status);
+        console.error('OAuth redirect URI used:', redirectUri);
         return res.redirect(`${FRONTEND_URL}/dashboard?instagram=error&reason=token_exchange_failed`);
     }
 }
