@@ -55,14 +55,11 @@ export default async function handler(req, res) {
         const supabase = getSupabase();
 
         for (const entry of body.entry || []) {
-            console.log('[Webhook] entry.id:', entry.id, 'entry.field:', entry.field);
+            console.log('[Webhook] entry.id:', entry.id);
             const changes = entry.changes || [];
-            if (!changes.length && entry.field === 'comments') {
-                await processComment(supabase, entry.value, entry.id, signature, rawBody);
-                continue;
-            }
+
             for (const change of changes) {
-                console.log('[Webhook] change.field:', change.field);
+                console.log('[Webhook] change.field:', change.field, 'change.value:', JSON.stringify(change.value));
                 if (change.field === 'comments') {
                     await processComment(supabase, change.value, entry.id, signature, rawBody);
                 }
