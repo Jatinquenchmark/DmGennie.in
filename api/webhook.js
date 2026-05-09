@@ -91,17 +91,11 @@ async function processComment(supabase, commentValue, igAccountId, signature, ra
         settingsRows = fallbackRows;
         console.log('[processComment] fallback rows (any connected):', settingsRows?.length ?? 0);
     }
-
-    if (!settingsRows || settingsRows.length === 0) {
-        console.warn('[processComment] No connected Instagram account found in DB');
-        return;
-    }
-
     const settings = settingsRows[0];
     console.log('[processComment] Using account:', settings.instagram_account_id);
 
-    if (settings.app_secret && signature) {
-        const expected = 'sha256=' + crypto.createHmac('sha256', settings.app_secret).update(rawBody).digest('hex');
+    if (process.env.META_APP_SECRET && signature) {
+        const expected = 'sha256=' + crypto.createHmac('sha256', process.env.META_APP_SECRET).update(rawBody).digest('hex');
         if (signature !== expected) {
             console.warn('[processComment] Signature mismatch — rejected');
             return;
