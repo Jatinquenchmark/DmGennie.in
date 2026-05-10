@@ -143,7 +143,7 @@ export default function Dashboard() {
             window.history.replaceState({}, "", "/dashboard");
         } else if (igStatus === "error") {
             const reason = params.get("reason") || "unknown";
-            console.error("Instagram connect error:", reason);
+            // auth error logged server-side
             window.history.replaceState({}, "", "/dashboard");
         }
     }, []);
@@ -259,9 +259,17 @@ export default function Dashboard() {
             {/* ── Sidebar ────────────────────────────────────────── */}
             <aside className="w-full md:w-64 bg-card border-r border-border md:min-h-screen flex flex-col flex-shrink-0">
                 <div className="p-6 border-b border-border">
-                    <Link to="/" className="inline-flex items-center gap-2">
-                        <span className="text-2xl font-black text-accent-blue">🧞 DMGenie</span>
-                    </Link>
+                    <Link to="/" className="inline-flex items-center gap-2.5 group">
+                      <svg width="30" height="30" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="40" height="40" rx="10" fill="#5b5ef4" fillOpacity="0.15" />
+                        <path d="M10 27 L19 13" stroke="#5b5ef4" strokeWidth="3.8" strokeLinecap="round" />
+                        <path d="M17 27 L26 13" stroke="#5b5ef4" strokeWidth="3.8" strokeLinecap="round" />
+                        <circle cx="29" cy="27" r="3" fill="#5b5ef4" />
+                      </svg>
+                      <span className="text-lg font-extrabold tracking-tight text-foreground group-hover:text-accent-blue transition-colors">
+                        DM<span className="text-accent-blue">Genie</span>
+                      </span>
+                    </Link
                 </div>
 
                 <nav className="flex-1 p-4 space-y-1">
@@ -324,7 +332,7 @@ export default function Dashboard() {
                                     <div>
                                         <h3 className="font-medium text-amber-700 dark:text-amber-400">Action Required: Connect Instagram</h3>
                                         <p className="text-sm text-amber-600/80 dark:text-amber-400/80 mt-1">
-                                            Go to Settings → paste your Meta Page Access Token to activate.
+                                            Go to Settings → connect your Instagram account to activate automated DMs.
                                         </p>
                                         <button onClick={() => setTab("settings")} className="mt-3 bg-amber-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors cursor-pointer">
                                             Go to Settings
@@ -348,7 +356,7 @@ export default function Dashboard() {
                                         <div className="flex items-center gap-3">
                                             <div className="p-3 bg-accent-blue/10 rounded-xl"><Bot className="w-6 h-6 text-accent-blue" /></div>
                                             <div>
-                                                <p className="text-sm text-muted-foreground font-medium">Bot Status</p>
+                                                <p className="text-sm text-muted-foreground font-medium">Automation Status</p>
                                                 <h3 className="text-xl font-bold">{botEnabled ? "Active" : "Paused"}</h3>
                                             </div>
                                         </div>
@@ -585,8 +593,8 @@ export default function Dashboard() {
 
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm font-medium">Bot Enabled</p>
-                                        <p className="text-xs text-muted-foreground">Globally enable or disable the bot.</p>
+                                        <p className="text-sm font-medium">Automation Enabled</p>
+                                        <p className="text-xs text-muted-foreground">Globally enable or disable automated DMs.</p>
                                     </div>
                                     <button onClick={() => setSettings({ ...settings, botEnabled: !settings.botEnabled })} className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors cursor-pointer ${settings.botEnabled ? "bg-accent-blue" : "bg-muted"}`}>
                                         <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform shadow ${settings.botEnabled ? "translate-x-6" : "translate-x-1"}`} />

@@ -10,6 +10,11 @@ import { FAQ } from './components/FAQ'
 import { Footer } from './components/Footer'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
+import Privacy from './pages/Privacy'
+import Terms from './pages/Terms'
+import DeleteData from './pages/DeleteData'
+import ReviewerDemo from './pages/ReviewerDemo'
+import NotFound from './pages/NotFound'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -40,6 +45,10 @@ export default function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/delete-data" element={<DeleteData />} />
+          <Route path="/reviewer-demo" element={<ReviewerDemo />} />
           <Route
             path="/dashboard"
             element={
@@ -48,6 +57,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
