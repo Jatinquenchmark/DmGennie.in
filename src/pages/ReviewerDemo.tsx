@@ -22,7 +22,7 @@ const testSteps = [
     step: '01',
     icon: <Instagram className="w-6 h-6" />,
     title: 'Connect Instagram Account',
-    detail: 'Go to Dashboard → Settings → click "Connect Instagram Account". You will be redirected to Meta's official OAuth. Authorise DMGenie with the requested permissions.',
+    detail: `Go to Dashboard > Settings > click "Connect Instagram Account". You will be redirected to Meta's official OAuth page. Authorise DMGenie with the requested permissions.`,
     permissions: [
       'instagram_basic',
       'instagram_manage_messages',
@@ -34,15 +34,15 @@ const testSteps = [
     step: '02',
     icon: <Zap className="w-6 h-6" />,
     title: 'Create a Keyword Trigger',
-    detail: 'Go to Dashboard → Auto-Replies → click "Add Trigger". Enter a keyword (e.g. "link") and a DM reply message (e.g. "Here is the link: https://example.com"). Save the trigger.',
+    detail: `Go to Dashboard > Auto-Replies > click "Add Trigger". Enter a keyword (e.g. "link") and a DM reply message (e.g. "Here is the link: https://example.com"). Save the trigger.`,
     note: 'The trigger is now active. Any user who comments "link" on your post will receive the configured DM.',
   },
   {
     step: '03',
     icon: <MessageCircle className="w-6 h-6" />,
     title: 'Test the Comment-to-DM Flow',
-    detail: 'Post anything on your connected Instagram account. Comment the keyword you configured (e.g. "link") on that post from a different Instagram account. Within seconds, that account should receive a DM with your configured reply.',
-    note: 'DM delivery depends on the commenter having their DMs open. If closed, a public comment reply is posted instead.',
+    detail: `Post anything on your connected Instagram account. Comment the keyword you configured (e.g. "link") on that post from a different Instagram account. Within seconds, that account should receive a DM with your configured reply.`,
+    note: `DM delivery depends on the commenter having their DMs open. If closed, a public comment reply is posted instead.`,
   },
 ]
 
@@ -85,26 +85,26 @@ export default function ReviewerDemo() {
             a specific keyword on their posts or reels.
           </p>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            <strong className="text-foreground">Example use case:</strong> A business posts "Comment
-            LINK below to get our catalogue". When a user comments "LINK", DMGenie automatically sends
+            <strong className="text-foreground">Example use case:</strong> A business posts &quot;Comment
+            LINK below to get our catalogue&quot;. When a user comments &quot;LINK&quot;, DMGenie automatically sends
             them a private DM with the catalogue URL — saving the business from manually replying to
             hundreds of comments.
           </p>
           <p className="text-muted-foreground leading-relaxed">
             All messaging is performed via the official <strong className="text-foreground">Instagram
-            Messaging API (Graph API)</strong>. DMGenie does not use any unofficial methods or
+              Messaging API (Graph API)</strong>. DMGenie does not use any unofficial methods or
             third-party scraping tools.
           </p>
         </section>
 
         {/* Permissions Explained */}
         <section className="mb-14">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Permissions & Why They Are Needed</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-6">Permissions &amp; Why They Are Needed</h2>
           <div className="space-y-4">
             {[
               {
                 permission: 'instagram_basic',
-                reason: 'To read the connected Instagram account's basic profile information (username, account ID) so we can display the connected account in the dashboard.',
+                reason: `To read the connected Instagram account's basic profile information (username, account ID) so we can display the connected account in the dashboard.`,
               },
               {
                 permission: 'instagram_manage_messages',
@@ -112,7 +112,7 @@ export default function ReviewerDemo() {
               },
               {
                 permission: 'instagram_manage_comments',
-                reason: 'To receive webhook notifications when a user comments on a post, and to post a public comment reply when a user's DMs are closed.',
+                reason: `To receive webhook notifications when a user comments on a post, and to post a public comment reply when a user's DMs are closed.`,
               },
               {
                 permission: 'pages_manage_metadata',
