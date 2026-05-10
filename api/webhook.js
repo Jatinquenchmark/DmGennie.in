@@ -164,7 +164,7 @@ async function sendPrivateReply(settings, commentId, message) {
     }
     try {
         const res = await axios.post(
-            `https://graph.instagram.com/${API_VERSION}/${settings.instagram_account_id}/messages`,
+            `https://graph.facebook.com/${API_VERSION}/${settings.instagram_account_id}/messages`,
             { recipient: { comment_id: commentId }, message: { text: message } },
             { headers: { 'Authorization': `Bearer ${settings.page_access_token}`, 'Content-Type': 'application/json' } }
         );
