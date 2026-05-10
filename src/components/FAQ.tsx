@@ -14,7 +14,7 @@ export function FAQ() {
     },
     {
       question: 'Is DMGenie safe to use?',
-      answer: 'Absolutely. DMGenie is Meta Verified and follows all Instagram API guidelines. Your account security is our top priority.',
+      answer: 'Absolutely. DMGenie uses official Meta APIs and follows all Instagram API guidelines. Your account security is our top priority.',
     },
     {
       question: 'How does the DM automation work?',
@@ -22,7 +22,7 @@ export function FAQ() {
     },
     {
       question: 'Will this get my account banned?',
-      answer: 'No. DMGenie uses official Meta APIs and is a Meta Verified partner. We operate within Instagram\'s terms of service.',
+      answer: 'No. DMGenie uses official Meta APIs and operates We operate within Instagram\'s terms of service.',
     },
     {
       question: 'How quickly can I set it up?',
@@ -75,7 +75,7 @@ export function FAQ() {
             </motion.button>
           </Link>
           <div className="flex justify-center gap-4 mt-4">
-            {['✓ Meta Verified', '✓ No Credit Card', '✓ Instant Setup'].map(b => (
+            {['✓ Official Meta APIs', '✓ No Credit Card', '✓ Instant Setup'].map(b => (
               <span key={b} className="text-sm text-muted-foreground font-medium">{b}</span>
             ))}
           </div>

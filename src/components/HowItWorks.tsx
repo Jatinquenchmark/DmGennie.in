@@ -4,9 +4,9 @@ import { motion } from 'framer-motion'
 
 export function HowItWorks() {
   const steps = [
-    { number: '1', title: 'Choose Trigger', description: 'Choose which keywords activate your automation', icon: '🎯' },
-    { number: '2', title: 'Automate Response', description: 'Setup custom responses with links and offers to share', icon: '⚡' },
-    { number: '3', title: 'Go Viral 🚀', description: 'Let automations do the magic while you focus on creating', icon: '🚀' },
+    { number: '1', title: 'Connect Instagram', description: 'Securely connect your Instagram Business account via official Meta OAuth. No passwords stored.', icon: '🔗' },
+    { number: '2', title: 'Create Keyword Trigger', description: 'Set a keyword like "link" or "info". When someone comments it, the automation activates.', icon: '⚡' },
+    { number: '3', title: 'Replies Sent Automatically', description: 'DMGenie sends a personalised DM to the commenter instantly via official Instagram APIs.', icon: '✉️' },
   ]
 
   return (
@@ -15,12 +15,15 @@ export function HowItWorks() {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-3 mb-6">
             <div className="w-3 h-3 bg-accent-purple rounded-full animate-pulse" />
-            <span className="text-sm font-semibold text-muted-foreground">How it works</span>
+            <span className="text-sm font-semibold text-muted-foreground">How It Works</span>
             <div className="w-3 h-3 bg-accent-emerald rounded-full animate-pulse" />
           </div>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6 text-foreground">
-            3 Easy Steps, Unlimited Possibilities
+            3 Simple Steps to Automate
           </h2>
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+            Set up comment-to-DM automation in minutes using official Instagram APIs.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -33,7 +36,6 @@ export function HowItWorks() {
               viewport={{ once: true }}
               className="relative text-center"
             >
-              {/* Connector line */}
               {index < steps.length - 1 && (
                 <div className="hidden md:block absolute top-16 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-accent-blue to-accent-purple opacity-30" />
               )}

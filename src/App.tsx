@@ -7,6 +7,7 @@ import { Features } from './components/Features'
 import { HowItWorks } from './components/HowItWorks'
 import { Testimonials } from './components/Testimonials'
 import { FAQ } from './components/FAQ'
+import { TrustSection } from './components/TrustSection'
 import { Footer } from './components/Footer'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
@@ -30,6 +31,7 @@ function HomePage() {
         <FeatureShowcase />
         <Features />
         <HowItWorks />
+        <TrustSection />
         <Testimonials />
         <FAQ />
       </main>

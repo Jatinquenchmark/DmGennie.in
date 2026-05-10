@@ -58,7 +58,7 @@ export function Features() {
             </motion.button>
           </Link>
           <div className="flex justify-center gap-4 mt-4">
-            {['✓ Meta Verified', '✓ No Credit Card', '✓ Instant Setup'].map(b => (
+            {['✓ Official Meta APIs', '✓ No Credit Card', '✓ Instant Setup'].map(b => (
               <span key={b} className="text-sm text-muted-foreground font-medium">{b}</span>
             ))}
           </div>
