@@ -7,12 +7,52 @@ export const supabase = createClient(
 );
 
 export async function getUserId(req) {
+    const user = await getUser(req);
+    return user?.id || null;
+}
+
+export async function getUser(req) {
     const auth = req.headers.authorization || req.headers['Authorization'];
     if (!auth || !auth.startsWith('Bearer ')) return null;
     const token = auth.split(' ')[1];
     const { data: { user }, error } = await supabase.auth.getUser(token);
     if (error || !user) return null;
-    return user.id;
+    return user;
+}
+
+export async function getUserRole(userId, user) {
+    const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+
+    if (data?.role) return data.role;
+
+    const appRole = user?.app_metadata?.role;
+    if (appRole === 'admin' || appRole === 'user') return appRole;
+
+    if (!error || error.code === 'PGRST116') {
+        await supabase.from('user_roles').upsert({ user_id: userId, role: 'user', updated_at: new Date().toISOString() });
+    }
+
+    return 'user';
+}
+
+export async function requireAdmin(req, res) {
+    const user = await getUser(req);
+    if (!user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return null;
+    }
+
+    const role = await getUserRole(user.id, user);
+    if (role !== 'admin') {
+        res.status(403).json({ error: 'Access denied' });
+        return null;
+    }
+
+    return { user, role };
 }
 
 export async function ensureSettings(userId) {

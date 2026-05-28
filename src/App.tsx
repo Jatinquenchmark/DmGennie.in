@@ -13,6 +13,7 @@ import { Footer } from './components/Footer'
 import { PageHeader } from './components/PageHeader'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
+import AdminDashboard from './pages/AdminDashboard'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 import DeleteData from './pages/DeleteData'
@@ -22,6 +23,7 @@ import Referral from './pages/Referral'
 import NotFound from './pages/NotFound'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
+import AdminRoute from './components/AdminRoute'
 
 function HomePage() {
   return (
@@ -100,6 +102,14 @@ export default function App() {
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/*"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
             }
           />
           <Route path="*" element={<NotFound />} />

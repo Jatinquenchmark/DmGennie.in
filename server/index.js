@@ -4,6 +4,9 @@ import crypto from 'crypto';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import { createClient } from '@supabase/supabase-js';
+import Razorpay from 'razorpay';
+import { buildDashboardMetrics } from './dashboardMetrics.js';
+import { getBillingConfig, getProIntroEligibility } from './billingConfig.js';
 
 dotenv.config({ path: '.env' });
 
@@ -18,6 +21,7 @@ const supabase = createClient(
 // ── Express Setup ──────────────────────────────────────────
 const app = express();
 app.use('/webhook', express.raw({ type: 'application/json' }));
+app.use('/api/billing/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
 app.use(cors());
 app.use((req, res, next) => {
@@ -27,12 +31,57 @@ app.use((req, res, next) => {
 
 // ── Helper: get user_id from Bearer token ──────────────────
 async function getUserId(req) {
+    const user = await getUser(req);
+    return user?.id || null;
+}
+
+async function getUser(req) {
     const auth = req.headers.authorization;
     if (!auth || !auth.startsWith('Bearer ')) return null;
     const token = auth.split(' ')[1];
     const { data: { user }, error } = await supabase.auth.getUser(token);
     if (error || !user) return null;
-    return user.id;
+    return user;
+}
+
+async function getUserRole(userId, user) {
+    const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', userId).single();
+    if (data?.role) return data.role;
+    const appRole = user?.app_metadata?.role;
+    if (appRole === 'admin' || appRole === 'user') return appRole;
+    if (!error || error.code === 'PGRST116') {
+        await supabase.from('user_roles').upsert({ user_id: userId, role: 'user', updated_at: new Date().toISOString() });
+    }
+    return 'user';
+}
+
+async function requireAdmin(req, res) {
+    const user = await getUser(req);
+    if (!user) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return null;
+    }
+    const role = await getUserRole(user.id, user);
+    if (role !== 'admin') {
+        res.status(403).json({ error: 'Access denied' });
+        return null;
+    }
+    return { user, role };
+}
+
+async function listAuthUsers() {
+    const allUsers = [];
+    let page = 1;
+    const perPage = 1000;
+    while (true) {
+        const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
+        if (error) throw error;
+        const users = data?.users || [];
+        allUsers.push(...users);
+        if (users.length < perPage) break;
+        page += 1;
+    }
+    return allUsers;
 }
 
 // ── Helper: ensure settings row exists ────────────────────
@@ -55,52 +104,373 @@ async function ensureSettings(userId) {
 // ── Health Check ───────────────────────────────────────────
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 
-// ── Dashboard Overview ─────────────────────────────────────
-app.get('/api/dashboard', async (req, res) => {
-    const userId = await getUserId(req);
-    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+app.get('/api/me', async (req, res) => {
+    const user = await getUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    const role = await getUserRole(user.id, user);
+    res.json({
+        id: user.id,
+        email: user.email,
+        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Creator',
+        role,
+    });
+});
 
-    const settings = await ensureSettings(userId);
+app.get('/api/admin/overview', async (req, res) => {
+    const admin = await requireAdmin(req, res);
+    if (!admin) return;
+    try {
+        const [users, settingsResult, triggersResult, activityResult] = await Promise.all([
+            listAuthUsers(),
+            supabase.from('user_settings').select('*'),
+            supabase.from('triggers').select('*'),
+            supabase.from('activity_log').select('*').order('created_at', { ascending: false }).limit(25),
+        ]);
+        const settings = settingsResult.data || [];
+        const triggers = triggersResult.data || [];
+        const activity = activityResult.data || [];
+        const totals = settings.reduce((acc, row) => ({
+            dms: acc.dms + Number(row.total_dms_sent || 0),
+            contacts: acc.contacts + Number(row.total_links_sent || 0),
+            failed: acc.failed + Number(row.failed_dms || 0),
+        }), { dms: 0, contacts: 0, failed: 0 });
+        const userById = new Map(users.map((user) => [user.id, user]));
+        res.json({
+            metrics: {
+                totalUsers: users.length,
+                activeUsers: settings.filter((row) => row.page_access_token && row.instagram_account_id).length,
+                totalAutomations: triggers.length,
+                totalDmsSent: totals.dms,
+                totalContacts: totals.contacts,
+                failedMessages: totals.failed,
+                revenue: 0,
+            },
+            recentSignups: users.slice().sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)).slice(0, 8).map((user) => ({
+                id: user.id,
+                email: user.email,
+                name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Creator',
+                createdAt: user.created_at,
+                plan: user.app_metadata?.plan || 'Starter',
+            })),
+            recentActivity: activity.map((item) => ({
+                id: item.id,
+                ownerEmail: userById.get(item.user_id)?.email || 'Unknown user',
+                user: item.username || 'Unknown Instagram user',
+                keyword: item.keyword || item.trigger_keyword || 'Unknown',
+                status: item.status || 'Unknown',
+                createdAt: item.created_at,
+            })),
+        });
+    } catch {
+        res.status(500).json({ error: 'Unable to load admin overview.' });
+    }
+});
 
-    const { data: triggers } = await supabase
-        .from('triggers')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: true });
+app.get('/api/admin/users', async (req, res) => {
+    const admin = await requireAdmin(req, res);
+    if (!admin) return;
+    try {
+        const [users, settingsResult, rolesResult] = await Promise.all([
+            listAuthUsers(),
+            supabase.from('user_settings').select('*'),
+            supabase.from('user_roles').select('*'),
+        ]);
+        const settingsByUser = new Map((settingsResult.data || []).map((row) => [row.user_id, row]));
+        const roles = rolesResult.data || [];
+        res.json({
+            users: users.map((user) => {
+                const settings = settingsByUser.get(user.id) || {};
+                return {
+                    id: user.id,
+                    email: user.email,
+                    name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Creator',
+                    role: roles.find((row) => row.user_id === user.id)?.role || user.app_metadata?.role || 'user',
+                    plan: user.app_metadata?.plan || 'Starter',
+                    suspended: Boolean(user.banned_until && new Date(user.banned_until) > new Date()),
+                    connectedInstagram: Boolean(settings.page_access_token && settings.instagram_account_id),
+                    instagramHandle: settings.instagram_handle || 'Instagram not connected',
+                    dmsSent: settings.total_dms_sent || 0,
+                    contacts: settings.total_links_sent || 0,
+                    introOfferUsed: Boolean(settings.has_used_pro_intro_offer || user.app_metadata?.has_used_pro_intro_offer),
+                    proIntroStartedAt: settings.pro_intro_started_at || user.app_metadata?.pro_intro_started_at || null,
+                    subscriptionStatus: settings.subscription_status || user.app_metadata?.subscription_status || 'free',
+                    createdAt: user.created_at,
+                    lastSignInAt: user.last_sign_in_at,
+                };
+            }),
+        });
+    } catch {
+        res.status(500).json({ error: 'Unable to load admin users.' });
+    }
+});
 
-    const { data: activityLog } = await supabase
-        .from('activity_log')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(50);
+app.put('/api/admin/users', async (req, res) => {
+    const admin = await requireAdmin(req, res);
+    if (!admin) return;
+    try {
+        const { userId, action, plan } = req.body || {};
+        if (!userId || !action) return res.status(400).json({ error: 'Missing user action.' });
+        if (action === 'suspend') await supabase.auth.admin.updateUserById(userId, { banned_until: '2999-12-31T23:59:59.000Z' });
+        else if (action === 'activate') await supabase.auth.admin.updateUserById(userId, { banned_until: null });
+        else if (action === 'plan') {
+            const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+            await supabase.auth.admin.updateUserById(userId, { app_metadata: { ...(user?.app_metadata || {}), plan: String(plan || 'Starter').slice(0, 40) } });
+        } else return res.status(400).json({ error: 'Unsupported admin action.' });
+        res.json({ success: true });
+    } catch {
+        res.status(500).json({ error: 'Unable to update admin user.' });
+    }
+});
+
+app.get('/api/admin/automations', async (req, res) => {
+    const admin = await requireAdmin(req, res);
+    if (!admin) return;
+    try {
+        const [users, triggersResult, activityResult] = await Promise.all([
+            listAuthUsers(),
+            supabase.from('triggers').select('*').order('created_at', { ascending: false }),
+            supabase.from('activity_log').select('user_id,trigger_keyword,status'),
+        ]);
+        const userById = new Map(users.map((user) => [user.id, user]));
+        const activity = activityResult.data || [];
+        res.json({
+            automations: (triggersResult.data || []).map((trigger) => {
+                const owner = userById.get(trigger.user_id);
+                const triggerActivity = activity.filter((item) => item.user_id === trigger.user_id && item.trigger_keyword === trigger.keyword);
+                return {
+                    id: trigger.id,
+                    ownerId: trigger.user_id,
+                    ownerEmail: owner?.email || 'Unknown user',
+                    ownerName: owner?.user_metadata?.full_name || owner?.email?.split('@')[0] || 'Unknown user',
+                    keyword: trigger.keyword || 'Unknown',
+                    replyMessage: trigger.reply_message || '',
+                    status: trigger.enabled ? 'Live' : 'Paused',
+                    dmsSent: triggerActivity.filter((item) => item.status === 'sent').length,
+                    failed: triggerActivity.filter((item) => item.status !== 'sent').length,
+                    createdAt: trigger.created_at,
+                    updatedAt: trigger.updated_at || trigger.created_at,
+                };
+            }),
+        });
+    } catch {
+        res.status(500).json({ error: 'Unable to load admin automations.' });
+    }
+});
+
+app.put('/api/admin/automations', async (req, res) => {
+    const admin = await requireAdmin(req, res);
+    if (!admin) return;
+    const { id, enabled } = req.body || {};
+    if (!id || typeof enabled !== 'boolean') return res.status(400).json({ error: 'Missing automation update.' });
+    const { error } = await supabase.from('triggers').update({ enabled }).eq('id', id);
+    if (error) return res.status(500).json({ error: 'Unable to update automation.' });
+    res.json({ success: true });
+});
+
+app.get('/api/admin/contacts', async (req, res) => {
+    const admin = await requireAdmin(req, res);
+    if (!admin) return;
+    try {
+        const [users, activityResult] = await Promise.all([
+            listAuthUsers(),
+            supabase.from('activity_log').select('*').order('created_at', { ascending: false }).limit(1000),
+        ]);
+        const userById = new Map(users.map((user) => [user.id, user]));
+        res.json({
+            contacts: (activityResult.data || []).map((item) => {
+                const owner = userById.get(item.user_id);
+                return {
+                    id: item.id,
+                    ownerId: item.user_id,
+                    ownerEmail: owner?.email || 'Unknown user',
+                    ownerName: owner?.user_metadata?.full_name || owner?.email?.split('@')[0] || 'Unknown user',
+                    instagramUser: item.username || 'Unknown Instagram user',
+                    email: 'No email captured',
+                    source: item.trigger_keyword ? `Auto DM for "${item.trigger_keyword}"` : 'Unknown source',
+                    keyword: item.keyword || item.trigger_keyword || 'Unknown',
+                    status: item.status || 'Unknown',
+                    joinedAt: item.created_at,
+                };
+            }),
+        });
+    } catch {
+        res.status(500).json({ error: 'Unable to load admin contacts.' });
+    }
+});
+
+// ── Billing / Pro Intro Offer ─────────────────────────────
+app.get('/api/billing/pricing', async (req, res) => {
+    const config = getBillingConfig();
+    const user = await getUser(req);
+    let eligibility = { eligible: false, reason: 'Sign in to start Pro for ₹1', isPro: false, hasUsedIntroOffer: false };
+
+    if (user) {
+        const settings = await ensureSettings(user.id);
+        eligibility = getProIntroEligibility(user, settings);
+    }
 
     res.json({
-        connected: !!(settings.page_access_token && settings.instagram_account_id),
-        botEnabled: settings.bot_enabled,
-        stats: {
-            followers: settings.followers,
-            totalDmsSent: settings.total_dms_sent,
-            totalLinksSent: settings.total_links_sent,
-            totalPublicReplies: settings.total_public_replies,
-            dmsSentToday: settings.dms_sent_today,
-            failedDms: settings.failed_dms,
+        currency: config.currency,
+        plans: config.plans,
+        proIntroOffer: {
+            ...config.plans.pro.introOffer,
+            eligible: eligibility.eligible,
+            reason: eligibility.reason,
+            hasUsedIntroOffer: eligibility.hasUsedIntroOffer,
+            isPro: eligibility.isPro,
+            proIntroStartedAt: eligibility.proIntroStartedAt || null,
         },
-        triggers: (triggers || []).map(t => ({
-            id: t.id,
-            keyword: t.keyword,
-            replyMessage: t.reply_message,
-            enabled: t.enabled,
-        })),
-        activityLog: (activityLog || []).map(a => ({
-            id: a.id,
-            user: a.username,
-            keyword: a.keyword,
-            trigger: a.trigger_keyword,
-            status: a.status,
-            time: a.created_at,
-        })),
     });
+});
+
+app.post('/api/billing/checkout', async (req, res) => {
+    const user = await getUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    const config = getBillingConfig();
+    const settings = await ensureSettings(user.id);
+    const eligibility = getProIntroEligibility(user, settings);
+
+    if (!config.razorpay.keyId || !config.razorpay.keySecret || !config.razorpay.proMonthlyPlanId) {
+        return res.status(501).json({
+            error: 'Checkout setup required',
+            message: 'Razorpay Pro monthly plan is not configured yet.',
+            setupRequired: true,
+            pricing: config.plans.pro,
+        });
+    }
+
+    if (eligibility.eligible && !config.razorpay.proIntroOfferId) {
+        return res.status(501).json({
+            error: 'Intro offer setup required',
+            message: 'Razorpay intro offer/coupon is not configured yet. Add RAZORPAY_PRO_INTRO_OFFER_ID before charging ₹1.',
+            setupRequired: true,
+            pricing: config.plans.pro,
+        });
+    }
+
+    try {
+        const razorpay = new Razorpay({
+            key_id: config.razorpay.keyId,
+            key_secret: config.razorpay.keySecret,
+        });
+
+        const subscriptionPayload = {
+            plan_id: config.razorpay.proMonthlyPlanId,
+            total_count: Number(process.env.RAZORPAY_PRO_SUBSCRIPTION_MONTHS || 120),
+            quantity: 1,
+            customer_notify: 1,
+            notes: {
+                user_id: user.id,
+                email: user.email || '',
+                plan: 'Pro',
+                intro_offer: eligibility.eligible ? 'true' : 'false',
+                intro_amount_inr: String(config.plans.pro.introOffer.amountInr),
+                renewal_amount_inr: String(config.plans.pro.monthlyPriceInr),
+            },
+        };
+
+        if (eligibility.eligible) subscriptionPayload.offer_id = config.razorpay.proIntroOfferId;
+
+        const subscription = await razorpay.subscriptions.create(subscriptionPayload);
+        const { error } = await supabase.from('user_settings').update({
+            razorpay_subscription_id: subscription.id,
+            subscription_plan: 'Pro',
+            subscription_status: 'checkout_created',
+            updated_at: new Date().toISOString(),
+        }).eq('user_id', user.id);
+        if (error) console.warn('[billing] Unable to store checkout reference:', error.message);
+
+        res.json({
+            checkoutUrl: subscription.short_url,
+            subscriptionId: subscription.id,
+            introOfferApplied: eligibility.eligible,
+            pricing: config.plans.pro,
+        });
+    } catch (error) {
+        console.error('[billing] Checkout failed:', error?.error || error);
+        res.status(500).json({
+            error: 'Unable to create checkout',
+            message: 'Something went wrong while creating the Pro checkout. Please try again.',
+        });
+    }
+});
+
+app.post('/api/billing/webhook', async (req, res) => {
+    const config = getBillingConfig();
+    const signature = req.headers['x-razorpay-signature'];
+    const rawBody = Buffer.isBuffer(req.body) ? req.body : Buffer.from(JSON.stringify(req.body || {}));
+    if (!config.razorpay.webhookSecret) return res.status(501).json({ error: 'Webhook secret not configured' });
+
+    const expected = crypto.createHmac('sha256', config.razorpay.webhookSecret).update(rawBody).digest('hex');
+    const expectedBuffer = Buffer.from(expected);
+    const signatureBuffer = Buffer.from(signature || '');
+    if (expectedBuffer.length !== signatureBuffer.length || !crypto.timingSafeEqual(expectedBuffer, signatureBuffer)) {
+        return res.status(401).json({ error: 'Invalid signature' });
+    }
+
+    let event;
+    try {
+        event = JSON.parse(rawBody.toString());
+    } catch {
+        return res.status(400).json({ error: 'Invalid payload' });
+    }
+
+    const subscription = event.payload?.subscription?.entity;
+    const payment = event.payload?.payment?.entity;
+    const entity = subscription || payment || {};
+    const notes = entity.notes || payment?.notes || subscription?.notes || {};
+    const userId = notes.user_id;
+
+    if ((event.event === 'subscription.charged' || event.event === 'payment.captured') && notes.intro_offer === 'true' && userId) {
+        const now = new Date().toISOString();
+        const currentPeriodEnd = entity.current_end ? new Date(Number(entity.current_end) * 1000).toISOString() : null;
+        const updates = {
+            has_used_pro_intro_offer: true,
+            pro_intro_started_at: now,
+            subscription_plan: 'Pro',
+            subscription_status: 'active',
+            current_period_end: currentPeriodEnd,
+            razorpay_subscription_id: entity.subscription_id || entity.id || null,
+            updated_at: now,
+        };
+        const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
+        if (error) console.warn('[billing] Unable to mark intro offer used:', error.message);
+        const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+        if (user) {
+            await supabase.auth.admin.updateUserById(userId, {
+                app_metadata: {
+                    ...(user.app_metadata || {}),
+                    plan: 'Pro',
+                    subscription_status: 'active',
+                    has_used_pro_intro_offer: true,
+                    pro_intro_started_at: now,
+                    current_period_end: currentPeriodEnd,
+                },
+            });
+        }
+    }
+
+    res.json({ received: true });
+});
+
+// ── Dashboard Overview ─────────────────────────────────────
+app.get('/api/dashboard', async (req, res) => {
+    const user = await getUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    const settings = await ensureSettings(user.id);
+    const payload = await buildDashboardMetrics({ supabase, userId: user.id, user, settings });
+    res.json(payload);
+});
+
+app.get('/api/dashboard/metrics', async (req, res) => {
+    const user = await getUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    const settings = await ensureSettings(user.id);
+    const payload = await buildDashboardMetrics({ supabase, userId: user.id, user, settings });
+    res.json(payload);
 });
 
 // ── Stats ──────────────────────────────────────────────────

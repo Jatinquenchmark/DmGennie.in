@@ -9,7 +9,6 @@ import {
   Loader2,
   Send,
   Shield,
-  X,
 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
@@ -69,6 +68,10 @@ function getSavedReferralCode() {
     ?.split('=')[1]
 
   return cookieCode ? decodeURIComponent(cookieCode) : ''
+}
+
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
 }
 
 function SignupTrustBadges() {
@@ -260,22 +263,53 @@ function AuthShowcase() {
 export default function Signup() {
   const navigate = useNavigate()
 
+  const [authMode, setAuthMode] = useState<'signup' | 'signin'>('signup')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [signUpError, setSignUpError] = useState('')
   const [signUpLoading, setSignUpLoading] = useState(false)
   const [signUpSuccess, setSignUpSuccess] = useState(false)
 
-  const [showSignIn, setShowSignIn] = useState(false)
   const [signInEmail, setSignInEmail] = useState('')
   const [signInPassword, setSignInPassword] = useState('')
   const [signInError, setSignInError] = useState('')
   const [signInNotice, setSignInNotice] = useState('')
   const [signInLoading, setSignInLoading] = useState(false)
+  const [passwordResetLoading, setPasswordResetLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
+
+  const switchAuthMode = (mode: 'signup' | 'signin') => {
+    setAuthMode(mode)
+    setSignUpError('')
+    setSignInError('')
+    setSignInNotice('')
+    if (mode === 'signup') setSignUpSuccess(false)
+  }
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
     setSignUpError('')
+
+    if (!email.trim()) {
+      setSignUpError('Email is required.')
+      return
+    }
+
+    if (!isValidEmail(email)) {
+      setSignUpError('Enter a valid email address.')
+      return
+    }
+
+    if (!password) {
+      setSignUpError('Password is required.')
+      return
+    }
+
+    if (password.length < 6) {
+      setSignUpError('Password must be at least 6 characters.')
+      return
+    }
+
     setSignUpLoading(true)
 
     const referralCode = getSavedReferralCode()
@@ -309,18 +343,50 @@ export default function Signup() {
     e.preventDefault()
     setSignInError('')
     setSignInNotice('')
+
+    if (!signInEmail.trim()) {
+      setSignInError('Email is required.')
+      return
+    }
+
+    if (!isValidEmail(signInEmail)) {
+      setSignInError('Enter a valid email address.')
+      return
+    }
+
+    if (!signInPassword) {
+      setSignInError('Password is required.')
+      return
+    }
+
     setSignInLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: signInEmail,
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: signInEmail.trim(),
       password: signInPassword,
     })
 
     setSignInLoading(false)
 
     if (error) {
-      setSignInError(error.message)
+      setSignInError('Invalid email or password. Please try again.')
       return
+    }
+
+    try {
+      const token = data.session?.access_token
+      if (token) {
+        const roleRes = await fetch('/api/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (roleRes.ok) {
+          const profile = await roleRes.json()
+          navigate(profile.role === 'admin' ? '/admin' : '/dashboard')
+          return
+        }
+      }
+    } catch {
+      // Fall through to the normal dashboard if role lookup is temporarily unavailable.
     }
 
     navigate('/dashboard')
@@ -335,11 +401,11 @@ export default function Signup() {
       return
     }
 
-    setSignInLoading(true)
+    setPasswordResetLoading(true)
     const { error } = await supabase.auth.resetPasswordForEmail(signInEmail.trim(), {
       redirectTo: `${window.location.origin}/signup`,
     })
-    setSignInLoading(false)
+    setPasswordResetLoading(false)
 
     if (error) {
       setSignInError('Unable to send a reset link. Please try again.')
@@ -351,10 +417,27 @@ export default function Signup() {
 
   const handleGoogleSignIn = async () => {
     // TODO: attach saved referral code to OAuth signup during the auth callback/profile creation flow.
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/dashboard` },
-    })
+    setSignUpError('')
+    setSignInError('')
+    setSignInNotice('')
+    setGoogleLoading(true)
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/dashboard` },
+      })
+
+      if (error) {
+        if (authMode === 'signin') setSignInError('Google sign in could not be started. Please try again.')
+        else setSignUpError('Google signup could not be started. Please try again.')
+        setGoogleLoading(false)
+      }
+    } catch {
+      if (authMode === 'signin') setSignInError('Google sign in could not be started. Please try again.')
+      else setSignUpError('Google signup could not be started. Please try again.')
+      setGoogleLoading(false)
+    }
   }
 
   const inputCls = 'h-11 w-full rounded-xl border border-[#eadde2] bg-white/[0.82] px-3.5 text-sm font-medium text-[#151119] outline-none transition-all placeholder:text-[#a89ba4] focus:border-[#6d2948]/35 focus:bg-white focus:ring-4 focus:ring-[#6d2948]/[0.08]'
@@ -377,182 +460,196 @@ export default function Signup() {
             <DMGenieLogo />
 
             <div className="mt-7 rounded-[1.65rem] border border-white/80 bg-white/[0.78] p-5 shadow-[0_18px_55px_rgba(76,45,59,0.075)] backdrop-blur-xl sm:p-6">
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#eadde2] bg-white/[0.74] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#6d2948]">
-                <Check className="h-3.5 w-3.5 stroke-[3] text-emerald-600" />
-                Secure signup
+              <div className="mb-5 grid grid-cols-2 rounded-2xl border border-[#eadde2] bg-white/[0.62] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+                {(['signup', 'signin'] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => switchAuthMode(mode)}
+                    className={`h-10 rounded-xl text-sm font-black transition-all duration-200 ${
+                      authMode === mode
+                        ? 'bg-[#151119] text-white shadow-[0_8px_20px_rgba(21,17,25,0.13)]'
+                        : 'text-[#756b73] hover:bg-white/70 hover:text-[#151119]'
+                    }`}
+                  >
+                    {mode === 'signup' ? 'Sign Up' : 'Sign In'}
+                  </button>
+                ))}
               </div>
 
-              <h1 className="text-[1.65rem] font-black tracking-[-0.02em] text-[#151119] sm:text-3xl">Get Started Free</h1>
-              <p className="mt-2.5 text-sm font-medium leading-6 text-[#6f6570]">
-                Create your account and start automating Instagram DMs in minutes.
-              </p>
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#eadde2] bg-white/[0.74] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#6d2948]">
+                {authMode === 'signin' ? <Shield className="h-3.5 w-3.5 text-emerald-600" /> : <Check className="h-3.5 w-3.5 stroke-[3] text-emerald-600" />}
+                {authMode === 'signin' ? 'Secure sign in' : 'Secure signup'}
+              </div>
 
-              {signUpSuccess ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-6 text-center"
-                >
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
-                    <Send className="h-6 w-6" />
-                  </div>
-                  <h3 className="text-lg font-black text-[#151119]">Check your inbox</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[#665d66]">
-                    We sent a confirmation email to <strong>{email}</strong>. Click the link to activate your account.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setShowSignIn(true)}
-                    className="mt-5 inline-flex items-center gap-1 text-sm font-black text-[#6d2948] hover:underline"
+              <AnimatePresence mode="wait">
+                {authMode === 'signup' ? (
+                  <motion.div
+                    key="signup"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.18 }}
                   >
-                    Already confirmed? Sign in <ArrowRight className="h-4 w-4" />
-                  </button>
-                </motion.div>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={handleGoogleSignIn}
-                    className="mt-6 flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-[#eadde2] bg-white/[0.82] px-4 text-sm font-black text-[#151119] transition-all duration-200 hover:-translate-y-px hover:bg-white hover:shadow-[0_10px_24px_rgba(76,45,59,0.07)]"
+                    <h1 className="text-[1.65rem] font-black tracking-[-0.02em] text-[#151119] sm:text-3xl">Get Started Free</h1>
+                    <p className="mt-2.5 text-sm font-medium leading-6 text-[#6f6570]">
+                      Create your account and start automating Instagram DMs in minutes.
+                    </p>
+
+                    {signUpSuccess ? (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-6 text-center"
+                      >
+                        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
+                          <Send className="h-6 w-6" />
+                        </div>
+                        <h3 className="text-lg font-black text-[#151119]">Check your inbox</h3>
+                        <p className="mt-2 text-sm leading-relaxed text-[#665d66]">
+                          We sent a confirmation email to <strong>{email}</strong>. Click the link to activate your account.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => switchAuthMode('signin')}
+                          className="mt-5 inline-flex items-center gap-1 text-sm font-black text-[#6d2948] hover:underline"
+                        >
+                          Already confirmed? Sign in <ArrowRight className="h-4 w-4" />
+                        </button>
+                      </motion.div>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={handleGoogleSignIn}
+                          disabled={googleLoading || signUpLoading}
+                          className="mt-6 flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-[#eadde2] bg-white/[0.82] px-4 text-sm font-black text-[#151119] transition-all duration-200 hover:-translate-y-px hover:bg-white hover:shadow-[0_10px_24px_rgba(76,45,59,0.07)] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
+                          {googleLoading ? 'Connecting...' : 'Continue with Google'}
+                        </button>
+
+                        <div className="my-5 flex items-center gap-4">
+                          <div className="h-px flex-1 bg-[#eadde2]" />
+                          <span className="text-[11px] font-black uppercase tracking-[0.14em] text-[#a89ba4]">or</span>
+                          <div className="h-px flex-1 bg-[#eadde2]" />
+                        </div>
+
+                        {signUpError && (
+                          <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-center text-sm font-semibold text-red-600">
+                            {signUpError}
+                          </div>
+                        )}
+
+                        <form onSubmit={handleSignUp} className="space-y-3.5" noValidate>
+                          <input type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} autoComplete="email" />
+                          <input type="password" placeholder="Password (min. 6 characters)" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} autoComplete="new-password" />
+
+                          <p className="text-center text-[11px] leading-relaxed text-[#817782]">
+                            By joining you agree to our{' '}
+                            <Link to="/terms" className="font-bold text-[#6d2948] hover:underline">Terms</Link>
+                            {' '}&amp;{' '}
+                            <Link to="/privacy" className="font-bold text-[#6d2948] hover:underline">Privacy Policy</Link>
+                          </p>
+
+                          <button
+                            type="submit"
+                            disabled={signUpLoading || googleLoading}
+                            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#73304f] to-[#5a203b] text-sm font-black text-white shadow-[0_12px_28px_rgba(109,41,72,0.18),inset_0_1px_0_rgba(255,255,255,0.18)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_16px_34px_rgba(109,41,72,0.22),inset_0_1px_0_rgba(255,255,255,0.2)] disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {signUpLoading ? (
+                              <><Loader2 className="h-5 w-5 animate-spin" /> Creating account...</>
+                            ) : (
+                              'Create Free Account'
+                            )}
+                          </button>
+                          <p className="text-center text-[11px] font-semibold text-[#8a8088]">No credit card required &bull; Cancel anytime</p>
+                          <SignupTrustBadges />
+                        </form>
+
+                        <p className="mt-5 text-center text-sm font-medium text-[#756b73]">
+                          Already have an account?{' '}
+                          <button type="button" onClick={() => switchAuthMode('signin')} className="border-none bg-transparent font-black text-[#6d2948] hover:underline">
+                            Sign in
+                          </button>
+                        </p>
+                        <CreatorProof />
+                      </>
+                    )}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="signin"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.18 }}
                   >
-                    <GoogleIcon />
-                    Continue with Google
-                  </button>
-
-                  <div className="my-5 flex items-center gap-4">
-                    <div className="h-px flex-1 bg-[#eadde2]" />
-                    <span className="text-[11px] font-black uppercase tracking-[0.14em] text-[#a89ba4]">or</span>
-                    <div className="h-px flex-1 bg-[#eadde2]" />
-                  </div>
-
-                  {signUpError && (
-                    <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-center text-sm font-semibold text-red-600">
-                      {signUpError}
-                    </div>
-                  )}
-
-                  <form onSubmit={handleSignUp} className="space-y-3.5">
-                    <input type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} required />
-                    <input type="password" placeholder="Password (min. 6 characters)" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} minLength={6} required />
-
-                    <p className="text-center text-[11px] leading-relaxed text-[#817782]">
-                      By joining you agree to our{' '}
-                      <Link to="/terms" className="font-bold text-[#6d2948] hover:underline">Terms</Link>
-                      {' '}&amp;{' '}
-                      <Link to="/privacy" className="font-bold text-[#6d2948] hover:underline">Privacy Policy</Link>
+                    <h1 className="text-[1.65rem] font-black tracking-[-0.02em] text-[#151119] sm:text-3xl">Welcome Back</h1>
+                    <p className="mt-2.5 text-sm font-medium leading-6 text-[#6f6570]">
+                      Sign in to continue to your DMGenie dashboard.
                     </p>
 
                     <button
-                      type="submit"
-                      disabled={signUpLoading}
-                      className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#73304f] to-[#5a203b] text-sm font-black text-white shadow-[0_12px_28px_rgba(109,41,72,0.18),inset_0_1px_0_rgba(255,255,255,0.18)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_16px_34px_rgba(109,41,72,0.22),inset_0_1px_0_rgba(255,255,255,0.2)] disabled:cursor-not-allowed disabled:opacity-60"
+                      type="button"
+                      onClick={handleGoogleSignIn}
+                      disabled={googleLoading || signInLoading || passwordResetLoading}
+                      className="mt-6 flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-[#eadde2] bg-white/[0.82] px-4 text-sm font-black text-[#151119] transition-all duration-200 hover:-translate-y-px hover:bg-white hover:shadow-[0_10px_24px_rgba(76,45,59,0.07)] disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {signUpLoading ? (
-                        <><Loader2 className="h-5 w-5 animate-spin" /> Creating Account...</>
-                      ) : (
-                        'Create Free Account'
-                      )}
+                      {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
+                      {googleLoading ? 'Connecting...' : 'Continue with Google'}
                     </button>
-                    <p className="text-center text-[11px] font-semibold text-[#8a8088]">No credit card required &bull; Cancel anytime</p>
-                    <SignupTrustBadges />
-                  </form>
 
-                  <p className="mt-5 text-center text-sm font-medium text-[#756b73]">
-                    Already have an account?{' '}
-                    <button type="button" onClick={() => setShowSignIn(true)} className="border-none bg-transparent font-black text-[#6d2948] hover:underline">
-                      Sign in
-                    </button>
-                  </p>
-                  <CreatorProof />
-                </>
-              )}
+                    <div className="my-5 flex items-center gap-4">
+                      <div className="h-px flex-1 bg-[#eadde2]" />
+                      <span className="text-[11px] font-black uppercase tracking-[0.14em] text-[#a89ba4]">or</span>
+                      <div className="h-px flex-1 bg-[#eadde2]" />
+                    </div>
+
+                    {signInError && (
+                      <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-center text-sm font-semibold text-red-600">{signInError}</div>
+                    )}
+                    {signInNotice && (
+                      <div className="mb-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-center text-sm font-semibold text-emerald-700">{signInNotice}</div>
+                    )}
+
+                    <form onSubmit={handleSignIn} className="space-y-3.5" noValidate>
+                      <input type="email" placeholder="Email Address" value={signInEmail} onChange={(e) => setSignInEmail(e.target.value)} className={inputCls} autoComplete="email" />
+                      <input type="password" placeholder="Password" value={signInPassword} onChange={(e) => setSignInPassword(e.target.value)} className={inputCls} autoComplete="current-password" />
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={handlePasswordReset}
+                          disabled={signInLoading || googleLoading || passwordResetLoading}
+                          className="text-sm font-bold text-[#6d2948] transition-colors hover:text-[#4f1c34] hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {passwordResetLoading ? 'Sending reset link...' : 'Forgot password?'}
+                        </button>
+                      </div>
+                      <button
+                        type="submit"
+                        disabled={signInLoading || googleLoading || passwordResetLoading}
+                        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#73304f] to-[#5a203b] text-sm font-black text-white shadow-[0_12px_28px_rgba(109,41,72,0.18),inset_0_1px_0_rgba(255,255,255,0.18)] transition-all duration-200 hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {signInLoading ? <><Loader2 className="h-5 w-5 animate-spin" /> Signing in...</> : 'Sign In'}
+                      </button>
+                    </form>
+
+                    <p className="mt-5 text-center text-sm font-medium text-[#756b73]">
+                      Don&apos;t have an account?{' '}
+                      <button type="button" onClick={() => switchAuthMode('signup')} className="border-none bg-transparent font-black text-[#6d2948] hover:underline">
+                        Create account
+                      </button>
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
         </div>
 
         <AuthShowcase />
       </div>
-
-      <AnimatePresence>
-        {showSignIn && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#151119]/45 p-4 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 18 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 18 }}
-              transition={{ duration: 0.2 }}
-              className="relative w-full max-w-[25.5rem] rounded-[1.65rem] border border-white/85 bg-[#fffafa]/95 p-6 shadow-[0_24px_70px_rgba(21,17,25,0.20)] backdrop-blur-xl"
-            >
-              <button
-                type="button"
-                onClick={() => { setShowSignIn(false); setSignInError(''); setSignInNotice('') }}
-                className="absolute right-5 top-5 rounded-full p-2 text-[#756b73] transition-colors hover:bg-[#f7edf1] hover:text-[#151119]"
-                aria-label="Close sign in"
-              >
-                <X className="h-5 w-5" />
-              </button>
-
-              <div className="mb-6">
-                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#6d2948]/10 text-[#6d2948]">
-                  <Shield className="h-5 w-5" />
-                </div>
-                <h2 className="text-2xl font-black tracking-[-0.02em] text-[#151119]">Welcome Back</h2>
-                <p className="mt-2 text-sm font-medium text-[#665d66]">Sign in to your DMGenie account</p>
-              </div>
-
-              {signInError && (
-                <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-center text-sm font-semibold text-red-600">{signInError}</div>
-              )}
-              {signInNotice && (
-                <div className="mb-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-center text-sm font-semibold text-emerald-700">{signInNotice}</div>
-              )}
-
-              <form onSubmit={handleSignIn} className="space-y-3.5">
-                <div>
-                  <label className="mb-1.5 block text-xs font-black uppercase tracking-[0.08em] text-[#6f6570]">Email</label>
-                  <input type="email" value={signInEmail} onChange={(e) => setSignInEmail(e.target.value)} className={inputCls} required autoComplete="email" />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-black uppercase tracking-[0.08em] text-[#6f6570]">Password</label>
-                  <input type="password" value={signInPassword} onChange={(e) => setSignInPassword(e.target.value)} className={inputCls} required autoComplete="current-password" />
-                </div>
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    onClick={handlePasswordReset}
-                    disabled={signInLoading}
-                    className="text-sm font-bold text-[#6d2948] transition-colors hover:text-[#4f1c34] hover:underline disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-                <button
-                  type="submit"
-                  disabled={signInLoading}
-                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#73304f] to-[#5a203b] text-sm font-black text-white shadow-[0_12px_28px_rgba(109,41,72,0.18),inset_0_1px_0_rgba(255,255,255,0.18)] transition-all duration-200 hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {signInLoading ? <><Loader2 className="h-5 w-5 animate-spin" /> Signing in...</> : 'Sign In'}
-                </button>
-              </form>
-
-              <div className="mt-6">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#eadde2]" /></div>
-                  <div className="relative flex justify-center text-xs"><span className="bg-[#fffafa] px-2 font-bold uppercase tracking-[0.12em] text-[#9a8d96]">Or continue with</span></div>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleGoogleSignIn}
-                  className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#eadde2] bg-white/90 text-sm font-black text-[#151119] transition-all hover:-translate-y-px hover:bg-white"
-                >
-                  <GoogleIcon />
-                  Google
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   )
 }

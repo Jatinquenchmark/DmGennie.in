@@ -82,15 +82,21 @@ interface Trigger {
     keyword: string;
     replyMessage: string;
     enabled: boolean;
+    dmsSent?: number;
+    triggerType?: string;
+    status?: string;
+    modifiedAt?: string | null;
 }
 
 interface Stats {
-    followers: number;
+    followers: number | null;
     totalDmsSent: number;
     totalLinksSent: number;
     totalPublicReplies: number;
     dmsSentToday: number;
     failedDms: number;
+    failedDmsThisMonth?: number;
+    leadsCollected: number;
 }
 
 interface LogEntry {
@@ -100,6 +106,7 @@ interface LogEntry {
     time: string;
     status: string;
     trigger: string;
+    createdAt?: string | null;
 }
 
 interface SettingsData {
@@ -114,6 +121,22 @@ interface SettingsData {
     successPublicReply: string;
     replyDelay: number;
     timezone: string;
+}
+
+interface UsageData {
+    dmsThisMonth: number;
+    dmLimit: number;
+    contactsThisMonth: number;
+    contactLimit: number;
+    planName: string;
+}
+
+interface ProOfferData {
+    amountInr: number;
+    renewalMonthlyPriceInr: number;
+    eligible: boolean;
+    disclaimer: string;
+    reason: string;
 }
 
 type Tab = "home" | "automations" | "contacts" | "inbox" | "analytics" | "referral" | "settings" | "help";
@@ -175,12 +198,30 @@ const goldCtaCls =
 const goldCrownCls = "fill-[#8A5D17] text-[#6F4B12]";
 
 const zeroStats: Stats = {
-    followers: 0,
+    followers: null,
     totalDmsSent: 0,
     totalLinksSent: 0,
     totalPublicReplies: 0,
     dmsSentToday: 0,
     failedDms: 0,
+    failedDmsThisMonth: 0,
+    leadsCollected: 0,
+};
+
+const zeroUsage: UsageData = {
+    dmsThisMonth: 0,
+    dmLimit: 1000,
+    contactsThisMonth: 0,
+    contactLimit: 1000,
+    planName: "Starter",
+};
+
+const defaultProOffer: ProOfferData = {
+    amountInr: 1,
+    renewalMonthlyPriceInr: 499,
+    eligible: false,
+    disclaimer: "₹1 for the first month. Renews at the regular Pro price unless cancelled.",
+    reason: "Checking offer eligibility",
 };
 
 const previewStats: Stats = {
@@ -190,6 +231,8 @@ const previewStats: Stats = {
     totalPublicReplies: 1184,
     dmsSentToday: 148,
     failedDms: 23,
+    failedDmsThisMonth: 23,
+    leadsCollected: 2916,
 };
 
 const previewTriggers: Trigger[] = [
@@ -375,6 +418,9 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState(false);
     const [stats, setStats] = useState<Stats | null>(null);
+    const [usage, setUsage] = useState<UsageData>(zeroUsage);
+    const [dashboardDeliveryRate, setDashboardDeliveryRate] = useState<number | null>(null);
+    const [proOffer, setProOffer] = useState<ProOfferData>(defaultProOffer);
     const [triggers, setTriggers] = useState<Trigger[]>([]);
     const [activity, setActivity] = useState<LogEntry[]>([]);
     const [settings, setSettings] = useState<SettingsData | null>(null);
@@ -415,6 +461,15 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         setLoadError(false);
         if (preview) {
             setStats(previewStats);
+            setUsage({
+                dmsThisMonth: 5,
+                dmLimit: 999999,
+                contactsThisMonth: 1,
+                contactLimit: 1000,
+                planName: "Starter",
+            });
+            setDashboardDeliveryRate(98);
+            setProOffer(defaultProOffer);
             setTriggers(previewTriggers);
             setActivity(previewActivity);
             setBotEnabled(previewSettings.botEnabled);
@@ -425,17 +480,30 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         }
 
         try {
-            const [dashRes, settingsRes] = await Promise.all([
+            const [dashRes, settingsRes, pricingRes] = await Promise.all([
                 authFetch("/api/dashboard"),
                 authFetch("/api/settings"),
+                authFetch("/api/billing/pricing").catch(() => null),
             ]);
             if (!dashRes.ok || !settingsRes.ok) throw new Error("Dashboard data request failed");
 
-            const [dashData, settingsData] = await Promise.all([
+            const [dashData, settingsData, pricingData] = await Promise.all([
                 dashRes.json(),
                 settingsRes.json(),
+                pricingRes?.ok ? pricingRes.json() : Promise.resolve(null),
             ]);
-            setStats(dashData.stats);
+            setStats({ ...zeroStats, ...(dashData.stats || {}) });
+            setUsage({ ...zeroUsage, ...(dashData.usage || {}) });
+            setDashboardDeliveryRate(typeof dashData.deliveryRate === "number" ? dashData.deliveryRate : null);
+            if (pricingData?.plans?.pro) {
+                setProOffer({
+                    amountInr: safeNumber(pricingData.proIntroOffer?.amountInr || pricingData.plans.pro.introOffer?.amountInr || 1),
+                    renewalMonthlyPriceInr: safeNumber(pricingData.plans.pro.monthlyPriceInr || 499),
+                    eligible: Boolean(pricingData.proIntroOffer?.eligible),
+                    disclaimer: pricingData.proIntroOffer?.disclaimer || `₹1 for the first month. Renews at ₹${pricingData.plans.pro.monthlyPriceInr}/month unless cancelled.`,
+                    reason: pricingData.proIntroOffer?.reason || "",
+                });
+            }
             setTriggers(dashData.triggers || []);
             setActivity(dashData.activityLog || []);
             setBotEnabled(Boolean(dashData.botEnabled));
@@ -466,31 +534,34 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         }
     }, [fetchAll, preview]);
 
-    const displayStats = stats ?? zeroStats;
+    const displayStats = { ...zeroStats, ...(stats || {}) };
+    const ownerName = preview
+        ? "Prince"
+        : String(session?.user?.user_metadata?.full_name || session?.user?.email?.split("@")[0] || "Creator").split(" ")[0] || "Creator";
     const activeTriggers = triggers.filter((t) => t.enabled).length;
-    const leadsCollected = displayStats.totalLinksSent || activity.filter((a) => a.status === "sent").length;
-    const deliveryRate = displayStats.totalDmsSent > 0
-        ? Math.max(0, Math.round(((displayStats.totalDmsSent - displayStats.failedDms) / displayStats.totalDmsSent) * 100))
-        : 98;
+    const leadsCollected = safeNumber(displayStats.leadsCollected);
+    const attemptedMessages = safeNumber(displayStats.totalDmsSent) + safeNumber(displayStats.failedDms);
+    const deliveryRate = dashboardDeliveryRate ?? (attemptedMessages > 0
+        ? Math.max(0, Math.round((safeNumber(displayStats.totalDmsSent) / attemptedMessages) * 100))
+        : null);
 
     const contacts = useMemo<ContactRecord[]>(() => {
-        const base = activity.length ? activity : previewActivity;
+        const base = preview ? (activity.length ? activity : previewActivity) : activity;
         return base.map((item, index) => {
             const rawUser = item.user || "";
             const username = rawUser || "Unknown Instagram user";
-            const emailHandle = rawUser.replace("@", "").replace(/[._]/g, "");
             return ({
             id: item.id,
             name: rawUser
                 ? rawUser.replace("@", "").replace(/[._]/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase())
                 : "Unknown Instagram user",
             username,
-            email: index % 2 === 0 && emailHandle ? `${emailHandle}@gmail.com` : "No email captured",
+            email: "No email captured",
             source: item.trigger ? `Auto DM for "${item.trigger}"` : "Unknown source",
-            sourceType: index === 1 ? "Direct DM" : index === 2 ? "Story reply" : index === 3 ? "Live comment" : "Comment keyword",
-            relationship: (["Follows You", "Mutual", "You Follow", "Unknown"] as ContactRecord["relationship"][])[index % 4],
-            joined: index === 0 ? "Today" : index === 1 ? "Today" : `${index + 2} days ago`,
-            joinedDate: new Date(Date.now() - index * 86400000).toISOString(),
+            sourceType: "Comment keyword",
+            relationship: "Unknown",
+            joined: item.time || "Unknown",
+            joinedDate: item.createdAt || "",
             lastInteraction: item.status === "sent" ? "DM sent" : "Follow-up needed",
             lastInteractionLabel: item.time || "Unknown",
             automation: item.trigger ? `Auto DM for "${item.trigger}"` : "Direct DM",
@@ -509,7 +580,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             ],
         });
         });
-    }, [activity]);
+    }, [activity, preview]);
 
     const filteredTriggers = triggers.filter((trigger) => {
         const matchesSearch = `${trigger.keyword} ${trigger.replyMessage}`.toLowerCase().includes(automationSearch.toLowerCase());
@@ -525,6 +596,27 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             showDashboardToast("Something went wrong. Please try again.");
         }
     };
+
+    const startProCheckout = useCallback(async () => {
+        if (preview) {
+            navigate("/pricing");
+            return;
+        }
+        try {
+            const res = await authFetch("/api/billing/checkout", {
+                method: "POST",
+                body: JSON.stringify({ plan: "pro", billingCycle: "monthly" }),
+            });
+            const data = await res.json();
+            if (res.ok && data.checkoutUrl) {
+                window.location.href = data.checkoutUrl;
+                return;
+            }
+            showDashboardToast(data.message || "Checkout is not ready yet. Please contact support.");
+        } catch {
+            showDashboardToast("Unable to start checkout. Please try again.");
+        }
+    }, [authFetch, navigate, preview, showDashboardToast]);
 
     const toggleBot = async () => {
         const next = !botEnabled;
@@ -733,9 +825,12 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                     activeTab={tab}
                     connected={connected}
                     stats={displayStats}
+                    usage={usage}
+                    proOffer={proOffer}
                     settings={settings}
                     onNavigate={setTab}
                     onLogout={handleLogout}
+                    onUpgrade={startProCheckout}
                 />
 
                 <main className="mt-3 min-w-0 overflow-x-hidden lg:ml-[276px] lg:mt-0 xl:ml-[280px]">
@@ -755,11 +850,14 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         activeTriggers={activeTriggers}
                                         leadsCollected={leadsCollected}
                                         deliveryRate={deliveryRate}
+                                        ownerName={ownerName}
+                                        proOffer={proOffer}
                                         activity={activity}
                                         triggers={triggers}
                                         onNavigate={setTab}
                                         onToggleBot={toggleBot}
                                         botEnabled={botEnabled}
+                                        onUpgrade={startProCheckout}
                                     />
                                 )}
                                 {tab === "automations" && (
@@ -780,6 +878,8 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         onToggle={toggleTrigger}
                                         onDelete={deleteTrigger}
                                         onNavigate={setTab}
+                                        onUpgrade={startProCheckout}
+                                        proOffer={proOffer}
                                     />
                                 )}
                                 {tab === "contacts" && (
@@ -810,6 +910,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         ownerEmail={preview ? "prince@dmgennie.in" : session?.user?.email || "No email available"}
                                         ownerName={preview ? "Prince Saini" : String(session?.user?.user_metadata?.full_name || session?.user?.email?.split("@")[0] || "Creator")}
                                         stats={displayStats}
+                                        usage={usage}
                                         onSettingsTab={setSettingsTab}
                                         onSettings={setSettings}
                                         onConnect={connectInstagram}
@@ -927,16 +1028,22 @@ function Sidebar({
     activeTab,
     connected,
     stats,
+    usage,
+    proOffer,
     settings,
     onNavigate,
     onLogout,
+    onUpgrade,
 }: {
     activeTab: Tab;
     connected: boolean;
     stats: Stats;
+    usage: UsageData;
+    proOffer: ProOfferData;
     settings: SettingsData | null;
     onNavigate: (tab: Tab) => void;
     onLogout: () => void;
+    onUpgrade: () => void;
 }) {
     const handle = settings?.instagramHandle || "@dmgennie.in";
 
@@ -1001,7 +1108,7 @@ function Sidebar({
                 </nav>
 
                 <div className="mt-2 space-y-1.5">
-                    <SidebarPlanCompact />
+                    <SidebarPlanCompact usage={usage} proOffer={proOffer} onUpgrade={onUpgrade} />
                     <button onClick={onLogout} className="flex h-9 w-full items-center justify-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-4 text-[13px] font-black text-[#475569] transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600">
                         <LogOut className="h-4 w-4" /> Logout
                     </button>
@@ -1014,29 +1121,36 @@ function Sidebar({
     );
 }
 
-function SidebarPlanCompact() {
+function SidebarPlanCompact({ usage, proOffer, onUpgrade }: { usage: UsageData; proOffer: ProOfferData; onUpgrade: () => void }) {
+    const dmsProgress = usagePercent(usage.dmsThisMonth, usage.dmLimit);
+    const contactsProgress = usagePercent(usage.contactsThisMonth, usage.contactLimit);
+
     return (
         <div className="rounded-[16px] border border-[#E5E7EB] bg-[#F8FAFC] p-2.5">
             <div className="mb-2 flex items-center justify-between gap-2">
                 <div>
-                    <p className="text-[12px] font-black leading-4 text-[#0F172A]">Starter plan</p>
+                    <p className="text-[12px] font-black leading-4 text-[#0F172A]">{usage.planName || "Starter"} plan</p>
                     <p className="text-[10px] font-bold leading-3 text-[#64748B]">Plan & usage</p>
                 </div>
-                <span className="inline-flex h-6 items-center rounded-full bg-white px-2 text-[10px] font-black text-[#64748B] ring-1 ring-[#E5E7EB]">Starter</span>
+                <span className="inline-flex h-6 items-center rounded-full bg-white px-2 text-[10px] font-black text-[#64748B] ring-1 ring-[#E5E7EB]">{usage.planName || "Starter"}</span>
             </div>
 
             <div className="space-y-1.5">
-                <CompactUsageLine icon={<Send className="h-3.5 w-3.5" />} label="DMs" value="5 / 999,999" progress={4} />
-                <CompactUsageLine icon={<User className="h-3.5 w-3.5" />} label="Contacts" value="1 / 1,000" progress={12} />
+                <CompactUsageLine icon={<Send className="h-3.5 w-3.5" />} label="DMs" value={formatUsage(usage.dmsThisMonth, usage.dmLimit)} progress={dmsProgress} />
+                <CompactUsageLine icon={<User className="h-3.5 w-3.5" />} label="Contacts" value={formatUsage(usage.contactsThisMonth, usage.contactLimit)} progress={contactsProgress} />
             </div>
 
-            <Link
-                to="/pricing"
+            <p className="mt-2 text-[10.5px] font-bold leading-4 text-[#64748B]">
+                <span className="font-black text-[#0F172A]">Unlock Pro.</span> {proOffer.eligible ? `First month ₹${proOffer.amountInr}. ` : ""}More DMs, contacts & automations.
+            </p>
+
+            <button
+                onClick={onUpgrade}
                 className={cx("mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-full px-3 text-[12px] font-black", goldCtaCls)}
             >
                 <Crown className={cx("h-3.5 w-3.5", goldCrownCls)} />
-                Upgrade now
-            </Link>
+                {proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade now"}
+            </button>
         </div>
     );
 }
@@ -1058,19 +1172,22 @@ function CompactUsageLine({ icon, label, value, progress }: { icon: ReactNode; l
     );
 }
 
-function PlanUsageCard() {
+function PlanUsageCard({ usage = zeroUsage, proOffer = defaultProOffer, onUpgrade }: { usage?: UsageData; proOffer?: ProOfferData; onUpgrade?: () => void }) {
+    const dmsProgress = usagePercent(usage.dmsThisMonth, usage.dmLimit);
+    const contactsProgress = usagePercent(usage.contactsThisMonth, usage.contactLimit);
+
     return (
         <div className="rounded-[18px] border border-[#E5E7EB] bg-white p-3 shadow-[0_10px_26px_rgba(15,23,42,0.04)]">
             <div className="mb-3 flex items-start justify-between gap-3">
                 <div>
                     <p className="text-[14px] font-black leading-5 text-[#0F172A]">Plan & Usage</p>
-                    <p className="text-[11px] font-bold leading-4 text-[#64748B]">Starter workspace</p>
+                    <p className="text-[11px] font-bold leading-4 text-[#64748B]">{usage.planName || "Starter"} workspace</p>
                 </div>
-                <span className="inline-flex h-7 items-center rounded-full bg-[#F1F5F9] px-3 text-[12px] font-black text-slate-600">Starter</span>
+                <span className="inline-flex h-7 items-center rounded-full bg-[#F1F5F9] px-3 text-[12px] font-black text-slate-600">{usage.planName || "Starter"}</span>
             </div>
 
-            <UsageLine icon={<Send className="h-4 w-4" />} label="DMs sent" value="5 / 999,999" progress={4} />
-            <UsageLine icon={<User className="h-4 w-4" />} label="Contacts" value="1 / 1,000" progress={12} />
+            <UsageLine icon={<Send className="h-4 w-4" />} label="DMs sent" value={formatUsage(usage.dmsThisMonth, usage.dmLimit)} progress={dmsProgress} />
+            <UsageLine icon={<User className="h-4 w-4" />} label="Contacts" value={formatUsage(usage.contactsThisMonth, usage.contactLimit)} progress={contactsProgress} />
 
             <div className="mt-3 rounded-[16px] border border-[#FDE68A] bg-[#FFF8E1] p-2.5">
                 <div className="mb-2 flex items-start gap-2">
@@ -1078,17 +1195,17 @@ function PlanUsageCard() {
                         <Crown className="h-4 w-4 fill-[#F59E0B] text-[#F59E0B]" />
                     </span>
                     <p className="text-[11px] font-bold leading-4 text-[#64748B]">
-                        <span className="block text-[13px] font-black leading-4 text-[#0F172A]">Unlock more</span>
-                        Unlock more DMs, contacts & automations.
+                        <span className="block text-[13px] font-black leading-4 text-[#0F172A]">Unlock Pro</span>
+                        {proOffer.eligible ? `Get your first month for ₹${proOffer.amountInr}. ` : ""}Unlock more DMs, contacts & automations.
                     </p>
                 </div>
-                <Link
-                    to="/pricing"
+                <button
+                    onClick={onUpgrade}
                     className={cx("flex h-9 w-full items-center justify-center gap-2 rounded-full px-3 text-[13px] font-black", goldCtaCls)}
                 >
                     <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                    Upgrade now
-                </Link>
+                    {proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade now"}
+                </button>
             </div>
         </div>
     );
@@ -1117,22 +1234,28 @@ function HomePage({
     activeTriggers,
     leadsCollected,
     deliveryRate,
+    ownerName,
+    proOffer,
     activity,
     triggers,
     botEnabled,
     onNavigate,
     onToggleBot,
+    onUpgrade,
 }: {
     connected: boolean;
     stats: Stats;
     activeTriggers: number;
     leadsCollected: number;
-    deliveryRate: number;
+    deliveryRate: number | null;
+    ownerName: string;
+    proOffer: ProOfferData;
     activity: LogEntry[];
     triggers: Trigger[];
     botEnabled: boolean;
     onNavigate: (tab: Tab) => void;
     onToggleBot: () => void;
+    onUpgrade: () => void;
 }) {
     const actions = [
         { title: "Auto DM from Comments", copy: "Send DMs to users who comment on your posts.", icon: <MessageCircle className="h-6 w-6" />, cta: "Create workflow", badge: "Popular", intent: "Best for links", setup: "2 min setup" },
@@ -1152,14 +1275,14 @@ function HomePage({
                             <StatusPill icon={<Instagram className="h-3.5 w-3.5" />} label={connected ? "Instagram connected" : "Instagram not connected"} tone={connected ? "green" : "red"} />
                             <StatusPill icon={<ShieldCheck className="h-3.5 w-3.5" />} label="Meta API active" tone="indigo" title="Connected through official Meta APIs and secure OAuth." />
                         </div>
-                        <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[30px]">Welcome back, Prince 👋</h1>
+                        <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[30px]">Welcome back, {ownerName} 👋</h1>
                         <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-[#64748B]">
                             Launch flows, monitor delivery, and turn Instagram comments into leads from one calm workspace.
                         </p>
                         <div className="mt-4 grid max-w-2xl grid-cols-1 gap-2 sm:grid-cols-3">
                             <HomeHeroStat label="DMs today" value={stats.dmsSentToday.toLocaleString()} tone="purple" />
                             <HomeHeroStat label="Live flows" value={activeTriggers.toLocaleString()} tone="green" />
-                            <HomeHeroStat label="Delivery" value={`${deliveryRate}%`} tone="blue" />
+                            <HomeHeroStat label="Delivery" value={formatPercent(deliveryRate)} tone="blue" />
                         </div>
                     </div>
 
@@ -1185,7 +1308,7 @@ function HomePage({
                 </div>
             </section>
 
-            <HomeUpgradeBanner />
+            <HomeUpgradeBanner proOffer={proOffer} onUpgrade={onUpgrade} />
 
             <StartHereStrip connected={connected} activeTriggers={activeTriggers} onNavigate={onNavigate} />
 
@@ -1228,7 +1351,7 @@ function SectionHeading({ title, subtitle, action }: { title: string; subtitle?:
     );
 }
 
-function HomeUpgradeBanner() {
+function HomeUpgradeBanner({ proOffer, onUpgrade }: { proOffer: ProOfferData; onUpgrade: () => void }) {
     return (
         <section className="overflow-hidden rounded-[20px] border border-indigo-200/70 bg-[linear-gradient(135deg,#F8F7FF_0%,#EEF0FF_48%,#FFF8FE_100%)] p-3.5 shadow-[0_12px_34px_rgba(91,77,255,0.08)]">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1239,17 +1362,17 @@ function HomeUpgradeBanner() {
                     <div>
                         <h2 className="text-base font-black tracking-tight text-[#0F172A]">Unlock Pro Power</h2>
                         <p className="mt-0.5 text-sm font-semibold leading-5 text-[#64748B]">
-                        Get unlimited automations, contacts & advanced analytics.
+                        {proOffer.eligible ? `First month only. Then ₹${proOffer.renewalMonthlyPriceInr}/month.` : "Get unlimited automations, contacts & advanced analytics."}
                         </p>
                     </div>
                 </div>
-                <Link
-                    to="/pricing"
+                <button
+                    onClick={onUpgrade}
                     className={cx("inline-flex items-center justify-center gap-2 rounded-[0.9rem] px-4 py-2.5 text-sm font-black", goldCtaCls)}
                 >
                     <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                    Upgrade to Pro
-                </Link>
+                    {proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
+                </button>
             </div>
         </section>
     );
@@ -1366,14 +1489,14 @@ function StartHereStrip({ connected, activeTriggers, onNavigate }: { connected: 
     );
 }
 
-function MetricGrid({ stats, activeTriggers, leadsCollected, deliveryRate }: { stats: Stats; activeTriggers: number; leadsCollected: number; deliveryRate: number }) {
+function MetricGrid({ stats, activeTriggers, leadsCollected, deliveryRate }: { stats: Stats; activeTriggers: number; leadsCollected: number; deliveryRate: number | null }) {
     const metrics = [
         { label: "DMs Sent Today", value: stats.dmsSentToday.toLocaleString(), icon: <Send className="h-5 w-5" />, tone: "indigo" },
         { label: "Active Automations", value: activeTriggers.toLocaleString(), icon: <Bot className="h-5 w-5" />, tone: "purple" },
         { label: "Leads Collected", value: leadsCollected.toLocaleString(), icon: <UserPlus className="h-5 w-5" />, tone: "green" },
-        { label: "Followers", value: stats.followers.toLocaleString(), icon: <Users className="h-5 w-5" />, tone: "blue", muted: true },
+        { label: "Followers", value: typeof stats.followers === "number" ? stats.followers.toLocaleString() : "—", icon: <Users className="h-5 w-5" />, tone: "blue", muted: true, tooltip: typeof stats.followers === "number" ? undefined : "Connect Instagram to sync follower count." },
         { label: "Failed Messages", value: stats.failedDms.toLocaleString(), icon: <AlertTriangle className="h-5 w-5" />, tone: "amber", muted: true },
-        { label: "Delivery Rate", value: `${deliveryRate}%`, icon: <CheckCircle2 className="h-5 w-5" />, tone: "green", tooltip: "Successful sends divided by total DM attempts." },
+        { label: "Delivery Rate", value: formatPercent(deliveryRate), icon: <CheckCircle2 className="h-5 w-5" />, tone: "green", tooltip: deliveryRate === null ? "No messages sent yet." : "Successful sends divided by total DM attempts." },
     ];
 
     return (
@@ -1408,22 +1531,24 @@ function MetricCard({ label, value, icon, tone, muted, tooltip }: { label: strin
 }
 
 function HomeAutomationPanel({ triggers, onNavigate }: { triggers: Trigger[]; onNavigate: (tab: Tab) => void }) {
-    const rows = triggers.length ? triggers.slice(0, 3) : previewTriggers;
+    const rows = triggers.slice(0, 3);
 
     return (
         <Panel
             title="Automations"
             action={<button onClick={() => onNavigate("automations")} className="inline-flex items-center gap-1 text-[11px] font-black text-[#5B4DFF]/90 transition hover:text-[#4738E8]">View all <ArrowRight className="h-3.5 w-3.5" /></button>}
         >
-            <div className="mb-3 flex items-center justify-between rounded-[16px] bg-slate-50 px-3 py-2.5">
-                <div>
-                    <p className="text-[12px] font-black text-[#0F172A]">Live workflow preview</p>
-                    <p className="mt-0.5 text-[11px] font-semibold text-[#64748B]">Top flows by message volume.</p>
-                </div>
-                <span className="inline-flex h-6 items-center rounded-full bg-emerald-50 px-2.5 text-[10px] font-black text-emerald-700 ring-1 ring-emerald-100">{rows.filter((item) => item.enabled).length} live</span>
-            </div>
-            <div className="grid grid-cols-1 gap-3">
-                    {rows.map((trigger, index) => (
+            {rows.length ? (
+                <>
+                    <div className="mb-3 flex items-center justify-between rounded-[16px] bg-slate-50 px-3 py-2.5">
+                        <div>
+                            <p className="text-[12px] font-black text-[#0F172A]">Live workflow preview</p>
+                            <p className="mt-0.5 text-[11px] font-semibold text-[#64748B]">Your latest automations by real message volume.</p>
+                        </div>
+                        <span className="inline-flex h-6 items-center rounded-full bg-emerald-50 px-2.5 text-[10px] font-black text-emerald-700 ring-1 ring-emerald-100">{rows.filter((item) => item.enabled).length} live</span>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3">
+                    {rows.map((trigger) => (
                         <button
                             key={trigger.id}
                             onClick={() => onNavigate("automations")}
@@ -1440,23 +1565,25 @@ function HomeAutomationPanel({ triggers, onNavigate }: { triggers: Trigger[]; on
                                             "inline-flex h-5 shrink-0 items-center rounded-full px-2 text-[10px] font-black",
                                             trigger.enabled
                                                 ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
-                                                : index === 2
-                                                    ? "bg-slate-100 text-slate-500 ring-1 ring-slate-200"
-                                                    : "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
+                                                : "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
                                         )}
                                     >
-                                        {trigger.enabled ? "Live" : index === 2 ? "Draft" : "Paused"}
+                                        {trigger.enabled ? "Live" : "Paused"}
                                     </span>
                                 </div>
                                 <p className="mt-1 line-clamp-1 text-[12px] font-medium leading-5 text-slate-500">{trigger.replyMessage}</p>
                                 <div className="mt-2 flex items-center justify-between gap-2">
-                                    <span className="text-[11px] font-black text-slate-500">{(1240 - index * 210).toLocaleString()} DMs sent</span>
+                                    <span className="text-[11px] font-black text-slate-500">{safeNumber(trigger.dmsSent).toLocaleString()} DMs sent</span>
                                     <span className="text-[11px] font-black text-indigo-600 transition group-hover:translate-x-0.5">Manage</span>
                                 </div>
                             </div>
                         </button>
                     ))}
-                </div>
+                    </div>
+                </>
+            ) : (
+                <EmptyState icon={<Bot className="h-6 w-6" />} title="No automations yet" copy="Create your first Instagram DM automation." action="Create Automation" onAction={() => onNavigate("automations")} />
+            )}
         </Panel>
     );
 }
@@ -1497,7 +1624,7 @@ function OnboardingCard({ connected, activeTriggers, onNavigate }: { connected: 
 }
 
 function RecentActivity({ activity, onNavigate }: { activity: LogEntry[]; onNavigate: (tab: Tab) => void }) {
-    const rows = activity.length ? activity : previewActivity.slice(0, 3);
+    const rows = activity;
 
     return (
         <Panel title="Recent activity" action={<button onClick={() => onNavigate("inbox")} className="text-xs font-black text-[#5B4DFF]/90 transition hover:text-[#4738E8]">View inbox</button>}>
@@ -1550,6 +1677,8 @@ function AutomationsPage(props: {
     onToggle: (id: number) => void;
     onDelete: (id: number) => void;
     onNavigate: (tab: Tab) => void;
+    onUpgrade: () => void;
+    proOffer: ProOfferData;
 }) {
     const [templateOpen, setTemplateOpen] = useState(false);
     const [builderOpen, setBuilderOpen] = useState(false);
@@ -1620,7 +1749,7 @@ function AutomationsPage(props: {
             subtitle="Create, manage, and track your Instagram automation flows."
             action={<PrimaryButton onClick={openTemplates}><Plus className="h-4 w-4" /> New Automation</PrimaryButton>}
         >
-            <AutomationMiniUpgradeStrip />
+            <AutomationMiniUpgradeStrip onUpgrade={props.onUpgrade} proOffer={props.proOffer} />
 
             <section className="rounded-[20px] border border-white bg-white p-3.5 shadow-[0_14px_42px_rgba(15,23,42,0.045)]">
                 <div className="grid gap-3 xl:grid-cols-[minmax(240px,1fr)_180px_160px_auto] xl:items-center">
@@ -1751,7 +1880,7 @@ function ConfirmInstagramDisconnectModal({ onCancel, onConfirm }: { onCancel: ()
     );
 }
 
-function AutomationMiniUpgradeStrip() {
+function AutomationMiniUpgradeStrip({ onUpgrade, proOffer }: { onUpgrade: () => void; proOffer: ProOfferData }) {
     return (
         <section className="rounded-[18px] border border-indigo-200/60 bg-gradient-to-r from-[#EEF0FF] via-white to-[#F8EEFF] p-3.5 shadow-[0_12px_32px_rgba(91,77,255,0.07)]">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1761,13 +1890,13 @@ function AutomationMiniUpgradeStrip() {
                     </span>
                     <div>
                         <h2 className="text-sm font-black text-[#0F172A]">Unlock Pro Power</h2>
-                        <p className="text-xs font-semibold text-[#64748B]">Get more automations, contacts, and advanced analytics.</p>
+                        <p className="text-xs font-semibold text-[#64748B]">{proOffer.eligible ? `First month only. Then ₹${proOffer.renewalMonthlyPriceInr}/month.` : "Get more automations, contacts, and advanced analytics."}</p>
                     </div>
                 </div>
-                <Link to="/pricing" className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white shadow-[0_10px_22px_rgba(91,77,255,0.18)] transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
+                <button onClick={onUpgrade} className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white shadow-[0_10px_22px_rgba(91,77,255,0.18)] transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
                     <Crown className="h-3.5 w-3.5" />
-                    Upgrade to Pro
-                </Link>
+                    {proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
+                </button>
             </div>
         </section>
     );
@@ -1790,9 +1919,10 @@ function AutomationListRow({
     onAnalytics: () => void;
     onDelete: () => void;
 }) {
-    const dms = 1240 - index * 210;
-    const clicks = 420 - index * 64;
+    const dms = safeNumber(trigger.dmsSent);
+    const clicks = 0;
     const ctr = dms > 0 ? Math.max(0, Math.round((clicks / dms) * 100)) : 0;
+    const modifiedLabel = trigger.modifiedAt ? new Date(trigger.modifiedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : "Unknown";
 
     return (
         <div className="grid gap-3 rounded-[18px] border border-slate-100 bg-white p-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.025)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_16px_34px_rgba(79,70,229,0.07)] xl:grid-cols-[minmax(280px,1.4fr)_140px_120px_78px_78px_68px_84px_92px_auto] xl:items-center">
@@ -1805,19 +1935,18 @@ function AutomationListRow({
                     <p className="mt-1 truncate text-xs font-semibold text-[#64748B]">{trigger.replyMessage}</p>
                 </div>
             </div>
-            <AutomationDataPill label="Trigger" value="Comment keyword" />
+            <AutomationDataPill label="Trigger" value={trigger.triggerType || "Comment keyword"} />
             <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">Keywords</p>
                 <div className="mt-1 flex min-w-0 flex-wrap gap-1.5">
                     <span className="rounded-full bg-[#EEF0FF] px-2 py-1 text-[10px] font-black text-[#5B4DFF] ring-1 ring-indigo-100">+{trigger.keyword}</span>
-                    <span className="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-black text-slate-500 ring-1 ring-slate-100">+link</span>
                 </div>
             </div>
             <AutomationDataPill label="DMs" value={dms.toLocaleString()} />
             <AutomationDataPill label="Clicks" value={clicks.toLocaleString()} />
             <AutomationDataPill label="CTR" value={`${ctr}%`} muted />
             <StatusBadge status={trigger.enabled ? "Live" : "Paused"} />
-            <span className="text-xs font-bold text-[#64748B]">{index + 1}d ago</span>
+            <span className="text-xs font-bold text-[#64748B]">{modifiedLabel}</span>
             <div className="flex justify-end gap-1.5">
                 <IconButton title={trigger.enabled ? "Pause automation" : "Resume automation"} onClick={onToggle}>{trigger.enabled ? <Pause className="h-4 w-4" /> : <Power className="h-4 w-4" />}</IconButton>
                 <IconButton title="Edit automation" onClick={onEdit}><PenLine className="h-4 w-4" /></IconButton>
@@ -1845,8 +1974,8 @@ function AutomationGridCard({
     onDuplicate: () => void;
     onAnalytics: () => void;
 }) {
-    const dms = 1240 - index * 210;
-    const clicks = 420 - index * 64;
+    const dms = safeNumber(trigger.dmsSent);
+    const clicks = 0;
     const ctr = dms > 0 ? Math.max(0, Math.round((clicks / dms) * 100)) : 0;
 
     return (
@@ -1867,7 +1996,7 @@ function AutomationGridCard({
             <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-5 text-[#64748B]">{trigger.replyMessage}</p>
             <div className="mt-3 flex flex-wrap gap-1.5">
                 <span className="rounded-full bg-[#EEF0FF] px-2 py-1 text-[10px] font-black text-[#5B4DFF] ring-1 ring-indigo-100">+{trigger.keyword}</span>
-                <span className="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-black text-slate-500 ring-1 ring-slate-100">Comment keyword</span>
+                <span className="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-black text-slate-500 ring-1 ring-slate-100">{trigger.triggerType || "Comment keyword"}</span>
             </div>
             <div className="mt-auto grid grid-cols-3 gap-2 border-t border-slate-100 pt-3">
                 <AutomationDataPill label="DMs" value={dms.toLocaleString()} />
@@ -4376,7 +4505,7 @@ function AnalyticsPage({
 }: {
     stats: Stats;
     leadsCollected: number;
-    deliveryRate: number;
+    deliveryRate: number | null;
     range: string;
     onRange: (value: string) => void;
     triggers: Trigger[];
@@ -4455,7 +4584,7 @@ function AnalyticsPage({
         const factor = analyticsRangeFactor(range);
         const totalDms = range === "Today" ? stats.dmsSentToday : Math.round(stats.totalDmsSent * factor);
         const dmsSent = safeNumber(totalDms);
-        const clicks = safeNumber(Math.round((stats.totalLinksSent || dmsSent * 0.28) * (range === "Today" ? 0.22 : factor)));
+        const clicks = safeNumber(Math.round(stats.totalLinksSent * (range === "Today" ? 0.22 : factor)));
         const leads = safeNumber(Math.round(leadsCollected * (range === "Today" ? 0.22 : factor)));
         const failed = safeNumber(Math.round(stats.failedDms * (range === "Today" ? 0.22 : factor)));
         const activeAutomations = triggers.filter((trigger) => trigger.enabled).length;
@@ -4463,7 +4592,7 @@ function AnalyticsPage({
             dmsSent,
             clicks,
             leads,
-            deliveryRate: safeNumber(deliveryRate),
+            deliveryRate,
             failed,
             activeAutomations,
         };
@@ -4520,10 +4649,10 @@ function AnalyticsPage({
             {activeTab === "Performance" && (
                 <div className="space-y-4">
                     <div className="grid grid-cols-[repeat(auto-fit,minmax(155px,1fr))] gap-3">
-                        <AnalyticsMetricCard icon={<Send className="h-5 w-5" />} label="DMs Sent" value={formatMetric(periodMetrics.dmsSent)} change="+12% vs previous period" tone="purple" />
-                        <AnalyticsMetricCard icon={<MousePointerClick className="h-5 w-5" />} label="Link Clicks" value={formatMetric(periodMetrics.clicks)} change="+8% vs previous period" tone="blue" />
-                        <AnalyticsMetricCard icon={<UserPlus className="h-5 w-5" />} label="Leads Captured" value={formatMetric(periodMetrics.leads)} change="+9% vs previous period" tone="green" />
-                        <AnalyticsMetricCard icon={<CheckCircle2 className="h-5 w-5" />} label="Delivery Rate" value={`${periodMetrics.deliveryRate}%`} change="Successful sends" tone="green" />
+                        <AnalyticsMetricCard icon={<Send className="h-5 w-5" />} label="DMs Sent" value={formatMetric(periodMetrics.dmsSent)} change="Selected period" tone="purple" />
+                        <AnalyticsMetricCard icon={<MousePointerClick className="h-5 w-5" />} label="Link Clicks" value={formatMetric(periodMetrics.clicks)} change="Tracked clicks" tone="blue" />
+                        <AnalyticsMetricCard icon={<UserPlus className="h-5 w-5" />} label="Leads Captured" value={formatMetric(periodMetrics.leads)} change="Captured contacts" tone="green" />
+                        <AnalyticsMetricCard icon={<CheckCircle2 className="h-5 w-5" />} label="Delivery Rate" value={formatPercent(periodMetrics.deliveryRate)} change={periodMetrics.deliveryRate === null ? "No messages sent yet" : "Successful sends"} tone="green" />
                         <AnalyticsMetricCard icon={<AlertTriangle className="h-5 w-5" />} label="Failed Messages" value={formatMetric(periodMetrics.failed)} change="Needs review only if rising" tone="amber" />
                         <AnalyticsMetricCard icon={<Bot className="h-5 w-5" />} label="Active Automations" value={formatMetric(periodMetrics.activeAutomations)} change="Live workflows" tone="purple" />
                     </div>
@@ -4642,7 +4771,7 @@ function AnalyticsPage({
                             <div className="grid gap-3">
                                 <InsightRow icon={<TrophyIcon />} title="Best performing automation" value={bestAutomation?.name || "No automation yet"} copy={bestAutomation ? `${bestAutomation.ctr}% click-through rate` : "Launch an automation to identify a winner."} />
                                 <InsightRow icon={<Activity className="h-4 w-4" />} title="Peak engagement day" value="Sunday" copy="Based on current DM volume trend." />
-                                <InsightRow icon={<CheckCircle2 className="h-4 w-4" />} title="Delivery rate" value={`${periodMetrics.deliveryRate}%`} copy="Successful sends divided by DM attempts." />
+                                <InsightRow icon={<CheckCircle2 className="h-4 w-4" />} title="Delivery rate" value={formatPercent(periodMetrics.deliveryRate)} copy="Successful sends divided by DM attempts." />
                             </div>
                         </Panel>
                     </div>
@@ -4676,12 +4805,12 @@ function AnalyticsPage({
             {activeTab === "Account Performance" && (
                 <div className="space-y-4">
                     <div className="grid grid-cols-[repeat(auto-fit,minmax(165px,1fr))] gap-3">
-                        <AnalyticsMetricCard icon={<Users className="h-5 w-5" />} label="Total Followers" value={formatMetric(stats.followers)} change="Current Instagram count" tone="blue" />
-                        <AnalyticsMetricCard icon={<TrendingUp className="h-5 w-5" />} label="New Followers" value={formatMetric(Math.max(0, Math.round(stats.followers * 0.018)))} change={`${rangeLabel} estimate`} tone="green" />
-                        <AnalyticsMetricCard icon={<ChevronDown className="h-5 w-5" />} label="Unfollowers" value={formatMetric(Math.max(0, Math.round(stats.followers * 0.004)))} change="Monitor audience churn" tone="amber" />
-                        <AnalyticsMetricCard icon={<Activity className="h-5 w-5" />} label="Net Growth" value={formatMetric(Math.max(0, Math.round(stats.followers * 0.014)))} change="Followers gained minus lost" tone="purple" />
+                        <AnalyticsMetricCard icon={<Users className="h-5 w-5" />} label="Total Followers" value={typeof stats.followers === "number" ? formatMetric(stats.followers) : "—"} change={typeof stats.followers === "number" ? "Current Instagram count" : "Connect Instagram to sync"} tone="blue" />
+                        <AnalyticsMetricCard icon={<TrendingUp className="h-5 w-5" />} label="New Followers" value="—" change="Requires Instagram insights sync" tone="green" />
+                        <AnalyticsMetricCard icon={<ChevronDown className="h-5 w-5" />} label="Unfollowers" value="—" change="Requires Instagram insights sync" tone="amber" />
+                        <AnalyticsMetricCard icon={<Activity className="h-5 w-5" />} label="Net Growth" value="—" change="Requires Instagram insights sync" tone="purple" />
                         <AnalyticsMetricCard icon={<MousePointerClick className="h-5 w-5" />} label="Profile Activity" value={formatMetric(Math.max(0, stats.totalLinksSent + stats.totalPublicReplies))} change="Clicks, replies, interactions" tone="blue" />
-                        <AnalyticsMetricCard icon={<BarChart3 className="h-5 w-5" />} label="Engagement Rate" value={`${Math.max(0, Math.min(100, Math.round((stats.totalPublicReplies / Math.max(1, stats.followers)) * 1000) / 10))}%`} change="Based on available activity" tone="green" />
+                        <AnalyticsMetricCard icon={<BarChart3 className="h-5 w-5" />} label="Engagement Rate" value={typeof stats.followers === "number" && stats.followers > 0 ? `${Math.max(0, Math.min(100, Math.round((stats.totalPublicReplies / stats.followers) * 1000) / 10))}%` : "—"} change="Based on available activity" tone="green" />
                     </div>
                     <div className="grid gap-4 xl:grid-cols-2">
                         <AnalyticsChartCard title="Follower growth" range={rangeLabel} data={trendData} primaryKey="followers" primaryColor="#5B4DFF" secondaryKey="leads" secondaryColor="#10B981" emptyText="Follower data is unavailable for this period" />
@@ -5122,16 +5251,14 @@ function activityConfig(type: AnalyticsActivityEvent["type"]) {
     return { icon: <Send className="h-5 w-5" />, className: "bg-[#EEF0FF] text-[#5B4DFF]" };
 }
 
-function buildAutomationAnalyticsRows(triggers: Trigger[], stats: Stats, leadsCollected: number, deliveryRate: number): AnalyticsAutomationRow[] {
+function buildAutomationAnalyticsRows(triggers: Trigger[], stats: Stats, leadsCollected: number, deliveryRate: number | null): AnalyticsAutomationRow[] {
     if (!triggers.length) return [];
-    const divisor = Math.max(1, triggers.length);
     const triggerTypes = ["Post or Reel comment", "DM keyword", "Story reply", "Live comment"];
     return triggers.map((trigger, index) => {
-        const weight = Math.max(0.45, 1.12 - index * 0.16);
-        const dms = Math.max(0, Math.round((safeNumber(stats.totalDmsSent) / divisor) * weight));
-        const clicks = Math.max(0, Math.round((safeNumber(stats.totalLinksSent) / divisor) * Math.max(0.35, 1 - index * 0.12)));
-        const leads = Math.max(0, Math.round((safeNumber(leadsCollected) / divisor) * Math.max(0.35, 0.82 - index * 0.08)));
-        const failed = index === 0 ? safeNumber(stats.failedDms) : Math.max(0, Math.round(dms * 0.012));
+        const dms = safeNumber(trigger.dmsSent);
+        const clicks = 0;
+        const leads = 0;
+        const failed = 0;
         const ctr = dms > 0 ? Math.round((clicks / dms) * 100) : 0;
         const rowDelivery = dms > 0 ? Math.max(0, Math.round(((dms - failed) / dms) * 100)) : safeNumber(deliveryRate);
         const keyword = normalizeKeyword(trigger.keyword || "link");
@@ -5139,7 +5266,7 @@ function buildAutomationAnalyticsRows(triggers: Trigger[], stats: Stats, leadsCo
             id: trigger.id,
             name: `Auto DM for "${keyword}"`,
             description: safeText(trigger.replyMessage, "Automated Instagram response."),
-            trigger: triggerTypes[index % triggerTypes.length],
+            trigger: trigger.triggerType || triggerTypes[index % triggerTypes.length],
             keywords: [keyword],
             dms,
             clicks,
@@ -5148,9 +5275,9 @@ function buildAutomationAnalyticsRows(triggers: Trigger[], stats: Stats, leadsCo
             deliveryRate: rowDelivery,
             failed,
             status: trigger.enabled ? "Live" : "Paused",
-            modified: index === 0 ? "Today" : `${index + 1} days ago`,
-            selectedContent: fallbackInstagramMedia[(index % (fallbackInstagramMedia.length - 1)) + 1]?.title || "All posts & reels",
-            lastActivity: index === 0 ? "2 min ago" : `${(index + 1) * 8} min ago`,
+            modified: trigger.modifiedAt ? new Date(trigger.modifiedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "Unknown",
+            selectedContent: "All posts & reels",
+            lastActivity: trigger.modifiedAt ? new Date(trigger.modifiedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "Unknown",
         };
     }).sort((a, b) => b.dms - a.dms);
 }
@@ -5173,28 +5300,16 @@ function buildAnalyticsActivityEvents(activity: LogEntry[], automations: Analyti
                 status: "Delivered",
                 timestamp: safeText(entry.time, "Unknown date"),
             });
-            if (index % 2 === 0) {
-                rows.push({
-                    id: `${entry.id}-click`,
-                    type: "Link clicked",
-                    user,
-                    automation: automationName,
-                    keyword,
-                    status: "Clicked",
-                    timestamp: safeText(entry.time, "Unknown date"),
-                });
-            }
-            if (index % 3 === 0) {
-                rows.push({
-                    id: `${entry.id}-lead`,
-                    type: "Lead captured",
-                    user,
-                    automation: automationName,
-                    keyword,
-                    status: "Captured",
-                    timestamp: safeText(entry.time, "Unknown date"),
-                });
-            }
+        } else if (["lead_captured", "email_captured", "captured"].includes(entry.status)) {
+            rows.push({
+                id: `${entry.id}-lead`,
+                type: "Lead captured",
+                user,
+                automation: automationName,
+                keyword,
+                status: "Captured",
+                timestamp: safeText(entry.time, "Unknown date"),
+            });
         } else {
             rows.push({
                 id: `${entry.id}-failed`,
@@ -5247,21 +5362,23 @@ function buildAudienceRows(activity: LogEntry[], automations: AnalyticsAutomatio
         const keyword = normalizeKeyword(entry.keyword || "link");
         const automation = automations.find((row) => row.keywords.includes(normalizeKeyword(entry.trigger)))?.name || (entry.trigger ? `Auto DM for "${entry.trigger}"` : "Unknown automation");
         const name = username.replace("@", "").replace(/[._]/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+        const isLead = ["lead_captured", "email_captured", "captured"].includes(entry.status);
+        const isClick = ["link_clicked", "clicked"].includes(entry.status);
         if (existing) {
             existing.comments += 1;
-            existing.leads += index % 2 === 0 ? 1 : 0;
-            existing.clicked = existing.clicked || index % 2 === 0;
+            existing.leads += isLead ? 1 : 0;
+            existing.clicked = existing.clicked || isClick;
         } else {
             map.set(username, {
                 id: `${username}-${index}`,
                 username,
                 name,
-                comments: 1 + (index % 3 === 0 ? 1 : 0),
+                comments: 1,
                 lastComment: safeText(entry.time, "Unknown date"),
                 topKeyword: keyword,
                 sourceAutomation: automation,
-                leads: index % 2 === 0 ? 1 : 0,
-                clicked: index % 2 === 0,
+                leads: isLead ? 1 : 0,
+                clicked: isClick,
             });
         }
     });
@@ -5270,8 +5387,10 @@ function buildAudienceRows(activity: LogEntry[], automations: AnalyticsAutomatio
 
 function buildAnalyticsTrendData(range: string, stats: Stats, leadsCollected: number) {
     const factor = analyticsRangeFactor(range);
-    const dmsScale = stats.totalDmsSent > 0 ? stats.totalDmsSent / 3824 : 0;
-    const leadScale = leadsCollected > 0 ? leadsCollected / 2916 : 0;
+    const baseDms = chartData.reduce((sum, item) => sum + item.dms, 0);
+    const baseLeads = chartData.reduce((sum, item) => sum + item.leads, 0);
+    const dmsScale = stats.totalDmsSent > 0 && baseDms > 0 ? stats.totalDmsSent / baseDms : 0;
+    const leadScale = leadsCollected > 0 && baseLeads > 0 ? leadsCollected / baseLeads : 0;
     return chartData.map((item, index) => {
         const dms = Math.max(0, Math.round(item.dms * factor * dmsScale));
         const leads = Math.max(0, Math.round(item.leads * factor * leadScale));
@@ -5301,6 +5420,20 @@ function analyticsRangeFactor(range: string) {
 function safeNumber(value: number | string | undefined | null) {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function usagePercent(value: number, limit: number) {
+    const safeLimit = safeNumber(limit);
+    if (!safeLimit) return 0;
+    return Math.min(100, Math.max(0, (safeNumber(value) / safeLimit) * 100));
+}
+
+function formatUsage(value: number, limit: number) {
+    return `${formatMetric(safeNumber(value))} / ${formatMetric(safeNumber(limit))}`;
+}
+
+function formatPercent(value: number | null | undefined) {
+    return typeof value === "number" && Number.isFinite(value) ? `${value}%` : "—";
 }
 
 function formatMetric(value: number) {
@@ -6273,6 +6406,7 @@ function SettingsPage(props: {
     ownerEmail: string;
     ownerName: string;
     stats: Stats;
+    usage: UsageData;
     onSettingsTab: (tab: SettingsTab) => void;
     onSettings: (settings: SettingsData) => void;
     onConnect: () => void;
@@ -6325,12 +6459,12 @@ function SettingsPage(props: {
     const notificationsDirty = JSON.stringify(notifications) !== JSON.stringify(notificationsSaved);
     const handle = props.settings.instagramHandle || (props.connected ? "@dmgennie.in" : "Instagram account");
     const cleanHandle = handle.replace("@", "");
-    const dmsUsed = safeNumber(props.stats.totalDmsSent || 5);
-    const contactsUsed = 1;
-    const dmsLimit = 999999;
-    const contactsLimit = 1000;
-    const dmsProgress = Math.min(100, Math.max(1, (dmsUsed / dmsLimit) * 100));
-    const contactsProgress = Math.min(100, Math.max(1, (contactsUsed / contactsLimit) * 100));
+    const dmsUsed = safeNumber(props.usage.dmsThisMonth);
+    const contactsUsed = safeNumber(props.usage.contactsThisMonth);
+    const dmsLimit = safeNumber(props.usage.dmLimit);
+    const contactsLimit = safeNumber(props.usage.contactLimit);
+    const dmsProgress = usagePercent(dmsUsed, dmsLimit);
+    const contactsProgress = usagePercent(contactsUsed, contactsLimit);
 
     const menu: Array<{ key: SettingsTab; label: string; icon: ReactNode }> = [
         { key: "profile", label: "Profile", icon: <User className="h-4 w-4" /> },
@@ -6525,7 +6659,7 @@ function SettingsPage(props: {
                                                     <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-emerald-50 px-2 text-[11px] font-black text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Connected</span>
                                                     <span className="inline-flex h-6 items-center rounded-full bg-indigo-50 px-2 text-[11px] font-black text-[#5B4DFF]">Meta API Active</span>
                                                 </div>
-                                                <p className="mt-1 text-sm font-semibold text-slate-500">{formatMetric(props.stats.followers)} followers · Last synced just now</p>
+                                                <p className="mt-1 text-sm font-semibold text-slate-500">{typeof props.stats.followers === "number" ? `${formatMetric(props.stats.followers)} followers` : "Followers unavailable"} · Refresh to sync latest data</p>
                                                 <p className="mt-1 text-xs font-semibold text-slate-400">Connected through secure Meta OAuth. No Instagram password stored.</p>
                                             </div>
                                         </div>
