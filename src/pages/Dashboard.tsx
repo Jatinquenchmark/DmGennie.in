@@ -151,7 +151,7 @@ type InstagramMedia = {
     metric: string;
 };
 type ContactRecord = {
-    id: number;
+    id: string;
     name: string;
     username: string;
     email: string;
@@ -162,12 +162,20 @@ type ContactRecord = {
     joinedDate: string;
     lastInteraction: string;
     lastInteractionLabel: string;
+    lastInteractionAt?: string;
     automation: string;
     keyword: string;
     avatar?: string;
     profileUrl?: string;
     capturedFields: Array<{ label: string; value: string }>;
     timeline: Array<{ label: string; time: string; tone: "purple" | "green" | "amber" | "slate" }>;
+};
+type ContactMetrics = {
+    totalContacts: number;
+    withEmail: number;
+    activeToday: number;
+    newThisWeek: number;
+    fromAutomations: number;
 };
 type PreviewTab = "Post" | "Comments" | "Story" | "Live" | "DM";
 type AutomationTemplate = {
@@ -216,6 +224,14 @@ const zeroUsage: UsageData = {
     planName: "Starter",
 };
 
+const zeroContactMetrics: ContactMetrics = {
+    totalContacts: 0,
+    withEmail: 0,
+    activeToday: 0,
+    newThisWeek: 0,
+    fromAutomations: 0,
+};
+
 const defaultProOffer: ProOfferData = {
     amountInr: 1,
     renewalMonthlyPriceInr: 499,
@@ -242,11 +258,47 @@ const previewTriggers: Trigger[] = [
 ];
 
 const previewActivity: LogEntry[] = [
-    { id: 1, user: "@nisha.creates", keyword: "guide", time: "2 min ago", status: "sent", trigger: "guide" },
-    { id: 2, user: "@growthwitharjun", keyword: "price", time: "9 min ago", status: "sent", trigger: "price" },
-    { id: 3, user: "@studio.reels", keyword: "demo", time: "18 min ago", status: "sent", trigger: "demo" },
+    { id: 1, user: "@creator.alpha", keyword: "guide", time: "2 min ago", status: "sent", trigger: "guide" },
+    { id: 2, user: "@growth.creator", keyword: "price", time: "9 min ago", status: "sent", trigger: "price" },
+    { id: 3, user: "@reels.studio", keyword: "demo", time: "18 min ago", status: "sent", trigger: "demo" },
     { id: 4, user: "@creatorlab.in", keyword: "guide", time: "31 min ago", status: "closed", trigger: "guide" },
 ];
+
+const previewContacts: ContactRecord[] = previewActivity.map((item) => ({
+    id: `preview-${item.id}`,
+    name: item.user.replace("@", "").replace(/[._]/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase()),
+    username: item.user,
+    email: "No email captured",
+    source: item.trigger ? `Keyword: ${item.trigger}` : "Instagram automation",
+    sourceType: "Comment keyword",
+    relationship: "Unknown",
+    joined: item.time,
+    joinedDate: "",
+    lastInteraction: item.status === "sent" ? "DM sent" : "Follow-up needed",
+    lastInteractionLabel: item.time,
+    lastInteractionAt: "",
+    automation: item.trigger ? `Keyword: ${item.trigger}` : "Instagram automation",
+    keyword: item.keyword || "link",
+    profileUrl: `https://www.instagram.com/${item.user.replace("@", "")}/`,
+    capturedFields: [
+        { label: "Keyword", value: item.keyword || "Unknown" },
+        { label: "Source", value: item.trigger ? `Keyword: ${item.trigger}` : "Instagram automation" },
+        { label: "Status", value: item.status === "sent" ? "Delivered" : "Needs follow-up" },
+    ],
+    timeline: [
+        { label: `Commented keyword: ${item.keyword || "link"}`, time: item.time, tone: "purple" },
+        { label: "Received welcome DM", time: item.time, tone: "green" },
+        { label: "Added to contacts", time: item.time, tone: "slate" },
+    ],
+}));
+
+const previewContactMetrics: ContactMetrics = {
+    totalContacts: previewContacts.length,
+    withEmail: previewContacts.filter((contact) => contact.email !== "No email captured").length,
+    activeToday: 1,
+    newThisWeek: previewContacts.length,
+    fromAutomations: previewContacts.length,
+};
 
 const suggestedKeywords = ["link", "send", "price", "info", "demo", "guide", "offer", "course", "ebook", "discount", "buy", "join"];
 const defaultCommentReplies = ["Got it, check your inbox! 📬", "Great! Check your messages 💌", "Sent :)", "Check your DM"];
@@ -423,6 +475,9 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const [proOffer, setProOffer] = useState<ProOfferData>(defaultProOffer);
     const [triggers, setTriggers] = useState<Trigger[]>([]);
     const [activity, setActivity] = useState<LogEntry[]>([]);
+    const [contacts, setContacts] = useState<ContactRecord[]>([]);
+    const [contactMetrics, setContactMetrics] = useState<ContactMetrics>(zeroContactMetrics);
+    const [contactsLoading, setContactsLoading] = useState(false);
     const [settings, setSettings] = useState<SettingsData | null>(null);
     const [botEnabled, setBotEnabled] = useState(true);
     const [connected, setConnected] = useState(false);
@@ -457,6 +512,31 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         });
     }, [session]);
 
+    const loadContacts = useCallback(async () => {
+        if (preview) {
+            setContacts(previewContacts);
+            setContactMetrics(previewContactMetrics);
+            return true;
+        }
+
+        setContactsLoading(true);
+        try {
+            const response = await authFetch("/api/contacts");
+            if (!response.ok) throw new Error("Contacts request failed");
+            const data = await response.json();
+            setContacts(Array.isArray(data.contacts) ? data.contacts : []);
+            setContactMetrics({ ...zeroContactMetrics, ...(data.metrics || {}) });
+            return true;
+        } catch (error) {
+            console.error("Contacts fetch failed", error);
+            setContacts([]);
+            setContactMetrics(zeroContactMetrics);
+            return false;
+        } finally {
+            setContactsLoading(false);
+        }
+    }, [authFetch, preview]);
+
     const fetchAll = useCallback(async () => {
         setLoadError(false);
         if (preview) {
@@ -472,6 +552,8 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             setProOffer(defaultProOffer);
             setTriggers(previewTriggers);
             setActivity(previewActivity);
+            setContacts(previewContacts);
+            setContactMetrics(previewContactMetrics);
             setBotEnabled(previewSettings.botEnabled);
             setConnected(true);
             setSettings(previewSettings);
@@ -506,6 +588,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             }
             setTriggers(dashData.triggers || []);
             setActivity(dashData.activityLog || []);
+            await loadContacts();
             setBotEnabled(Boolean(dashData.botEnabled));
             setConnected(Boolean(dashData.connected));
             setSettings(settingsData);
@@ -515,7 +598,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         } finally {
             setLoading(false);
         }
-    }, [authFetch, preview]);
+    }, [authFetch, loadContacts, preview]);
 
     useEffect(() => {
         fetchAll();
@@ -544,43 +627,6 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const deliveryRate = dashboardDeliveryRate ?? (attemptedMessages > 0
         ? Math.max(0, Math.round((safeNumber(displayStats.totalDmsSent) / attemptedMessages) * 100))
         : null);
-
-    const contacts = useMemo<ContactRecord[]>(() => {
-        const base = preview ? (activity.length ? activity : previewActivity) : activity;
-        return base.map((item, index) => {
-            const rawUser = item.user || "";
-            const username = rawUser || "Unknown Instagram user";
-            return ({
-            id: item.id,
-            name: rawUser
-                ? rawUser.replace("@", "").replace(/[._]/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase())
-                : "Unknown Instagram user",
-            username,
-            email: "No email captured",
-            source: item.trigger ? `Auto DM for "${item.trigger}"` : "Unknown source",
-            sourceType: "Comment keyword",
-            relationship: "Unknown",
-            joined: item.time || "Unknown",
-            joinedDate: item.createdAt || "",
-            lastInteraction: item.status === "sent" ? "DM sent" : "Follow-up needed",
-            lastInteractionLabel: item.time || "Unknown",
-            automation: item.trigger ? `Auto DM for "${item.trigger}"` : "Direct DM",
-            keyword: item.keyword || "link",
-            profileUrl: rawUser ? `https://www.instagram.com/${rawUser.replace("@", "")}/` : undefined,
-            capturedFields: [
-                { label: "Keyword", value: item.keyword || "Unknown" },
-                { label: "Automation", value: item.trigger ? `Auto DM for "${item.trigger}"` : "Unknown source" },
-                { label: "Status", value: item.status === "sent" ? "Delivered" : "Needs follow-up" },
-            ],
-            timeline: [
-                { label: `Commented keyword: ${item.keyword || "link"}`, time: item.time || "Unknown", tone: "purple" },
-                { label: "Received welcome DM", time: item.time || "Unknown", tone: "green" },
-                ...(index % 2 === 0 ? [{ label: "Email captured", time: item.time || "Unknown", tone: "amber" as const }] : []),
-                { label: "Added to contacts", time: item.time || "Unknown", tone: "slate" },
-            ],
-        });
-        });
-    }, [activity, preview]);
 
     const filteredTriggers = triggers.filter((trigger) => {
         const matchesSearch = `${trigger.keyword} ${trigger.replyMessage}`.toLowerCase().includes(automationSearch.toLowerCase());
@@ -883,7 +929,15 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                     />
                                 )}
                                 {tab === "contacts" && (
-                                    <ContactsPage contacts={contacts} search={contactSearch} onSearch={setContactSearch} onNavigate={setTab} />
+                                    <ContactsPage
+                                        contacts={contacts}
+                                        metrics={contactMetrics}
+                                        loading={contactsLoading}
+                                        search={contactSearch}
+                                        onSearch={setContactSearch}
+                                        onNavigate={setTab}
+                                        onRefresh={loadContacts}
+                                    />
                                 )}
                                 {tab === "inbox" && <InboxPage activity={activity} />}
                                 {tab === "analytics" && (
@@ -3210,9 +3264,9 @@ function InstagramPreviewPanel({
                                                     <span className="rounded-full bg-pink-500 px-2 py-1 text-[9px] font-black uppercase tracking-[0.08em]">Live</span>
                                                 </div>
                                                 <div className="relative mt-24 space-y-2">
-                                                    <p className="rounded-full bg-white/12 px-3 py-2 text-xs font-semibold text-white/85">@nisha.creates 🔥🔥🔥</p>
+                                                    <p className="rounded-full bg-white/12 px-3 py-2 text-xs font-semibold text-white/85">@creator.alpha 🔥🔥🔥</p>
                                                     <p className="rounded-full bg-white/18 px-3 py-2 text-xs font-black text-white">@arjun: {anyKeyword ? "Any keyword matched" : previewKeyword}</p>
-                                                    <p className="rounded-full bg-white/12 px-3 py-2 text-xs font-semibold text-white/85">@studio.reels love this</p>
+                                                    <p className="rounded-full bg-white/12 px-3 py-2 text-xs font-semibold text-white/85">@reels.studio love this</p>
                                                 </div>
                                             </div>
                                             <ChatBubble side="left" text={triggerCopy} />
@@ -3669,21 +3723,27 @@ function ModalShell({ children, onClose, wide }: { children: ReactNode; onClose:
 
 function ContactsPage({
     contacts,
+    metrics,
+    loading,
     search,
     onSearch,
     onNavigate,
+    onRefresh,
 }: {
     contacts: ContactRecord[];
+    metrics: ContactMetrics;
+    loading: boolean;
     search: string;
     onSearch: (value: string) => void;
     onNavigate: (tab: Tab) => void;
+    onRefresh: () => Promise<boolean>;
 }) {
     const [sourceFilter, setSourceFilter] = useState("All sources");
     const [relationshipFilter, setRelationshipFilter] = useState("All relationships");
     const [dateFilter, setDateFilter] = useState("All dates");
     const [emailFilter, setEmailFilter] = useState("All emails");
     const [segment, setSegment] = useState("All contacts");
-    const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
     const [selectedContact, setSelectedContact] = useState<ContactRecord | null>(null);
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -3694,17 +3754,13 @@ function ContactsPage({
         window.setTimeout(() => setToastMessage(""), 2200);
     }, []);
 
-    const stats = useMemo(() => {
-        const today = contacts.filter((contact) => isContactWithin(contact.joinedDate, "Today")).length;
-        const week = contacts.filter((contact) => isContactWithin(contact.joinedDate, "This week")).length;
-        return [
-            { label: "Total Contacts", value: contacts.length.toLocaleString(), helper: "Captured leads", icon: <Users className="h-4 w-4" />, tone: "purple" },
-            { label: "With Email", value: contacts.filter(hasCapturedEmail).length.toLocaleString(), helper: "Ready to export", icon: <Mail className="h-4 w-4" />, tone: "green" },
-            { label: "Active Today", value: today.toLocaleString(), helper: "Recent interactions", icon: <Activity className="h-4 w-4" />, tone: "blue" },
-            { label: "New This Week", value: week.toLocaleString(), helper: "Fresh contacts", icon: <UserPlus className="h-4 w-4" />, tone: "indigo" },
-            { label: "From Automations", value: contacts.filter((contact) => contact.sourceType !== "Direct DM").length.toLocaleString(), helper: "Workflow sourced", icon: <Bot className="h-4 w-4" />, tone: "amber" },
-        ];
-    }, [contacts]);
+    const stats = useMemo(() => [
+        { label: "Total Contacts", value: safeNumber(metrics.totalContacts).toLocaleString(), helper: "Captured leads", icon: <Users className="h-4 w-4" />, tone: "purple" },
+        { label: "With Email", value: safeNumber(metrics.withEmail).toLocaleString(), helper: "Ready to export", icon: <Mail className="h-4 w-4" />, tone: "green" },
+        { label: "Active Today", value: safeNumber(metrics.activeToday).toLocaleString(), helper: "Recent interactions", icon: <Activity className="h-4 w-4" />, tone: "blue" },
+        { label: "New This Week", value: safeNumber(metrics.newThisWeek).toLocaleString(), helper: "Fresh contacts", icon: <UserPlus className="h-4 w-4" />, tone: "indigo" },
+        { label: "From Automations", value: safeNumber(metrics.fromAutomations).toLocaleString(), helper: "Workflow sourced", icon: <Bot className="h-4 w-4" />, tone: "amber" },
+    ], [metrics]);
 
     const filteredContacts = useMemo(() => {
         const query = search.trim().toLowerCase();
@@ -3718,12 +3774,13 @@ function ContactsPage({
             const matchesEmail = emailFilter === "All emails"
                 || (emailFilter === "Has email" && hasCapturedEmail(contact))
                 || (emailFilter === "No email" && !hasCapturedEmail(contact));
-            const matchesDate = dateFilter === "All dates" || isContactWithin(contact.joinedDate, dateFilter);
+            const lastInteractionDate = contact.lastInteractionAt || contact.joinedDate;
+            const matchesDate = dateFilter === "All dates" || isContactWithin(lastInteractionDate, dateFilter);
             const matchesSegment = segment === "All contacts"
                 || (segment === "New contacts" && isContactWithin(contact.joinedDate, "This week"))
                 || (segment === "With email" && hasCapturedEmail(contact))
                 || (segment === "From automations" && contact.sourceType !== "Direct DM")
-                || (segment === "Active today" && isContactWithin(contact.joinedDate, "Today"))
+                || (segment === "Active today" && isContactWithin(lastInteractionDate, "Today"))
                 || (segment === "No email" && !hasCapturedEmail(contact));
             return matchesQuery && matchesSource && matchesRelationship && matchesEmail && matchesDate && matchesSegment;
         });
@@ -3756,11 +3813,11 @@ function ContactsPage({
         setDateFilter("All dates");
         setEmailFilter("All emails");
         setSegment("All contacts");
-        setSelectedIds(new Set());
+        setSelectedIds(new Set<string>());
         showToast("Filters cleared");
     };
 
-    const toggleContactSelection = (id: number) => {
+    const toggleContactSelection = (id: string) => {
         setSelectedIds((current) => {
             const next = new Set(current);
             if (next.has(id)) next.delete(id);
@@ -3830,6 +3887,14 @@ function ContactsPage({
 
     const selectedCount = selectedIds.size;
     const hasFilters = Boolean(search.trim()) || sourceFilter !== "All sources" || relationshipFilter !== "All relationships" || dateFilter !== "All dates" || emailFilter !== "All emails" || segment !== "All contacts";
+    const refreshContacts = async () => {
+        const refreshed = await onRefresh();
+        if (refreshed) {
+            showToast("Contacts refreshed");
+        } else {
+            showToast("Unable to refresh contacts");
+        }
+    };
 
     return (
         <PageShell
@@ -3837,9 +3902,9 @@ function ContactsPage({
             subtitle="Manage leads captured from your Instagram automations."
             action={
                 <div className="flex flex-col gap-2 sm:flex-row">
-                    <SecondaryButton onClick={() => showToast("Contacts refreshed")}>
-                        <RefreshCw className="h-4 w-4" />
-                        Refresh Contacts
+                    <SecondaryButton onClick={refreshContacts}>
+                        <RefreshCw className={cx("h-4 w-4", loading && "animate-spin")} />
+                        {loading ? "Refreshing..." : "Refresh Contacts"}
                     </SecondaryButton>
                     <PrimaryButton onClick={() => exportContacts("filtered")}>
                         <Download className="h-4 w-4" />
@@ -3897,7 +3962,7 @@ function ContactsPage({
                                 <Download className="h-3.5 w-3.5" />
                                 Export selected
                             </button>
-                            <button onClick={() => setSelectedIds(new Set())} className="inline-flex h-9 items-center justify-center rounded-[0.9rem] bg-white px-3 text-xs font-black text-slate-600 ring-1 ring-indigo-100 transition hover:bg-slate-50">
+                            <button onClick={() => setSelectedIds(new Set<string>())} className="inline-flex h-9 items-center justify-center rounded-[0.9rem] bg-white px-3 text-xs font-black text-slate-600 ring-1 ring-indigo-100 transition hover:bg-slate-50">
                                 Clear selection
                             </button>
                         </div>
@@ -3917,12 +3982,18 @@ function ContactsPage({
                     </button>
                 </div>
 
-                {!contacts.length ? (
+                {loading && !contacts.length ? (
+                    <div className="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3">
+                        {Array.from({ length: 6 }).map((_, index) => (
+                            <SkeletonCard key={index} rows={3} showIcon />
+                        ))}
+                    </div>
+                ) : !contacts.length ? (
                     <div className="p-4">
                         <EmptyState
                             icon={<Users className="h-6 w-6" />}
                             title="No contacts yet"
-                            copy="Contacts will appear here when people interact with your Instagram automations."
+                            copy="Contacts captured from your Instagram automations will appear here."
                             action="Create Automation"
                             onAction={() => onNavigate("automations")}
                         />

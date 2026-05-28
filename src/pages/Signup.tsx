@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowRight,
@@ -262,8 +262,10 @@ function AuthShowcase() {
 
 export default function Signup() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const initialMode = searchParams.get('mode') === 'signin' ? 'signin' : 'signup'
 
-  const [authMode, setAuthMode] = useState<'signup' | 'signin'>('signup')
+  const [authMode, setAuthMode] = useState<'signup' | 'signin'>(initialMode)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [signUpError, setSignUpError] = useState('')
@@ -280,6 +282,7 @@ export default function Signup() {
 
   const switchAuthMode = (mode: 'signup' | 'signin') => {
     setAuthMode(mode)
+    setSearchParams(mode === 'signin' ? { mode: 'signin' } : {})
     setSignUpError('')
     setSignInError('')
     setSignInNotice('')

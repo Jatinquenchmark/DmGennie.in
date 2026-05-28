@@ -6,6 +6,7 @@ import axios from 'axios';
 import { createClient } from '@supabase/supabase-js';
 import Razorpay from 'razorpay';
 import { buildDashboardMetrics } from './dashboardMetrics.js';
+import { buildContactsPayload } from './contactsData.js';
 import { getBillingConfig, getProIntroEligibility } from './billingConfig.js';
 
 dotenv.config({ path: '.env' });
@@ -295,6 +296,19 @@ app.get('/api/admin/contacts', async (req, res) => {
         });
     } catch {
         res.status(500).json({ error: 'Unable to load admin contacts.' });
+    }
+});
+
+app.get('/api/contacts', async (req, res) => {
+    const user = await getUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    try {
+        const payload = await buildContactsPayload({ supabase, userId: user.id });
+        res.json(payload);
+    } catch (error) {
+        console.error('[contacts] Unable to load contacts:', error?.message || error);
+        res.status(500).json({ error: 'Unable to load contacts.' });
     }
 });
 
