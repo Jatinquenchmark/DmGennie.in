@@ -1,14 +1,17 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { LoadingScreen } from '@/components/Loading'
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { session, loading } = useAuth()
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 rounded-full border-4 border-accent-blue border-t-transparent animate-spin" />
-      </div>
+      <LoadingScreen
+        title="Loading DMGenie"
+        subtitle="Preparing your Instagram automation workspace..."
+        detail="Checking your secure session..."
+      />
     )
   }
 

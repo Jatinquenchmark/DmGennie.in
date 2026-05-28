@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Trash2, ArrowLeft, Mail, Clock, CheckCircle } from 'lucide-react'
+import { Footer } from '@/components/Footer'
+import { PageHeader } from '@/components/PageHeader'
 
 function Logo() {
   return (
@@ -48,21 +50,10 @@ const steps = [
 
 export default function DeleteData() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Nav */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Logo />
-          <Link
-            to="/"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" /> Back to Home
-          </Link>
-        </div>
-      </header>
+    <div className="premium-gradient min-h-screen text-foreground">
+      <PageHeader />
 
-      <main className="max-w-4xl mx-auto px-6 py-16">
+      <main className="max-w-4xl mx-auto px-6 pb-16 pt-36">
         {/* Header */}
         <div className="mb-12">
           <div className="inline-flex items-center gap-2 bg-red-500/10 text-red-500 text-sm font-semibold px-4 py-2 rounded-full mb-6">
@@ -152,16 +143,7 @@ export default function DeleteData() {
         </div>
       </main>
 
-      <footer className="border-t border-border mt-16 py-8">
-        <div className="max-w-4xl mx-auto px-6 flex flex-wrap gap-4 items-center justify-between text-sm text-muted-foreground">
-          <span>© {new Date().getFullYear()} DMGenie. All rights reserved.</span>
-          <div className="flex gap-6">
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-            <Link to="/delete-data" className="hover:text-foreground transition-colors">Delete Data</Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

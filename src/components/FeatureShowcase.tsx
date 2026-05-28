@@ -2,69 +2,84 @@
 
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import { MessageCircle, Send, UserCheck } from 'lucide-react'
+import { TrustChips } from './TrustChips'
+
+function ShowcaseImage({ src, alt }: { src: string; alt: string }) {
+  return (
+    <div className="glass-card relative mx-auto w-full max-w-[560px] overflow-hidden rounded-[2rem] p-2">
+      <img
+        src={src}
+        alt={alt}
+        className="block aspect-[1.12/1] w-full rounded-[1.5rem] object-cover object-center"
+        loading="lazy"
+      />
+    </div>
+  )
+}
 
 export function FeatureShowcase() {
   const showcases = [
     {
-      title: "Convert More Followers!",
-      description: "Ensure your discounts, offers, or exclusives are going to only real, actual Instagram followers with Ask for a Follow automation",
-      gradient: 'from-blue-50 to-purple-50',
+      title: 'Boost Engagement!',
+      description: 'Auto-respond to every Instagram comment in a DM. Keep your audience active and move interested followers straight to the next step.',
+      image: '/brand-assets/boost-engagement.png',
+      imageAlt: 'Instagram DM automation example for boosting engagement',
+      icon: MessageCircle,
     },
     {
-      title: "Boost Engagement!",
-      description: "Auto-respond to every Instagram comment in a DM. Keep your audience (and the algorithm) happy — and watch your revenue grow",
-      gradient: 'from-purple-50 to-pink-50',
+      title: 'Convert More Followers!',
+      description: 'Ask users to follow first, then send the right link, offer, or guide only to real Instagram followers.',
+      image: '/brand-assets/convert-followers.png',
+      imageAlt: 'Ask for follow automation example with guide delivery',
+      icon: UserCheck,
     },
   ]
 
   return (
-    <section className="relative py-20 bg-background">
-      <div className="container mx-auto px-6 sm:px-8 lg:px-12 space-y-20">
-        {showcases.map((item, index) => (
-          <div key={item.title} className={`flex flex-col ${index % 2 === 1 ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center gap-12`}>
-            <div className="flex-1">
-              <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6 text-foreground">
-                {item.title}
-              </h2>
-              <p className="text-xl text-muted-foreground leading-relaxed mb-8 max-w-lg">
-                {item.description}
-              </p>
-              <Link to="/signup">
-                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-accent-blue text-white font-bold px-8 py-4 rounded-xl text-lg cursor-pointer hover:bg-blue-700 gentle-animation">
-                  Start For Free
-                </motion.button>
-              </Link>
-              <div className="flex flex-wrap gap-3 mt-4">
-                {['✓ Official Meta APIs', '✓ No Credit Card', '✓ Instant Setup'].map(b => (
-                  <span key={b} className="text-sm text-muted-foreground font-medium">{b}</span>
-                ))}
-              </div>
-            </div>
-            <div className="flex-1">
-              <div className={`bg-gradient-to-br ${item.gradient} rounded-3xl p-8 lg:p-12 elevated-shadow`}>
-                <div className="bg-white rounded-2xl shadow-lg p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-accent-blue rounded-full" />
-                    <div className="flex-1">
-                      <div className="h-3 bg-gray-200 rounded w-32 mb-2" />
-                      <div className="h-2 bg-gray-100 rounded w-20" />
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="bg-accent-blue/10 rounded-xl p-4">
-                      <div className="text-accent-blue font-semibold text-sm">{index === 0 ? '✅ Following confirmed!' : '💬 New comment detected!'}</div>
-                      <div className="text-muted-foreground text-xs mt-1">{index === 0 ? 'Sending exclusive offer...' : 'Auto-sending DM with link...'}</div>
-                    </div>
-                    <div className="bg-accent-emerald/10 rounded-xl p-4">
-                      <div className="text-accent-emerald font-semibold text-sm">{index === 0 ? '🎁 Discount sent via DM' : '📤 Link delivered!'}</div>
-                      <div className="text-muted-foreground text-xs mt-1">{index === 0 ? 'Only real followers receive offers' : 'User engaged successfully'}</div>
-                    </div>
-                  </div>
+    <section className="relative overflow-hidden bg-background py-24">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_8%_20%,rgba(53,92,255,0.08),transparent_28%),radial-gradient(circle_at_92%_55%,rgba(109,93,252,0.08),transparent_28%)]" />
+      <div className="container relative mx-auto space-y-24 px-6 sm:px-8 lg:px-12">
+        {showcases.map((item, index) => {
+          const Icon = item.icon
+
+          return (
+            <div key={item.title} className={`grid items-center gap-14 lg:grid-cols-2 ${index % 2 === 1 ? 'lg:[&>*:first-child]:order-2' : ''}`}>
+              <motion.div
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                viewport={{ once: true }}
+              >
+                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-blue/10 text-accent-blue">
+                  <Icon className="h-6 w-6" />
                 </div>
-              </div>
+                <h2 className="mb-6 text-4xl font-black leading-tight text-foreground sm:text-5xl lg:text-6xl">
+                  {item.title}
+                </h2>
+                <p className="mb-8 max-w-xl text-xl leading-relaxed text-muted-foreground">
+                  {item.description}
+                </p>
+                <Link to="/signup">
+                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="premium-button inline-flex items-center gap-3 rounded-xl px-8 py-4 text-lg font-bold text-white transition-colors">
+                    Start For Free
+                    <Send className="h-5 w-5" />
+                  </motion.button>
+                </Link>
+                <TrustChips className="mt-6" />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.96 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.7 }}
+                viewport={{ once: true }}
+              >
+                <ShowcaseImage src={item.image} alt={item.imageAlt} />
+              </motion.div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </section>
   )

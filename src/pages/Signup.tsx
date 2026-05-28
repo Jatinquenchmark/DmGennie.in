@@ -3,39 +3,263 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Loader2, Shield, Zap } from 'lucide-react'
+import {
+  ArrowRight,
+  Check,
+  Loader2,
+  Send,
+  Shield,
+  X,
+} from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
-const creators = [
-  { handle: '@masaischool', followers: '98.3K+', category: 'Startup' },
-  { handle: '@ghar_sansar', followers: '156K+', category: 'Local Business' },
-  { handle: '@jr.hardikpandyaa93', followers: '728K+', category: 'Creator' },
-  { handle: '@ezsnippet', followers: '3.3M+', category: 'Tech' },
-]
-
-// DMGenie Logo Component
 function DMGenieLogo() {
   return (
-    <Link to="/" className="inline-flex items-center gap-2.5 group mb-10">
-      <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="40" height="40" rx="10" fill="#5b5ef4" fillOpacity="0.15" />
-        <path d="M10 26 L18 14" stroke="#5b5ef4" strokeWidth="3.5" strokeLinecap="round" />
-        <path d="M16 26 L24 14" stroke="#5b5ef4" strokeWidth="3.5" strokeLinecap="round" />
-        <circle cx="28" cy="26" r="3" fill="#5b5ef4" />
+    <Link to="/" className="inline-flex items-center gap-2.5 group">
+      <svg width="38" height="38" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="40" height="40" rx="10" fill="#6d2948" />
+        <path d="M10 27 L19 13" stroke="white" strokeWidth="3.8" strokeLinecap="round" />
+        <path d="M17 27 L26 13" stroke="white" strokeWidth="3.8" strokeLinecap="round" />
+        <circle cx="29" cy="27" r="3" fill="#d7a2ad" />
       </svg>
-      <span className="text-2xl font-extrabold tracking-tight text-foreground group-hover:text-accent-blue transition-colors">
-        DM<span className="text-accent-blue">Genie</span>
+      <span className="text-2xl font-black tracking-tight text-[#151119] transition-colors group-hover:text-[#6d2948]">
+        DM<span className="text-[#6d2948]">Genie</span>
       </span>
     </Link>
+  )
+}
+
+function DMGenieMark({ className = '' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 40 40"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      className={className}
+    >
+      <rect width="40" height="40" rx="10" fill="#6d2948" />
+      <path d="M10 27 L19 13" stroke="white" strokeWidth="3.8" strokeLinecap="round" />
+      <path d="M17 27 L26 13" stroke="white" strokeWidth="3.8" strokeLinecap="round" />
+      <circle cx="29" cy="27" r="3" fill="#d7a2ad" />
+    </svg>
+  )
+}
+
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+    </svg>
+  )
+}
+
+function getSavedReferralCode() {
+  if (typeof window === 'undefined') return ''
+
+  const localCode = localStorage.getItem('dmgennie_referral_code')
+  if (localCode) return localCode
+
+  const cookieCode = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('dmgennie_referral_code='))
+    ?.split('=')[1]
+
+  return cookieCode ? decodeURIComponent(cookieCode) : ''
+}
+
+function SignupTrustBadges() {
+  const badges = [
+    {
+      title: 'Meta Approved',
+      subtitle: 'Business Partner',
+      logo: true,
+    },
+    {
+      title: 'Official API Connection',
+      subtitle: 'Secure OAuth Authentication',
+      logo: false,
+    },
+  ]
+
+  return (
+    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+      {badges.map((badge) => (
+        <div
+          key={badge.title}
+          className="flex min-h-[3.65rem] items-start gap-2 rounded-xl border border-[#eadde2] bg-white/[0.66] px-2.5 py-2.5 shadow-[0_8px_20px_rgba(76,45,59,0.045)]"
+        >
+          {badge.logo ? (
+            <span className="flex h-8 w-14 shrink-0 items-center justify-center rounded-lg border border-[#eadde2] bg-white px-1">
+              <img
+                src="/brand-assets/meta-business-partner.png"
+                alt="Meta Business Partner"
+                className="h-full w-full object-contain"
+                loading="lazy"
+              />
+            </span>
+          ) : (
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/[0.10] text-emerald-600">
+              <Check className="h-3.5 w-3.5 stroke-[3]" />
+            </span>
+          )}
+          <span className="min-w-0">
+            <span className="block text-[10px] font-black leading-tight text-[#6d2948]">{badge.title}</span>
+            <span className="mt-0.5 block text-[9px] font-bold leading-tight text-[#7b7078]">{badge.subtitle}</span>
+          </span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function CreatorProof() {
+  return (
+    <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+      <div className="flex -space-x-2">
+        {['A', 'M', 'R', 'S', 'K'].map((initial, index) => (
+          <span
+            key={initial}
+            className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-[#6d2948] to-[#d7a2ad] text-[11px] font-black text-white shadow-[0_6px_14px_rgba(76,45,59,0.12)]"
+            style={{ opacity: 1 - index * 0.045 }}
+          >
+            {initial}
+          </span>
+        ))}
+      </div>
+      <p className="text-xs font-bold text-[#756b73]">Joined by 2,000+ Instagram creators</p>
+    </div>
+  )
+}
+
+function AuthShowcase() {
+  return (
+    <div className="relative flex flex-col items-center justify-center overflow-hidden px-2 py-8 sm:py-10 lg:px-4 lg:py-0">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[27rem] w-[27rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(109,41,72,0.13),rgba(139,72,116,0.08)_38%,rgba(215,162,173,0.045)_58%,transparent_74%)] blur-3xl" />
+      <motion.div
+        initial={{ opacity: 0, y: 18, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.55, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 w-[min(76vw,18.5rem)] sm:w-[min(50vw,18.75rem)] lg:w-[min(27vw,17.25rem)] xl:w-[18rem]"
+      >
+        <div className="pointer-events-none absolute -inset-6 rounded-[3.3rem] bg-[radial-gradient(circle,rgba(109,41,72,0.14),rgba(126,63,112,0.07)_48%,transparent_72%)] blur-2xl" />
+        <div className="relative aspect-[390/812] rounded-[2.75rem] border border-white/30 bg-[#17131a] p-[7px] shadow-[0_20px_48px_rgba(21,17,25,0.16),0_7px_16px_rgba(109,41,72,0.055)]">
+          <div className="absolute -right-5 top-24 z-30 rounded-2xl border border-white/70 bg-white/90 px-3 py-2 text-center shadow-[0_12px_28px_rgba(76,45,59,0.12)] backdrop-blur-xl">
+            <p className="text-sm font-black leading-none text-[#6d2948]">+2.3K</p>
+            <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-[#7b7078]">followers</p>
+          </div>
+          <div className="pointer-events-none absolute inset-x-14 top-1.5 h-px bg-gradient-to-r from-transparent via-white/22 to-transparent" />
+          <div className="relative h-full overflow-hidden rounded-[2.35rem] border border-white/[0.055] bg-[#08080b]">
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,#111016_0%,#09090d_56%,#080609_100%)]" />
+            <div className="pointer-events-none absolute inset-0 opacity-[0.02] [background-image:linear-gradient(rgba(255,255,255,0.9)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.9)_1px,transparent_1px)] [background-size:32px_32px]" />
+            <div className="absolute left-1/2 top-0 z-20 h-6 w-28 -translate-x-1/2 rounded-b-[1.1rem] bg-[#050506]" />
+
+            <div className="relative z-10 flex h-full flex-col px-4 pb-4 pt-3 text-white">
+              <div className="flex h-7 items-center justify-between px-1 text-[10px] font-semibold text-white/70">
+                <span>9:41</span>
+                <div className="flex items-center gap-1.5 opacity-75">
+                  <span className="h-1.5 w-3.5 rounded-full bg-white" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                  <span className="h-2.5 w-5 rounded-[4px] border border-white/70">
+                    <span className="block h-full w-3 rounded-[3px] bg-white/80" />
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-3 rounded-[1.35rem] border border-white/[0.06] bg-white/[0.04] p-2.5">
+                <div className="flex items-center justify-between gap-2.5">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <DMGenieMark className="h-8 w-8 shrink-0 rounded-xl shadow-[0_6px_16px_rgba(109,41,72,0.24)]" />
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-bold leading-tight">DMGenie</p>
+                      <p className="mt-0.5 text-[10px] font-medium text-white/[0.44]">Instagram Connected</p>
+                    </div>
+                  </div>
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-400/[0.12] bg-emerald-400/[0.065] px-1.5 py-0.5 text-[7.5px] font-bold text-emerald-300">
+                    <span className="h-1 w-1 rounded-full bg-emerald-300" />
+                    Automation Active
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-2.5 grid grid-cols-3 gap-1.5">
+                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.032] px-2 py-2 text-center">
+                  <p className="text-[15px] font-black leading-none text-white">1,247</p>
+                  <p className="mt-1 text-[8px] font-bold uppercase tracking-wide text-white/[0.34]">Leads</p>
+                </div>
+                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.032] px-2 py-2 text-center">
+                  <p className="text-[15px] font-black leading-none text-white">98%</p>
+                  <p className="mt-1 text-[8px] font-bold uppercase tracking-wide text-white/[0.34]">Reply Rate</p>
+                </div>
+                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.032] px-2 py-2 text-center">
+                  <p className="text-[15px] font-black leading-none text-white">3</p>
+                  <p className="mt-1 text-[8px] font-bold uppercase tracking-wide text-white/[0.34]">Active Triggers</p>
+                </div>
+              </div>
+
+              <div className="mt-2.5 rounded-[1.3rem] border border-white/[0.06] bg-white/[0.032] p-3">
+                <div className="mb-2 flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/[0.38]">Incoming comment</p>
+                  <span className="rounded-full bg-white/[0.055] px-2 py-0.5 text-[9px] font-medium text-white/[0.46]">now</span>
+                </div>
+                <p className="text-[13px] leading-relaxed text-white/[0.86]">
+                  <span className="font-semibold text-white">@creator</span> commented "drop the link 🔥"
+                </p>
+              </div>
+
+              <div className="mt-2.5 rounded-[1.3rem] bg-[#6d2948] p-3 shadow-[0_10px_20px_rgba(109,41,72,0.12)]">
+                <div className="flex items-center gap-2">
+                  <Send className="h-3.5 w-3.5 text-white/[0.72]" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/[0.62]">AI Auto Reply</span>
+                </div>
+                <p className="mt-2 text-[13px] font-medium leading-snug text-white/[0.94]">
+                  Here's your guide. Tap below to open it.
+                </p>
+                <button type="button" className="mt-2.5 flex w-full items-center justify-center rounded-xl bg-white px-3 py-1.5 text-xs font-black text-[#5a203a]">
+                  Open Guide
+                </button>
+              </div>
+
+              <div className="mt-auto space-y-2 pt-3">
+                <div className="rounded-[1.15rem] border border-white/[0.06] bg-white/[0.035] p-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-400/[0.09] text-emerald-300">
+                      <Check className="h-3.5 w-3.5 stroke-[3]" />
+                    </span>
+                    <div>
+                      <p className="text-xs font-bold text-white">Lead captured</p>
+                      <p className="text-[10px] font-medium text-white/[0.42]">Saved to campaign</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-[1.15rem] border border-white/[0.06] bg-white/[0.035] p-2.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <Shield className="h-3.5 w-3.5 shrink-0 text-[#d7a2ad]" />
+                      <span className="truncate text-[11px] font-bold text-white/[0.76]">Meta API Connected</span>
+                    </div>
+                    <span className="rounded-full border border-emerald-400/[0.12] bg-emerald-400/[0.07] px-2 py-0.5 text-[8px] font-bold text-emerald-300">Verified</span>
+                  </div>
+                  <p className="mt-1.5 text-[9px] font-medium text-white/[0.42]">Secure OAuth &middot; Password-free</p>
+                </div>
+              </div>
+
+              <div className="mx-auto mt-2.5 h-1.5 w-24 rounded-full bg-white/[0.18]" />
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
   )
 }
 
 export default function Signup() {
   const navigate = useNavigate()
 
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [signUpError, setSignUpError] = useState('')
@@ -46,6 +270,7 @@ export default function Signup() {
   const [signInEmail, setSignInEmail] = useState('')
   const [signInPassword, setSignInPassword] = useState('')
   const [signInError, setSignInError] = useState('')
+  const [signInNotice, setSignInNotice] = useState('')
   const [signInLoading, setSignInLoading] = useState(false)
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -53,15 +278,14 @@ export default function Signup() {
     setSignUpError('')
     setSignUpLoading(true)
 
+    const referralCode = getSavedReferralCode()
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          first_name: firstName,
-          last_name: lastName,
-          phone,
-          full_name: `${firstName} ${lastName}`.trim(),
+          ...(referralCode ? { referral_code: referralCode } : {}),
+          // TODO: attach referral code during signup and validate/create the referral relation on the backend.
         },
       },
     })
@@ -84,6 +308,7 @@ export default function Signup() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
     setSignInError('')
+    setSignInNotice('')
     setSignInLoading(true)
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -101,258 +326,228 @@ export default function Signup() {
     navigate('/dashboard')
   }
 
+  const handlePasswordReset = async () => {
+    setSignInError('')
+    setSignInNotice('')
+
+    if (!signInEmail.trim()) {
+      setSignInError('Enter your email above to receive a password reset link.')
+      return
+    }
+
+    setSignInLoading(true)
+    const { error } = await supabase.auth.resetPasswordForEmail(signInEmail.trim(), {
+      redirectTo: `${window.location.origin}/signup`,
+    })
+    setSignInLoading(false)
+
+    if (error) {
+      setSignInError('Unable to send a reset link. Please try again.')
+      return
+    }
+
+    setSignInNotice('Password reset link sent. Please check your email.')
+  }
+
   const handleGoogleSignIn = async () => {
+    // TODO: attach saved referral code to OAuth signup during the auth callback/profile creation flow.
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/dashboard` },
     })
   }
 
-  const inputCls = "w-full border border-border rounded-xl px-4 py-3 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent-blue/40 transition-shadow text-sm"
+  const inputCls = 'h-11 w-full rounded-xl border border-[#eadde2] bg-white/[0.82] px-3.5 text-sm font-medium text-[#151119] outline-none transition-all placeholder:text-[#a89ba4] focus:border-[#6d2948]/35 focus:bg-white focus:ring-4 focus:ring-[#6d2948]/[0.08]'
 
   return (
-    <div className="min-h-screen flex">
-      {/* ── Left Panel ── */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-background">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
-        >
-          <DMGenieLogo />
+    <div className="relative min-h-screen overflow-hidden bg-[#fffafb] text-[#151119]">
+      <div className="pointer-events-none absolute left-[-10%] top-[-18%] h-[30rem] w-[30rem] rounded-full bg-[#6d2948]/[0.07] blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-22%] right-[-12%] h-[34rem] w-[34rem] rounded-full bg-[#d7a2ad]/10 blur-3xl" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.65),rgba(251,247,248,0.9))]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.13] [background-image:linear-gradient(rgba(109,41,72,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(109,41,72,0.08)_1px,transparent_1px)] [background-size:56px_56px]" />
 
-          <h1 className="text-3xl font-extrabold text-foreground mb-2">Get Started Free</h1>
-          <p className="text-muted-foreground mb-8 text-sm">
-            Create your account and start automating Instagram DMs in minutes.
-          </p>
+      <div className="relative z-10 mx-auto grid min-h-screen max-w-6xl grid-cols-1 items-center gap-10 px-5 py-8 sm:px-8 lg:grid-cols-[0.92fr_1fr] lg:gap-12 lg:px-10 lg:py-10">
+        <div className="flex items-center justify-center lg:justify-start">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="w-full max-w-[25.5rem]"
+          >
+            <DMGenieLogo />
 
-          {signUpSuccess ? (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-6 text-center"
-            >
-              <div className="text-4xl mb-3">📬</div>
-              <h3 className="text-lg font-bold text-foreground mb-2">Check your inbox!</h3>
-              <p className="text-sm text-muted-foreground">
-                We sent a confirmation email to <strong>{email}</strong>. Click the link to activate your account.
-              </p>
-              <button
-                type="button"
-                onClick={() => setShowSignIn(true)}
-                className="mt-4 text-accent-blue font-semibold hover:underline text-sm cursor-pointer"
-              >
-                Already confirmed? Sign in →
-              </button>
-            </motion.div>
-          ) : (
-            <>
-              {/* Google */}
-              <button
-                type="button"
-                onClick={handleGoogleSignIn}
-                className="w-full flex items-center justify-center gap-3 border border-border rounded-xl px-4 py-3.5 font-semibold text-foreground hover:bg-accent/50 transition-colors cursor-pointer mb-6 text-sm"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                </svg>
-                Continue with Google
-              </button>
-
-              <div className="flex items-center gap-4 mb-6">
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-xs text-muted-foreground font-medium">OR</span>
-                <div className="flex-1 h-px bg-border" />
+            <div className="mt-7 rounded-[1.65rem] border border-white/80 bg-white/[0.78] p-5 shadow-[0_18px_55px_rgba(76,45,59,0.075)] backdrop-blur-xl sm:p-6">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#eadde2] bg-white/[0.74] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#6d2948]">
+                <Check className="h-3.5 w-3.5 stroke-[3] text-emerald-600" />
+                Secure signup
               </div>
 
-              {signUpError && (
-                <div className="bg-red-500/10 text-red-500 text-sm p-3 rounded-lg mb-4 text-center">
-                  {signUpError}
-                </div>
-              )}
-
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="grid grid-cols-2 gap-3">
-                  <input type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} className={inputCls} required />
-                  <input type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} className={inputCls} />
-                </div>
-
-                <div className="flex items-center border border-border rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-accent-blue/40 transition-shadow">
-                  <span className="px-4 text-muted-foreground text-sm font-medium border-r border-border bg-accent/30 py-3">🇮🇳 +91</span>
-                  <input type="tel" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} className="flex-1 px-4 py-3 bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none" />
-                </div>
-
-                <input type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} required />
-                <input type="password" placeholder="Password (min. 6 characters)" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} minLength={6} required />
-
-                {/* Trust badge — safe wording, no "Meta-verified" */}
-                <div className="flex items-start gap-3 bg-accent/40 rounded-xl px-4 py-3">
-                  <Shield className="w-5 h-5 text-accent-blue flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">Secure & Compliant</p>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      DMGenie uses official Instagram APIs only. Your account remains in full control — we never store your password.
-                    </p>
-                  </div>
-                </div>
-
-                <p className="text-xs text-muted-foreground text-center">
-                  By joining you agree to our{' '}
-                  <Link to="/terms" className="text-accent-blue hover:underline">Terms</Link>
-                  {' '}&amp;{' '}
-                  <Link to="/privacy" className="text-accent-blue hover:underline">Privacy Policy</Link>
-                </p>
-
-                <button
-                  type="submit"
-                  disabled={signUpLoading}
-                  className="w-full bg-accent-blue text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-colors cursor-pointer text-base flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  {signUpLoading ? (
-                    <><Loader2 className="w-5 h-5 animate-spin" /> Creating Account…</>
-                  ) : (
-                    <><Zap className="w-4 h-4" /> Create Free Account</>
-                  )}
-                </button>
-              </form>
-
-              <p className="text-center text-muted-foreground mt-6 text-sm">
-                Already have an account?{' '}
-                <button type="button" onClick={() => setShowSignIn(true)} className="text-accent-blue font-semibold hover:underline bg-transparent border-none cursor-pointer">
-                  Sign in
-                </button>
+              <h1 className="text-[1.65rem] font-black tracking-[-0.02em] text-[#151119] sm:text-3xl">Get Started Free</h1>
+              <p className="mt-2.5 text-sm font-medium leading-6 text-[#6f6570]">
+                Create your account and start automating Instagram DMs in minutes.
               </p>
-            </>
-          )}
-        </motion.div>
-      </div>
 
-      {/* ── Right Panel ── */}
-      <div className="hidden lg:flex flex-1 items-center justify-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #eff3ff 0%, #e8ecfa 50%, #f0e6ff 100%)' }}>
-        <div className="relative z-10 text-center px-12 max-w-lg">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            {/* Big stat */}
-            <div className="mb-10">
-              <p className="text-6xl font-extrabold text-accent-blue mb-2">25k+</p>
-              <p className="text-gray-600 font-semibold">Creators & businesses using DMGenie</p>
-            </div>
-
-            {/* Feature bullets */}
-            <div className="space-y-3 text-left">
-              {[
-                { icon: '⚡', text: 'Set up in under 5 minutes' },
-                { icon: '🔒', text: 'Official Meta API — fully compliant' },
-                { icon: '📩', text: 'Auto-DM on keyword comments' },
-                { icon: '📊', text: 'Real-time delivery tracking' },
-              ].map((f) => (
-                <div key={f.text} className="flex items-center gap-3 bg-white/60 backdrop-blur-sm rounded-xl px-4 py-3 shadow-sm border border-white/80">
-                  <span className="text-xl">{f.icon}</span>
-                  <span className="font-medium text-gray-800 text-sm">{f.text}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Creator cards */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="mt-8 flex gap-3 justify-center flex-wrap"
-            >
-              {creators.map((c, i) => (
+              {signUpSuccess ? (
                 <motion.div
-                  key={c.handle}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.6 + i * 0.1 }}
-                  className="bg-white/70 backdrop-blur-sm rounded-xl px-3 py-2 border border-white/80 shadow-sm"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-8 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-6 text-center"
                 >
-                  <p className="font-bold text-gray-900 text-xs">{c.handle}</p>
-                  <p className="text-gray-500 text-xs">{c.followers}</p>
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-600">
+                    <Send className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-black text-[#151119]">Check your inbox</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[#665d66]">
+                    We sent a confirmation email to <strong>{email}</strong>. Click the link to activate your account.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowSignIn(true)}
+                    className="mt-5 inline-flex items-center gap-1 text-sm font-black text-[#6d2948] hover:underline"
+                  >
+                    Already confirmed? Sign in <ArrowRight className="h-4 w-4" />
+                  </button>
                 </motion.div>
-              ))}
-            </motion.div>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={handleGoogleSignIn}
+                    className="mt-6 flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-[#eadde2] bg-white/[0.82] px-4 text-sm font-black text-[#151119] transition-all duration-200 hover:-translate-y-px hover:bg-white hover:shadow-[0_10px_24px_rgba(76,45,59,0.07)]"
+                  >
+                    <GoogleIcon />
+                    Continue with Google
+                  </button>
+
+                  <div className="my-5 flex items-center gap-4">
+                    <div className="h-px flex-1 bg-[#eadde2]" />
+                    <span className="text-[11px] font-black uppercase tracking-[0.14em] text-[#a89ba4]">or</span>
+                    <div className="h-px flex-1 bg-[#eadde2]" />
+                  </div>
+
+                  {signUpError && (
+                    <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-center text-sm font-semibold text-red-600">
+                      {signUpError}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleSignUp} className="space-y-3.5">
+                    <input type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} required />
+                    <input type="password" placeholder="Password (min. 6 characters)" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} minLength={6} required />
+
+                    <p className="text-center text-[11px] leading-relaxed text-[#817782]">
+                      By joining you agree to our{' '}
+                      <Link to="/terms" className="font-bold text-[#6d2948] hover:underline">Terms</Link>
+                      {' '}&amp;{' '}
+                      <Link to="/privacy" className="font-bold text-[#6d2948] hover:underline">Privacy Policy</Link>
+                    </p>
+
+                    <button
+                      type="submit"
+                      disabled={signUpLoading}
+                      className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#73304f] to-[#5a203b] text-sm font-black text-white shadow-[0_12px_28px_rgba(109,41,72,0.18),inset_0_1px_0_rgba(255,255,255,0.18)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_16px_34px_rgba(109,41,72,0.22),inset_0_1px_0_rgba(255,255,255,0.2)] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {signUpLoading ? (
+                        <><Loader2 className="h-5 w-5 animate-spin" /> Creating Account...</>
+                      ) : (
+                        'Create Free Account'
+                      )}
+                    </button>
+                    <p className="text-center text-[11px] font-semibold text-[#8a8088]">No credit card required &bull; Cancel anytime</p>
+                    <SignupTrustBadges />
+                  </form>
+
+                  <p className="mt-5 text-center text-sm font-medium text-[#756b73]">
+                    Already have an account?{' '}
+                    <button type="button" onClick={() => setShowSignIn(true)} className="border-none bg-transparent font-black text-[#6d2948] hover:underline">
+                      Sign in
+                    </button>
+                  </p>
+                  <CreatorProof />
+                </>
+              )}
+            </div>
           </motion.div>
         </div>
+
+        <AuthShowcase />
       </div>
 
-      {/* ── Sign In Modal ── */}
       <AnimatePresence>
         {showSignIn && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#151119]/45 p-4 backdrop-blur-sm">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.95, y: 18 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 18 }}
               transition={{ duration: 0.2 }}
-              className="relative w-full max-w-md bg-card border border-border rounded-2xl p-8 shadow-2xl"
+              className="relative w-full max-w-[25.5rem] rounded-[1.65rem] border border-white/85 bg-[#fffafa]/95 p-6 shadow-[0_24px_70px_rgba(21,17,25,0.20)] backdrop-blur-xl"
             >
               <button
                 type="button"
-                onClick={() => { setShowSignIn(false); setSignInError('') }}
-                className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer p-1"
+                onClick={() => { setShowSignIn(false); setSignInError(''); setSignInNotice('') }}
+                className="absolute right-5 top-5 rounded-full p-2 text-[#756b73] transition-colors hover:bg-[#f7edf1] hover:text-[#151119]"
+                aria-label="Close sign in"
               >
-                <X className="w-5 h-5" />
+                <X className="h-5 w-5" />
               </button>
 
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-foreground">Welcome Back</h2>
-                <p className="text-sm text-muted-foreground mt-1">Sign in to your DMGenie account</p>
+              <div className="mb-6">
+                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[#6d2948]/10 text-[#6d2948]">
+                  <Shield className="h-5 w-5" />
+                </div>
+                <h2 className="text-2xl font-black tracking-[-0.02em] text-[#151119]">Welcome Back</h2>
+                <p className="mt-2 text-sm font-medium text-[#665d66]">Sign in to your DMGenie account</p>
               </div>
 
               {signInError && (
-                <div className="bg-red-500/10 text-red-500 text-sm p-3 rounded-lg mb-4 text-center">{signInError}</div>
+                <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-center text-sm font-semibold text-red-600">{signInError}</div>
+              )}
+              {signInNotice && (
+                <div className="mb-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-center text-sm font-semibold text-emerald-700">{signInNotice}</div>
               )}
 
-              <form onSubmit={handleSignIn} className="space-y-4">
+              <form onSubmit={handleSignIn} className="space-y-3.5">
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Email</label>
+                  <label className="mb-1.5 block text-xs font-black uppercase tracking-[0.08em] text-[#6f6570]">Email</label>
                   <input type="email" value={signInEmail} onChange={(e) => setSignInEmail(e.target.value)} className={inputCls} required autoComplete="email" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Password</label>
+                  <label className="mb-1.5 block text-xs font-black uppercase tracking-[0.08em] text-[#6f6570]">Password</label>
                   <input type="password" value={signInPassword} onChange={(e) => setSignInPassword(e.target.value)} className={inputCls} required autoComplete="current-password" />
                 </div>
                 <div className="flex justify-end">
-                  <a href="#" className="text-sm text-accent-blue hover:underline">Forgot password?</a>
+                  <button
+                    type="button"
+                    onClick={handlePasswordReset}
+                    disabled={signInLoading}
+                    className="text-sm font-bold text-[#6d2948] transition-colors hover:text-[#4f1c34] hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Forgot password?
+                  </button>
                 </div>
                 <button
                   type="submit"
                   disabled={signInLoading}
-                  className="w-full bg-accent-blue text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition-colors mt-2 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#73304f] to-[#5a203b] text-sm font-black text-white shadow-[0_12px_28px_rgba(109,41,72,0.18),inset_0_1px_0_rgba(255,255,255,0.18)] transition-all duration-200 hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {signInLoading ? <><Loader2 className="w-5 h-5 animate-spin" /> Signing in…</> : 'Sign In'}
+                  {signInLoading ? <><Loader2 className="h-5 w-5 animate-spin" /> Signing in...</> : 'Sign In'}
                 </button>
               </form>
 
               <div className="mt-6">
                 <div className="relative">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
-                  <div className="relative flex justify-center text-xs"><span className="px-2 bg-card text-muted-foreground">Or continue with</span></div>
+                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#eadde2]" /></div>
+                  <div className="relative flex justify-center text-xs"><span className="bg-[#fffafa] px-2 font-bold uppercase tracking-[0.12em] text-[#9a8d96]">Or continue with</span></div>
                 </div>
-                <div className="mt-4">
-                  <button
-                    type="button"
-                    onClick={handleGoogleSignIn}
-                    className="w-full flex justify-center items-center gap-2 cursor-pointer py-2.5 border border-border rounded-xl hover:bg-accent/50 transition-colors text-sm font-semibold"
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24">
-                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
-                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                    </svg>
-                    Google
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleGoogleSignIn}
+                  className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#eadde2] bg-white/90 text-sm font-black text-[#151119] transition-all hover:-translate-y-px hover:bg-white"
+                >
+                  <GoogleIcon />
+                  Google
+                </button>
               </div>
             </motion.div>
           </div>

@@ -1,55 +1,55 @@
 'use client'
 
+import { Fragment } from 'react'
 import { motion } from 'framer-motion'
+import { Mail, MousePointerClick, Sparkles } from 'lucide-react'
 
 export function HowItWorks() {
   const steps = [
-    { number: '1', title: 'Connect Instagram', description: 'Securely connect your Instagram Business account via official Meta OAuth. No passwords stored.', icon: '🔗' },
-    { number: '2', title: 'Create Keyword Trigger', description: 'Set a keyword like "link" or "info". When someone comments it, the automation activates.', icon: '⚡' },
-    { number: '3', title: 'Replies Sent Automatically', description: 'DMGenie sends a personalised DM to the commenter instantly via official Instagram APIs.', icon: '✉️' },
+    { number: '1', title: 'Choose Trigger', description: 'Choose which keywords activate your automation.', icon: MousePointerClick },
+    { number: '2', title: 'Automate Response', description: 'Set up custom responses with links and offers to share.', icon: Mail },
+    { number: '3', title: 'Go Viral', description: 'Let automations do the work while you focus on creating.', icon: Sparkles },
   ]
 
   return (
-    <section id="how-it-works" className="relative py-24 bg-background">
+    <section id="how-it-works" className="relative bg-slate-50 py-24">
       <div className="container mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-3 mb-6">
-            <div className="w-3 h-3 bg-accent-purple rounded-full animate-pulse" />
-            <span className="text-sm font-semibold text-muted-foreground">How It Works</span>
-            <div className="w-3 h-3 bg-accent-emerald rounded-full animate-pulse" />
-          </div>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6 text-foreground">
-            3 Simple Steps to Automate
+        <div className="mb-16 text-center">
+          <div className="mb-5 text-sm font-black uppercase tracking-[0.18em] text-accent-blue">How it works</div>
+          <h2 className="text-4xl font-black leading-tight text-foreground sm:text-5xl lg:text-6xl">
+            3 Easy Steps, <span className="text-accent-blue">Unlimited</span> Possibilities
           </h2>
-          <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-            Set up comment-to-DM automation in minutes using official Instagram APIs.
-          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {steps.map((step, index) => (
-            <motion.div
-              key={step.number}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.2 }}
-              viewport={{ once: true }}
-              className="relative text-center"
-            >
-              {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-16 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-accent-blue to-accent-purple opacity-30" />
-              )}
+        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-center">
+          {steps.map((step, index) => {
+            const Icon = step.icon
 
-              <div className="relative z-10">
-                <div className="w-20 h-20 bg-accent-blue/10 rounded-2xl flex items-center justify-center mx-auto mb-6 text-4xl">
-                  {step.icon}
-                </div>
-                <div className="text-accent-blue font-black text-sm mb-2">STEP {step.number}</div>
-                <h3 className="text-2xl font-black text-foreground mb-3">{step.title}</h3>
-                <p className="text-muted-foreground leading-relaxed max-w-xs mx-auto">{step.description}</p>
-              </div>
-            </motion.div>
-          ))}
+            return (
+              <Fragment key={step.number}>
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.12 }}
+                  viewport={{ once: true }}
+                  className="text-center"
+                >
+                  <div className="mb-7 inline-flex rounded-lg bg-accent-blue px-4 py-1.5 text-sm font-black uppercase tracking-wide text-white">
+                    Step {step.number}
+                  </div>
+                  <div className="mx-auto mb-7 flex h-16 w-16 items-center justify-center text-slate-700">
+                    <Icon className="h-12 w-12 stroke-[1.8]" />
+                  </div>
+                  <h3 className="mb-4 text-3xl font-black text-foreground">{step.title}</h3>
+                  <p className="mx-auto max-w-xs text-lg leading-relaxed text-muted-foreground">{step.description}</p>
+                </motion.div>
+
+                {index < steps.length - 1 && (
+                  <div className="hidden text-5xl font-light text-accent-blue md:block">→</div>
+                )}
+              </Fragment>
+            )
+          })}
         </div>
       </div>
     </section>

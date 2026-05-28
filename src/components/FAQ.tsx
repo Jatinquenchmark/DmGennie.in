@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { TrustChips } from './TrustChips'
 
 export function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
@@ -70,15 +71,11 @@ export function FAQ() {
         {/* Final CTA */}
         <div className="text-center mt-16">
           <Link to="/signup">
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-accent-blue text-white font-bold px-10 py-5 rounded-xl text-xl cursor-pointer hover:bg-blue-700 gentle-animation">
+            <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="premium-button px-10 py-5 text-xl font-bold text-white">
               Start For Free
             </motion.button>
           </Link>
-          <div className="flex justify-center gap-4 mt-4">
-            {['✓ Official Meta APIs', '✓ No Credit Card', '✓ Instant Setup'].map(b => (
-              <span key={b} className="text-sm text-muted-foreground font-medium">{b}</span>
-            ))}
-          </div>
+          <TrustChips className="mt-5 justify-center" />
         </div>
       </div>
     </section>

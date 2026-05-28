@@ -2,15 +2,15 @@
 
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { Menu, X, Shield, Zap, MessageCircle } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Link2, Menu, Send, Sparkles, X, Zap } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import TextType from './ui/TextType'
-import { createClient } from '@supabase/supabase-js'
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL!,
-  import.meta.env.VITE_SUPABASE_ANON_KEY!
-)
-import Particles from './ui/Particles'
+import { TrustChips } from './TrustChips'
+
+const navItems = [
+  { label: 'Pricing', href: '/pricing' },
+  { label: 'How it Works', href: '#how-it-works' },
+  { label: 'Affiliate', href: '/referral' },
+]
 
 export function Hero() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -28,38 +28,59 @@ export function Hero() {
   }, [isMobileMenuOpen])
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden" style={{ background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%)' }}>
-      <div className="absolute inset-0 z-0">
-        <Particles particleColors={['#ffffff','#ffffff','#ffffff']} particleCount={200} particleSpread={10} speed={0.1} particleBaseSize={100} moveParticlesOnHover={true} alphaParticles={true} disableRotation={false} />
-      </div>
+    <div className="premium-gradient relative isolate min-h-screen w-full overflow-hidden">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-white/50" />
+      <div className="pointer-events-none absolute left-[-8%] top-[18%] h-72 w-72 rounded-full bg-[#6d2948]/10 blur-3xl sm:h-96 sm:w-96" />
+      <div className="pointer-events-none absolute right-[-10%] top-[24%] h-80 w-80 rounded-full bg-[#d7a2ad]/18 blur-3xl sm:h-[30rem] sm:w-[30rem]" />
+      <div className="pointer-events-none absolute bottom-[-18%] left-[30%] h-72 w-72 rounded-full bg-[#6d2948]/8 blur-3xl" />
 
       {/* Navbar */}
-      <motion.nav initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="fixed top-0 left-0 right-0 w-full z-[110]">
-        <div className={`w-full px-6 sm:px-8 lg:px-12 py-4 transition-all duration-300 ease-out ${isScrolled ? 'bg-white/95 backdrop-blur-xl border-b border-border shadow-sm' : 'bg-transparent'}`}>
-          <div className="flex items-center justify-between max-w-7xl mx-auto">
-            <motion.div whileHover={{ scale: 1.05 }} className="flex items-center gap-2.5 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+      <motion.nav initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="fixed left-0 right-0 top-0 z-[110] w-full">
+        <div className="w-full px-4 py-4 transition-all duration-300 ease-out sm:px-6 lg:px-8">
+          <div className={`mx-auto flex max-w-7xl items-center justify-between rounded-[1.35rem] border px-4 py-3 transition-all duration-300 ${
+            isScrolled
+              ? 'border-white/80 bg-white/78 shadow-[0_18px_55px_rgba(109,41,72,0.10)] backdrop-blur-xl'
+              : 'border-white/60 bg-white/42 shadow-[0_14px_42px_rgba(109,41,72,0.07)] backdrop-blur-md'
+          }`}>
+            <motion.div whileHover={{ scale: 1.03 }} className="flex cursor-pointer items-center gap-2.5" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-                <rect width="40" height="40" rx="10" fill={isScrolled ? "#2563eb" : "rgba(255,255,255,0.2)"}/>
+                <rect width="40" height="40" rx="10" fill="#6d2948"/>
                 <path d="M10 27 L19 13" stroke="white" strokeWidth="3.8" strokeLinecap="round"/>
                 <path d="M17 27 L26 13" stroke="white" strokeWidth="3.8" strokeLinecap="round"/>
-                <circle cx="29" cy="27" r="3" fill="#60a5fa"/>
+                <circle cx="29" cy="27" r="3" fill="#d7a2ad"/>
               </svg>
-              <span className={`font-black text-xl tracking-tight ${isScrolled ? 'text-accent-blue' : 'text-white'}`}>DMGenie</span>
+              <span className="font-black text-xl tracking-tight text-foreground">DMGenie</span>
             </motion.div>
 
-            <div className="hidden md:flex items-center space-x-8">
-              {['Features', 'How it Works', 'Testimonials', 'FAQ'].map(item => (
-                <a key={item} href={`#${item.toLowerCase().replace(/ /g, '-')}`} className={`font-medium gentle-animation hover:scale-105 ${isScrolled ? 'text-foreground hover:text-accent-blue' : 'text-white/90 hover:text-white'}`}>{item}</a>
+            <div className="hidden items-center gap-8 md:flex">
+              {navItems.map((item) => (
+                item.href.startsWith('/') ? (
+                  <Link
+                    key={item.label}
+                    to={item.href}
+                    className="text-sm font-black text-[#625963] transition-colors hover:text-[#6d2948]"
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className="text-sm font-black text-[#625963] transition-colors hover:text-[#6d2948]"
+                  >
+                    {item.label}
+                  </a>
+                )
               ))}
             </div>
 
             <div className="flex items-center space-x-3">
               <Link to="/signup">
-                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className={`hidden sm:block font-semibold px-5 py-2.5 rounded-xl text-sm transition-all ${isScrolled ? 'bg-accent-blue text-white' : 'bg-white/20 text-white border border-white/30'}`}>
+                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="hidden rounded-xl bg-[#6d2948] px-5 py-2.5 text-sm font-black text-white shadow-[0_12px_28px_rgba(109,41,72,0.20)] transition-all hover:bg-[#551f38] sm:block">
                   Get Started Free
                 </motion.button>
               </Link>
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden p-3 rounded-full text-white hover:bg-white/20 cursor-pointer z-[120] relative">
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="relative z-[120] cursor-pointer rounded-full p-3 text-foreground hover:bg-white md:hidden">
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
@@ -70,93 +91,203 @@ export function Hero() {
       {isMobileMenuOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-md z-[80]" onClick={() => setIsMobileMenuOpen(false)} />}
       <motion.div initial={{ x: '100%' }} animate={{ x: isMobileMenuOpen ? '0%' : '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="md:hidden fixed top-0 right-0 h-full w-72 max-w-[85vw] bg-white z-[90] shadow-2xl">
         <div className="flex flex-col p-6 pt-20 space-y-4">
-          {['Features', 'How it Works', 'Testimonials', 'FAQ'].map(item => (
-            <a key={item} href={`#${item.toLowerCase().replace(/ /g, '-')}`} className="px-4 py-3 text-foreground hover:bg-accent rounded-lg font-medium text-lg" onClick={() => setIsMobileMenuOpen(false)}>{item}</a>
+          {navItems.map((item) => (
+            item.href.startsWith('/') ? (
+              <Link
+                key={item.label}
+                to={item.href}
+                className="rounded-lg px-4 py-3 text-lg font-semibold text-foreground hover:bg-accent"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ) : (
+              <a
+                key={item.label}
+                href={item.href}
+                className="rounded-lg px-4 py-3 text-lg font-semibold text-foreground hover:bg-accent"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {item.label}
+              </a>
+            )
           ))}
           <Link to="/signup" className="block bg-accent-blue text-white font-semibold px-6 py-3 rounded-xl text-center mt-4">Get Started Free</Link>
         </div>
       </motion.div>
 
       {/* Hero Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 pt-32 pb-20 flex flex-col lg:flex-row items-center gap-12">
-        <motion.div initial={{ opacity: 0, x: -50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1, delay: 0.5 }} className="flex-1 text-white">
-          <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-4 py-2 mb-8">
-            <Shield className="w-4 h-4" />
-            <span className="font-semibold text-sm">Built on Official Instagram APIs</span>
-          </div>
-
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-tight mb-6">
-            <TextType text="Automate Instagram DMs from Comments" typingSpeed={45} pauseDuration={3000} showCursor={true} cursorCharacter="|" loop={false} />
+      <div className="relative z-10 mx-auto grid min-h-[calc(100vh-2rem)] max-w-7xl grid-cols-1 items-center gap-12 px-6 pb-16 pt-32 sm:px-8 sm:pb-20 sm:pt-36 lg:grid-cols-[minmax(0,1.02fr)_minmax(340px,0.88fr)] lg:gap-10 lg:px-12 xl:gap-16">
+        <motion.div initial={{ opacity: 0, x: -42 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.9, delay: 0.45 }} className="mx-auto w-full max-w-[660px] text-center text-foreground lg:mx-0 lg:text-left">
+          <h1 className="mx-auto mb-6 max-w-[760px] text-4xl font-black leading-[0.98] tracking-tight text-[#101018] sm:text-5xl md:text-6xl lg:mx-0 lg:max-w-[680px] xl:text-[4.55rem]">
+            Automate Instagram DMs from Comments
           </h1>
 
-          <p className="text-xl lg:text-2xl text-white/80 max-w-xl leading-relaxed mb-8">
+          <p className="mx-auto mb-8 max-w-[620px] text-lg font-medium leading-relaxed text-[#675d65] sm:text-xl lg:mx-0">
             Automatically send Instagram direct messages when users comment keywords on your posts and reels — using official Meta APIs, fully compliant.
           </p>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap justify-center gap-4 lg:justify-start">
             <Link to="/signup">
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-[#c8ff00] text-black font-bold px-8 py-4 rounded-xl text-lg cursor-pointer hover:bg-[#d4ff33] gentle-animation">
+              <motion.button whileHover={{ scale: 1.025, y: -2 }} whileTap={{ scale: 0.98 }} className="premium-button cursor-pointer rounded-xl px-8 py-4 text-lg font-bold text-white gentle-animation">
                 Start For Free
               </motion.button>
             </Link>
             <a href="#how-it-works">
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="bg-white/15 backdrop-blur-sm text-white font-semibold px-8 py-4 rounded-xl text-lg cursor-pointer hover:bg-white/25 gentle-animation border border-white/20">
+              <motion.button whileHover={{ scale: 1.025, y: -2 }} whileTap={{ scale: 0.98 }} className="glass-light cursor-pointer rounded-xl px-8 py-4 text-lg font-bold text-foreground gentle-animation">
                 See How It Works
               </motion.button>
             </a>
           </div>
 
-          <div className="flex flex-wrap gap-4 mt-6">
-            {['✓ Official Meta APIs', '✓ No Credit Card', '✓ Instant Setup'].map(badge => (
-              <span key={badge} className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-sm font-medium">{badge}</span>
-            ))}
-          </div>
+          <motion.div
+            whileHover={{ y: -2, boxShadow: '0 24px 62px rgba(109, 41, 72, 0.22)' }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            className="relative mx-auto mt-6 inline-flex max-w-full items-center gap-3.5 overflow-hidden rounded-full border border-[#6d2948]/28 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(255,238,246,0.82))] px-5 py-3 shadow-[0_18px_50px_rgba(109,41,72,0.16),inset_0_1px_0_rgba(255,255,255,0.85)] ring-1 ring-white/75 backdrop-blur-xl lg:mx-0"
+          >
+            <span className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(90deg,rgba(109,41,72,0.12),transparent_42%,rgba(215,162,173,0.16))]" />
+            <span className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
+            <span className="relative flex h-10 w-[4.75rem] shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#6d2948]/18 bg-white px-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_24px_rgba(109,41,72,0.10)]">
+              <img
+                src="/brand-assets/meta-business-partner.png"
+                alt="Meta Business Partner"
+                className="h-auto w-full object-contain"
+                loading="lazy"
+              />
+            </span>
+            <span className="relative min-w-0 text-left">
+              <span className="flex items-center gap-2 text-[15px] font-black leading-none text-[#351424] sm:text-base">
+                Meta Business Partner
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_0_5px_rgba(16,185,129,0.14),0_0_16px_rgba(16,185,129,0.45)]" />
+              </span>
+              <span className="mt-1.5 block text-[12px] font-bold leading-none text-[#7a4b60] sm:text-[13px]">
+                Official Meta API Integration
+              </span>
+            </span>
+          </motion.div>
+
+          <TrustChips className="mt-6 justify-center lg:justify-start" />
+
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 1, delay: 0.8 }} className="flex-1 relative">
-          <div className="relative w-full max-w-md mx-auto">
-            <div className="bg-white rounded-3xl shadow-2xl p-6 relative">
-              <div className="bg-gray-50 rounded-2xl p-4 mb-4 border border-gray-100">
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">SB</div>
-                  <div>
-                    <div className="font-bold text-gray-900 text-sm">sofia_creates</div>
-                    <div className="text-gray-600 text-sm mt-0.5">💬 "link please!"</div>
+        <motion.div initial={{ opacity: 0, x: 42 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.9, delay: 0.7 }} className="relative flex w-full justify-center lg:justify-end">
+          <div className="relative mx-auto flex w-full max-w-[460px] items-center justify-center lg:mx-0">
+            <div className="absolute -inset-10 rounded-full bg-rose-200/20 blur-3xl" />
+            <div className="absolute right-8 top-16 h-40 w-40 rounded-full bg-fuchsia-200/20 blur-3xl" />
+
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+              className="premium-glow relative w-[265px] rounded-[2.6rem] border-[10px] border-[#111318] bg-[#111318] sm:w-[315px] sm:rounded-[3rem] sm:border-[12px] xl:w-[342px]"
+            >
+              <div className="absolute left-1/2 top-3 z-20 h-6 w-24 -translate-x-1/2 rounded-full bg-[#111318] sm:w-32" />
+              <div className="relative overflow-hidden rounded-[2.25rem] bg-[#f8fafc]">
+                <div className="border-b border-slate-200/70 bg-white px-5 pb-4 pt-12 sm:pt-14">
+                  <div className="flex items-center gap-3">
+                    <ArrowLeft className="h-5 w-5 shrink-0 text-gray-900" />
+                    <div className="relative h-11 w-11 shrink-0 rounded-full bg-gradient-to-br from-[#4a1930] via-[#6d2948] to-[#d7a2ad] p-[3px] sm:h-12 sm:w-12">
+                      <div className="flex h-full w-full items-center justify-center rounded-full bg-white p-1">
+                        <div className="flex h-full w-full items-center justify-center rounded-full bg-accent-blue">
+                          <svg width="24" height="24" viewBox="0 0 40 40" fill="none" aria-hidden="true" className="drop-shadow-sm">
+                            <path d="M10 27 L19 13" stroke="white" strokeWidth="4" strokeLinecap="round" />
+                            <path d="M17 27 L26 13" stroke="white" strokeWidth="4" strokeLinecap="round" />
+                            <circle cx="29" cy="27" r="3.2" fill="#d7a2ad" />
+                          </svg>
+                        </div>
+                      </div>
+                      <span className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white bg-emerald-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="truncate text-base font-black text-gray-950">DMGenie.in</div>
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        Automation active
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-green-600 font-semibold bg-green-50 rounded-lg px-3 py-1.5">
-                  <Zap className="w-3 h-3" />
-                  Keyword matched → Sending DM
-                </div>
-              </div>
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-100">
-                <div className="flex items-center gap-2 mb-2">
-                  <MessageCircle className="w-4 h-4 text-accent-blue" />
-                  <span className="text-xs font-semibold text-accent-blue">Direct Message Sent</span>
-                </div>
-                <p className="text-gray-800 font-medium text-sm mb-3">Hi! Here's the link you asked for. Let me know if you have questions! 🙌</p>
-                <div className="bg-accent-blue text-white rounded-xl px-4 py-2 text-center font-semibold text-sm">View Resource →</div>
-              </div>
-            </div>
 
-            <motion.div animate={{ y: [0, -10, 0] }} transition={{ duration: 3, repeat: Infinity }} className="absolute -top-4 -right-4 bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-black text-accent-blue">9x</span>
-                <span className="text-xs font-medium text-gray-600">Faster<br />Replies</span>
+                <div className="min-h-[420px] bg-gradient-to-b from-white via-slate-50 to-slate-100 px-5 py-6 sm:min-h-[500px] xl:min-h-[540px]">
+                  <div className="flex items-end gap-2">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#4a1930] via-[#6d2948] to-[#d7a2ad] p-[2px] shadow-sm">
+                      <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-[11px] font-black text-accent-blue">
+                        IG
+                      </div>
+                    </div>
+                    <div className="max-w-[190px] rounded-[1.25rem] rounded-bl-md bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-slate-200/70">
+                      Send me the guide
+                    </div>
+                  </div>
+
+                  <motion.div
+                    animate={{ opacity: [0.65, 1, 0.65] }}
+                    transition={{ duration: 2.5, repeat: Infinity }}
+                    className="my-6 flex items-center justify-end gap-2 text-[10px] font-black uppercase tracking-wider text-slate-400"
+                  >
+                    <Sparkles className="h-4 w-4 text-accent-blue" />
+                    DMGenie automated reply
+                  </motion.div>
+
+                  <div className="ml-auto max-w-[245px] rounded-[1.35rem] rounded-br-md bg-[#111827] px-4 py-3 text-sm font-semibold leading-relaxed text-white shadow-xl">
+                    Absolutely. Your Instagram growth guide is ready.
+                  </div>
+
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.2, duration: 0.6 }}
+                    className="ml-auto mt-4 max-w-[230px] rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-[0_18px_46px_rgba(15,23,42,0.12)] sm:max-w-[250px]"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-accent-blue">
+                        <Link2 className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-black text-slate-950">Growth Automation Guide</div>
+                        <div className="truncate text-xs font-medium text-slate-500">DMGenie.in/guide</div>
+                      </div>
+                    </div>
+                    <div className="mt-3 rounded-2xl bg-accent-blue px-4 py-2.5 text-center text-xs font-black text-white shadow-sm">
+                      Open Guide
+                    </div>
+                  </motion.div>
+
+                  <div className="mt-5 flex items-end gap-2 sm:mt-7">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#4a1930] via-[#6d2948] to-[#d7a2ad] p-[2px] shadow-sm">
+                      <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-[11px] font-black text-accent-blue">
+                        IG
+                      </div>
+                    </div>
+                    <div className="max-w-[210px] rounded-[1.25rem] rounded-bl-md bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-slate-200/70">
+                      Looks great, thanks.
+                    </div>
+                  </div>
+
+                  <div className="absolute bottom-5 left-5 right-5">
+                    <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-4 py-3 shadow-[0_12px_30px_rgba(15,23,42,0.08)]">
+                      <div className="h-7 w-7 rounded-full border-2 border-slate-300" />
+                      <div className="flex-1 text-sm font-medium text-slate-400">Message...</div>
+                      <Send className="h-5 w-5 text-accent-blue" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </motion.div>
 
-            <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 4, repeat: Infinity, delay: 1 }} className="absolute bottom-12 -left-8 bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100">
+            <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3.5, repeat: Infinity }} className="glass-card absolute -right-12 top-20 hidden rounded-2xl px-4 py-3 sm:block">
               <div className="flex items-center gap-2">
-                <span className="text-lg">📈</span>
-                <span className="text-gray-900 font-bold text-sm">More Engagement</span>
+                <Zap className="h-4 w-4 text-accent-blue" />
+                <div>
+                  <div className="text-sm font-black text-slate-950">Keyword matched</div>
+                  <div className="text-xs font-semibold text-slate-500">Reply sent instantly</div>
+                </div>
               </div>
             </motion.div>
 
-            <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 3.5, repeat: Infinity, delay: 0.5 }} className="absolute bottom-0 -right-6 bg-white rounded-2xl px-4 py-3 shadow-xl border border-gray-100">
+            <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 4, repeat: Infinity, delay: 0.6 }} className="glass-card absolute -left-2 bottom-28 hidden rounded-2xl px-4 py-3 sm:block">
               <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-green-500" />
-                <span className="text-gray-900 font-bold text-sm">API Compliant</span>
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <span className="text-sm font-black text-slate-950">Lead captured</span>
               </div>
             </motion.div>
           </div>
