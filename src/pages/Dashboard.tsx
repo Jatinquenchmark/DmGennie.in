@@ -564,8 +564,8 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         try {
             const [dashRes, settingsRes, pricingRes] = await Promise.all([
                 authFetch("/api/dashboard"),
-                authFetch("/api/settings"),
-                authFetch("/api/billing/pricing").catch(() => null),
+                authFetch("/api/me?action=settings"),
+                authFetch("/api/billing?action=pricing").catch(() => null),
             ]);
             if (!dashRes.ok || !settingsRes.ok) throw new Error("Dashboard data request failed");
 
@@ -649,7 +649,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             return;
         }
         try {
-            const res = await authFetch("/api/billing/checkout", {
+            const res = await authFetch("/api/billing?action=checkout", {
                 method: "POST",
                 body: JSON.stringify({ plan: "pro", billingCycle: "monthly" }),
             });
@@ -672,7 +672,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             return;
         }
         try {
-            const res = await authFetch("/api/settings", {
+            const res = await authFetch("/api/me?action=settings", {
                 method: "PUT",
                 body: JSON.stringify({ botEnabled: next }),
             });
@@ -688,7 +688,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         if (!settings) return;
         try {
             if (!preview) {
-                const res = await authFetch("/api/settings", {
+                const res = await authFetch("/api/me?action=settings", {
                     method: "PUT",
                     body: JSON.stringify(settings),
                 });
@@ -732,7 +732,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const deleteTrigger = async (id: number) => {
         try {
             if (!preview) {
-                const res = await authFetch(`/api/triggers/${id}`, { method: "DELETE" });
+                const res = await authFetch(`/api/triggers?id=${id}`, { method: "DELETE" });
                 if (!res.ok) throw new Error("Unable to delete automation");
             }
             setTriggers((prev) => prev.filter((t) => t.id !== id));
@@ -751,7 +751,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             return;
         }
         try {
-            const res = await authFetch(`/api/triggers/${id}`, {
+            const res = await authFetch(`/api/triggers?id=${id}`, {
                 method: "PUT",
                 body: JSON.stringify({ enabled: !trigger.enabled }),
             });
@@ -814,7 +814,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             return;
         }
         try {
-            const res = await authFetch("/api/instagram/profile");
+            const res = await authFetch("/api/auth?action=profile");
             if (res.ok) {
                 const profile = await res.json();
                 if (settings) setSettings({ ...settings, instagramHandle: `@${profile.username}` });

@@ -8,6 +8,9 @@ import Razorpay from 'razorpay';
 import { buildDashboardMetrics } from './dashboardMetrics.js';
 import { buildContactsPayload } from './contactsData.js';
 import { getBillingConfig, getProIntroEligibility } from './billingConfig.js';
+import adminApiHandler from '../api/admin.js';
+import authApiHandler from '../api/auth.js';
+import billingApiHandler from '../api/billing.js';
 
 dotenv.config({ path: '.env' });
 
@@ -108,6 +111,21 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.get('/api/me', async (req, res) => {
     const user = await getUser(req);
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    if (req.query.action === 'settings') {
+        const s = await ensureSettings(user.id);
+        return res.json({
+            botEnabled: s.bot_enabled,
+            instagramAccountId: s.instagram_account_id,
+            instagramHandle: s.instagram_handle,
+            pageAccessToken: s.page_access_token,
+            appSecret: s.app_secret,
+            verifyToken: s.verify_token,
+            successPublicReply: s.success_public_reply,
+            fallbackPublicReply: s.fallback_public_reply,
+            replyDelay: s.reply_delay,
+            timezone: s.timezone,
+        });
+    }
     const role = await getUserRole(user.id, user);
     res.json({
         id: user.id,
@@ -116,6 +134,46 @@ app.get('/api/me', async (req, res) => {
         role,
     });
 });
+
+app.put('/api/me', async (req, res) => {
+    const userId = await getUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    if (req.query.action !== 'settings') return res.status(400).json({ error: 'Unsupported me action.' });
+
+    const map = {
+        botEnabled: 'bot_enabled',
+        instagramAccountId: 'instagram_account_id',
+        instagramHandle: 'instagram_handle',
+        pageAccessToken: 'page_access_token',
+        appSecret: 'app_secret',
+        verifyToken: 'verify_token',
+        successPublicReply: 'success_public_reply',
+        fallbackPublicReply: 'fallback_public_reply',
+        replyDelay: 'reply_delay',
+        timezone: 'timezone',
+    };
+    const updates = { updated_at: new Date().toISOString() };
+    for (const [key, col] of Object.entries(map)) {
+        if (req.body[key] !== undefined) updates[col] = req.body[key];
+    }
+    const { data } = await supabase.from('user_settings').update(updates).eq('user_id', userId).select().single();
+    return res.json({
+        botEnabled: data.bot_enabled,
+        instagramAccountId: data.instagram_account_id,
+        instagramHandle: data.instagram_handle,
+        pageAccessToken: data.page_access_token,
+        appSecret: data.app_secret,
+        verifyToken: data.verify_token,
+        successPublicReply: data.success_public_reply,
+        fallbackPublicReply: data.fallback_public_reply,
+        replyDelay: data.reply_delay,
+        timezone: data.timezone,
+    });
+});
+
+app.all('/api/admin', adminApiHandler);
+app.all('/api/auth', authApiHandler);
+app.all('/api/billing', billingApiHandler);
 
 app.get('/api/admin/overview', async (req, res) => {
     const admin = await requireAdmin(req, res);
@@ -553,6 +611,39 @@ app.post('/api/triggers', async (req, res) => {
 
     if (error) return res.status(500).json({ error: error.message });
     res.json({ id: data.id, keyword: data.keyword, replyMessage: data.reply_message, enabled: data.enabled });
+});
+
+app.put('/api/triggers', async (req, res) => {
+    const userId = await getUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    const { id } = req.query;
+    if (!id) return res.status(400).json({ error: 'Missing trigger id.' });
+
+    const updates = {};
+    if (req.body.keyword !== undefined) updates.keyword = req.body.keyword;
+    if (req.body.replyMessage !== undefined) updates.reply_message = req.body.replyMessage;
+    if (req.body.enabled !== undefined) updates.enabled = req.body.enabled;
+
+    const { data, error } = await supabase
+        .from('triggers')
+        .update(updates)
+        .eq('id', id)
+        .eq('user_id', userId)
+        .select()
+        .single();
+
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ id: data.id, keyword: data.keyword, replyMessage: data.reply_message, enabled: data.enabled });
+});
+
+app.delete('/api/triggers', async (req, res) => {
+    const userId = await getUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    const { id } = req.query;
+    if (!id) return res.status(400).json({ error: 'Missing trigger id.' });
+
+    await supabase.from('triggers').delete().eq('id', id).eq('user_id', userId);
+    res.json({ success: true });
 });
 
 app.put('/api/triggers/:id', async (req, res) => {

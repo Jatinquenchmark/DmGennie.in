@@ -85,10 +85,10 @@ export default function AdminDashboard() {
   }, [session?.access_token])
 
   const endpoint = useMemo(() => {
-    if (section === 'overview') return '/api/admin/overview'
-    if (section === 'billing') return '/api/admin/overview'
+    if (section === 'overview') return '/api/admin?action=overview'
+    if (section === 'billing') return '/api/admin?action=overview'
     if (section === 'settings') return '/api/me'
-    return `/api/admin/${section}`
+    return `/api/admin?action=${section}`
   }, [section])
 
   const loadData = useCallback(async () => {
@@ -293,7 +293,7 @@ function UsersPage({ data, search, setSearch, authFetch, onRefresh }: any) {
   const users = (data?.users || []).filter((user: any) => `${user.email} ${user.name} ${user.instagramHandle}`.toLowerCase().includes(search.toLowerCase()))
 
   const updateUser = async (userId: string, action: string, plan?: string) => {
-    await authFetch('/api/admin/users', { method: 'PUT', body: JSON.stringify({ userId, action, plan }) })
+    await authFetch('/api/admin?action=users', { method: 'PUT', body: JSON.stringify({ userId, action, plan }) })
     onRefresh()
   }
 
@@ -345,7 +345,7 @@ function UsersPage({ data, search, setSearch, authFetch, onRefresh }: any) {
 function AutomationsPage({ data, search, setSearch, authFetch, onRefresh }: any) {
   const automations = (data?.automations || []).filter((item: any) => `${item.ownerEmail} ${item.keyword} ${item.replyMessage}`.toLowerCase().includes(search.toLowerCase()))
   const toggle = async (item: any) => {
-    await authFetch('/api/admin/automations', { method: 'PUT', body: JSON.stringify({ id: item.id, enabled: item.status !== 'Live' }) })
+    await authFetch('/api/admin?action=automations', { method: 'PUT', body: JSON.stringify({ id: item.id, enabled: item.status !== 'Live' }) })
     onRefresh()
   }
 

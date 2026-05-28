@@ -94,7 +94,7 @@ export function Pricing() {
 
   useEffect(() => {
     let cancelled = false
-    fetch('/api/billing/pricing', {
+    fetch('/api/billing?action=pricing', {
       headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
     })
       .then((response) => response.ok ? response.json() : null)
@@ -130,7 +130,7 @@ export function Pricing() {
 
     setCheckoutLoading(true)
     try {
-      const response = await fetch('/api/billing/checkout', {
+      const response = await fetch('/api/billing?action=checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

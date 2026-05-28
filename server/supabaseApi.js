@@ -12,7 +12,7 @@ export async function getUserId(req) {
 }
 
 export async function getUser(req) {
-    const auth = req.headers.authorization || req.headers['Authorization'];
+    const auth = req.headers.authorization || req.headers.Authorization;
     if (!auth || !auth.startsWith('Bearer ')) return null;
     const token = auth.split(' ')[1];
     const { data: { user }, error } = await supabase.auth.getUser(token);

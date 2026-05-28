@@ -1,16 +1,45 @@
-import { supabase, cors, getUser } from './_supabase.js';
+import { supabase, cors, getUser } from '../server/supabaseApi.js';
 import { buildContactsPayload } from '../server/contactsData.js';
+
+function csvEscape(value) {
+    const text = String(value ?? '');
+    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+function buildContactsCsv(contacts) {
+    const headers = ['Name', 'Username', 'Email', 'Source', 'Relationship', 'Last Interaction', 'Joined Date'];
+    const body = contacts.map((contact) => [
+        contact.name,
+        contact.username,
+        contact.email,
+        contact.source,
+        contact.relationship,
+        contact.lastInteractionLabel || contact.lastInteraction,
+        contact.joined,
+    ].map(csvEscape).join(','));
+    return [headers.join(','), ...body].join('\n');
+}
 
 export default async function handler(req, res) {
     cors(res);
     if (req.method === 'OPTIONS') return res.status(200).end();
-    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+    const action = String(req.query.action || 'list');
+    if (!['list', 'metrics', 'refresh', 'export'].includes(action)) return res.status(400).json({ error: 'Unsupported contacts action.' });
+    if ((action === 'refresh' && req.method !== 'POST') || (action !== 'refresh' && req.method !== 'GET')) {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
 
     const user = await getUser(req);
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
     try {
         const payload = await buildContactsPayload({ supabase, userId: user.id });
+        if (action === 'metrics') return res.json({ metrics: payload.metrics });
+        if (action === 'export') {
+            res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+            res.setHeader('Content-Disposition', 'attachment; filename="dmgennie-contacts.csv"');
+            return res.send(buildContactsCsv(payload.contacts));
+        }
         return res.json(payload);
     } catch (error) {
         console.error('[contacts] Unable to load contacts:', error?.message || error);

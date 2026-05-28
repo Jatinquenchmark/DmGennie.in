@@ -1,12 +1,61 @@
-import { getUser, getUserRole, cors } from './_supabase.js';
+import { supabase, getUser, getUserRole, ensureSettings, cors } from '../server/supabaseApi.js';
+
+function mapSettings(s) {
+    return {
+        botEnabled: s.bot_enabled,
+        instagramAccountId: s.instagram_account_id,
+        instagramHandle: s.instagram_handle,
+        pageAccessToken: s.page_access_token,
+        appSecret: s.app_secret,
+        verifyToken: s.verify_token,
+        successPublicReply: s.success_public_reply,
+        fallbackPublicReply: s.fallback_public_reply,
+        replyDelay: s.reply_delay,
+        timezone: s.timezone,
+    };
+}
 
 export default async function handler(req, res) {
     cors(res);
     if (req.method === 'OPTIONS') return res.status(200).end();
-    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
     const user = await getUser(req);
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    const action = String(req.query.action || 'profile');
+    if (action === 'settings') {
+        if (req.method === 'GET') {
+            const settings = await ensureSettings(user.id);
+            return res.json(mapSettings(settings));
+        }
+
+        if (req.method === 'PUT') {
+            const map = {
+                botEnabled: 'bot_enabled',
+                instagramAccountId: 'instagram_account_id',
+                instagramHandle: 'instagram_handle',
+                pageAccessToken: 'page_access_token',
+                appSecret: 'app_secret',
+                verifyToken: 'verify_token',
+                successPublicReply: 'success_public_reply',
+                fallbackPublicReply: 'fallback_public_reply',
+                replyDelay: 'reply_delay',
+                timezone: 'timezone',
+            };
+            const updates = { updated_at: new Date().toISOString() };
+            for (const [key, col] of Object.entries(map)) {
+                if (req.body?.[key] !== undefined) updates[col] = req.body[key];
+            }
+            const { data, error } = await supabase.from('user_settings').update(updates).eq('user_id', user.id).select().single();
+            if (error) return res.status(500).json({ error: 'Unable to save settings.' });
+            return res.json(mapSettings(data));
+        }
+
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+    if (action !== 'profile') return res.status(400).json({ error: 'Unsupported me action.' });
 
     const role = await getUserRole(user.id, user);
 
