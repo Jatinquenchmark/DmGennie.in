@@ -54,36 +54,42 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-        const rawBody = await getRawBody(req);
-        const signature = req.headers['x-hub-signature-256'];
+        res.status(200).send('EVENT_RECEIVED');
+        processWebhookPost(req).catch((error) => {
+            console.error('[Webhook] Async processing failed:', error?.message || error);
+        });
+        return;
+    }
+    res.status(405).end();
+}
 
-        if (!isValidMetaSignature(rawBody, signature, process.env.META_APP_SECRET)) {
-            return res.status(401).json({ error: 'Invalid signature' });
-        }
+async function processWebhookPost(req) {
+    const rawBody = await getRawBody(req);
+    const signature = req.headers['x-hub-signature-256'];
 
-        let body;
-        try { body = JSON.parse(rawBody.toString()); } catch { return res.status(400).end(); }
+    if (!isValidMetaSignature(rawBody, signature, process.env.META_APP_SECRET)) {
+        console.warn('[Webhook] Ignored event with invalid or missing signature');
+        return;
+    }
 
-        console.log('[Webhook] object:', body.object);
+    let body;
+    try { body = JSON.parse(rawBody.toString()); } catch { return; }
 
-        if (body.object === 'instagram') {
-            const supabase = getSupabase();
-            for (const entry of body.entry || []) {
-                console.log('[Webhook] entry.id:', entry.id);
-                const changes = entry.changes || [];
-                for (const change of changes) {
-                    console.log('[Webhook] change.field:', change.field);
-                    if (change.field === 'comments') {
-                        await processComment(supabase, change.value, entry.id, signature, rawBody);
-                    }
+    console.log('[Webhook] object:', body.object);
+
+    if (body.object === 'instagram') {
+        const supabase = getSupabase();
+        for (const entry of body.entry || []) {
+            console.log('[Webhook] entry.id:', entry.id);
+            const changes = entry.changes || [];
+            for (const change of changes) {
+                console.log('[Webhook] change.field:', change.field);
+                if (change.field === 'comments') {
+                    await processComment(supabase, change.value, entry.id, signature, rawBody);
                 }
             }
         }
-
-        // Send 200 AFTER processing is complete
-        return res.status(200).send('EVENT_RECEIVED');
     }
-    res.status(405).end();
 }
 
 async function processComment(supabase, commentValue, igAccountId, signature, rawBody) {
