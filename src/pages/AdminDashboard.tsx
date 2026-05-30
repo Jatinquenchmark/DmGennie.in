@@ -123,7 +123,7 @@ export default function AdminDashboard() {
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xl font-black tracking-tight">DMGenie</p>
+              <p className="text-xl font-black tracking-tight">DMGennie</p>
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#94A3B8]">Admin Console</p>
             </div>
           </div>

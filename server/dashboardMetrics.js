@@ -1,17 +1,8 @@
+import { getPlanLimitsForState, getSubscriptionState } from './billingConfig.js';
+
 const SUCCESS_STATUSES = ['sent', 'success', 'delivered'];
 const FAILED_STATUSES = ['failed', 'error', 'failed_dm', 'failed_dms_closed', 'delivery_failed'];
 const LEAD_STATUSES = ['lead_captured', 'email_captured', 'captured'];
-
-const PLAN_LIMITS = {
-    starter: { planName: 'Starter', dmLimit: 1000, contactLimit: 1000 },
-    pro: { planName: 'Pro', dmLimit: 20000, contactLimit: 20000 },
-    admin: { planName: 'Admin', dmLimit: 999999, contactLimit: 999999 },
-};
-
-function normalizePlan(value) {
-    const key = String(value || 'Starter').trim().toLowerCase();
-    return PLAN_LIMITS[key] ? key : 'starter';
-}
 
 function normalizeStatus(value) {
     return String(value || '').trim().toLowerCase();
@@ -240,13 +231,8 @@ export async function buildDashboardMetrics({ supabase, userId, user, settings }
     const attemptedMessages = successfulMessages + failedMessages;
     const deliveryRate = attemptedMessages > 0 ? Math.round((successfulMessages / attemptedMessages) * 100) : null;
 
-    const planKey = normalizePlan(
-        safeSettings.plan_name ||
-        safeSettings.plan ||
-        user?.app_metadata?.plan ||
-        user?.user_metadata?.plan
-    );
-    const plan = PLAN_LIMITS[planKey];
+    const subscription = getSubscriptionState(user, safeSettings);
+    const plan = getPlanLimitsForState(subscription);
 
     const automations = await Promise.all((triggersData || []).map(async (trigger) => ({
         id: trigger.id,
@@ -277,8 +263,25 @@ export async function buildDashboardMetrics({ supabase, userId, user, settings }
             dmLimit: plan.dmLimit,
             contactsThisMonth: leadCounts.month,
             contactLimit: plan.contactLimit,
+            automationLimit: plan.automationLimit,
+            instagramAccountLimit: plan.instagramAccountLimit,
             planName: plan.planName,
+            plan: subscription.planKey,
+            subscriptionStatus: subscription.status,
+            isPro: subscription.isPro,
         },
+        subscription: {
+            plan: subscription.planKey,
+            planName: subscription.plan,
+            subscriptionStatus: subscription.status,
+            isPro: subscription.isPro,
+            currentPeriodStart: subscription.currentPeriodStart,
+            currentPeriodEnd: subscription.currentPeriodEnd,
+            hasUsedIntroOffer: subscription.hasUsedIntroOffer,
+            proIntroStartedAt: subscription.proIntroStartedAt,
+        },
+        limits: plan,
+        featureAccess: subscription.featureAccess,
         stats: {
             followers: followersValue,
             totalDmsSent: successfulMessages,

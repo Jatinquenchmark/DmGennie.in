@@ -39,7 +39,7 @@ const competitors: Record<string, Competitor> = {
     name: 'Smart Reply by Beacons.ai',
     price: '$30',
     intro:
-      'DMGenie is a focused Instagram DM automation alternative for creators who want quick comment-to-DM campaigns, flexible links, and simple setup without being tied to a broader commerce platform.',
+      'DMGennie is a focused Instagram DM automation alternative for creators who want quick comment-to-DM campaigns, flexible links, and simple setup without being tied to a broader commerce platform.',
     rows: baseRows,
   },
   'high-level': {
@@ -47,7 +47,7 @@ const competitors: Record<string, Competitor> = {
     name: 'High Level',
     price: '$99',
     intro:
-      'DMGenie keeps Instagram automation lightweight and creator-friendly, while larger workflow tools can feel expensive and restrictive for straightforward DM campaigns.',
+      'DMGennie keeps Instagram automation lightweight and creator-friendly, while larger workflow tools can feel expensive and restrictive for straightforward DM campaigns.',
     rows: baseRows.map((row) =>
       ['Send non-brand URLs', 'Instagram DM automation', 'Facebook DM automation'].includes(row.feature)
         ? { ...row, competitor: true }
@@ -59,8 +59,8 @@ const competitors: Record<string, Competitor> = {
     name: 'ManyChat',
     price: '$199',
     intro:
-      'DMGenie gives creators a simpler path to launch Instagram and Facebook DM automations without wrestling with a heavy flow builder for every campaign.',
-    note: 'ManyChat is a trademark of ManyChat Inc. DMGenie is not affiliated with ManyChat.',
+      'DMGennie gives creators a simpler path to launch Instagram and Facebook DM automations without wrestling with a heavy flow builder for every campaign.',
+    note: 'ManyChat is a trademark of ManyChat Inc. DMGennie is not affiliated with ManyChat.',
     rows: baseRows.map((row) =>
       ['Meta Business Partner workflow', 'Forever free starter plan', 'Send non-brand URLs', 'Facebook DM automation'].includes(row.feature)
         ? { ...row, competitor: true }
@@ -72,7 +72,7 @@ const competitors: Record<string, Competitor> = {
     name: 'MobileMonkey',
     price: '$125',
     intro:
-      'DMGenie is built for fast, flexible Instagram engagement. It keeps costs low while giving creators practical automation controls for comments, stories, inboxes, and campaigns.',
+      'DMGennie is built for fast, flexible Instagram engagement. It keeps costs low while giving creators practical automation controls for comments, stories, inboxes, and campaigns.',
     rows: baseRows.map((row) =>
       ['Meta Business Partner workflow', 'Forever free starter plan', 'Send non-brand URLs', 'Facebook DM automation', 'Story DM automation'].includes(row.feature)
         ? { ...row, competitor: true }
@@ -84,8 +84,8 @@ const competitors: Record<string, Competitor> = {
     name: 'Stan AutoDM',
     price: '$29',
     intro:
-      'DMGenie is a more complete automation option for creators who need external links, broader trigger support, and reliable campaign controls beyond store-only replies.',
-    note: 'Stan is a trademark of Find Community, Inc. DMGenie is not affiliated with Stan.',
+      'DMGennie is a more complete automation option for creators who need external links, broader trigger support, and reliable campaign controls beyond store-only replies.',
+    note: 'Stan is a trademark of Find Community, Inc. DMGennie is not affiliated with Stan.',
     rows: baseRows.map((row) =>
       row.feature === 'Instagram DM automation' || row.feature === 'Comment auto-reply'
         ? { ...row, competitor: true }
@@ -131,7 +131,7 @@ export default function Compare() {
         <main className="mx-auto max-w-4xl px-6 pb-20 pt-36 text-center">
           <p className="text-sm font-black uppercase tracking-[0.2em] text-[#6d2948]">Compare</p>
           <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">Comparison not found</h1>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-[#665d66]">Choose one of the available DMGenie comparisons below.</p>
+          <p className="mx-auto mt-4 max-w-xl text-lg text-[#665d66]">Choose one of the available DMGennie comparisons below.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {compareLinks.map((item) => (
               <Link key={item.slug} to={`/compare/${item.slug}`} className="rounded-full border border-white/80 bg-white/70 px-4 py-2 text-sm font-bold text-[#665d66] shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:text-[#6d2948]">
@@ -168,7 +168,7 @@ export default function Compare() {
           <div className="mx-auto max-w-5xl text-center">
             <p className="text-sm font-black uppercase tracking-[0.22em] text-[#6d2948]">Platform Comparison</p>
             <h1 className="mt-7 text-4xl font-black leading-tight tracking-tight text-[#151119] sm:text-6xl">
-              DMGenie vs {page.name}
+              DMGennie vs {page.name}
             </h1>
             <p className="mx-auto mt-6 max-w-4xl text-lg font-medium leading-8 text-[#665d66] sm:text-xl">
               {page.intro}
@@ -201,7 +201,7 @@ export default function Compare() {
                 <div className="px-7 py-7 text-2xl font-black text-[#151119]">Features</div>
                 <div className="border-x border-[#eadde2] bg-white/72 px-7 py-7 text-center">
                   <div className="inline-flex items-center gap-2 text-2xl font-black">
-                    DMGenie
+                    DMGennie
                     <Medal className="h-5 w-5 text-[#6d2948]" />
                   </div>
                   <div className="mt-2 text-xs font-black uppercase tracking-wider text-[#6d2948]">Best for creators</div>
@@ -248,7 +248,7 @@ export default function Compare() {
           </div>
 
           <div className="mx-auto mt-16 max-w-4xl rounded-[2rem] border border-white/80 bg-white/68 p-8 text-center shadow-[0_26px_80px_rgba(109,41,72,0.10)] backdrop-blur-xl sm:p-10">
-            <h2 className="text-3xl font-black tracking-tight text-[#151119] sm:text-4xl">Get started with DMGenie for free</h2>
+            <h2 className="text-3xl font-black tracking-tight text-[#151119] sm:text-4xl">Get started with DMGennie for free</h2>
             <p className="mx-auto mt-3 max-w-2xl text-lg font-medium text-[#665d66]">Create your account and launch your first automation in minutes.</p>
             <Link to="/signup" className="premium-button mt-8 inline-flex rounded-xl px-9 py-4 text-lg font-bold text-white transition-all hover:-translate-y-0.5">
               Create Free Account

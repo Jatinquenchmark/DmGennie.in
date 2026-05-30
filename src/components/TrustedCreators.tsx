@@ -18,7 +18,7 @@ export function TrustedCreators() {
     <section className="relative py-20 bg-background overflow-hidden">
       <div className="container mx-auto px-6 sm:px-8 lg:px-12">
         <h2 className="text-4xl sm:text-5xl font-black text-center mb-12 text-foreground">
-          <span className="text-accent-blue">10k+</span> Creators Trust DMGenie 🚀
+          <span className="text-accent-blue">10k+</span> Creators Trust DMGennie 🚀
         </h2>
 
         {/* Scrolling creator cards */}

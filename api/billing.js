@@ -38,8 +38,8 @@ function verifySignature(rawBody, signature, secret) {
 async function updateCheckoutReference(userId, subscriptionId) {
     const updates = {
         razorpay_subscription_id: subscriptionId,
-        subscription_plan: 'Pro',
-        subscription_status: 'checkout_created',
+        subscription_plan: 'starter',
+        subscription_status: 'payment_pending',
         updated_at: new Date().toISOString(),
     };
     const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
@@ -49,19 +49,23 @@ async function updateCheckoutReference(userId, subscriptionId) {
     }
 }
 
-async function markIntroOfferUsed(userId, entity = {}) {
+async function markPaymentSuccess(userId, entity = {}, { introApplied = false } = {}) {
     if (!userId) return;
     const now = new Date().toISOString();
     const currentPeriodEnd = entity.current_end ? new Date(Number(entity.current_end) * 1000).toISOString() : null;
     const updates = {
-        has_used_pro_intro_offer: true,
-        pro_intro_started_at: now,
-        subscription_plan: 'Pro',
+        subscription_plan: 'pro',
         subscription_status: 'active',
+        current_period_start: now,
         current_period_end: currentPeriodEnd,
+        razorpay_customer_id: entity.customer_id || entity.customer || null,
         razorpay_subscription_id: entity.subscription_id || entity.id || null,
         updated_at: now,
     };
+    if (introApplied) {
+        updates.has_used_pro_intro_offer = true;
+        updates.pro_intro_started_at = now;
+    }
 
     const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
     if (error) {
@@ -74,11 +78,34 @@ async function markIntroOfferUsed(userId, entity = {}) {
         await supabase.auth.admin.updateUserById(userId, {
             app_metadata: {
                 ...(user.app_metadata || {}),
-                plan: 'Pro',
+                plan: 'pro',
                 subscription_status: 'active',
-                has_used_pro_intro_offer: true,
-                pro_intro_started_at: now,
+                ...(introApplied ? { has_used_pro_intro_offer: true, pro_intro_started_at: now } : {}),
+                current_period_start: now,
                 current_period_end: currentPeriodEnd,
+            },
+        });
+    }
+}
+
+async function markPaymentNotCompleted(userId, status = 'payment_failed') {
+    if (!userId) return;
+    const safeStatus = ['payment_failed', 'cancelled', 'expired', 'inactive'].includes(status) ? status : 'payment_failed';
+    const updates = {
+        subscription_plan: 'starter',
+        subscription_status: safeStatus,
+        updated_at: new Date().toISOString(),
+    };
+    const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
+    if (error) console.warn('[billing] Unable to mark payment incomplete:', error.message);
+
+    const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+    if (user) {
+        await supabase.auth.admin.updateUserById(userId, {
+            app_metadata: {
+                ...(user.app_metadata || {}),
+                plan: 'starter',
+                subscription_status: safeStatus,
             },
         });
     }
@@ -105,6 +132,9 @@ async function pricingHandler(req, res) {
             reason: eligibility.reason,
             hasUsedIntroOffer: eligibility.hasUsedIntroOffer,
             isPro: eligibility.isPro,
+            subscriptionStatus: eligibility.status,
+            isPaymentPending: eligibility.isPaymentPending,
+            currentPeriodEnd: eligibility.currentPeriodEnd || null,
             proIntroStartedAt: eligibility.proIntroStartedAt || null,
         },
     });
@@ -120,6 +150,7 @@ async function checkoutHandler(req, res) {
     const configData = getBillingConfig();
     const settings = await ensureSettings(user.id);
     const eligibility = getProIntroEligibility(user, settings);
+    const applyIntroOffer = !eligibility.isPro && !eligibility.hasUsedIntroOffer;
 
     if (!configData.razorpay.keyId || !configData.razorpay.keySecret || !configData.razorpay.proMonthlyPlanId) {
         return res.status(501).json({
@@ -130,7 +161,7 @@ async function checkoutHandler(req, res) {
         });
     }
 
-    if (eligibility.eligible && !configData.razorpay.proIntroOfferId) {
+    if (applyIntroOffer && !configData.razorpay.proIntroOfferId) {
         return res.status(501).json({
             error: 'Intro offer setup required',
             message: 'Razorpay intro offer/coupon is not configured yet. Add RAZORPAY_PRO_INTRO_OFFER_ID before charging ₹1.',
@@ -153,14 +184,14 @@ async function checkoutHandler(req, res) {
             notes: {
                 user_id: user.id,
                 email: user.email || '',
-                plan: 'Pro',
-                intro_offer: eligibility.eligible ? 'true' : 'false',
+                plan: 'pro',
+                intro_offer: applyIntroOffer ? 'true' : 'false',
                 intro_amount_inr: String(configData.plans.pro.introOffer.amountInr),
                 renewal_amount_inr: String(configData.plans.pro.monthlyPriceInr),
             },
         };
 
-        if (eligibility.eligible) subscriptionPayload.offer_id = configData.razorpay.proIntroOfferId;
+        if (applyIntroOffer) subscriptionPayload.offer_id = configData.razorpay.proIntroOfferId;
 
         const subscription = await razorpay.subscriptions.create(subscriptionPayload);
         await updateCheckoutReference(user.id, subscription.id);
@@ -168,7 +199,7 @@ async function checkoutHandler(req, res) {
         return res.json({
             checkoutUrl: subscription.short_url,
             subscriptionId: subscription.id,
-            introOfferApplied: eligibility.eligible,
+            introOfferApplied: applyIntroOffer,
             pricing: configData.plans.pro,
         });
     } catch (error) {
@@ -204,9 +235,24 @@ async function webhookHandler(req, res) {
     const notes = entity.notes || payment?.notes || subscription?.notes || {};
     const userId = notes.user_id;
     const introApplied = notes.intro_offer === 'true';
+    const isProPayment = String(notes.plan || '').toLowerCase() === 'pro'
+        || entity.plan_id === billing.razorpay.proMonthlyPlanId
+        || subscription?.plan_id === billing.razorpay.proMonthlyPlanId;
 
-    if ((event.event === 'subscription.charged' || event.event === 'payment.captured') && introApplied && userId) {
-        await markIntroOfferUsed(userId, entity);
+    if ((event.event === 'subscription.charged' || event.event === 'payment.captured') && userId && isProPayment) {
+        await markPaymentSuccess(userId, entity, { introApplied });
+    }
+
+    if ((event.event === 'payment.failed' || event.event === 'subscription.payment_failed') && userId && isProPayment) {
+        await markPaymentNotCompleted(userId, 'payment_failed');
+    }
+
+    if ((event.event === 'subscription.cancelled' || event.event === 'subscription.paused') && userId && isProPayment) {
+        await markPaymentNotCompleted(userId, 'cancelled');
+    }
+
+    if ((event.event === 'subscription.completed' || event.event === 'subscription.expired') && userId && isProPayment) {
+        await markPaymentNotCompleted(userId, 'expired');
     }
 
     return res.status(200).json({ received: true });

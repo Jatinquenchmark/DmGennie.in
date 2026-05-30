@@ -17,7 +17,7 @@ export function PageHeader() {
             <path d="M17 27 L26 13" stroke="white" strokeWidth="3.8" strokeLinecap="round" />
             <circle cx="29" cy="27" r="3" fill="#d7a2ad" />
           </svg>
-          <span className="text-xl font-black tracking-tight text-[#151119]">DMGenie</span>
+          <span className="text-xl font-black tracking-tight text-[#151119]">DMGennie</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">

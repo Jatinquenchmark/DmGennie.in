@@ -49,7 +49,7 @@ export function Hero() {
                 <path d="M17 27 L26 13" stroke="white" strokeWidth="3.8" strokeLinecap="round"/>
                 <circle cx="29" cy="27" r="3" fill="#d7a2ad"/>
               </svg>
-              <span className="font-black text-xl tracking-tight text-foreground">DMGenie</span>
+              <span className="font-black text-xl tracking-tight text-foreground">DMGennie</span>
             </motion.div>
 
             <div className="hidden items-center gap-8 md:flex">
@@ -198,7 +198,7 @@ export function Hero() {
                       <span className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white bg-emerald-500" />
                     </div>
                     <div className="min-w-0">
-                      <div className="truncate text-base font-black text-gray-950">DMGenie.in</div>
+                      <div className="truncate text-base font-black text-gray-950">dmgennie.in</div>
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                         Automation active
@@ -225,7 +225,7 @@ export function Hero() {
                     className="my-6 flex items-center justify-end gap-2 text-[10px] font-black uppercase tracking-wider text-slate-400"
                   >
                     <Sparkles className="h-4 w-4 text-accent-blue" />
-                    DMGenie automated reply
+                    DMGennie automated reply
                   </motion.div>
 
                   <div className="ml-auto max-w-[245px] rounded-[1.35rem] rounded-br-md bg-[#111827] px-4 py-3 text-sm font-semibold leading-relaxed text-white shadow-xl">
@@ -244,7 +244,7 @@ export function Hero() {
                       </div>
                       <div className="min-w-0">
                         <div className="truncate text-sm font-black text-slate-950">Growth Automation Guide</div>
-                        <div className="truncate text-xs font-medium text-slate-500">DMGenie.in/guide</div>
+                        <div className="truncate text-xs font-medium text-slate-500">dmgennie.in/guide</div>
                       </div>
                     </div>
                     <div className="mt-3 rounded-2xl bg-accent-blue px-4 py-2.5 text-center text-xs font-black text-white shadow-sm">

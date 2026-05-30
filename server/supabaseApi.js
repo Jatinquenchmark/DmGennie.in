@@ -64,7 +64,7 @@ export async function ensureSettings(userId) {
     if (data) return data;
     const { data: created } = await supabase
         .from('user_settings')
-        .insert({ user_id: userId })
+        .insert({ user_id: userId, subscription_plan: 'starter', subscription_status: 'inactive' })
         .select()
         .single();
     return created;

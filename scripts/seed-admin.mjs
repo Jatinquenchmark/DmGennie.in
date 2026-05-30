@@ -52,7 +52,7 @@ async function seedAdmin() {
       password: adminPassword,
       email_confirm: true,
       app_metadata: { role: 'admin', plan: 'Admin' },
-      user_metadata: { full_name: 'DMGenie Admin' },
+      user_metadata: { full_name: 'DMGennie Admin' },
     });
 
     if (error) throw error;

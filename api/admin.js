@@ -3,12 +3,13 @@ import { formatNumber, listAuthUsers, userDisplayName, userPlan, userRole } from
 
 function mapUser(user, settingsByUser, roles) {
     const settings = settingsByUser.get(user.id) || {};
+    const plan = String(settings.subscription_plan || userPlan(user)).toLowerCase() === 'pro' ? 'Pro' : 'Starter';
     return {
         id: user.id,
         email: user.email,
         name: userDisplayName(user),
         role: userRole(user, roles),
-        plan: userPlan(user),
+        plan,
         suspended: Boolean(user.banned_until && new Date(user.banned_until) > new Date()),
         connectedInstagram: Boolean(settings.page_access_token && settings.instagram_account_id),
         instagramHandle: settings.instagram_handle || 'Instagram not connected',
@@ -110,13 +111,37 @@ async function usersHandler(req, res) {
         }
 
         if (action === 'plan') {
-            const safePlan = String(plan || 'Starter').slice(0, 40);
+            const safePlan = String(plan || 'starter').trim().toLowerCase() === 'pro' ? 'pro' : 'starter';
+            const subscriptionStatus = safePlan === 'pro' ? 'active' : 'inactive';
             const { data: { user }, error: userError } = await supabase.auth.admin.getUserById(userId);
             if (userError) throw userError;
             const { error } = await supabase.auth.admin.updateUserById(userId, {
-                app_metadata: { ...(user?.app_metadata || {}), plan: safePlan },
+                app_metadata: { ...(user?.app_metadata || {}), plan: safePlan, subscription_status: subscriptionStatus },
             });
             if (error) throw error;
+            await supabase.from('user_settings').upsert({
+                user_id: userId,
+                subscription_plan: safePlan,
+                subscription_status: subscriptionStatus,
+                updated_at: new Date().toISOString(),
+            }, { onConflict: 'user_id' });
+            return res.json({ success: true });
+        }
+
+        if (action === 'subscriptionStatus') {
+            const status = String(req.body?.status || 'inactive').trim().toLowerCase();
+            const safeStatus = ['active', 'inactive', 'cancelled', 'expired', 'payment_pending'].includes(status) ? status : 'inactive';
+            const { data: { user }, error: userError } = await supabase.auth.admin.getUserById(userId);
+            if (userError) throw userError;
+            const { error } = await supabase.auth.admin.updateUserById(userId, {
+                app_metadata: { ...(user?.app_metadata || {}), subscription_status: safeStatus },
+            });
+            if (error) throw error;
+            await supabase.from('user_settings').upsert({
+                user_id: userId,
+                subscription_status: safeStatus,
+                updated_at: new Date().toISOString(),
+            }, { onConflict: 'user_id' });
             return res.json({ success: true });
         }
 

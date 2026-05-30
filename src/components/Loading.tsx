@@ -8,7 +8,7 @@ type LoadingCardProps = {
   className?: string;
 };
 
-function DMGenieLoadingMark() {
+function DMGennieLoadingMark() {
   return (
     <div className="relative mx-auto flex h-16 w-16 items-center justify-center" aria-hidden="true">
       <div className="absolute inset-0 rounded-2xl border border-[#5B4DFF]/20 bg-[#EEF0FF]" />
@@ -45,7 +45,7 @@ function LoadingDots() {
 }
 
 export function LoadingCard({
-  title = "Loading DMGenie",
+  title = "Loading DMGennie",
   subtitle = "Preparing your Instagram automation workspace...",
   detail,
   className,
@@ -59,9 +59,9 @@ export function LoadingCard({
       role="status"
       aria-live="polite"
     >
-      <DMGenieLoadingMark />
+      <DMGennieLoadingMark />
       <div className="mt-6">
-        <p className="text-sm font-black uppercase tracking-[0.24em] text-[#5B4DFF]">DMGenie</p>
+        <p className="text-sm font-black uppercase tracking-[0.24em] text-[#5B4DFF]">DMGennie</p>
         <h1 className="mt-2 text-2xl font-black tracking-tight text-[#0F172A]">{title}</h1>
         <p className="mt-3 text-sm leading-6 text-[#64748B]">{subtitle}</p>
         {detail ? (

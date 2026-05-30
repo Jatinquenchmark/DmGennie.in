@@ -1,4 +1,6 @@
 import { supabase, getUser, getUserRole, ensureSettings, cors } from '../server/supabaseApi.js';
+import { getSubscriptionState } from '../server/billingConfig.js';
+import { buildDashboardMetrics } from '../server/dashboardMetrics.js';
 
 function mapSettings(s) {
     return {
@@ -58,11 +60,33 @@ export default async function handler(req, res) {
     if (action !== 'profile') return res.status(400).json({ error: 'Unsupported me action.' });
 
     const role = await getUserRole(user.id, user);
+    const settings = await ensureSettings(user.id);
+    const subscription = getSubscriptionState(user, settings);
+    const dashboard = await buildDashboardMetrics({ supabase, userId: user.id, user, settings });
 
     return res.json({
+        user: {
+            id: user.id,
+            email: user.email,
+            name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Creator',
+        },
         id: user.id,
         email: user.email,
         name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Creator',
         role,
+        plan: subscription.planKey,
+        planName: subscription.plan,
+        subscription_status: subscription.status,
+        subscriptionStatus: subscription.status,
+        isPro: subscription.isPro,
+        current_period_start: subscription.currentPeriodStart,
+        current_period_end: subscription.currentPeriodEnd,
+        razorpay_customer_id: subscription.razorpayCustomerId,
+        razorpay_subscription_id: subscription.razorpaySubscriptionId,
+        has_used_pro_intro_offer: subscription.hasUsedIntroOffer,
+        pro_intro_started_at: subscription.proIntroStartedAt,
+        limits: subscription.limits,
+        usage: dashboard.usage,
+        featureAccess: subscription.featureAccess,
     });
 }

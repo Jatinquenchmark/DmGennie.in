@@ -10,20 +10,20 @@ export function FAQ() {
 
   const faqs = [
     {
-      question: 'Is DMGenie free?',
-      answer: 'Yes! DMGenie offers a free plan to get started. You can create automations and start growing your Instagram presence without any credit card required.',
+      question: 'Is DMGennie free?',
+      answer: 'Yes! DMGennie offers a free plan to get started. You can create automations and start growing your Instagram presence without any credit card required.',
     },
     {
-      question: 'Is DMGenie safe to use?',
-      answer: 'Absolutely. DMGenie uses official Meta APIs and follows all Instagram API guidelines. Your account security is our top priority.',
+      question: 'Is DMGennie safe to use?',
+      answer: 'Absolutely. DMGennie uses official Meta APIs and follows all Instagram API guidelines. Your account security is our top priority.',
     },
     {
       question: 'How does the DM automation work?',
-      answer: 'When someone comments a specific keyword on your post, DMGenie automatically sends them a DM with your pre-configured message, link, or offer.',
+      answer: 'When someone comments a specific keyword on your post, DMGennie automatically sends them a DM with your pre-configured message, link, or offer.',
     },
     {
       question: 'Will this get my account banned?',
-      answer: 'No. DMGenie uses official Meta APIs and operates We operate within Instagram\'s terms of service.',
+      answer: 'No. DMGennie uses official Meta APIs and operates We operate within Instagram\'s terms of service.',
     },
     {
       question: 'How quickly can I set it up?',

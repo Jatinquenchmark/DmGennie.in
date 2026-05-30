@@ -13,7 +13,7 @@ function Logo() {
         <circle cx="28" cy="26" r="3" fill="#5b5ef4" />
       </svg>
       <span className="text-xl font-extrabold tracking-tight text-foreground group-hover:text-accent-blue transition-colors">
-        DM<span className="text-accent-blue">Genie</span>
+        DM<span className="text-accent-blue">Gennie</span>
       </span>
     </Link>
   )
@@ -30,7 +30,7 @@ const steps = [
           support@dmgennie.in
         </a>{' '}
         with the subject line <strong>"Data Deletion Request"</strong>. Include the email address
-        associated with your DMGenie account.
+        associated with your DMGennie account.
       </>
     ),
   },
@@ -63,7 +63,7 @@ export default function DeleteData() {
             Request Data Deletion
           </h1>
           <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl">
-            You have the right to have your personal data permanently deleted from DMGenie at any
+            You have the right to have your personal data permanently deleted from DMGennie at any
             time. This page explains exactly what gets deleted and how to request it.
           </p>
         </div>
@@ -136,8 +136,8 @@ export default function DeleteData() {
         <div className="mt-10 p-5 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
           <h3 className="font-bold text-amber-700 dark:text-amber-400 mb-2">Also Revoke from Meta</h3>
           <p className="text-sm text-amber-600/80 dark:text-amber-400/80 leading-relaxed">
-            To completely revoke DMGenie's access, you can also remove it from Facebook's app settings:
-            go to <strong>Facebook → Settings → Apps and Websites</strong> and remove DMGenie. This
+            To completely revoke DMGennie's access, you can also remove it from Facebook's app settings:
+            go to <strong>Facebook → Settings → Apps and Websites</strong> and remove DMGennie. This
             immediately invalidates our access to your Instagram account independent of your deletion request.
           </p>
         </div>

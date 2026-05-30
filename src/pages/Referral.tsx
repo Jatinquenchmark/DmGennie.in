@@ -13,12 +13,12 @@ const steps = [
   {
     icon: Share2,
     title: 'Share your link',
-    text: 'Promote DMGenie to creators, agencies, coaches, and ecommerce brands.',
+    text: 'Promote DMGennie to creators, agencies, coaches, and ecommerce brands.',
   },
   {
     icon: Users,
     title: 'They become customers',
-    text: 'Your referral starts using DMGenie for Instagram DM automation.',
+    text: 'Your referral starts using DMGennie for Instagram DM automation.',
   },
   {
     icon: BadgeIndianRupee,
@@ -55,7 +55,7 @@ function ReferralLogo() {
         <path d="M17 27 L26 13" stroke="white" strokeWidth="3.8" strokeLinecap="round" />
         <circle cx="29" cy="27" r="3" fill="#d7a2ad" />
       </svg>
-      <span className="text-xl font-black tracking-tight text-[#151119]">DMGenie</span>
+      <span className="text-xl font-black tracking-tight text-[#151119]">DMGennie</span>
     </Link>
   )
 }
@@ -91,10 +91,10 @@ export default function Referral() {
                 Partner Program
               </div>
               <h1 className="max-w-3xl text-5xl font-black leading-[0.96] tracking-tight text-[#151119] sm:text-6xl lg:text-7xl">
-                Earn commission by sharing DMGenie
+                Earn commission by sharing DMGennie
               </h1>
               <p className="mt-7 max-w-2xl text-xl font-medium leading-relaxed text-[#655d64]">
-                Refer creators and businesses to DMGenie and earn recurring commission when they grow with Instagram DM automation.
+                Refer creators and businesses to DMGennie and earn recurring commission when they grow with Instagram DM automation.
               </p>
               <div className="mt-9 flex flex-wrap gap-4">
                 <Link to="/signup" className="inline-flex items-center gap-2 rounded-xl bg-[#6d2948] px-7 py-4 text-base font-black text-white shadow-[0_16px_36px_rgba(109,41,72,0.24)] transition-all hover:-translate-y-0.5 hover:bg-[#551f38]">
@@ -112,7 +112,7 @@ export default function Referral() {
               <div className="relative overflow-hidden rounded-[2.1rem] border border-white/80 bg-white/78 shadow-[0_30px_90px_rgba(109,41,72,0.16)] backdrop-blur-xl">
                 <img
                   src="/brand-assets/referral-partner-program.png"
-                  alt="DMGenie partner program"
+                  alt="DMGennie partner program"
                   className="h-full min-h-[420px] w-full object-cover"
                 />
                 <div className="absolute left-5 top-5 inline-flex items-center gap-3 rounded-2xl border border-white/55 bg-white/78 px-4 py-3 shadow-[0_16px_40px_rgba(109,41,72,0.16)] backdrop-blur">
@@ -247,7 +247,7 @@ export default function Referral() {
                 A clean commission program for creator tools
               </h2>
               <p className="mt-5 text-lg font-medium leading-relaxed text-[#665d66]">
-                DMGenie is easy to explain: creators comment-trigger DMs, capture leads, send links, and save hours every week.
+                DMGennie is easy to explain: creators comment-trigger DMs, capture leads, send links, and save hours every week.
               </p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -281,7 +281,7 @@ export default function Referral() {
 
               <div>
                 <h2 className="text-4xl font-black leading-tight tracking-tight text-[#151119] sm:text-5xl">
-                  Ready to become a DMGenie partner?
+                  Ready to become a DMGennie partner?
                 </h2>
                 <p className="mt-5 max-w-2xl text-lg font-medium leading-relaxed text-[#665d66]">
                   Join the referral program and start earning from creators who need simple, premium Instagram DM automation.

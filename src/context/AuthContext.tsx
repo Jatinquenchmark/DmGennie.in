@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   if (loading) {
     return (
       <LoadingScreen
-        title="Loading DMGenie"
+        title="Loading DMGennie"
         subtitle="Preparing your Instagram automation workspace..."
         detail="Checking your secure session..."
       />

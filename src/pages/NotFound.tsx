@@ -21,7 +21,7 @@ export default function NotFound() {
             <circle cx="28" cy="26" r="3" fill="#5b5ef4" />
           </svg>
           <span className="text-xl font-extrabold tracking-tight text-foreground group-hover:text-accent-blue transition-colors">
-            DM<span className="text-accent-blue">Genie</span>
+            DM<span className="text-accent-blue">Gennie</span>
           </span>
         </Link>
 

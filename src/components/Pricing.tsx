@@ -27,6 +27,9 @@ type PricingConfig = {
     reason: string
     hasUsedIntroOffer: boolean
     isPro: boolean
+    subscriptionStatus?: string
+    isPaymentPending?: boolean
+    currentPeriodEnd?: string | null
   }
 }
 
@@ -51,6 +54,9 @@ const defaultPricing: PricingConfig = {
     reason: 'Sign in to start Pro for ₹1',
     hasUsedIntroOffer: false,
     isPro: false,
+    subscriptionStatus: 'inactive',
+    isPaymentPending: false,
+    currentPeriodEnd: null,
   },
 }
 
@@ -61,14 +67,14 @@ const plans = [
     yearly: '₹0',
     suffix: '/account /month',
     cta: 'Create a Free Account',
-    included: ['Unlimited Automations', '1000 DMs', '1000 Contacts'],
-    excluded: ['Re-trigger', 'Ask For Follow', 'Lead Gen'],
+    included: ['1000 DMs/month', '1000 Contacts', 'Unlimited Automations', '1 Instagram account', 'Basic analytics'],
+    excluded: ['Re-trigger', 'Ask For Follow', 'Lead Gen', 'Advanced analytics', 'CSV export'],
     highlight: false,
   },
   {
     name: 'Pro',
     suffix: '/account /month',
-    included: ['Unlimited Automations', '20k DMs/month', 'Fair usage policy', 'Unlimited Contacts', 'Re-trigger', 'Ask For Follow', 'Lead Gen'],
+    included: ['20,000 DMs/month', 'Unlimited Contacts', 'Unlimited Automations', '1 Instagram account', 'Re-trigger', 'Ask For Follow', 'Lead Gen', 'Advanced analytics', 'CSV export'],
     excluded: [],
     highlight: true,
   },
@@ -78,7 +84,7 @@ const plans = [
     yearly: 'Custom',
     suffix: '',
     cta: 'Get in Touch',
-    included: ['Manage Multiple Accounts', 'Dedicated Account Manager', 'Custom Solutions', 'Early Access New Features'],
+    included: ['Manage multiple accounts', 'Dedicated account manager', 'Custom solutions', 'Early access features', 'Higher custom DM limits', 'Custom integrations'],
     excluded: [],
     highlight: false,
   },
@@ -120,7 +126,11 @@ export function Pricing() {
       return
     }
     if (planName === 'Enterprise') {
-      window.location.href = 'mailto:support@dmgennie.in?subject=DMGenie%20Enterprise%20Plan'
+      window.location.href = 'mailto:support@dmgennie.in?subject=DMGennie%20Enterprise%20Plan'
+      return
+    }
+    if (planName === 'Pro' && pricing.proIntroOffer.isPro) {
+      setNotice('You are already on Pro.')
       return
     }
     if (!session?.access_token) {
@@ -201,21 +211,33 @@ export function Pricing() {
           {plans.map((plan) => (
             (() => {
               const isPro = plan.name === 'Pro'
-              const showIntroOffer = isPro && billing === 'monthly' && (!session?.access_token || pricing.proIntroOffer.eligible)
+              const proActive = isPro && pricing.proIntroOffer.isPro
+              const paymentPending = isPro && Boolean(pricing.proIntroOffer.isPaymentPending)
+              const showIntroOffer = isPro && billing === 'monthly' && !proActive && !paymentPending && (!session?.access_token || pricing.proIntroOffer.eligible)
               const price = isPro
-                ? billing === 'monthly'
+                ? proActive
+                  ? `₹${proMonthly}`
+                  : billing === 'monthly'
                   ? showIntroOffer ? `₹${introAmount}` : `₹${proMonthly}`
                   : `₹${proAnnual}`
                 : plan.name === 'Free'
                   ? '₹0'
                   : 'Custom'
               const helper = isPro
-                ? billing === 'monthly'
+                ? proActive
+                  ? pricing.proIntroOffer.currentPeriodEnd ? `Pro active. Renews on ${new Date(pricing.proIntroOffer.currentPeriodEnd).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}.` : 'Pro active.'
+                  : paymentPending
+                    ? 'Payment pending. Complete payment to unlock Pro.'
+                    : billing === 'monthly'
                   ? showIntroOffer ? `Then ₹${proMonthly}/month after the first month.` : pricing.proIntroOffer.reason || `₹${proMonthly}/month.`
                   : `Billed annually at the equivalent of ₹${proAnnual}/month.`
                 : undefined
               const cta = isPro
-                ? billing === 'monthly'
+                ? proActive
+                  ? 'Current plan'
+                  : paymentPending
+                    ? 'Complete payment'
+                    : billing === 'monthly'
                   ? showIntroOffer ? 'Start Pro for ₹1' : 'Upgrade to Pro'
                   : 'Get Pro'
                 : plan.name === 'Free'
@@ -241,7 +263,7 @@ export function Pricing() {
 
               {plan.highlight && (
                 <div className="relative mx-auto mb-7 inline-flex items-center rounded-full border border-white/20 bg-white/14 px-5 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#f9dfb5] shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur">
-                  {(!session?.access_token || pricing.proIntroOffer.eligible) ? 'Limited offer · ₹1 first month' : 'Most Popular'}
+                  {proActive ? 'Pro active' : paymentPending ? 'Payment pending' : (!session?.access_token || pricing.proIntroOffer.eligible) ? 'Limited offer · ₹1 first month' : 'Most Popular'}
                 </div>
               )}
               {!plan.highlight && <div className="mb-7 h-8" />}
@@ -276,7 +298,7 @@ export function Pricing() {
               <div className="relative">
                 <button
                   onClick={() => handlePlanCta(plan.name)}
-                  disabled={checkoutLoading && isPro}
+                  disabled={(checkoutLoading && isPro) || proActive}
                   className={`mt-12 w-full rounded-full px-6 py-4 text-base font-black transition-all disabled:cursor-not-allowed disabled:opacity-70 ${
                   plan.highlight
                     ? 'bg-white text-[#6d2948] shadow-[0_18px_42px_rgba(0,0,0,0.18)] hover:bg-[#fbf7f8]'

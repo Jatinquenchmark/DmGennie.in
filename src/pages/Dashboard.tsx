@@ -128,8 +128,41 @@ interface UsageData {
     dmLimit: number;
     contactsThisMonth: number;
     contactLimit: number;
+    automationLimit?: number;
+    instagramAccountLimit?: number;
     planName: string;
+    plan?: "starter" | "pro";
+    subscriptionStatus?: string;
+    isPro?: boolean;
 }
+
+type FeatureAccess = {
+    reTrigger: boolean;
+    askForFollow: boolean;
+    leadGen: boolean;
+    advancedAnalytics: boolean;
+    exportCsv: boolean;
+    autoReply: boolean;
+    growFollowers: boolean;
+    leadGeneration: boolean;
+    advancedFilters: boolean;
+    prioritySupport: boolean;
+};
+
+type AccountPlanState = {
+    plan: "starter" | "pro";
+    planName: string;
+    subscriptionStatus: string;
+    isPro: boolean;
+    currentPeriodEnd?: string | null;
+    limits: {
+        dmLimit: number;
+        contactLimit: number;
+        automationLimit: number;
+        instagramAccountLimit: number;
+    };
+    featureAccess: FeatureAccess;
+};
 
 interface ProOfferData {
     amountInr: number;
@@ -141,7 +174,12 @@ interface ProOfferData {
 
 type Tab = "home" | "automations" | "contacts" | "inbox" | "analytics" | "referral" | "settings" | "help";
 type SettingsTab = "profile" | "instagram" | "billing" | "security" | "notifications";
-type AutomationDraft = { keyword: string; replyMessage: string };
+type AutomationDraft = {
+    keyword: string;
+    replyMessage: string;
+    triggerType?: string;
+    feature?: keyof FeatureAccess;
+};
 type InstagramMedia = {
     id: string;
     title: string;
@@ -188,6 +226,17 @@ type AutomationTemplate = {
     badge?: "Popular" | "Pro";
     icon: ReactNode;
 };
+type QuickAction = {
+    title: string;
+    copy: string;
+    icon: ReactNode;
+    cta: string;
+    badge?: string;
+    featured?: boolean;
+    intent: string;
+    setup: string;
+    feature?: keyof FeatureAccess;
+};
 type ResponseConfig = {
     type: string;
     title: string;
@@ -221,7 +270,39 @@ const zeroUsage: UsageData = {
     dmLimit: 1000,
     contactsThisMonth: 0,
     contactLimit: 1000,
+    automationLimit: 999999,
+    instagramAccountLimit: 1,
     planName: "Starter",
+    plan: "starter",
+    subscriptionStatus: "inactive",
+    isPro: false,
+};
+
+const starterFeatureAccess: FeatureAccess = {
+    reTrigger: false,
+    askForFollow: false,
+    leadGen: false,
+    advancedAnalytics: false,
+    exportCsv: false,
+    autoReply: false,
+    growFollowers: false,
+    leadGeneration: false,
+    advancedFilters: false,
+    prioritySupport: false,
+};
+
+const starterAccountPlan: AccountPlanState = {
+    plan: "starter",
+    planName: "Starter",
+    subscriptionStatus: "inactive",
+    isPro: false,
+    limits: {
+        dmLimit: 1000,
+        contactLimit: 1000,
+        automationLimit: 999999,
+        instagramAccountLimit: 1,
+    },
+    featureAccess: starterFeatureAccess,
 };
 
 const zeroContactMetrics: ContactMetrics = {
@@ -471,6 +552,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const [loadError, setLoadError] = useState(false);
     const [stats, setStats] = useState<Stats | null>(null);
     const [usage, setUsage] = useState<UsageData>(zeroUsage);
+    const [accountPlan, setAccountPlan] = useState<AccountPlanState>(starterAccountPlan);
     const [dashboardDeliveryRate, setDashboardDeliveryRate] = useState<number | null>(null);
     const [proOffer, setProOffer] = useState<ProOfferData>(defaultProOffer);
     const [triggers, setTriggers] = useState<Trigger[]>([]);
@@ -494,6 +576,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const [openFaq, setOpenFaq] = useState(0);
     const [disconnectConfirmOpen, setDisconnectConfirmOpen] = useState(false);
     const [dashboardToast, setDashboardToast] = useState("");
+    const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
     const showDashboardToast = useCallback((message: string) => {
         setDashboardToast(message);
@@ -543,11 +626,17 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             setStats(previewStats);
             setUsage({
                 dmsThisMonth: 5,
-                dmLimit: 999999,
+                dmLimit: 1000,
                 contactsThisMonth: 1,
                 contactLimit: 1000,
+                automationLimit: 999999,
+                instagramAccountLimit: 1,
                 planName: "Starter",
+                plan: "starter",
+                subscriptionStatus: "inactive",
+                isPro: false,
             });
+            setAccountPlan(starterAccountPlan);
             setDashboardDeliveryRate(98);
             setProOffer(defaultProOffer);
             setTriggers(previewTriggers);
@@ -576,6 +665,20 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             ]);
             setStats({ ...zeroStats, ...(dashData.stats || {}) });
             setUsage({ ...zeroUsage, ...(dashData.usage || {}) });
+            setAccountPlan({
+                plan: dashData.subscription?.plan || dashData.usage?.plan || "starter",
+                planName: dashData.subscription?.planName || dashData.usage?.planName || "Starter",
+                subscriptionStatus: dashData.subscription?.subscriptionStatus || dashData.usage?.subscriptionStatus || "inactive",
+                isPro: Boolean(dashData.subscription?.isPro || dashData.usage?.isPro),
+                currentPeriodEnd: dashData.subscription?.currentPeriodEnd || null,
+                limits: {
+                    dmLimit: safeNumber(dashData.limits?.dmLimit || dashData.usage?.dmLimit || zeroUsage.dmLimit),
+                    contactLimit: safeNumber(dashData.limits?.contactLimit || dashData.usage?.contactLimit || zeroUsage.contactLimit),
+                    automationLimit: safeNumber(dashData.limits?.automationLimit || dashData.usage?.automationLimit || zeroUsage.automationLimit || 999999),
+                    instagramAccountLimit: safeNumber(dashData.limits?.instagramAccountLimit || dashData.usage?.instagramAccountLimit || zeroUsage.instagramAccountLimit || 1),
+                },
+                featureAccess: { ...starterFeatureAccess, ...(dashData.featureAccess || {}) },
+            });
             setDashboardDeliveryRate(typeof dashData.deliveryRate === "number" ? dashData.deliveryRate : null);
             if (pricingData?.plans?.pro) {
                 setProOffer({
@@ -664,6 +767,8 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         }
     }, [authFetch, navigate, preview, showDashboardToast]);
 
+    const openUpgradeModal = useCallback(() => setUpgradeModalOpen(true), []);
+
     const toggleBot = async () => {
         const next = !botEnabled;
         setBotEnabled(next);
@@ -717,12 +822,30 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                 },
             ]);
         } else {
-            const res = await authFetch("/api/triggers", {
-                method: "POST",
-                body: JSON.stringify({ keyword, replyMessage }),
-            });
-            const trigger = await res.json();
-            setTriggers((prev) => [...prev, trigger]);
+            try {
+                const res = await authFetch("/api/triggers", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        keyword,
+                        replyMessage,
+                        triggerType: draft?.triggerType,
+                        feature: draft?.feature,
+                    }),
+                });
+                const trigger = await res.json();
+                if (!res.ok) {
+                    if (trigger?.error === "PRO_REQUIRED" || trigger?.error === "PLAN_LIMIT_REACHED") {
+                        openUpgradeModal();
+                    }
+                    showDashboardToast(trigger?.message || "Unable to create automation.");
+                    return;
+                }
+                setTriggers((prev) => [...prev, trigger]);
+                showDashboardToast("Automation launched");
+            } catch {
+                showDashboardToast("Unable to save automation.");
+                return;
+            }
         }
         setNewKeyword("");
         setNewReply("");
@@ -872,11 +995,12 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                     connected={connected}
                     stats={displayStats}
                     usage={usage}
+                    accountPlan={accountPlan}
                     proOffer={proOffer}
                     settings={settings}
                     onNavigate={setTab}
                     onLogout={handleLogout}
-                    onUpgrade={startProCheckout}
+                    onUpgrade={openUpgradeModal}
                 />
 
                 <main className="mt-3 min-w-0 overflow-x-hidden lg:ml-[276px] lg:mt-0 xl:ml-[280px]">
@@ -900,10 +1024,11 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         proOffer={proOffer}
                                         activity={activity}
                                         triggers={triggers}
+                                        accountPlan={accountPlan}
                                         onNavigate={setTab}
                                         onToggleBot={toggleBot}
                                         botEnabled={botEnabled}
-                                        onUpgrade={startProCheckout}
+                                        onUpgrade={openUpgradeModal}
                                     />
                                 )}
                                 {tab === "automations" && (
@@ -924,8 +1049,10 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         onToggle={toggleTrigger}
                                         onDelete={deleteTrigger}
                                         onNavigate={setTab}
-                                        onUpgrade={startProCheckout}
+                                        onUpgrade={openUpgradeModal}
                                         proOffer={proOffer}
+                                        accountPlan={accountPlan}
+                                        automationCount={triggers.length}
                                     />
                                 )}
                                 {tab === "contacts" && (
@@ -937,6 +1064,8 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         onSearch={setContactSearch}
                                         onNavigate={setTab}
                                         onRefresh={loadContacts}
+                                        accountPlan={accountPlan}
+                                        onUpgrade={openUpgradeModal}
                                     />
                                 )}
                                 {tab === "inbox" && <InboxPage activity={activity} />}
@@ -950,6 +1079,8 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         triggers={triggers}
                                         activity={activity}
                                         onNavigate={setTab}
+                                        accountPlan={accountPlan}
+                                        onUpgrade={openUpgradeModal}
                                     />
                                 )}
                                 {tab === "referral" && <ReferralPage preview={preview} />}
@@ -989,6 +1120,13 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                         await performDisconnectInstagram();
                         setDisconnectConfirmOpen(false);
                     }}
+                />
+            )}
+            {upgradeModalOpen && (
+                <UpgradeModal
+                    proOffer={proOffer}
+                    onClose={() => setUpgradeModalOpen(false)}
+                    onUpgrade={startProCheckout}
                 />
             )}
             {dashboardToast && <ReferralToast message={dashboardToast} />}
@@ -1036,7 +1174,7 @@ function DashboardLoadingState() {
                     <div className="mx-auto w-full max-w-[1180px] space-y-4">
                         <div className="grid gap-4 lg:grid-cols-[420px_1fr]">
                             <LoadingCard
-                                title="Loading DMGenie"
+                                title="Loading DMGennie"
                                 subtitle="Preparing your Instagram automation workspace..."
                                 detail="Loading your automation data..."
                                 className="max-w-none"
@@ -1083,6 +1221,7 @@ function Sidebar({
     connected,
     stats,
     usage,
+    accountPlan,
     proOffer,
     settings,
     onNavigate,
@@ -1093,6 +1232,7 @@ function Sidebar({
     connected: boolean;
     stats: Stats;
     usage: UsageData;
+    accountPlan: AccountPlanState;
     proOffer: ProOfferData;
     settings: SettingsData | null;
     onNavigate: (tab: Tab) => void;
@@ -1113,7 +1253,7 @@ function Sidebar({
                         </svg>
                     </span>
                     <span>
-                        <span className="block text-[18px] font-black leading-5 tracking-tight text-[#0F172A]">DMGenie</span>
+                        <span className="block text-[18px] font-black leading-5 tracking-tight text-[#0F172A]">DMGennie</span>
                         <span className="mt-0.5 block text-[9px] font-black uppercase tracking-[0.18em] text-[#94A3B8]">Creator Dashboard</span>
                     </span>
                 </Link>
@@ -1162,7 +1302,7 @@ function Sidebar({
                 </nav>
 
                 <div className="mt-2 space-y-1.5">
-                    <SidebarPlanCompact usage={usage} proOffer={proOffer} onUpgrade={onUpgrade} />
+                    <SidebarPlanCompact usage={usage} accountPlan={accountPlan} proOffer={proOffer} onUpgrade={onUpgrade} />
                     <button onClick={onLogout} className="flex h-9 w-full items-center justify-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-4 text-[13px] font-black text-[#475569] transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600">
                         <LogOut className="h-4 w-4" /> Logout
                     </button>
@@ -1175,18 +1315,22 @@ function Sidebar({
     );
 }
 
-function SidebarPlanCompact({ usage, proOffer, onUpgrade }: { usage: UsageData; proOffer: ProOfferData; onUpgrade: () => void }) {
+function SidebarPlanCompact({ usage, accountPlan, proOffer, onUpgrade }: { usage: UsageData; accountPlan: AccountPlanState; proOffer: ProOfferData; onUpgrade: () => void }) {
     const dmsProgress = usagePercent(usage.dmsThisMonth, usage.dmLimit);
     const contactsProgress = usagePercent(usage.contactsThisMonth, usage.contactLimit);
+    const isPro = accountPlan.isPro;
+    const isPaymentPending = accountPlan.subscriptionStatus === "payment_pending";
+    const renewalLabel = accountPlan.currentPeriodEnd ? new Date(accountPlan.currentPeriodEnd).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : null;
+    const planLabel = isPro ? "Pro" : isPaymentPending ? "Payment pending" : "Starter";
 
     return (
         <div className="rounded-[16px] border border-[#E5E7EB] bg-[#F8FAFC] p-2.5">
             <div className="mb-2 flex items-center justify-between gap-2">
                 <div>
-                    <p className="text-[12px] font-black leading-4 text-[#0F172A]">{usage.planName || "Starter"} plan</p>
+                    <p className="text-[12px] font-black leading-4 text-[#0F172A]">{planLabel} plan</p>
                     <p className="text-[10px] font-bold leading-3 text-[#64748B]">Plan & usage</p>
                 </div>
-                <span className="inline-flex h-6 items-center rounded-full bg-white px-2 text-[10px] font-black text-[#64748B] ring-1 ring-[#E5E7EB]">{usage.planName || "Starter"}</span>
+                <span className={cx("inline-flex h-6 items-center rounded-full bg-white px-2 text-[10px] font-black ring-1", isPro ? "text-emerald-700 ring-emerald-100" : isPaymentPending ? "text-amber-700 ring-amber-100" : "text-[#64748B] ring-[#E5E7EB]")}>{planLabel}</span>
             </div>
 
             <div className="space-y-1.5">
@@ -1194,17 +1338,25 @@ function SidebarPlanCompact({ usage, proOffer, onUpgrade }: { usage: UsageData; 
                 <CompactUsageLine icon={<User className="h-3.5 w-3.5" />} label="Contacts" value={formatUsage(usage.contactsThisMonth, usage.contactLimit)} progress={contactsProgress} />
             </div>
 
-            <p className="mt-2 text-[10.5px] font-bold leading-4 text-[#64748B]">
-                <span className="font-black text-[#0F172A]">Unlock Pro.</span> {proOffer.eligible ? `First month ₹${proOffer.amountInr}. ` : ""}More DMs, contacts & automations.
-            </p>
+            {isPro ? (
+                <div className="mt-2 rounded-[0.85rem] bg-emerald-50 px-2.5 py-2 text-[10.5px] font-bold leading-4 text-emerald-700 ring-1 ring-emerald-100">
+                    <span className="font-black">Pro active.</span> {renewalLabel ? `Renews on ${renewalLabel}.` : "All Pro features unlocked."}
+                </div>
+            ) : (
+                <>
+                    <p className="mt-2 text-[10.5px] font-bold leading-4 text-[#64748B]">
+                        <span className="font-black text-[#0F172A]">{isPaymentPending ? "Payment pending." : "Unlock Pro."}</span> {isPaymentPending ? "Complete payment to unlock Pro." : `${proOffer.eligible ? `First month ₹${proOffer.amountInr}. ` : ""}More DMs, unlimited contacts & Pro tools.`}
+                    </p>
 
-            <button
-                onClick={onUpgrade}
-                className={cx("mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-full px-3 text-[12px] font-black", goldCtaCls)}
-            >
-                <Crown className={cx("h-3.5 w-3.5", goldCrownCls)} />
-                {proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade now"}
-            </button>
+                    <button
+                        onClick={onUpgrade}
+                        className={cx("mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-full px-3 text-[12px] font-black", goldCtaCls)}
+                    >
+                        <Crown className={cx("h-3.5 w-3.5", goldCrownCls)} />
+                        {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade now"}
+                    </button>
+                </>
+            )}
         </div>
     );
 }
@@ -1250,7 +1402,7 @@ function PlanUsageCard({ usage = zeroUsage, proOffer = defaultProOffer, onUpgrad
                     </span>
                     <p className="text-[11px] font-bold leading-4 text-[#64748B]">
                         <span className="block text-[13px] font-black leading-4 text-[#0F172A]">Unlock Pro</span>
-                        {proOffer.eligible ? `Get your first month for ₹${proOffer.amountInr}. ` : ""}Unlock more DMs, contacts & automations.
+                        {proOffer.eligible ? `Get your first month for ₹${proOffer.amountInr}. ` : ""}Unlock 20,000 DMs, unlimited contacts & Pro tools.
                     </p>
                 </div>
                 <button
@@ -1292,6 +1444,7 @@ function HomePage({
     proOffer,
     activity,
     triggers,
+    accountPlan,
     botEnabled,
     onNavigate,
     onToggleBot,
@@ -1306,6 +1459,7 @@ function HomePage({
     proOffer: ProOfferData;
     activity: LogEntry[];
     triggers: Trigger[];
+    accountPlan: AccountPlanState;
     botEnabled: boolean;
     onNavigate: (tab: Tab) => void;
     onToggleBot: () => void;
@@ -1313,9 +1467,9 @@ function HomePage({
 }) {
     const actions = [
         { title: "Auto DM from Comments", copy: "Send DMs to users who comment on your posts.", icon: <MessageCircle className="h-6 w-6" />, cta: "Create workflow", badge: "Popular", intent: "Best for links", setup: "2 min setup" },
-        { title: "Grow Followers", copy: "Ask users to follow before delivering links.", icon: <TrendingUp className="h-6 w-6" />, cta: "Grow audience", badge: "Trending", featured: true, intent: "Audience growth", setup: "Ready flow" },
-        { title: "Generate Leads", copy: "Capture emails and phone numbers from Instagram conversations.", icon: <UserPlus className="h-6 w-6" />, cta: "Build lead flow", intent: "Lead capture", setup: "Ready flow" },
-        { title: "Auto-reply DMs", copy: "Reply faster with simple message automation.", icon: <Bot className="h-6 w-6" />, cta: "Set replies", intent: "Inbox replies", setup: "3 min setup" },
+        { title: "Grow Followers", copy: "Ask users to follow before delivering links.", icon: <TrendingUp className="h-6 w-6" />, cta: "Grow audience", badge: "Trending", featured: true, intent: "Audience growth", setup: "Ready flow", feature: "growFollowers" as const },
+        { title: "Generate Leads", copy: "Capture emails and phone numbers from Instagram conversations.", icon: <UserPlus className="h-6 w-6" />, cta: "Build lead flow", intent: "Lead capture", setup: "Ready flow", feature: "leadGen" as const },
+        { title: "Auto-reply DMs", copy: "Reply faster with simple message automation.", icon: <Bot className="h-6 w-6" />, cta: "Set replies", intent: "Inbox replies", setup: "3 min setup", feature: "autoReply" as const },
     ];
 
     return (
@@ -1362,13 +1516,13 @@ function HomePage({
                 </div>
             </section>
 
-            <HomeUpgradeBanner proOffer={proOffer} onUpgrade={onUpgrade} />
+            {!accountPlan.isPro && <HomeUpgradeBanner accountPlan={accountPlan} proOffer={proOffer} onUpgrade={onUpgrade} />}
 
             <StartHereStrip connected={connected} activeTriggers={activeTriggers} onNavigate={onNavigate} />
 
             <MetricGrid stats={stats} activeTriggers={activeTriggers} leadsCollected={leadsCollected} deliveryRate={deliveryRate} />
 
-            <QuickActionGrid actions={actions} onNavigate={onNavigate} />
+            <QuickActionGrid actions={actions} featureAccess={accountPlan.featureAccess} onNavigate={onNavigate} onUpgrade={onUpgrade} />
 
             <div className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(360px,1.05fr)]">
                 <RecentActivity activity={activity} onNavigate={onNavigate} />
@@ -1405,7 +1559,8 @@ function SectionHeading({ title, subtitle, action }: { title: string; subtitle?:
     );
 }
 
-function HomeUpgradeBanner({ proOffer, onUpgrade }: { proOffer: ProOfferData; onUpgrade: () => void }) {
+function HomeUpgradeBanner({ accountPlan, proOffer, onUpgrade }: { accountPlan: AccountPlanState; proOffer: ProOfferData; onUpgrade: () => void }) {
+    const isPaymentPending = accountPlan.subscriptionStatus === "payment_pending";
     return (
         <section className="overflow-hidden rounded-[20px] border border-indigo-200/70 bg-[linear-gradient(135deg,#F8F7FF_0%,#EEF0FF_48%,#FFF8FE_100%)] p-3.5 shadow-[0_12px_34px_rgba(91,77,255,0.08)]">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1416,7 +1571,7 @@ function HomeUpgradeBanner({ proOffer, onUpgrade }: { proOffer: ProOfferData; on
                     <div>
                         <h2 className="text-base font-black tracking-tight text-[#0F172A]">Unlock Pro Power</h2>
                         <p className="mt-0.5 text-sm font-semibold leading-5 text-[#64748B]">
-                        {proOffer.eligible ? `First month only. Then ₹${proOffer.renewalMonthlyPriceInr}/month.` : "Get unlimited automations, contacts & advanced analytics."}
+                        {isPaymentPending ? "Payment pending. Complete payment to unlock Pro." : proOffer.eligible ? `First month only. Then ₹${proOffer.renewalMonthlyPriceInr}/month.` : "Get 20,000 DMs, exports & advanced analytics."}
                         </p>
                     </div>
                 </div>
@@ -1425,14 +1580,24 @@ function HomeUpgradeBanner({ proOffer, onUpgrade }: { proOffer: ProOfferData; on
                     className={cx("inline-flex items-center justify-center gap-2 rounded-[0.9rem] px-4 py-2.5 text-sm font-black", goldCtaCls)}
                 >
                     <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                    {proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
+                    {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
                 </button>
             </div>
         </section>
     );
 }
 
-function QuickActionGrid({ actions, onNavigate }: { actions: Array<{ title: string; copy: string; icon: ReactNode; cta: string; badge?: string; featured?: boolean; intent: string; setup: string }>; onNavigate: (tab: Tab) => void }) {
+function QuickActionGrid({
+    actions,
+    featureAccess,
+    onNavigate,
+    onUpgrade,
+}: {
+    actions: QuickAction[];
+    featureAccess: FeatureAccess;
+    onNavigate: (tab: Tab) => void;
+    onUpgrade: () => void;
+}) {
     return (
         <section className="space-y-3">
             <SectionHeading
@@ -1442,15 +1607,18 @@ function QuickActionGrid({ actions, onNavigate }: { actions: Array<{ title: stri
             />
 
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-                {actions.map((action) => (
+                {actions.map((action) => {
+                    const locked = Boolean(action.feature && !featureAccess[action.feature]);
+                    return (
                     <button
                         key={action.title}
-                        onClick={() => onNavigate("automations")}
+                        onClick={() => locked ? onUpgrade() : onNavigate("automations")}
                         className={cx(
                             "group relative flex min-h-[132px] flex-col overflow-hidden rounded-[18px] bg-white p-4 text-left transition duration-200 hover:-translate-y-0.5",
                             action.featured
                                 ? "border border-[#E8C56C]/70 bg-[linear-gradient(180deg,#FFFFFF_0%,#FFFDF7_100%)] shadow-[0_10px_24px_rgba(120,83,20,0.045)] hover:border-[#E8C56C]/80 hover:shadow-[0_15px_30px_rgba(120,83,20,0.09)]"
-                                : "border border-[#E5E7EB] shadow-[0_10px_24px_rgba(15,23,42,0.035)] hover:border-indigo-100 hover:shadow-[0_15px_30px_rgba(79,70,229,0.08)]"
+                                : "border border-[#E5E7EB] shadow-[0_10px_24px_rgba(15,23,42,0.035)] hover:border-indigo-100 hover:shadow-[0_15px_30px_rgba(79,70,229,0.08)]",
+                            locked && "border-[#FDE68A] bg-[#FFFDF6]"
                         )}
                     >
                         <span className={cx("pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full blur-2xl transition group-hover:opacity-100", action.featured ? "bg-amber-200/20 opacity-50" : "bg-[#5B4DFF]/10 opacity-40")} />
@@ -1473,6 +1641,7 @@ function QuickActionGrid({ actions, onNavigate }: { actions: Array<{ title: stri
                                         {action.badge}
                                     </span>
                                 )}
+                                {locked && <SmallBadge label="Pro" tone="gold" />}
                             </span>
                         </div>
 
@@ -1487,12 +1656,13 @@ function QuickActionGrid({ actions, onNavigate }: { actions: Array<{ title: stri
                                 <span className={cx("inline-flex h-6 items-center rounded-full px-2 text-[10px] font-black ring-1", action.featured ? "bg-amber-50 text-amber-700 ring-amber-100" : "bg-indigo-50 text-[#5B4DFF] ring-indigo-100")}>{action.setup}</span>
                             </div>
                             <span className="inline-flex shrink-0 items-center gap-1.5 text-[12px] font-black text-[#5B4DFF]">
-                                {action.cta}
-                                <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+                                {locked ? "Upgrade to Pro" : action.cta}
+                                {locked ? <Lock className="h-3.5 w-3.5" /> : <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />}
                             </span>
                         </div>
                     </button>
-                ))}
+                    );
+                })}
             </div>
         </section>
     );
@@ -1733,6 +1903,8 @@ function AutomationsPage(props: {
     onNavigate: (tab: Tab) => void;
     onUpgrade: () => void;
     proOffer: ProOfferData;
+    accountPlan: AccountPlanState;
+    automationCount: number;
 }) {
     const [templateOpen, setTemplateOpen] = useState(false);
     const [builderOpen, setBuilderOpen] = useState(false);
@@ -1741,8 +1913,13 @@ function AutomationsPage(props: {
     const [viewMode, setViewMode] = useState<"list" | "grid">("list");
     const [launchSuccess, setLaunchSuccess] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<Trigger | null>(null);
+    const automationLimitReached = !props.accountPlan.isPro && props.automationCount >= props.accountPlan.limits.automationLimit;
 
     const openTemplates = () => {
+        if (automationLimitReached) {
+            props.onUpgrade();
+            return;
+        }
         props.onAddOpen();
         setTemplateOpen(true);
     };
@@ -1793,17 +1970,24 @@ function AutomationsPage(props: {
                 initialReply={props.newReply}
                 onCancel={closeBuilder}
                 onSave={saveBuilder}
+                accountPlan={props.accountPlan}
+                onUpgrade={props.onUpgrade}
             />
         );
     }
 
     return (
-        <PageShell
-            title="Automations"
-            subtitle="Create, manage, and track your Instagram automation flows."
-            action={<PrimaryButton onClick={openTemplates}><Plus className="h-4 w-4" /> New Automation</PrimaryButton>}
+            <PageShell
+                title="Automations"
+                subtitle="Create, manage, and track your Instagram automation flows."
+            action={<PrimaryButton onClick={openTemplates}><Plus className="h-4 w-4" /> {automationLimitReached ? "Upgrade to Pro" : "New Automation"}</PrimaryButton>}
         >
-            <AutomationMiniUpgradeStrip onUpgrade={props.onUpgrade} proOffer={props.proOffer} />
+            {!props.accountPlan.isPro && <AutomationMiniUpgradeStrip onUpgrade={props.onUpgrade} proOffer={props.proOffer} />}
+            {automationLimitReached && (
+                <div className="rounded-[18px] border border-amber-100 bg-amber-50/70 px-4 py-3 text-sm font-bold text-amber-800">
+                    You’ve reached your Starter automation limit. Upgrade to Pro to create more.
+                </div>
+            )}
 
             <section className="rounded-[20px] border border-white bg-white p-3.5 shadow-[0_14px_42px_rgba(15,23,42,0.045)]">
                 <div className="grid gap-3 xl:grid-cols-[minmax(240px,1fr)_180px_160px_auto] xl:items-center">
@@ -1873,6 +2057,8 @@ function AutomationsPage(props: {
                     onClose={() => { setTemplateOpen(false); props.onAddCancel(); }}
                     onScratch={() => openBuilder()}
                     onSelect={openBuilder}
+                    accountPlan={props.accountPlan}
+                    onUpgrade={props.onUpgrade}
                 />
             )}
             {launchSuccess && <AutomationSuccessModal onClose={() => setLaunchSuccess(false)} />}
@@ -1921,7 +2107,7 @@ function ConfirmInstagramDisconnectModal({ onCancel, onConfirm }: { onCancel: ()
                 </span>
                 <h2 className="mt-5 text-2xl font-black text-[#0F172A]">Disconnect Instagram?</h2>
                 <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[#64748B]">
-                    DMGenie will stop sending automation messages until you reconnect this Instagram account.
+                    DMGennie will stop sending automation messages until you reconnect this Instagram account.
                 </p>
                 <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
                     <SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
@@ -1934,7 +2120,38 @@ function ConfirmInstagramDisconnectModal({ onCancel, onConfirm }: { onCancel: ()
     );
 }
 
+function UpgradeModal({ proOffer, onClose, onUpgrade }: { proOffer: ProOfferData; onClose: () => void; onUpgrade: () => void }) {
+    const isPaymentPending = proOffer.reason.toLowerCase().includes("payment pending");
+    return (
+        <ModalShell onClose={onClose}>
+            <div className="text-center">
+                <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.25rem] bg-[#FFF7DA] text-[#8A5D17] ring-1 ring-[#E8C56C]/50">
+                    <Crown className="h-8 w-8 fill-[#8A5D17]" />
+                </span>
+                <h2 className="mt-5 text-2xl font-black text-[#0F172A]">Unlock Pro</h2>
+                <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[#64748B]">
+                    Get 20,000 DMs, unlimited contacts, exports, and advanced analytics.
+                </p>
+                <div className="mx-auto mt-5 max-w-md rounded-[18px] border border-amber-100 bg-amber-50/70 p-3 text-left">
+                    <p className="text-sm font-black text-[#0F172A]">{isPaymentPending ? "Payment pending" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}</p>
+                    <p className="mt-1 text-xs font-bold leading-5 text-[#64748B]">
+                        {isPaymentPending ? "Complete payment to unlock Pro features." : proOffer.eligible ? `First month only. Then ₹${proOffer.renewalMonthlyPriceInr}/month.` : "Unlock higher DM limits and Pro-only workflows."}
+                    </p>
+                </div>
+                <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
+                    <SecondaryButton onClick={onClose}>Maybe later</SecondaryButton>
+                    <PrimaryButton onClick={onUpgrade}>
+                        <Crown className="h-4 w-4" />
+                        {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
+                    </PrimaryButton>
+                </div>
+            </div>
+        </ModalShell>
+    );
+}
+
 function AutomationMiniUpgradeStrip({ onUpgrade, proOffer }: { onUpgrade: () => void; proOffer: ProOfferData }) {
+    const isPaymentPending = proOffer.reason.toLowerCase().includes("payment pending");
     return (
         <section className="rounded-[18px] border border-indigo-200/60 bg-gradient-to-r from-[#EEF0FF] via-white to-[#F8EEFF] p-3.5 shadow-[0_12px_32px_rgba(91,77,255,0.07)]">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1944,12 +2161,12 @@ function AutomationMiniUpgradeStrip({ onUpgrade, proOffer }: { onUpgrade: () => 
                     </span>
                     <div>
                         <h2 className="text-sm font-black text-[#0F172A]">Unlock Pro Power</h2>
-                        <p className="text-xs font-semibold text-[#64748B]">{proOffer.eligible ? `First month only. Then ₹${proOffer.renewalMonthlyPriceInr}/month.` : "Get more automations, contacts, and advanced analytics."}</p>
+                        <p className="text-xs font-semibold text-[#64748B]">{isPaymentPending ? "Payment pending. Complete payment to unlock Pro." : proOffer.eligible ? `First month only. Then ₹${proOffer.renewalMonthlyPriceInr}/month.` : "Get 20,000 DMs, exports, and advanced analytics."}</p>
                     </div>
                 </div>
                 <button onClick={onUpgrade} className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white shadow-[0_10px_22px_rgba(91,77,255,0.18)] transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
                     <Crown className="h-3.5 w-3.5" />
-                    {proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
+                    {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
                 </button>
             </div>
         </section>
@@ -2080,7 +2297,19 @@ function AutomationDataPill({ label, value, muted }: { label: string; value: str
     );
 }
 
-function TemplateSelectionModal({ onClose, onScratch, onSelect }: { onClose: () => void; onScratch: () => void; onSelect: (template: AutomationTemplate) => void }) {
+function TemplateSelectionModal({
+    onClose,
+    onScratch,
+    onSelect,
+    accountPlan,
+    onUpgrade,
+}: {
+    onClose: () => void;
+    onScratch: () => void;
+    onSelect: (template: AutomationTemplate) => void;
+    accountPlan: AccountPlanState;
+    onUpgrade: () => void;
+}) {
     const [query, setQuery] = useState("");
     const [category, setCategory] = useState("All templates");
     const categories = [
@@ -2142,7 +2371,7 @@ function TemplateSelectionModal({ onClose, onScratch, onSelect }: { onClose: () 
 
                     <div className="grid max-h-[58vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
                         {filtered.map((template) => (
-                            <TemplateCard key={template.title} template={template} onSelect={onSelect} />
+                            <TemplateCard key={template.title} template={template} accountPlan={accountPlan} onSelect={onSelect} onUpgrade={onUpgrade} />
                         ))}
                         {!filtered.length && (
                             <div className="rounded-[18px] border border-dashed border-slate-200 bg-slate-50 p-6 text-center sm:col-span-2">
@@ -2157,13 +2386,15 @@ function TemplateSelectionModal({ onClose, onScratch, onSelect }: { onClose: () 
     );
 }
 
-function TemplateCard({ template, onSelect }: { template: AutomationTemplate; onSelect: (template: AutomationTemplate) => void }) {
+function TemplateCard({ template, accountPlan, onSelect, onUpgrade }: { template: AutomationTemplate; accountPlan: AccountPlanState; onSelect: (template: AutomationTemplate) => void; onUpgrade: () => void }) {
     const isAdvanced = template.badge === "Pro";
+    const requiredFeature = templateRequiredFeature(template);
+    const locked = Boolean(requiredFeature && !accountPlan.featureAccess[requiredFeature]);
 
     return (
         <button
             key={template.title}
-            onClick={() => onSelect(template)}
+            onClick={() => locked ? onUpgrade() : onSelect(template)}
             className={cx(
                 "group relative rounded-[18px] border bg-white p-4 text-left shadow-[0_8px_24px_rgba(15,23,42,0.025)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_16px_34px_rgba(79,70,229,0.08)]",
                 isAdvanced ? "border-[#FDE68A] bg-[#FFFDF6]" : "border-slate-100"
@@ -2173,20 +2404,44 @@ function TemplateCard({ template, onSelect }: { template: AutomationTemplate; on
                 <span className={cx("flex h-10 w-10 items-center justify-center rounded-[0.9rem]", isAdvanced ? "bg-[#FFF7DA] text-[#8A5D17]" : "bg-[#EEF0FF] text-[#5B4DFF]")}>{template.icon}</span>
                 <div className="flex gap-1.5">
                     {template.badge && <SmallBadge label={isAdvanced ? "Advanced" : template.badge} tone={isAdvanced ? "gold" : "purple"} />}
+                    {locked && <SmallBadge label="Pro" tone="gold" />}
                 </div>
             </div>
             <h3 className="text-sm font-black text-[#0F172A]">{template.title}</h3>
             <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-5 text-[#64748B]">{template.description}</p>
-            {isAdvanced && <p className="mt-2 text-[11px] font-bold text-[#8A5D17]">Ready for demo. Backend support may require API integration.</p>}
+            {locked && <p className="mt-2 text-[11px] font-bold text-[#8A5D17]">Upgrade to Pro to use this template.</p>}
             <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
                 <span className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-500">{template.trigger}</span>
-                <ArrowRight className="h-4 w-4 text-[#5B4DFF] transition group-hover:translate-x-0.5" />
+                {locked ? <Lock className="h-4 w-4 text-[#8A5D17]" /> : <ArrowRight className="h-4 w-4 text-[#5B4DFF] transition group-hover:translate-x-0.5" />}
             </div>
         </button>
     );
 }
 
-function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, onSave }: { template: AutomationTemplate | null; initialKeyword: string; initialReply: string; onCancel: () => void; onSave: (draft: AutomationDraft) => void | Promise<void> }) {
+function templateRequiredFeature(template: AutomationTemplate): keyof FeatureAccess | undefined {
+    if (template.category === "Collect leads") return "leadGen";
+    if (template.category === "Grow followers") return "growFollowers";
+    if (template.trigger === "DM keyword") return "autoReply";
+    return undefined;
+}
+
+function AutomationBuilder({
+    template,
+    initialKeyword,
+    initialReply,
+    onCancel,
+    onSave,
+    accountPlan,
+    onUpgrade,
+}: {
+    template: AutomationTemplate | null;
+    initialKeyword: string;
+    initialReply: string;
+    onCancel: () => void;
+    onSave: (draft: AutomationDraft) => void | Promise<void>;
+    accountPlan: AccountPlanState;
+    onUpgrade: () => void;
+}) {
     const [step, setStep] = useState(1);
     const [automationName, setAutomationName] = useState(template?.title || "Auto DM from comments");
     const [triggerType, setTriggerType] = useState(template?.trigger || "Post or Reel comment");
@@ -2249,7 +2504,14 @@ function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, o
         setBuilderToast(message);
         window.setTimeout(() => setBuilderToast(""), 2200);
     };
+    const requireBuilderFeature = (feature: keyof FeatureAccess, message: string) => {
+        if (accountPlan.featureAccess[feature]) return true;
+        showBuilderToast(message);
+        onUpgrade();
+        return false;
+    };
     const toggleAskFollowFirst = () => {
+        if (!requireBuilderFeature("askForFollow", "Upgrade to Pro to unlock Ask For Follow.")) return;
         setAskFollowFirst((current) => {
             const next = !current;
             showBuilderToast(next ? "Follow request enabled" : "Follow request disabled");
@@ -2257,6 +2519,7 @@ function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, o
         });
     };
     const toggleAskEmailFirst = () => {
+        if (!requireBuilderFeature("leadGen", "Upgrade to Pro to unlock Lead Gen.")) return;
         setAskEmailFirst((current) => {
             const next = !current;
             showBuilderToast(next ? "Email capture enabled" : "Email capture disabled");
@@ -2264,11 +2527,16 @@ function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, o
         });
     };
     const toggleFollowUp = () => {
+        if (!requireBuilderFeature("autoReply", "Upgrade to Pro to unlock this feature.")) return;
         setFollowUpEnabled((current) => {
             const next = !current;
             showBuilderToast(next ? "Follow-up message enabled" : "Follow-up message disabled");
             return next;
         });
+    };
+    const handleReTrigger = () => {
+        if (!requireBuilderFeature("reTrigger", "Upgrade to Pro to unlock Re-trigger.")) return;
+        showBuilderToast("Re-trigger is ready for this automation.");
     };
 
     const getStepError = (targetStep = step) => {
@@ -2302,6 +2570,7 @@ function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, o
     }, [step, contentSource]);
 
     const chooseTrigger = (type: string) => {
+        if (type === "DM keyword" && !requireBuilderFeature("autoReply", "Upgrade to Pro to unlock DM keyword automations.")) return;
         setTriggerType(type);
         setBuilderError("");
     };
@@ -2349,8 +2618,14 @@ function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, o
         }
         setSaving(true);
         try {
-            // TODO: persist demo-unlocked advanced flow fields once the backend schema supports them.
-            await onSave({ keyword: anyKeyword ? "any" : primaryKeyword, replyMessage: safeFinalDm });
+            const feature: keyof FeatureAccess | undefined = askEmailFirst || template?.category === "Collect leads"
+                ? "leadGen"
+                : askFollowFirst || template?.category === "Grow followers"
+                    ? "askForFollow"
+                    : triggerType === "DM keyword" || followUpEnabled || responses.some((response) => response.type !== "lead")
+                        ? "autoReply"
+                        : undefined;
+            await onSave({ keyword: anyKeyword ? "any" : primaryKeyword, replyMessage: safeFinalDm, triggerType, feature });
         } finally {
             setSaving(false);
         }
@@ -2400,7 +2675,7 @@ function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, o
                         <button className="inline-flex h-9 items-center gap-2 rounded-full bg-emerald-50 px-3 text-xs font-black text-emerald-700 ring-1 ring-emerald-100">
                             <span className="h-2 w-2 rounded-full bg-emerald-500" /> Live ready
                         </button>
-                        <SecondaryButton><RefreshCw className="h-4 w-4" /> Re-trigger</SecondaryButton>
+                        <SecondaryButton onClick={handleReTrigger}><RefreshCw className="h-4 w-4" /> Re-trigger</SecondaryButton>
                         <PrimaryButton onClick={openReviewLaunch}><Check className="h-4 w-4" /> {saving ? "Saving..." : "Save Changes"}</PrimaryButton>
                     </div>
                 </div>
@@ -2411,7 +2686,7 @@ function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, o
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
                 <div className="space-y-4">
                     {step === 1 && (
-                        <BuilderCard title="Choose trigger and content" subtitle="Choose where DMGenie should listen, then pick the content or trigger condition.">
+                        <BuilderCard title="Choose trigger and content" subtitle="Choose where DMGennie should listen, then pick the content or trigger condition.">
                             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
                                 <div>
                                     <Label>Automation name</Label>
@@ -2476,7 +2751,7 @@ function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, o
                                         <div>
                                             <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#5B4DFF]">Choose content</p>
                                             <h3 className="mt-1 text-lg font-black text-[#0F172A]">Connected posts & reels</h3>
-                                            <p className="mt-1 text-sm font-semibold text-[#64748B]">Choose where DMGenie should listen for comment keywords.</p>
+                                            <p className="mt-1 text-sm font-semibold text-[#64748B]">Choose where DMGennie should listen for comment keywords.</p>
                                         </div>
                                         <span className="inline-flex h-7 w-fit items-center rounded-full bg-white px-3 text-[11px] font-black text-slate-500 ring-1 ring-slate-100">{mediaItemsCount} media items</span>
                                     </div>
@@ -2508,7 +2783,7 @@ function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, o
                             )}
 
                             {contentSource === "story" && (
-                                <TriggerSetupPanel title="Story reply trigger" subtitle="Choose how DMGenie should respond when someone replies to your story.">
+                                <TriggerSetupPanel title="Story reply trigger" subtitle="Choose how DMGennie should respond when someone replies to your story.">
                                     <div className="grid gap-2 sm:grid-cols-2">
                                         {["Any story reply", "Specific keyword in story reply", "Emoji/reaction reply", "Story mention"].map((item) => (
                                             <TriggerSetupOption key={item} label={item} selected={storyReplyMode === item} onClick={() => setStoryReplyMode(item)} />
@@ -2610,8 +2885,8 @@ function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, o
                                     <div className="rounded-[18px] border border-slate-100 bg-white p-4">
                                         <h3 className="text-sm font-black text-[#0F172A]">Before final DM</h3>
                                         <div className="mt-3 space-y-2">
-                                            <BuilderOptionRow title="Ask them to follow first" copy="Deliver links only after follow confirmation." active={askFollowFirst} onClick={toggleAskFollowFirst} badge="Demo ready" />
-                                            <BuilderOptionRow title="Ask for email first" copy="Capture leads before sending the final link." active={askEmailFirst} onClick={toggleAskEmailFirst} badge="Demo ready" />
+                                            <BuilderOptionRow title="Ask them to follow first" copy="Deliver links only after follow confirmation." active={askFollowFirst} onClick={toggleAskFollowFirst} badge={accountPlan.featureAccess.askForFollow ? "Included" : "Pro"} />
+                                            <BuilderOptionRow title="Ask for email first" copy="Capture leads before sending the final link." active={askEmailFirst} onClick={toggleAskEmailFirst} badge={accountPlan.featureAccess.leadGen ? "Included" : "Pro"} />
                                         </div>
                                         {(askFollowFirst || askEmailFirst) && (
                                             <div className="mt-3 rounded-[14px] bg-[#EEF0FF] px-3 py-2 text-xs font-bold text-[#5B4DFF]">
@@ -2651,7 +2926,7 @@ function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, o
                     )}
 
                     {step === 4 && (
-                        <BuilderCard title="Review and launch" subtitle="Review before going live. DMGenie will only respond when this setup is matched.">
+                        <BuilderCard title="Review and launch" subtitle="Review before going live. DMGennie will only respond when this setup is matched.">
                             <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
                                 <div className="rounded-[20px] border border-slate-100 bg-slate-50 p-4">
                                     <div className="space-y-3">
@@ -2672,7 +2947,7 @@ function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, o
                                     <div className="mt-3 space-y-2 text-xs font-bold leading-5 text-[#64748B]">
                                         <p>When someone matches <span className="text-[#0F172A]">{triggerType}</span>,</p>
                                         <p>{anyKeyword ? "any keyword is accepted," : `if their message includes ${keywordText},`}</p>
-                                        <p>DMGenie sends the welcome DM, then delivers your final DM.</p>
+                                        <p>DMGennie sends the welcome DM, then delivers your final DM.</p>
                                     </div>
                                     <button onClick={openReviewLaunch} className="mt-5 inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[#5B4DFF] text-xs font-black text-white shadow-[0_10px_22px_rgba(91,77,255,0.18)] transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
                                         Review & launch <ArrowRight className="h-3.5 w-3.5" />
@@ -2730,8 +3005,16 @@ function AutomationBuilder({ template, initialKeyword, initialReply, onCancel, o
             {responseModalOpen && (
                 <AddResponseModal
                     openingMessageEnabled={openingMessageEnabled}
+                    featureAccess={accountPlan.featureAccess}
+                    onUpgrade={onUpgrade}
                     onClose={() => setResponseModalOpen(false)}
                     onAdd={(response) => {
+                        const feature: keyof FeatureAccess = response.type === "lead"
+                            ? "leadGen"
+                            : response.type === "follow"
+                                ? "askForFollow"
+                                : "autoReply";
+                        if (!requireBuilderFeature(feature, "Upgrade to Pro to unlock this response type.")) return;
                         setResponses((current) => [...current, response]);
                         setResponseModalOpen(false);
                         showBuilderToast(response.type === "lead" ? "Lead form added" : "Response added");
@@ -2825,8 +3108,8 @@ function ReviewLaunchModal({
         { title: "Instagram profile", copy: `${profile} is connected and ready.` },
         { title: "Selected content", copy: selectedMedia.title },
         { title: "When someone comments...", copy: triggerLine },
-        { title: "If keyword matches...", copy: anyKeyword ? "DMGenie responds to any matched message." : `Their message includes ${keywordText || "+link"}.` },
-        { title: "DMGenie sends welcome DM", copy: welcomeEnabled ? welcomeDm : "Welcome DM is turned off." },
+        { title: "If keyword matches...", copy: anyKeyword ? "DMGennie responds to any matched message." : `Their message includes ${keywordText || "+link"}.` },
+        { title: "DMGennie sends welcome DM", copy: welcomeEnabled ? welcomeDm : "Welcome DM is turned off." },
         { title: "Comment replies", copy: repliesCount ? `${repliesCount} public replies saved.` : "No public replies saved." },
         { title: "Before final DM", copy: [askFollowFirst ? "Follow confirmation" : "", askEmailFirst ? "Email capture" : ""].filter(Boolean).join(", ") || "No extra step before final DM." },
         { title: "Then final DM is sent", copy: finalDm },
@@ -2867,7 +3150,7 @@ function ReviewLaunchModal({
                             <ShieldCheck className="h-5 w-5" />
                         </span>
                         <h3 className="mt-4 text-lg font-black text-[#0F172A]">Ready to go live</h3>
-                        <p className="mt-2 text-sm font-semibold leading-6 text-[#64748B]">DMGenie will respond only when the selected trigger matches your setup.</p>
+                        <p className="mt-2 text-sm font-semibold leading-6 text-[#64748B]">DMGennie will respond only when the selected trigger matches your setup.</p>
                         <div className="mt-4 space-y-2">
                             <ReviewPill label="Status" value="Live after launch" />
                             <ReviewPill label="Source" value={selectedMedia.type} />
@@ -2902,7 +3185,7 @@ function AutomationSuccessModal({ onClose }: { onClose: () => void }) {
                     <CheckCircle2 className="h-8 w-8" />
                 </span>
                 <h2 className="mt-5 text-2xl font-black text-[#0F172A]">Automation is live</h2>
-                <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[#64748B]">DMGenie will now respond when your trigger is matched.</p>
+                <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[#64748B]">DMGennie will now respond when your trigger is matched.</p>
                 <div className="mt-6 flex justify-center">
                     <PrimaryButton onClick={onClose}>View automation</PrimaryButton>
                 </div>
@@ -3458,7 +3741,19 @@ function CommentRepliesModal({ replies, onClose, onConfirm }: { replies: string[
     );
 }
 
-function AddResponseModal({ openingMessageEnabled, onClose, onAdd }: { openingMessageEnabled: boolean; onClose: () => void; onAdd: (response: ResponseConfig) => void }) {
+function AddResponseModal({
+    openingMessageEnabled,
+    featureAccess,
+    onUpgrade,
+    onClose,
+    onAdd,
+}: {
+    openingMessageEnabled: boolean;
+    featureAccess: FeatureAccess;
+    onUpgrade: () => void;
+    onClose: () => void;
+    onAdd: (response: ResponseConfig) => void;
+}) {
     const [selectedType, setSelectedType] = useState<string | null>(null);
     const [title, setTitle] = useState("Creator resource");
     const [description, setDescription] = useState("A quick next step for your audience.");
@@ -3469,11 +3764,11 @@ function AddResponseModal({ openingMessageEnabled, onClose, onAdd }: { openingMe
     const [leadFields, setLeadFields] = useState(["Name", "Email"]);
     const [customQuestion, setCustomQuestion] = useState("What are you building?");
     const options = [
-        { id: "follow", title: "Ask For Follow", copy: "Ask users to follow before sending the link.", icon: <TrendingUp className="h-4 w-4" /> },
-        { id: "card", title: "Card Message", copy: "Send a rich card with title, image, and button.", icon: <ClipboardList className="h-4 w-4" /> },
-        { id: "text", title: "Text Message", copy: "Send a simple text reply.", icon: <MessageSquare className="h-4 w-4" /> },
-        { id: "image", title: "Image Message", copy: "Send a visual response in the DM.", icon: <ImageIcon className="h-4 w-4" /> },
-        { id: "lead", title: "Lead Forms", copy: "Collect email or phone before final delivery.", icon: <UserPlus className="h-4 w-4" /> },
+        { id: "follow", title: "Ask For Follow", copy: "Ask users to follow before sending the link.", icon: <TrendingUp className="h-4 w-4" />, feature: "askForFollow" as const },
+        { id: "card", title: "Card Message", copy: "Send a rich card with title, image, and button.", icon: <ClipboardList className="h-4 w-4" />, feature: "autoReply" as const },
+        { id: "text", title: "Text Message", copy: "Send a simple text reply.", icon: <MessageSquare className="h-4 w-4" />, feature: "autoReply" as const },
+        { id: "image", title: "Image Message", copy: "Send a visual response in the DM.", icon: <ImageIcon className="h-4 w-4" />, feature: "autoReply" as const },
+        { id: "lead", title: "Lead Forms", copy: "Collect email or phone before final delivery.", icon: <UserPlus className="h-4 w-4" />, feature: "leadGen" as const },
     ];
     const selectedOption = options.find((option) => option.id === selectedType);
     const toggleLeadField = (field: string) => {
@@ -3514,16 +3809,20 @@ function AddResponseModal({ openingMessageEnabled, onClose, onAdd }: { openingMe
             )}
             {!selectedOption ? (
                 <div className="mt-4 space-y-2">
-                    {options.map((option) => (
-                        <button key={option.title} onClick={() => setSelectedType(option.id)} className="flex w-full items-center gap-3 rounded-[16px] border border-slate-100 bg-white p-3 text-left transition hover:border-indigo-100 hover:bg-indigo-50/30">
+                    {options.map((option) => {
+                        const locked = !featureAccess[option.feature];
+                        return (
+                        <button key={option.title} onClick={() => locked ? onUpgrade() : setSelectedType(option.id)} className={cx("flex w-full items-center gap-3 rounded-[16px] border bg-white p-3 text-left transition hover:border-indigo-100 hover:bg-indigo-50/30", locked ? "border-[#FDE68A] bg-[#FFFDF6]" : "border-slate-100")}>
                             <span className="flex h-9 w-9 items-center justify-center rounded-[0.85rem] bg-slate-50 text-[#5B4DFF]">{option.icon}</span>
                             <span className="min-w-0 flex-1">
-                                <span className="flex items-center gap-2 text-sm font-black text-[#0F172A]">{option.title}<SmallBadge label="Demo ready" tone="green" /></span>
+                                <span className="flex items-center gap-2 text-sm font-black text-[#0F172A]">{option.title}<SmallBadge label={locked ? "Pro" : "Included"} tone={locked ? "gold" : "green"} /></span>
                                 <span className="block text-xs font-semibold text-[#64748B]">{option.copy}</span>
+                                {locked && <span className="mt-1 block text-[11px] font-bold text-[#8A5D17]">Upgrade to Pro to unlock this response.</span>}
                             </span>
-                            <ChevronDown className="h-4 w-4 -rotate-90 text-slate-300" />
+                            {locked ? <Lock className="h-4 w-4 text-[#8A5D17]" /> : <ChevronDown className="h-4 w-4 -rotate-90 text-slate-300" />}
                         </button>
-                    ))}
+                        );
+                    })}
                 </div>
             ) : (
                 <div className="mt-4 space-y-3 rounded-[18px] border border-slate-100 bg-slate-50 p-4">
@@ -3642,13 +3941,14 @@ function ResponseFlowBlock({
 }
 
 function BuilderOptionRow({ title, copy, active, onClick, badge }: { title: string; copy: string; active: boolean; onClick: () => void; badge?: string }) {
+    const badgeTone: "green" | "gold" | "gray" = active ? "green" : badge === "Pro" ? "gold" : "gray";
     return (
         <button onClick={onClick} className={cx("flex w-full items-center gap-3 rounded-[16px] border p-3 text-left transition hover:bg-white", active ? "border-indigo-200 bg-[#EEF0FF]" : "border-slate-100 bg-slate-50")}>
             <span className={cx("flex h-8 w-8 items-center justify-center rounded-[0.75rem] ring-1", active ? "bg-white text-[#5B4DFF] ring-indigo-100" : "bg-white text-[#5B4DFF] ring-slate-100")}>
                 {active ? <Check className="h-4 w-4" /> : <MousePointerClick className="h-4 w-4" />}
             </span>
             <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-2 text-xs font-black text-[#0F172A]">{title}{badge && <SmallBadge label={active ? "Enabled" : badge} tone={active ? "green" : "gray"} />}</span>
+                <span className="flex items-center gap-2 text-xs font-black text-[#0F172A]">{title}{badge && <SmallBadge label={active ? "Enabled" : badge} tone={badgeTone} />}</span>
                 <span className="block text-[11px] font-semibold text-[#64748B]">{copy}</span>
             </span>
         </button>
@@ -3729,6 +4029,8 @@ function ContactsPage({
     onSearch,
     onNavigate,
     onRefresh,
+    accountPlan,
+    onUpgrade,
 }: {
     contacts: ContactRecord[];
     metrics: ContactMetrics;
@@ -3737,6 +4039,8 @@ function ContactsPage({
     onSearch: (value: string) => void;
     onNavigate: (tab: Tab) => void;
     onRefresh: () => Promise<boolean>;
+    accountPlan: AccountPlanState;
+    onUpgrade: () => void;
 }) {
     const [sourceFilter, setSourceFilter] = useState("All sources");
     const [relationshipFilter, setRelationshipFilter] = useState("All relationships");
@@ -3836,6 +4140,11 @@ function ContactsPage({
     };
 
     const exportContacts = (scope: "filtered" | "selected" | "all" = "filtered") => {
+        if (!accountPlan.featureAccess.exportCsv) {
+            showToast("Upgrade to Pro to unlock this feature.");
+            onUpgrade();
+            return;
+        }
         const rows = scope === "selected"
             ? contacts.filter((contact) => selectedIds.has(contact.id))
             : scope === "all"
@@ -3859,6 +4168,11 @@ function ContactsPage({
     };
 
     const exportContact = (contact: ContactRecord) => {
+        if (!accountPlan.featureAccess.exportCsv) {
+            showToast("Upgrade to Pro to unlock this feature.");
+            onUpgrade();
+            return;
+        }
         const csv = buildContactsCsv([contact]);
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
@@ -3907,8 +4221,8 @@ function ContactsPage({
                         {loading ? "Refreshing..." : "Refresh Contacts"}
                     </SecondaryButton>
                     <PrimaryButton onClick={() => exportContacts("filtered")}>
-                        <Download className="h-4 w-4" />
-                        Export CSV
+                        {accountPlan.featureAccess.exportCsv ? <Download className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                        {accountPlan.featureAccess.exportCsv ? "Export CSV" : "Upgrade to Pro"}
                     </PrimaryButton>
                 </div>
             }
@@ -3959,8 +4273,8 @@ function ContactsPage({
                         <p className="text-sm font-black text-[#5B4DFF]">{selectedCount} contact{selectedCount === 1 ? "" : "s"} selected</p>
                         <div className="flex flex-wrap gap-2">
                             <button onClick={() => exportContacts("selected")} className="inline-flex h-9 items-center justify-center gap-2 rounded-[0.9rem] bg-[#5B4DFF] px-3 text-xs font-black text-white transition hover:bg-[#4738E8]">
-                                <Download className="h-3.5 w-3.5" />
-                                Export selected
+                                {accountPlan.featureAccess.exportCsv ? <Download className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+                                {accountPlan.featureAccess.exportCsv ? "Export selected" : "Upgrade to export"}
                             </button>
                             <button onClick={() => setSelectedIds(new Set<string>())} className="inline-flex h-9 items-center justify-center rounded-[0.9rem] bg-white px-3 text-xs font-black text-slate-600 ring-1 ring-indigo-100 transition hover:bg-slate-50">
                                 Clear selection
@@ -3974,11 +4288,11 @@ function ContactsPage({
                 <div className="flex flex-col gap-2 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 className="text-lg font-black text-slate-950">Captured leads</h2>
-                        <p className="text-sm font-semibold text-slate-500">A lightweight Instagram CRM for every lead DMGenie captures.</p>
+                        <p className="text-sm font-semibold text-slate-500">A lightweight Instagram CRM for every lead DMGennie captures.</p>
                     </div>
                     <button onClick={() => exportContacts("all")} className="inline-flex h-9 items-center justify-center gap-2 rounded-[0.9rem] bg-slate-50 px-3 text-xs font-black text-slate-600 ring-1 ring-slate-200 transition hover:bg-white">
-                        <Download className="h-3.5 w-3.5" />
-                        Export all
+                        {accountPlan.featureAccess.exportCsv ? <Download className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+                        {accountPlan.featureAccess.exportCsv ? "Export all" : "Upgrade to export"}
                     </button>
                 </div>
 
@@ -4473,7 +4787,7 @@ function InboxPage({ activity }: { activity: LogEntry[] }) {
                     <span className="mt-6 flex h-16 w-16 items-center justify-center rounded-[22px] bg-slate-950 text-white shadow-[0_18px_38px_rgba(15,23,42,0.18)]">
                         <Inbox className="h-7 w-7" />
                     </span>
-                    <h2 className="mt-5 text-2xl font-black tracking-tight text-[#0F172A] sm:text-3xl">DMGenie Inbox is being prepared</h2>
+                    <h2 className="mt-5 text-2xl font-black tracking-tight text-[#0F172A] sm:text-3xl">DMGennie Inbox is being prepared</h2>
                     <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-[#64748B]">
                         Soon you will be able to see Instagram conversations, automation replies, lead captures, and follow-ups in one clean workspace.
                     </p>
@@ -4573,6 +4887,8 @@ function AnalyticsPage({
     triggers,
     activity,
     onNavigate,
+    accountPlan,
+    onUpgrade,
 }: {
     stats: Stats;
     leadsCollected: number;
@@ -4582,6 +4898,8 @@ function AnalyticsPage({
     triggers: Trigger[];
     activity: LogEntry[];
     onNavigate: (tab: Tab) => void;
+    accountPlan: AccountPlanState;
+    onUpgrade: () => void;
 }) {
     const [activeTab, setActiveTab] = useState<AnalyticsTab>("Performance");
     const [automationSort, setAutomationSort] = useState("Sort by DMs sent");
@@ -4671,8 +4989,15 @@ function AnalyticsPage({
 
     const bestAutomation = automationRows[0];
     const rangeLabel = range || "Last 7 days";
+    const analyticsLocked = !accountPlan.featureAccess.advancedAnalytics;
+    const exportLocked = !accountPlan.featureAccess.exportCsv;
 
     const exportPerformance = () => {
+        if (exportLocked) {
+            showToast("Upgrade to Pro to unlock this feature.");
+            onUpgrade();
+            return;
+        }
         if (!visibleAutomationRows.length) {
             showToast("No analytics available to export.");
             return;
@@ -4682,6 +5007,11 @@ function AnalyticsPage({
     };
 
     const exportActivity = () => {
+        if (exportLocked) {
+            showToast("Upgrade to Pro to unlock this feature.");
+            onUpgrade();
+            return;
+        }
         if (!visibleActivityEvents.length) {
             showToast("No activity available to export.");
             return;
@@ -4698,7 +5028,7 @@ function AnalyticsPage({
                 <div className="flex flex-wrap items-center gap-2">
                     <SelectBox value={range} onChange={(value) => { onRange(value); showToast("Date range updated."); }} options={dateOptions} />
                     <SecondaryButton onClick={() => showToast("Analytics refreshed.")}><RefreshCw className="h-4 w-4" /> Refresh</SecondaryButton>
-                    <PrimaryButton onClick={activeTab === "Activity Log" ? exportActivity : exportPerformance} compact><Download className="h-4 w-4" /> Export CSV</PrimaryButton>
+                    <PrimaryButton onClick={activeTab === "Activity Log" ? exportActivity : exportPerformance} compact>{exportLocked ? <Lock className="h-4 w-4" /> : <Download className="h-4 w-4" />} {exportLocked ? "Upgrade to export" : "Export CSV"}</PrimaryButton>
                 </div>
             }
         >
@@ -4706,13 +5036,20 @@ function AnalyticsPage({
                 {(["Performance", "Activity Log", "Account Performance", "Audience Insights"] as AnalyticsTab[]).map((tab) => (
                     <button
                         key={tab}
-                        onClick={() => setActiveTab(tab)}
+                        onClick={() => {
+                            if (analyticsLocked && tab !== "Performance") {
+                                showToast("Upgrade to Pro to unlock advanced analytics.");
+                                onUpgrade();
+                                return;
+                            }
+                            setActiveTab(tab);
+                        }}
                         className={cx(
                             "whitespace-nowrap rounded-[0.95rem] px-4 py-2.5 text-sm font-black transition",
                             activeTab === tab ? "bg-slate-950 text-white shadow-lg shadow-slate-950/10" : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
                         )}
                     >
-                        {tab}
+                        <span className="inline-flex items-center gap-2">{tab}{analyticsLocked && tab !== "Performance" && <Lock className="h-3.5 w-3.5" />}</span>
                     </button>
                 ))}
             </div>
@@ -4728,10 +5065,19 @@ function AnalyticsPage({
                         <AnalyticsMetricCard icon={<Bot className="h-5 w-5" />} label="Active Automations" value={formatMetric(periodMetrics.activeAutomations)} change="Live workflows" tone="purple" />
                     </div>
 
-                    <div className="grid gap-4 xl:grid-cols-2">
-                        <AnalyticsChartCard title="DMs sent over time" range={rangeLabel} data={trendData} primaryKey="dms" primaryColor="#5B4DFF" secondaryKey="clicks" secondaryColor="#38BDF8" emptyText="No DMs sent data for this period" />
-                        <AnalyticsChartCard title="Leads and failed DMs" range={rangeLabel} data={trendData} primaryKey="leads" primaryColor="#10B981" secondaryKey="failed" secondaryColor="#EF4444" emptyText="No lead data for this period" />
-                    </div>
+                    {analyticsLocked ? (
+                        <ProLockPanel
+                            title="Advanced analytics are available on Pro."
+                            copy="Upgrade to unlock charts, automation performance, content performance, audience insights, and CSV exports."
+                            cta="Start Pro for ₹1"
+                            onUpgrade={onUpgrade}
+                        />
+                    ) : (
+                        <>
+                            <div className="grid gap-4 xl:grid-cols-2">
+                                <AnalyticsChartCard title="DMs sent over time" range={rangeLabel} data={trendData} primaryKey="dms" primaryColor="#5B4DFF" secondaryKey="clicks" secondaryColor="#38BDF8" emptyText="No DMs sent data for this period" />
+                                <AnalyticsChartCard title="Leads and failed DMs" range={rangeLabel} data={trendData} primaryKey="leads" primaryColor="#10B981" secondaryKey="failed" secondaryColor="#EF4444" emptyText="No lead data for this period" />
+                            </div>
 
                     <Panel
                         title="Automation Performance"
@@ -4846,6 +5192,8 @@ function AnalyticsPage({
                             </div>
                         </Panel>
                     </div>
+                        </>
+                    )}
                 </div>
             )}
 
@@ -5008,6 +5356,28 @@ function AnalyticsMetricCard({ icon, label, value, change, tone }: { icon: React
     );
 }
 
+function ProLockPanel({ title, copy, cta, onUpgrade }: { title: string; copy: string; cta: string; onUpgrade: () => void }) {
+    return (
+        <Panel>
+            <div className="flex flex-col gap-4 rounded-[20px] border border-[#FDE68A] bg-[#FFFDF6] p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex gap-3">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1rem] bg-white text-[#8A5D17] shadow-sm ring-1 ring-[#E8C56C]/50">
+                        <Lock className="h-5 w-5" />
+                    </span>
+                    <div>
+                        <h3 className="text-base font-black text-[#0F172A]">{title}</h3>
+                        <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-[#64748B]">{copy}</p>
+                    </div>
+                </div>
+                <button onClick={onUpgrade} className={cx("inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full px-4 text-sm font-black", goldCtaCls)}>
+                    <Crown className={cx("h-4 w-4", goldCrownCls)} />
+                    {cta}
+                </button>
+            </div>
+        </Panel>
+    );
+}
+
 function AnalyticsChartCard({
     title,
     range,
@@ -5141,7 +5511,7 @@ function FailedDmHelpCard() {
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
                     <h3 className="font-black text-slate-950">Troubleshooting Failed DMs</h3>
-                    <p className="mt-1 text-sm font-semibold text-slate-600">Common reasons and what DMGenie can help you review.</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-600">Common reasons and what DMGennie can help you review.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     {reasons.map((reason) => <span key={reason} className="rounded-full bg-white px-3 py-1.5 text-xs font-black text-amber-700 ring-1 ring-amber-100">{reason}</span>)}
@@ -5500,7 +5870,8 @@ function usagePercent(value: number, limit: number) {
 }
 
 function formatUsage(value: number, limit: number) {
-    return `${formatMetric(safeNumber(value))} / ${formatMetric(safeNumber(limit))}`;
+    const safeLimit = safeNumber(limit);
+    return `${formatMetric(safeNumber(value))} / ${safeLimit >= 999999 ? "Unlimited" : formatMetric(safeLimit)}`;
 }
 
 function formatPercent(value: number | null | undefined) {
@@ -5808,7 +6179,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
     };
 
     const shareOn = (channel: "whatsapp" | "x" | "linkedin" | "email") => {
-        const text = `Try DMGenie for Instagram DM automation. Use my referral link: ${referralLink}`;
+        const text = `Try DMGennie for Instagram DM automation. Use my referral link: ${referralLink}`;
         const encodedText = encodeURIComponent(text);
         const encodedUrl = encodeURIComponent(referralLink);
 
@@ -5816,7 +6187,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
         if (channel === "x") window.open(`https://twitter.com/intent/tweet?text=${encodedText}`, "_blank", "noopener,noreferrer");
         if (channel === "linkedin") window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`, "_blank", "noopener,noreferrer");
         if (channel === "email") {
-            window.location.href = `mailto:?subject=${encodeURIComponent("Try DMGenie")}&body=${encodedText}`;
+            window.location.href = `mailto:?subject=${encodeURIComponent("Try DMGennie")}&body=${encodedText}`;
             showToast("Invite email opened");
         }
     };
@@ -5832,7 +6203,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
             const y = 24 + Math.floor(index / 7) * 18;
             return `<rect x="${x}" y="${y}" width="14" height="14" rx="3" fill="#5B4DFF"/>`;
         }).join("");
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><rect width="180" height="180" rx="28" fill="white"/><rect x="10" y="10" width="160" height="160" rx="24" fill="#F7F7FB" stroke="#E5E7EB"/>${squares}<text x="90" y="164" text-anchor="middle" font-family="Arial" font-size="11" font-weight="700" fill="#0F172A">DMGenie</text></svg>`;
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><rect width="180" height="180" rx="28" fill="white"/><rect x="10" y="10" width="160" height="160" rx="24" fill="#F7F7FB" stroke="#E5E7EB"/>${squares}<text x="90" y="164" text-anchor="middle" font-family="Arial" font-size="11" font-weight="700" fill="#0F172A">DMGennie</text></svg>`;
         const blob = new Blob([svg], { type: "image/svg+xml" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -5893,7 +6264,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
     return (
         <PageShell
             title="Refer & Earn"
-            subtitle="Earn 25% commission when your referrals upgrade to a paid DMGenie plan."
+            subtitle="Earn 25% commission when your referrals upgrade to a paid DMGennie plan."
             action={
                 <div className="flex flex-wrap items-center gap-2">
                     <span className="inline-flex h-9 items-center rounded-full border border-emerald-100 bg-emerald-50 px-3 text-xs font-black text-emerald-700">25% recurring commission</span>
@@ -6008,7 +6379,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                         <IconButton title="Close" onClick={() => setPublicPreviewOpen(false)}><X className="h-5 w-5" /></IconButton>
                     </div>
                     <div className="mt-5 rounded-[22px] border border-slate-200 bg-gradient-to-br from-indigo-50 to-rose-50 p-5">
-                        <p className="text-xs font-black uppercase tracking-[0.12em] text-[#5B4DFF]">DMGenie referral</p>
+                        <p className="text-xs font-black uppercase tracking-[0.12em] text-[#5B4DFF]">DMGennie referral</p>
                         <h4 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Automate Instagram DMs from comments</h4>
                         <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-600">You were invited with referral code <span className="font-black text-slate-950">{referralCode}</span>. Start free, then upgrade when you are ready.</p>
                         <div className="mt-4 rounded-2xl bg-white p-3 text-sm font-black text-slate-700">{referralLink}</div>
@@ -6106,8 +6477,8 @@ function ReferralHeroCard({
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-white/75">Partner program</span>
-                        <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">Share DMGenie. Earn 25%.</h2>
-                        <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-white/70">Invite creators to DMGenie and earn 25% commission when they upgrade after their trial.</p>
+                        <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">Share DMGennie. Earn 25%.</h2>
+                        <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-white/70">Invite creators to DMGennie and earn 25% commission when they upgrade after their trial.</p>
                     </div>
                     <div className="rounded-[20px] border border-white/15 bg-white/10 p-4 backdrop-blur">
                         <div className="flex items-center gap-3">
@@ -6141,8 +6512,8 @@ function ReferralHeroCard({
 
 function HowReferralWorks() {
     const steps = [
-        ["Share your referral link", "Copy and share your DMGenie referral link with creators."],
-        ["Creator joins DMGenie", "Anyone who signs up using your link becomes your referral."],
+        ["Share your referral link", "Copy and share your DMGennie referral link with creators."],
+        ["Creator joins DMGennie", "Anyone who signs up using your link becomes your referral."],
         ["They finish trial and upgrade", "When they buy a paid subscription after trial, you earn 25% commission."],
         ["You get paid", "Verified earnings become withdrawable after the holding period."],
     ];
@@ -6368,7 +6739,7 @@ function PayoutHistoryTable({ payouts }: { payouts: PayoutRecord[] }) {
 
 function ReferralFaq({ openIndex, onOpen }: { openIndex: number; onOpen: (index: number) => void }) {
     const faqs = [
-        ["How much can I earn?", "You earn 25% commission when your referred users upgrade to a paid DMGenie plan."],
+        ["How much can I earn?", "You earn 25% commission when your referred users upgrade to a paid DMGennie plan."],
         ["Do I earn during free trial?", "No. Commission is created only after your referral successfully pays for a subscription."],
         ["When does commission become available?", "Commission is first marked pending and becomes withdrawable after the verification or holding period."],
         ["What is the minimum payout?", "The minimum payout amount is ₹500."],
@@ -6780,8 +7151,8 @@ function SettingsPage(props: {
                                     </div>
                                 </div>
                                 <div className="mt-5 grid gap-3 md:grid-cols-3">
-                                    <UsageMiniCard title="Monthly DMs" value={`${formatMetric(dmsUsed)} / ${formatMetric(dmsLimit)}`} progress={dmsProgress} />
-                                    <UsageMiniCard title="Contacts" value={`${contactsUsed} / ${contactsLimit}`} progress={contactsProgress} />
+                                    <UsageMiniCard title="Monthly DMs" value={formatUsage(dmsUsed, dmsLimit)} progress={dmsProgress} />
+                                    <UsageMiniCard title="Contacts" value={formatUsage(contactsUsed, contactsLimit)} progress={contactsProgress} />
                                     <UsageMiniCard title="IG Accounts" value={`${props.connected ? 1 : 0} / 3`} progress={props.connected ? 34 : 1} />
                                 </div>
                                 <div className="mt-5 rounded-[1rem] border border-emerald-100 bg-emerald-50/60 p-4">
@@ -6809,13 +7180,13 @@ function SettingsPage(props: {
                                     <ShieldCheck className="mt-1 h-6 w-6 shrink-0 text-emerald-600" />
                                     <div>
                                         <h3 className="font-black text-slate-950">Secure OAuth Authentication</h3>
-                                        <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">DMGenie uses official Meta OAuth for Instagram and never stores Instagram passwords.</p>
+                                        <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">DMGennie uses official Meta OAuth for Instagram and never stores Instagram passwords.</p>
                                     </div>
                                 </div>
                             </div>
                             <div className="rounded-[1.25rem] border border-slate-100 bg-white p-4">
                                 <h3 className="font-black text-slate-950">Password</h3>
-                                <p className="mt-1 text-sm font-semibold text-slate-500">Update your DMGenie account password for email login.</p>
+                                <p className="mt-1 text-sm font-semibold text-slate-500">Update your DMGennie account password for email login.</p>
                                 <div className="mt-4 grid gap-4 md:grid-cols-3">
                                     <Field label="Current password" type="password" value={passwordDraft.current} onChange={(value) => setPasswordDraft({ ...passwordDraft, current: value })} />
                                     <Field label="New password" type="password" value={passwordDraft.next} onChange={(value) => setPasswordDraft({ ...passwordDraft, next: value })} />
@@ -6831,9 +7202,9 @@ function SettingsPage(props: {
                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                     <div>
                                         <h3 className="font-black text-rose-700">Danger Zone</h3>
-                                        <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Delete your DMGenie account after password and email OTP verification. Recovery is available for 7 days.</p>
+                                        <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Delete your DMGennie account after password and email OTP verification. Recovery is available for 7 days.</p>
                                     </div>
-                                    <DangerButton onClick={() => setDeleteOpen(true)}><Trash2 className="h-4 w-4" /> Delete DMGenie Account</DangerButton>
+                                    <DangerButton onClick={() => setDeleteOpen(true)}><Trash2 className="h-4 w-4" /> Delete DMGennie Account</DangerButton>
                                 </div>
                             </div>
                         </div>
@@ -6844,7 +7215,7 @@ function SettingsPage(props: {
                             <ToggleRow title="Email me when automation fails" copy="Get notified when a message cannot be delivered." active={notifications.automationFailures} onClick={() => setNotifications({ ...notifications, automationFailures: !notifications.automationFailures })} />
                             <ToggleRow title="Email me when a lead is captured" copy="Know when a contact shares their email or details." active={notifications.leadCaptured} onClick={() => setNotifications({ ...notifications, leadCaptured: !notifications.leadCaptured })} />
                             <ToggleRow title="Email me weekly analytics summary" copy="Receive a digest of messages, clicks, and leads." active={notifications.weeklySummary} onClick={() => setNotifications({ ...notifications, weeklySummary: !notifications.weeklySummary })} />
-                            <ToggleRow title="Product updates" copy="Occasional updates about new DMGenie features." active={notifications.productUpdates} onClick={() => setNotifications({ ...notifications, productUpdates: !notifications.productUpdates })} />
+                            <ToggleRow title="Product updates" copy="Occasional updates about new DMGennie features." active={notifications.productUpdates} onClick={() => setNotifications({ ...notifications, productUpdates: !notifications.productUpdates })} />
                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                 <p className="text-xs font-semibold text-slate-500">{notificationsDirty ? "You have unsaved notification changes." : "Notification preferences are up to date."}</p>
                                 <PrimaryButton onClick={saveNotifications} disabled={!notificationsDirty}>Save Notifications</PrimaryButton>
@@ -6861,7 +7232,7 @@ function SettingsPage(props: {
                             <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-[1.15rem] bg-rose-50 text-rose-600 ring-1 ring-rose-100">
                             <AlertTriangle className="h-6 w-6" />
                             </span>
-                            <h2 className="mt-5 text-2xl font-black text-slate-950">Delete DMGenie Account?</h2>
+                            <h2 className="mt-5 text-2xl font-black text-slate-950">Delete DMGennie Account?</h2>
                             <p className="mx-auto mt-2 max-w-lg text-sm font-semibold leading-6 text-slate-500">
                                 We will send an OTP to <span className="font-black text-slate-700">{profileSaved.email || "your registered email"}</span>. Once confirmed, your account is scheduled for deletion and can be recovered within 7 days.
                             </p>
@@ -6882,7 +7253,7 @@ function SettingsPage(props: {
                             <Field label="6-digit OTP" value={deleteOtp} onChange={(value) => { setDeleteOtp(value.replace(/\D/g, "").slice(0, 6)); setDeleteError(""); }} placeholder="123456" helper="Enter the OTP sent to your registered email." />
                             {deleteError && <p className="rounded-[1rem] border border-rose-100 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-700">{deleteError}</p>}
                             <div className="rounded-[1rem] border border-amber-100 bg-amber-50 px-3 py-2 text-xs font-semibold leading-5 text-amber-800">
-                                Account deletion is scheduled, not instant. You can recover your DMGenie account within 7 days by contacting support before permanent removal.
+                                Account deletion is scheduled, not instant. You can recover your DMGennie account within 7 days by contacting support before permanent removal.
                             </div>
                         </div>
                         <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
@@ -6907,7 +7278,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
     const faqs = [
         ["How do I connect Instagram?", "Go to Settings, choose Instagram, and connect your professional Instagram account through Meta OAuth."],
         ["Can I send links automatically?", "Yes. Create an automation with a comment keyword and add the link in your automated DM."],
-        ["Do you store Instagram passwords?", "No. DMGenie uses OAuth and official Meta APIs, so your password is never stored."],
+        ["Do you store Instagram passwords?", "No. DMGennie uses OAuth and official Meta APIs, so your password is never stored."],
         ["Why did a DM fail?", "Some users have closed DMs. Use a fallback public reply to ask them to open DMs or follow first."],
     ].filter((faq) => faq.join(" ").toLowerCase().includes(query.toLowerCase()));
 
@@ -6939,7 +7310,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                             <a href="mailto:support@dmgennie.in" className="inline-flex items-center justify-center gap-2 rounded-[1rem] border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50">
                                 <Mail className="h-4 w-4" /> support@dmgennie.in
                             </a>
-                            <a href="https://wa.me/?text=Hi%20DMGenie%20support%2C%20I%20need%20help%20with%20my%20dashboard." target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-[1rem] bg-[#5B4DFF] px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
+                            <a href="https://wa.me/?text=Hi%20DMGennie%20support%2C%20I%20need%20help%20with%20my%20dashboard." target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-[1rem] bg-[#5B4DFF] px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
                                 <MessageCircle className="h-4 w-4" /> WhatsApp support
                             </a>
                         </div>
@@ -7148,7 +7519,7 @@ function SecurityCard() {
                     <ShieldCheck className="h-6 w-6 text-emerald-600" />
                     <div>
                         <h3 className="font-black">Secure OAuth Authentication</h3>
-                        <p className="mt-1 text-sm font-medium text-slate-500">DMGenie never stores Instagram passwords.</p>
+                        <p className="mt-1 text-sm font-medium text-slate-500">DMGennie never stores Instagram passwords.</p>
                     </div>
                 </div>
             </div>

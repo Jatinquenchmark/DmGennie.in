@@ -1,5 +1,6 @@
-import { supabase, cors, getUser } from '../server/supabaseApi.js';
+import { supabase, cors, getUser, ensureSettings } from '../server/supabaseApi.js';
 import { buildContactsPayload } from '../server/contactsData.js';
+import { isProUser, proRequiredPayload } from '../server/billingConfig.js';
 
 function csvEscape(value) {
     const text = String(value ?? '');
@@ -36,6 +37,10 @@ export default async function handler(req, res) {
         const payload = await buildContactsPayload({ supabase, userId: user.id });
         if (action === 'metrics') return res.json({ metrics: payload.metrics });
         if (action === 'export') {
+            await ensureSettings(user.id);
+            if (!(await isProUser(supabase, user.id, user))) {
+                return res.status(403).json(proRequiredPayload('Upgrade to Pro to export contacts.'));
+            }
             res.setHeader('Content-Type', 'text/csv; charset=utf-8');
             res.setHeader('Content-Disposition', 'attachment; filename="dmgennie-contacts.csv"');
             return res.send(buildContactsCsv(payload.contacts));

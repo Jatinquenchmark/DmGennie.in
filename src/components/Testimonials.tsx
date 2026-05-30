@@ -7,7 +7,7 @@ export function Testimonials() {
     {
       name: 'Saswati',
       handle: '@fit.saswati',
-      text: "I absolutely love DMGenie! As a creator, I have used a lot of automated DM services but none of them had a UI as user friendly as DMGenie. The amazing customer support is their USP — issues were quickly resolved. I'll happily pay the monthly subscription!",
+      text: "I absolutely love DMGennie! As a creator, I have used a lot of automated DM services but none of them had a UI as user friendly as DMGennie. The amazing customer support is their USP — issues were quickly resolved. I'll happily pay the monthly subscription!",
     },
     {
       name: 'Manvi',
@@ -22,7 +22,7 @@ export function Testimonials() {
     {
       name: 'Manoj',
       handle: '@missionudyog',
-      text: "DMGenie is a must-have for creators and entrepreneurs. Seriously a game-changer!",
+      text: "DMGennie is a must-have for creators and entrepreneurs. Seriously a game-changer!",
     },
     {
       name: 'Shruti',
@@ -32,7 +32,7 @@ export function Testimonials() {
     {
       name: 'Dream AI Lab',
       handle: '@Dreamailab01',
-      text: "I've been using it for 1 month and it's been a game changer for my growth. The interface is simple and easy to setup. The price is also very affordable compared to others. I gained 10k+ followers in just 1 month using DMGenie!",
+      text: "I've been using it for 1 month and it's been a game changer for my growth. The interface is simple and easy to setup. The price is also very affordable compared to others. I gained 10k+ followers in just 1 month using DMGennie!",
     },
   ]
 

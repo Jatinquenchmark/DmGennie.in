@@ -11,14 +11,14 @@ const sizes = {
   lg: { svg: 44, text: 'text-2xl' },
 }
 
-export function DMGenieLogo({ size = 'md', className = '' }: LogoProps) {
+export function DMGennieLogo({ size = 'md', className = '' }: LogoProps) {
   const { svg, text } = sizes[size]
 
   return (
     <Link
       to="/"
       className={`inline-flex items-center gap-2.5 group select-none ${className}`}
-      aria-label="DMGenie home"
+      aria-label="DMGennie home"
     >
       {/* SVG replicates the brand: two diagonal slash strokes + dot */}
       <svg
@@ -48,10 +48,10 @@ export function DMGenieLogo({ size = 'md', className = '' }: LogoProps) {
       <span
         className={`font-extrabold tracking-tight text-foreground group-hover:text-accent-blue transition-colors ${text}`}
       >
-        DM<span className="text-accent-blue">Genie</span>
+        DM<span className="text-accent-blue">Gennie</span>
       </span>
     </Link>
   )
 }
 
-export default DMGenieLogo
+export default DMGennieLogo

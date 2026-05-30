@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -10,9 +10,11 @@ import {
   Send,
   Shield,
 } from 'lucide-react'
+import { LoadingScreen } from '@/components/Loading'
+import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 
-function DMGenieLogo() {
+function DMGennieLogo() {
   return (
     <Link to="/" className="inline-flex items-center gap-2.5 group">
       <svg width="38" height="38" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -22,13 +24,13 @@ function DMGenieLogo() {
         <circle cx="29" cy="27" r="3" fill="#d7a2ad" />
       </svg>
       <span className="text-2xl font-black tracking-tight text-[#151119] transition-colors group-hover:text-[#6d2948]">
-        DM<span className="text-[#6d2948]">Genie</span>
+        DM<span className="text-[#6d2948]">Gennie</span>
       </span>
     </Link>
   )
 }
 
-function DMGenieMark({ className = '' }: { className?: string }) {
+function DMGennieMark({ className = '' }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 40 40"
@@ -175,9 +177,9 @@ function AuthShowcase() {
               <div className="mt-3 rounded-[1.35rem] border border-white/[0.06] bg-white/[0.04] p-2.5">
                 <div className="flex items-center justify-between gap-2.5">
                   <div className="flex min-w-0 items-center gap-2.5">
-                    <DMGenieMark className="h-8 w-8 shrink-0 rounded-xl shadow-[0_6px_16px_rgba(109,41,72,0.24)]" />
+                    <DMGennieMark className="h-8 w-8 shrink-0 rounded-xl shadow-[0_6px_16px_rgba(109,41,72,0.24)]" />
                     <div className="min-w-0">
-                      <p className="text-[13px] font-bold leading-tight">DMGenie</p>
+                      <p className="text-[13px] font-bold leading-tight">DMGennie</p>
                       <p className="mt-0.5 text-[10px] font-medium text-white/[0.44]">Instagram Connected</p>
                     </div>
                   </div>
@@ -263,9 +265,11 @@ function AuthShowcase() {
 export default function Signup() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { session, loading: authLoading } = useAuth()
   const initialMode = searchParams.get('mode') === 'signin' ? 'signin' : 'signup'
 
   const [authMode, setAuthMode] = useState<'signup' | 'signin'>(initialMode)
+  const [sessionRedirecting, setSessionRedirecting] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [signUpError, setSignUpError] = useState('')
@@ -279,6 +283,40 @@ export default function Signup() {
   const [signInLoading, setSignInLoading] = useState(false)
   const [passwordResetLoading, setPasswordResetLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
+
+  useEffect(() => {
+    const nextMode = searchParams.get('mode') === 'signin' ? 'signin' : 'signup'
+    setAuthMode(nextMode)
+  }, [searchParams])
+
+  useEffect(() => {
+    if (authLoading) return
+    if (!session?.access_token) {
+      setSessionRedirecting(false)
+      return
+    }
+
+    let cancelled = false
+    setSessionRedirecting(true)
+
+    fetch('/api/me', {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+      .then(async (response) => {
+        if (!response.ok) throw new Error('Unable to load profile')
+        return response.json()
+      })
+      .then((profile) => {
+        if (!cancelled) navigate(profile.role === 'admin' ? '/admin' : '/dashboard', { replace: true })
+      })
+      .catch(() => {
+        if (!cancelled) navigate('/dashboard', { replace: true })
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [authLoading, navigate, session?.access_token])
 
   const switchAuthMode = (mode: 'signup' | 'signin') => {
     setAuthMode(mode)
@@ -428,7 +466,7 @@ export default function Signup() {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: `${window.location.origin}/dashboard` },
+        options: { redirectTo: `${window.location.origin}/signup?mode=signin` },
       })
 
       if (error) {
@@ -445,6 +483,16 @@ export default function Signup() {
 
   const inputCls = 'h-11 w-full rounded-xl border border-[#eadde2] bg-white/[0.82] px-3.5 text-sm font-medium text-[#151119] outline-none transition-all placeholder:text-[#a89ba4] focus:border-[#6d2948]/35 focus:bg-white focus:ring-4 focus:ring-[#6d2948]/[0.08]'
 
+  if (authLoading || sessionRedirecting) {
+    return (
+      <LoadingScreen
+        title="Signing you in..."
+        subtitle="Preparing your dashboard..."
+        detail="Checking your secure DMGennie session..."
+      />
+    )
+  }
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#fffafb] text-[#151119]">
       <div className="pointer-events-none absolute left-[-10%] top-[-18%] h-[30rem] w-[30rem] rounded-full bg-[#6d2948]/[0.07] blur-3xl" />
@@ -460,7 +508,7 @@ export default function Signup() {
             transition={{ duration: 0.5 }}
             className="w-full max-w-[25.5rem]"
           >
-            <DMGenieLogo />
+            <DMGennieLogo />
 
             <div className="mt-7 rounded-[1.65rem] border border-white/80 bg-white/[0.78] p-5 shadow-[0_18px_55px_rgba(76,45,59,0.075)] backdrop-blur-xl sm:p-6">
               <div className="mb-5 grid grid-cols-2 rounded-2xl border border-[#eadde2] bg-white/[0.62] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
@@ -590,7 +638,7 @@ export default function Signup() {
                   >
                     <h1 className="text-[1.65rem] font-black tracking-[-0.02em] text-[#151119] sm:text-3xl">Welcome Back</h1>
                     <p className="mt-2.5 text-sm font-medium leading-6 text-[#6f6570]">
-                      Sign in to continue to your DMGenie dashboard.
+                      Sign in to continue to your DMGennie dashboard.
                     </p>
 
                     <button

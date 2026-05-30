@@ -3,7 +3,7 @@ import { Shield, ArrowLeft } from 'lucide-react'
 import { Footer } from '@/components/Footer'
 import { PageHeader } from '@/components/PageHeader'
 
-// DMGenie Logo SVG inline
+// DMGennie Logo SVG inline
 function Logo() {
   return (
     <Link to="/" className="inline-flex items-center gap-2.5 group">
@@ -14,7 +14,7 @@ function Logo() {
         <circle cx="28" cy="26" r="3" fill="#5b5ef4" />
       </svg>
       <span className="text-xl font-extrabold tracking-tight text-foreground group-hover:text-accent-blue transition-colors">
-        DM<span className="text-accent-blue">Genie</span>
+        DM<span className="text-accent-blue">Gennie</span>
       </span>
     </Link>
   )
@@ -41,9 +41,9 @@ export default function Privacy() {
             Last updated: <strong>{lastUpdated}</strong>
           </p>
           <p className="text-muted-foreground mt-3 leading-relaxed">
-            DMGenie ("we", "our", or "us") is committed to protecting your personal information.
+            DMGennie ("we", "our", or "us") is committed to protecting your personal information.
             This Privacy Policy explains what data we collect, how we use it, and your rights
-            regarding your data when you use DMGenie at{' '}
+            regarding your data when you use DMGennie at{' '}
             <a href="https://www.dmgennie.in" className="text-accent-blue hover:underline">
               dmgennie.in
             </a>
@@ -57,7 +57,7 @@ export default function Privacy() {
           <section>
             <h2 className="text-2xl font-bold text-foreground mb-3">1. Information We Collect</h2>
             <p className="text-muted-foreground leading-relaxed mb-3">
-              We collect the minimum information necessary to provide the DMGenie service:
+              We collect the minimum information necessary to provide the DMGennie service:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
               <li><strong className="text-foreground">Account information:</strong> Your name, email address, and password when you sign up.</li>
@@ -73,7 +73,7 @@ export default function Privacy() {
           <section>
             <h2 className="text-2xl font-bold text-foreground mb-3">2. How We Use Your Information</h2>
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-              <li>To operate and maintain the DMGenie service on your behalf.</li>
+              <li>To operate and maintain the DMGennie service on your behalf.</li>
               <li>To send automated Instagram direct messages via the official Meta Messaging API according to your configured triggers.</li>
               <li>To display your dashboard statistics and activity logs.</li>
               <li>To authenticate you securely and protect your account.</li>
@@ -92,11 +92,11 @@ export default function Privacy() {
               When you connect your Instagram account:
             </p>
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-              <li>You are redirected to Meta's official OAuth flow. DMGenie never sees your Facebook or Instagram password.</li>
+              <li>You are redirected to Meta's official OAuth flow. DMGennie never sees your Facebook or Instagram password.</li>
               <li>Meta issues us a Page Access Token scoped to the permissions you grant.</li>
               <li>This token is stored encrypted in our database and transmitted only over HTTPS.</li>
               <li>The token is used exclusively to send DMs and post comment replies on your behalf via the Meta Graph API.</li>
-              <li>You can revoke this access at any time by disconnecting your account in the DMGenie dashboard or by removing DMGenie from your Facebook App settings.</li>
+              <li>You can revoke this access at any time by disconnecting your account in the DMGennie dashboard or by removing DMGennie from your Facebook App settings.</li>
             </ul>
           </section>
 
@@ -109,7 +109,7 @@ export default function Privacy() {
             <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
               <li><strong className="text-foreground">Service providers:</strong> Supabase (database and authentication), hosted on secure cloud infrastructure. They process data solely on our behalf.</li>
               <li><strong className="text-foreground">Meta Platforms:</strong> API calls to Meta Graph API as required to deliver the service you requested.</li>
-              <li><strong className="text-foreground">Legal requirements:</strong> If required by law, court order, or to protect the rights and safety of DMGenie or others.</li>
+              <li><strong className="text-foreground">Legal requirements:</strong> If required by law, court order, or to protect the rights and safety of DMGennie or others.</li>
             </ul>
           </section>
 
@@ -175,7 +175,7 @@ export default function Privacy() {
           <section>
             <h2 className="text-2xl font-bold text-foreground mb-3">10. Children's Privacy</h2>
             <p className="text-muted-foreground leading-relaxed">
-              DMGenie is not directed at individuals under the age of 13. We do not knowingly collect data from children. If you believe a child has provided us personal information, please contact us immediately.
+              DMGennie is not directed at individuals under the age of 13. We do not knowingly collect data from children. If you believe a child has provided us personal information, please contact us immediately.
             </p>
           </section>
 
@@ -183,7 +183,7 @@ export default function Privacy() {
           <section>
             <h2 className="text-2xl font-bold text-foreground mb-3">11. Changes to This Policy</h2>
             <p className="text-muted-foreground leading-relaxed">
-              We may update this Privacy Policy periodically. We will notify you of material changes by email or by posting a prominent notice on the website. Continued use of DMGenie after changes constitutes acceptance.
+              We may update this Privacy Policy periodically. We will notify you of material changes by email or by posting a prominent notice on the website. Continued use of DMGennie after changes constitutes acceptance.
             </p>
           </section>
 
@@ -194,7 +194,7 @@ export default function Privacy() {
               If you have any questions or concerns about this Privacy Policy, please contact:
             </p>
             <div className="mt-4 p-5 bg-card border border-border rounded-2xl">
-              <p className="font-semibold text-foreground">DMGenie Support</p>
+              <p className="font-semibold text-foreground">DMGennie Support</p>
               <p className="text-muted-foreground mt-1">
                 Email:{' '}
                 <a href={`mailto:${contactEmail}`} className="text-accent-blue hover:underline">{contactEmail}</a>

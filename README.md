@@ -62,7 +62,7 @@ This project is built with:
 
 ## Admin account setup
 
-DMGenie supports a backend-verified admin role. Admin passwords must live only in the server environment and must never be added to frontend code.
+DMGennie supports a backend-verified admin role. Admin passwords must live only in the server environment and must never be added to frontend code.
 
 1. Add server-side environment variables:
 
@@ -87,7 +87,7 @@ Admin API routes verify the authenticated user role on the backend before return
 
 ## Pro intro offer setup
 
-DMGenie supports a first-month Pro intro offer: ₹1 for the first month, then the normal Pro monthly price from server config.
+DMGennie supports a first-month Pro intro offer: ₹1 for the first month, then the normal Pro monthly price from server config.
 
 1. Add server-side billing variables:
 

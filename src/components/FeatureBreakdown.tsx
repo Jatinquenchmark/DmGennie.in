@@ -95,7 +95,7 @@ export function FeatureBreakdown() {
       title: 'Inbox Starters',
       description: 'Display up to 4 conversation starters when a user navigates to your Instagram inbox.',
       keyword: 'FAQ',
-      response: 'Choose a starter and DMGenie handles the rest.',
+      response: 'Choose a starter and DMGennie handles the rest.',
       accent: 'bg-emerald-600',
     },
   ]

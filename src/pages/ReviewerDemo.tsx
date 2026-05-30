@@ -13,7 +13,7 @@ function Logo() {
         <circle cx="28" cy="26" r="3" fill="#5b5ef4" />
       </svg>
       <span className="text-xl font-extrabold tracking-tight text-foreground group-hover:text-accent-blue transition-colors">
-        DM<span className="text-accent-blue">Genie</span>
+        DM<span className="text-accent-blue">Gennie</span>
       </span>
     </Link>
   )
@@ -24,7 +24,7 @@ const testSteps = [
     step: '01',
     icon: <Instagram className="w-6 h-6" />,
     title: 'Connect Instagram Account',
-    detail: `Go to Dashboard > Settings > click "Connect Instagram Account". You will be redirected to Meta's official OAuth page. Authorise DMGenie with the requested permissions.`,
+    detail: `Go to Dashboard > Settings > click "Connect Instagram Account". You will be redirected to Meta's official OAuth page. Authorise DMGennie with the requested permissions.`,
     permissions: [
       'instagram_basic',
       'instagram_manage_messages',
@@ -60,31 +60,31 @@ export default function ReviewerDemo() {
             Meta App Review — Reviewer Guide
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4">
-            How DMGenie Works
+            How DMGennie Works
           </h1>
           <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl">
-            This page is provided for Meta App Review. It explains what DMGenie does, which
+            This page is provided for Meta App Review. It explains what DMGennie does, which
             permissions are used, and provides a step-by-step test flow for reviewers.
           </p>
         </div>
 
-        {/* What is DMGenie */}
+        {/* What is DMGennie */}
         <section className="mb-14 p-6 bg-card border border-border rounded-2xl shadow-sm">
-          <h2 className="text-xl font-bold text-foreground mb-4">What is DMGenie?</h2>
+          <h2 className="text-xl font-bold text-foreground mb-4">What is DMGennie?</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            DMGenie is a customer engagement tool for Instagram creators and businesses. It enables
+            DMGennie is a customer engagement tool for Instagram creators and businesses. It enables
             professional accounts to automatically send Instagram direct messages when a user comments
             a specific keyword on their posts or reels.
           </p>
           <p className="text-muted-foreground leading-relaxed mb-4">
             <strong className="text-foreground">Example use case:</strong> A business posts &quot;Comment
-            LINK below to get our catalogue&quot;. When a user comments &quot;LINK&quot;, DMGenie automatically sends
+            LINK below to get our catalogue&quot;. When a user comments &quot;LINK&quot;, DMGennie automatically sends
             them a private DM with the catalogue URL — saving the business from manually replying to
             hundreds of comments.
           </p>
           <p className="text-muted-foreground leading-relaxed">
             All messaging is performed via the official <strong className="text-foreground">Instagram
-              Messaging API (Graph API)</strong>. DMGenie does not use any unofficial methods or
+              Messaging API (Graph API)</strong>. DMGennie does not use any unofficial methods or
             third-party scraping tools.
           </p>
         </section>
@@ -100,7 +100,7 @@ export default function ReviewerDemo() {
               },
               {
                 permission: 'instagram_manage_messages',
-                reason: 'To send private Instagram direct messages to users who comment on posts. This is the core functionality of DMGenie.',
+                reason: 'To send private Instagram direct messages to users who comment on posts. This is the core functionality of DMGennie.',
               },
               {
                 permission: 'instagram_manage_comments',

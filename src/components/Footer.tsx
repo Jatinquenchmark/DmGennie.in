@@ -11,7 +11,7 @@ function FooterLogo() {
         <circle cx="29" cy="27" r="3" fill="#c89a6f" />
       </svg>
       <span className="text-lg font-extrabold tracking-tight text-[#151119] transition-colors group-hover:text-[#6d2948]">
-        DM<span className="text-[#6d2948]">Genie</span>
+        DM<span className="text-[#6d2948]">Gennie</span>
       </span>
     </Link>
   )
@@ -54,7 +54,7 @@ export function Footer() {
         className="pointer-events-none absolute bottom-2 left-1/2 w-full -translate-x-1/2 select-none text-center text-[17vw] font-black leading-none tracking-tight text-[#6d2948]/[0.06] sm:-bottom-1 sm:text-[16vw] lg:-bottom-4 lg:text-[14vw]"
         aria-hidden="true"
       >
-        DMGenie
+        DMGennie
       </div>
 
       <div className="relative mx-auto max-w-7xl px-6 pb-24 pt-14 sm:pb-32 sm:pt-16 lg:pb-36">
@@ -79,7 +79,7 @@ export function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/80 bg-white/55 text-[#6d2948] shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white hover:text-[#151119]"
-                aria-label="DMGenie on Instagram"
+                aria-label="DMGennie on Instagram"
               >
                 <Instagram className="h-4 w-4" />
               </a>
@@ -183,8 +183,8 @@ export function Footer() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-[#e2d2d8] pt-8 sm:flex-row">
           <p className="max-w-2xl text-center text-xs leading-relaxed text-[#756b73] sm:text-left">
-            © {new Date().getFullYear()} DMGenie. All rights reserved.
-            {' '}DMGenie is not affiliated with or endorsed by Meta Platforms, Inc.
+            © {new Date().getFullYear()} DMGennie. All rights reserved.
+            {' '}DMGennie is not affiliated with or endorsed by Meta Platforms, Inc.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-5">
             <Link to="/privacy" className="text-xs text-[#756b73] transition-colors hover:text-[#151119]">Privacy</Link>

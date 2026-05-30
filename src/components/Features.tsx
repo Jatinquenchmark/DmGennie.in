@@ -118,7 +118,7 @@ export function Features() {
                     <div className="flex h-full w-full items-center justify-center bg-white text-[#151119]">
                       <div className="flex items-center gap-3 rounded-2xl border border-[#eadde2] bg-[#fbf7f8] px-5 py-4 shadow-sm">
                         <Sparkles className="h-8 w-8 text-[#6d2948]" />
-                        <div className="text-2xl font-black tracking-tight">DMGenie AI</div>
+                        <div className="text-2xl font-black tracking-tight">DMGennie AI</div>
                       </div>
                     </div>
                   )}

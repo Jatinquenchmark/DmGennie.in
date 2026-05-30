@@ -1,8 +1,10 @@
 import crypto from 'crypto';
 import axios from 'axios';
 import { createClient } from '@supabase/supabase-js';
+import { getPlanLimitsForState, getSubscriptionState } from '../server/billingConfig.js';
 
 const API_VERSION = 'v25.0';
+const SUCCESS_STATUSES = ['sent', 'success', 'delivered'];
 
 export const config = {
     api: { bodyParser: false }
@@ -119,6 +121,19 @@ async function processComment(supabase, commentValue, igAccountId, signature, ra
         if (!commentText.includes(trigger.keyword.toLowerCase())) continue;
 
         console.log(`[processComment] ✅ Matched trigger "${trigger.keyword}"`);
+        const limitStatus = await getAutomationLimitStatus(supabase, settings);
+        if (limitStatus.blocked) {
+            await supabase.from('activity_log').insert({
+                user_id: settings.user_id,
+                username: `@${username}`,
+                keyword: trigger.keyword,
+                trigger_keyword: trigger.keyword,
+                status: limitStatus.reason,
+            });
+            console.warn(`[processComment] Blocked by plan limit: ${limitStatus.reason}`);
+            return;
+        }
+
         const dmSuccess = await sendPrivateReply(settings, commentId, trigger.reply_message);
 
         if (dmSuccess) {
@@ -155,6 +170,38 @@ async function processComment(supabase, commentValue, igAccountId, signature, ra
         }
         break;
     }
+}
+
+async function getAutomationLimitStatus(supabase, settings) {
+    const subscription = getSubscriptionState(null, settings);
+    const limits = getPlanLimitsForState(subscription);
+    const startMonth = new Date();
+    startMonth.setUTCDate(1);
+    startMonth.setUTCHours(0, 0, 0, 0);
+
+    const { count: dmsThisMonth } = await supabase
+        .from('activity_log')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', settings.user_id)
+        .in('status', SUCCESS_STATUSES)
+        .gte('created_at', startMonth.toISOString());
+
+    if ((dmsThisMonth || 0) >= limits.dmLimit) {
+        return { blocked: true, reason: 'blocked_due_to_dm_limit' };
+    }
+
+    const { count: contactsThisMonth } = await supabase
+        .from('activity_log')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', settings.user_id)
+        .in('status', ['lead_captured', 'email_captured', 'captured'])
+        .gte('created_at', startMonth.toISOString());
+
+    if ((contactsThisMonth || 0) >= limits.contactLimit) {
+        return { blocked: true, reason: 'blocked_due_to_contact_limit' };
+    }
+
+    return { blocked: false };
 }
 
 async function sendPrivateReply(settings, commentId, message) {

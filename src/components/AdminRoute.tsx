@@ -41,7 +41,7 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
     return (
       <LoadingScreen
         title="Loading Admin"
-        subtitle="Verifying your DMGenie admin access..."
+        subtitle="Verifying your DMGennie admin access..."
         detail="Checking secure role permissions..."
       />
     )
@@ -58,7 +58,7 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
           <p className="text-xs font-black uppercase tracking-[0.2em] text-[#6d2948]">Access denied</p>
           <h1 className="mt-3 text-3xl font-black tracking-tight text-[#0F172A]">Admin only</h1>
           <p className="mt-3 text-sm leading-6 text-[#64748B]">
-            This area is restricted to DMGenie admins. Your regular dashboard is still available.
+            This area is restricted to DMGennie admins. Your regular dashboard is still available.
           </p>
           <Link
             to="/dashboard"

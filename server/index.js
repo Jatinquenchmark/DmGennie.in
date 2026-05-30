@@ -7,7 +7,7 @@ import { createClient } from '@supabase/supabase-js';
 import Razorpay from 'razorpay';
 import { buildDashboardMetrics } from './dashboardMetrics.js';
 import { buildContactsPayload } from './contactsData.js';
-import { getBillingConfig, getProIntroEligibility } from './billingConfig.js';
+import { getBillingConfig, getPlanLimitsForState, getProIntroEligibility, getSubscriptionState, isProUser, proRequiredPayload } from './billingConfig.js';
 import adminApiHandler from '../api/admin.js';
 import authApiHandler from '../api/auth.js';
 import billingApiHandler from '../api/billing.js';
@@ -15,6 +15,7 @@ import billingApiHandler from '../api/billing.js';
 dotenv.config({ path: '.env' });
 
 const API_VERSION = 'v25.0';
+const SUCCESS_STATUSES = ['sent', 'success', 'delivered'];
 
 // ── Supabase (service role for backend — bypasses RLS) ─────
 const supabase = createClient(
@@ -99,10 +100,39 @@ async function ensureSettings(userId) {
     // Create default row if trigger didn't fire
     const { data: created } = await supabase
         .from('user_settings')
-        .insert({ user_id: userId })
+        .insert({ user_id: userId, subscription_plan: 'starter', subscription_status: 'inactive' })
         .select()
         .single();
     return created;
+}
+
+function requestedProFeature(body = {}) {
+    const value = String(body.feature || body.template || body.type || body.triggerType || body.automationType || '').toLowerCase();
+    if (value.includes('retrigger') || value.includes('re-trigger')) return 'reTrigger';
+    if (value.includes('askforfollow') || value.includes('ask for follow') || value.includes('follow')) return 'askForFollow';
+    if (value.includes('grow')) return 'growFollowers';
+    if (value.includes('lead')) return 'leadGen';
+    if (value.includes('autoreply') || value.includes('auto-reply') || value.includes('auto reply') || value.includes('dm keyword') || value.includes('inbox')) return 'autoReply';
+    return null;
+}
+
+function csvEscape(value) {
+    const text = String(value ?? '');
+    return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+function buildContactsCsv(contacts) {
+    const headers = ['Name', 'Username', 'Email', 'Source', 'Relationship', 'Last Interaction', 'Joined Date'];
+    const body = contacts.map((contact) => [
+        contact.name,
+        contact.username,
+        contact.email,
+        contact.source,
+        contact.relationship,
+        contact.lastInteractionLabel || contact.lastInteraction,
+        contact.joined,
+    ].map(csvEscape).join(','));
+    return [headers.join(','), ...body].join('\n');
 }
 
 // ── Health Check ───────────────────────────────────────────
@@ -127,11 +157,33 @@ app.get('/api/me', async (req, res) => {
         });
     }
     const role = await getUserRole(user.id, user);
+    const settings = await ensureSettings(user.id);
+    const subscription = getSubscriptionState(user, settings);
+    const dashboard = await buildDashboardMetrics({ supabase, userId: user.id, user, settings });
     res.json({
+        user: {
+            id: user.id,
+            email: user.email,
+            name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Creator',
+        },
         id: user.id,
         email: user.email,
         name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Creator',
         role,
+        plan: subscription.planKey,
+        planName: subscription.plan,
+        subscription_status: subscription.status,
+        subscriptionStatus: subscription.status,
+        isPro: subscription.isPro,
+        current_period_start: subscription.currentPeriodStart,
+        current_period_end: subscription.currentPeriodEnd,
+        razorpay_customer_id: subscription.razorpayCustomerId,
+        razorpay_subscription_id: subscription.razorpaySubscriptionId,
+        has_used_pro_intro_offer: subscription.hasUsedIntroOffer,
+        pro_intro_started_at: subscription.proIntroStartedAt,
+        limits: subscription.limits,
+        usage: dashboard.usage,
+        featureAccess: subscription.featureAccess,
     });
 });
 
@@ -239,12 +291,13 @@ app.get('/api/admin/users', async (req, res) => {
         res.json({
             users: users.map((user) => {
                 const settings = settingsByUser.get(user.id) || {};
+                const plan = String(settings.subscription_plan || user.app_metadata?.plan || 'starter').toLowerCase() === 'pro' ? 'Pro' : 'Starter';
                 return {
                     id: user.id,
                     email: user.email,
                     name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Creator',
                     role: roles.find((row) => row.user_id === user.id)?.role || user.app_metadata?.role || 'user',
-                    plan: user.app_metadata?.plan || 'Starter',
+                    plan,
                     suspended: Boolean(user.banned_until && new Date(user.banned_until) > new Date()),
                     connectedInstagram: Boolean(settings.page_access_token && settings.instagram_account_id),
                     instagramHandle: settings.instagram_handle || 'Instagram not connected',
@@ -272,8 +325,26 @@ app.put('/api/admin/users', async (req, res) => {
         if (action === 'suspend') await supabase.auth.admin.updateUserById(userId, { banned_until: '2999-12-31T23:59:59.000Z' });
         else if (action === 'activate') await supabase.auth.admin.updateUserById(userId, { banned_until: null });
         else if (action === 'plan') {
+            const safePlan = String(plan || 'starter').trim().toLowerCase() === 'pro' ? 'pro' : 'starter';
+            const subscriptionStatus = safePlan === 'pro' ? 'active' : 'inactive';
             const { data: { user } } = await supabase.auth.admin.getUserById(userId);
-            await supabase.auth.admin.updateUserById(userId, { app_metadata: { ...(user?.app_metadata || {}), plan: String(plan || 'Starter').slice(0, 40) } });
+            await supabase.auth.admin.updateUserById(userId, { app_metadata: { ...(user?.app_metadata || {}), plan: safePlan, subscription_status: subscriptionStatus } });
+            await supabase.from('user_settings').upsert({
+                user_id: userId,
+                subscription_plan: safePlan,
+                subscription_status: subscriptionStatus,
+                updated_at: new Date().toISOString(),
+            }, { onConflict: 'user_id' });
+        } else if (action === 'subscriptionStatus') {
+            const status = String(req.body?.status || 'inactive').trim().toLowerCase();
+            const safeStatus = ['active', 'inactive', 'cancelled', 'expired', 'payment_pending'].includes(status) ? status : 'inactive';
+            const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+            await supabase.auth.admin.updateUserById(userId, { app_metadata: { ...(user?.app_metadata || {}), subscription_status: safeStatus } });
+            await supabase.from('user_settings').upsert({
+                user_id: userId,
+                subscription_status: safeStatus,
+                updated_at: new Date().toISOString(),
+            }, { onConflict: 'user_id' });
         } else return res.status(400).json({ error: 'Unsupported admin action.' });
         res.json({ success: true });
     } catch {
@@ -360,9 +431,20 @@ app.get('/api/admin/contacts', async (req, res) => {
 app.get('/api/contacts', async (req, res) => {
     const user = await getUser(req);
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    const action = String(req.query.action || 'list');
 
     try {
         const payload = await buildContactsPayload({ supabase, userId: user.id });
+        if (action === 'metrics') return res.json({ metrics: payload.metrics });
+        if (action === 'export') {
+            await ensureSettings(user.id);
+            if (!(await isProUser(supabase, user.id, user))) {
+                return res.status(403).json(proRequiredPayload('Upgrade to Pro to export contacts.'));
+            }
+            res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+            res.setHeader('Content-Disposition', 'attachment; filename="dmgennie-contacts.csv"');
+            return res.send(buildContactsCsv(payload.contacts));
+        }
         res.json(payload);
     } catch (error) {
         console.error('[contacts] Unable to load contacts:', error?.message || error);
@@ -390,6 +472,9 @@ app.get('/api/billing/pricing', async (req, res) => {
             reason: eligibility.reason,
             hasUsedIntroOffer: eligibility.hasUsedIntroOffer,
             isPro: eligibility.isPro,
+            subscriptionStatus: eligibility.status,
+            isPaymentPending: eligibility.isPaymentPending,
+            currentPeriodEnd: eligibility.currentPeriodEnd || null,
             proIntroStartedAt: eligibility.proIntroStartedAt || null,
         },
     });
@@ -402,6 +487,7 @@ app.post('/api/billing/checkout', async (req, res) => {
     const config = getBillingConfig();
     const settings = await ensureSettings(user.id);
     const eligibility = getProIntroEligibility(user, settings);
+    const applyIntroOffer = !eligibility.isPro && !eligibility.hasUsedIntroOffer;
 
     if (!config.razorpay.keyId || !config.razorpay.keySecret || !config.razorpay.proMonthlyPlanId) {
         return res.status(501).json({
@@ -412,7 +498,7 @@ app.post('/api/billing/checkout', async (req, res) => {
         });
     }
 
-    if (eligibility.eligible && !config.razorpay.proIntroOfferId) {
+    if (applyIntroOffer && !config.razorpay.proIntroOfferId) {
         return res.status(501).json({
             error: 'Intro offer setup required',
             message: 'Razorpay intro offer/coupon is not configured yet. Add RAZORPAY_PRO_INTRO_OFFER_ID before charging ₹1.',
@@ -435,20 +521,20 @@ app.post('/api/billing/checkout', async (req, res) => {
             notes: {
                 user_id: user.id,
                 email: user.email || '',
-                plan: 'Pro',
-                intro_offer: eligibility.eligible ? 'true' : 'false',
+                plan: 'pro',
+                intro_offer: applyIntroOffer ? 'true' : 'false',
                 intro_amount_inr: String(config.plans.pro.introOffer.amountInr),
                 renewal_amount_inr: String(config.plans.pro.monthlyPriceInr),
             },
         };
 
-        if (eligibility.eligible) subscriptionPayload.offer_id = config.razorpay.proIntroOfferId;
+        if (applyIntroOffer) subscriptionPayload.offer_id = config.razorpay.proIntroOfferId;
 
         const subscription = await razorpay.subscriptions.create(subscriptionPayload);
         const { error } = await supabase.from('user_settings').update({
             razorpay_subscription_id: subscription.id,
-            subscription_plan: 'Pro',
-            subscription_status: 'checkout_created',
+            subscription_plan: 'starter',
+            subscription_status: 'payment_pending',
             updated_at: new Date().toISOString(),
         }).eq('user_id', user.id);
         if (error) console.warn('[billing] Unable to store checkout reference:', error.message);
@@ -456,7 +542,7 @@ app.post('/api/billing/checkout', async (req, res) => {
         res.json({
             checkoutUrl: subscription.short_url,
             subscriptionId: subscription.id,
-            introOfferApplied: eligibility.eligible,
+            introOfferApplied: applyIntroOffer,
             pricing: config.plans.pro,
         });
     } catch (error) {
@@ -493,19 +579,27 @@ app.post('/api/billing/webhook', async (req, res) => {
     const entity = subscription || payment || {};
     const notes = entity.notes || payment?.notes || subscription?.notes || {};
     const userId = notes.user_id;
+    const isProPayment = String(notes.plan || '').toLowerCase() === 'pro'
+        || entity.plan_id === config.razorpay.proMonthlyPlanId
+        || subscription?.plan_id === config.razorpay.proMonthlyPlanId;
 
-    if ((event.event === 'subscription.charged' || event.event === 'payment.captured') && notes.intro_offer === 'true' && userId) {
+    if ((event.event === 'subscription.charged' || event.event === 'payment.captured') && userId && isProPayment) {
         const now = new Date().toISOString();
+        const introApplied = notes.intro_offer === 'true';
         const currentPeriodEnd = entity.current_end ? new Date(Number(entity.current_end) * 1000).toISOString() : null;
         const updates = {
-            has_used_pro_intro_offer: true,
-            pro_intro_started_at: now,
-            subscription_plan: 'Pro',
+            subscription_plan: 'pro',
             subscription_status: 'active',
+            current_period_start: now,
             current_period_end: currentPeriodEnd,
+            razorpay_customer_id: entity.customer_id || entity.customer || null,
             razorpay_subscription_id: entity.subscription_id || entity.id || null,
             updated_at: now,
         };
+        if (introApplied) {
+            updates.has_used_pro_intro_offer = true;
+            updates.pro_intro_started_at = now;
+        }
         const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
         if (error) console.warn('[billing] Unable to mark intro offer used:', error.message);
         const { data: { user } } = await supabase.auth.admin.getUserById(userId);
@@ -513,11 +607,36 @@ app.post('/api/billing/webhook', async (req, res) => {
             await supabase.auth.admin.updateUserById(userId, {
                 app_metadata: {
                     ...(user.app_metadata || {}),
-                    plan: 'Pro',
+                    plan: 'pro',
                     subscription_status: 'active',
-                    has_used_pro_intro_offer: true,
-                    pro_intro_started_at: now,
+                    ...(introApplied ? { has_used_pro_intro_offer: true, pro_intro_started_at: now } : {}),
+                    current_period_start: now,
                     current_period_end: currentPeriodEnd,
+                },
+            });
+        }
+    }
+
+    if ((event.event === 'payment.failed' || event.event === 'subscription.payment_failed' || event.event === 'subscription.cancelled' || event.event === 'subscription.paused' || event.event === 'subscription.completed' || event.event === 'subscription.expired') && userId && isProPayment) {
+        const status = event.event === 'payment.failed' || event.event === 'subscription.payment_failed'
+            ? 'payment_failed'
+            : event.event === 'subscription.completed' || event.event === 'subscription.expired'
+                ? 'expired'
+                : 'cancelled';
+        const updates = {
+            subscription_plan: 'starter',
+            subscription_status: status,
+            updated_at: new Date().toISOString(),
+        };
+        const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
+        if (error) console.warn('[billing] Unable to mark payment incomplete:', error.message);
+        const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+        if (user) {
+            await supabase.auth.admin.updateUserById(userId, {
+                app_metadata: {
+                    ...(user.app_metadata || {}),
+                    plan: 'starter',
+                    subscription_status: status,
                 },
             });
         }
@@ -600,12 +719,36 @@ app.get('/api/triggers', async (req, res) => {
 });
 
 app.post('/api/triggers', async (req, res) => {
-    const userId = await getUserId(req);
-    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    const user = await getUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+    const userId = user.id;
+
+    const settings = await ensureSettings(userId);
+    const subscription = getSubscriptionState(user, settings);
+    const feature = requestedProFeature(req.body);
+    if (feature && !(await isProUser(supabase, userId, user))) {
+        return res.status(403).json(proRequiredPayload());
+    }
+
+    const { count } = await supabase
+        .from('triggers')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId);
+    if ((count || 0) >= subscription.limits.automationLimit) {
+        return res.status(403).json({
+            error: 'PLAN_LIMIT_REACHED',
+            message: "You've reached your Starter automation limit. Upgrade to Pro to create more.",
+        });
+    }
 
     const { data, error } = await supabase
         .from('triggers')
-        .insert({ user_id: userId, keyword: req.body.keyword || '', reply_message: req.body.replyMessage || '' })
+        .insert({
+            user_id: userId,
+            keyword: req.body.keyword || '',
+            reply_message: req.body.replyMessage || '',
+            trigger_type: req.body.triggerType || req.body.automationType || null,
+        })
         .select()
         .single();
 
@@ -831,6 +974,18 @@ async function processComment(body, commentValue, igAccountId, signature, rawBod
     for (const trigger of triggers || []) {
         if (!commentText.includes(trigger.keyword.toLowerCase())) continue;
 
+        const limitStatus = await getAutomationLimitStatus(settings);
+        if (limitStatus.blocked) {
+            await supabase.from('activity_log').insert({
+                user_id: settings.user_id,
+                username: `@${username}`,
+                keyword: trigger.keyword,
+                trigger_keyword: trigger.keyword,
+                status: limitStatus.reason,
+            });
+            return;
+        }
+
         const dmSuccess = await sendPrivateReply(settings, commentId, trigger.reply_message, igAccountId);
 
         if (dmSuccess) {
@@ -870,6 +1025,38 @@ async function processComment(body, commentValue, igAccountId, signature, rawBod
     }
 }
 
+async function getAutomationLimitStatus(settings) {
+    const subscription = getSubscriptionState(null, settings);
+    const limits = getPlanLimitsForState(subscription);
+    const startMonth = new Date();
+    startMonth.setUTCDate(1);
+    startMonth.setUTCHours(0, 0, 0, 0);
+
+    const { count: dmsThisMonth } = await supabase
+        .from('activity_log')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', settings.user_id)
+        .in('status', SUCCESS_STATUSES)
+        .gte('created_at', startMonth.toISOString());
+
+    if ((dmsThisMonth || 0) >= limits.dmLimit) {
+        return { blocked: true, reason: 'blocked_due_to_dm_limit' };
+    }
+
+    const { count: contactsThisMonth } = await supabase
+        .from('activity_log')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', settings.user_id)
+        .in('status', ['lead_captured', 'email_captured', 'captured'])
+        .gte('created_at', startMonth.toISOString());
+
+    if ((contactsThisMonth || 0) >= limits.contactLimit) {
+        return { blocked: true, reason: 'blocked_due_to_contact_limit' };
+    }
+
+    return { blocked: false };
+}
+
 async function sendPrivateReply(settings, commentId, message, igAccountId) {
     const igId = settings.instagram_account_id || igAccountId;
     if (!settings.page_access_token || !igId) return false;
@@ -894,7 +1081,7 @@ async function sendPublicReply(settings, commentId, message) {
 }
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`[DMGenie] Backend listening on port ${PORT}`));
+app.listen(PORT, () => console.log(`[DMGennie] Backend listening on port ${PORT}`));
 
 // ══════════════════════════════════════════════════════════
 // Instagram OAuth Flow
