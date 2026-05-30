@@ -894,7 +894,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             return;
         }
         try {
-            const res = await authFetch("/auth/instagram");
+            const res = await authFetch("/api/auth?action=instagram");
             const data = await res.json();
             if (data.url) window.location.href = data.url;
             else showDashboardToast("Instagram connection could not be started.");
@@ -907,7 +907,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const performDisconnectInstagram = async () => {
         try {
             if (!preview) {
-                const res = await authFetch("/auth/instagram/disconnect", { method: "POST" });
+                const res = await authFetch("/api/auth?action=disconnect", { method: "POST" });
                 if (!res.ok) throw new Error("Unable to disconnect Instagram");
             }
             setConnected(false);
