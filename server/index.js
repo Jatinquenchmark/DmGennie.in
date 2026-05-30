@@ -16,6 +16,8 @@ dotenv.config({ path: '.env' });
 
 const API_VERSION = 'v25.0';
 const SUCCESS_STATUSES = ['sent', 'success', 'delivered'];
+const allowedCorsOrigins = ['https://www.dmgennie.in', 'https://dmgennie.in'];
+if (process.env.NODE_ENV !== 'production') allowedCorsOrigins.push('http://localhost:5173');
 
 // ── Supabase (service role for backend — bypasses RLS) ─────
 const supabase = createClient(
@@ -28,7 +30,14 @@ const app = express();
 app.use('/webhook', express.raw({ type: 'application/json' }));
 app.use('/api/billing/webhook', express.raw({ type: 'application/json' }));
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin(origin, callback) {
+        if (!origin || allowedCorsOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error('Not allowed by CORS'));
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use((req, res, next) => {
     res.setHeader('ngrok-skip-browser-warning', 'true');
     next();
@@ -147,8 +156,6 @@ app.get('/api/me', async (req, res) => {
             botEnabled: s.bot_enabled,
             instagramAccountId: s.instagram_account_id,
             instagramHandle: s.instagram_handle,
-            pageAccessToken: s.page_access_token,
-            appSecret: s.app_secret,
             verifyToken: s.verify_token,
             successPublicReply: s.success_public_reply,
             fallbackPublicReply: s.fallback_public_reply,
@@ -196,8 +203,6 @@ app.put('/api/me', async (req, res) => {
         botEnabled: 'bot_enabled',
         instagramAccountId: 'instagram_account_id',
         instagramHandle: 'instagram_handle',
-        pageAccessToken: 'page_access_token',
-        appSecret: 'app_secret',
         verifyToken: 'verify_token',
         successPublicReply: 'success_public_reply',
         fallbackPublicReply: 'fallback_public_reply',
@@ -213,8 +218,6 @@ app.put('/api/me', async (req, res) => {
         botEnabled: data.bot_enabled,
         instagramAccountId: data.instagram_account_id,
         instagramHandle: data.instagram_handle,
-        pageAccessToken: data.page_access_token,
-        appSecret: data.app_secret,
         verifyToken: data.verify_token,
         successPublicReply: data.success_public_reply,
         fallbackPublicReply: data.fallback_public_reply,
@@ -828,8 +831,6 @@ app.get('/api/settings', async (req, res) => {
         botEnabled: s.bot_enabled,
         instagramAccountId: s.instagram_account_id,
         instagramHandle: s.instagram_handle,
-        pageAccessToken: s.page_access_token,
-        appSecret: s.app_secret,
         verifyToken: s.verify_token,
         successPublicReply: s.success_public_reply,
         fallbackPublicReply: s.fallback_public_reply,
@@ -846,8 +847,6 @@ app.put('/api/settings', async (req, res) => {
         botEnabled: 'bot_enabled',
         instagramAccountId: 'instagram_account_id',
         instagramHandle: 'instagram_handle',
-        pageAccessToken: 'page_access_token',
-        appSecret: 'app_secret',
         verifyToken: 'verify_token',
         successPublicReply: 'success_public_reply',
         fallbackPublicReply: 'fallback_public_reply',
@@ -871,8 +870,6 @@ app.put('/api/settings', async (req, res) => {
         botEnabled: data.bot_enabled,
         instagramAccountId: data.instagram_account_id,
         instagramHandle: data.instagram_handle,
-        pageAccessToken: data.page_access_token,
-        appSecret: data.app_secret,
         verifyToken: data.verify_token,
         successPublicReply: data.success_public_reply,
         fallbackPublicReply: data.fallback_public_reply,
@@ -917,8 +914,24 @@ app.get('/webhook', (req, res) => {
     }
 });
 
+function isValidMetaSignature(rawBody, signature, appSecret) {
+    if (!rawBody || !signature || !appSecret) return false;
+    if (typeof signature !== 'string' || !signature.startsWith('sha256=')) return false;
+
+    const expected = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex');
+    const expectedBuffer = Buffer.from(expected);
+    const signatureBuffer = Buffer.from(signature);
+
+    return expectedBuffer.length === signatureBuffer.length
+        && crypto.timingSafeEqual(expectedBuffer, signatureBuffer);
+}
+
 app.post('/webhook', async (req, res) => {
     const signature = req.headers['x-hub-signature-256'];
+
+    if (!isValidMetaSignature(req.body, signature, process.env.META_APP_SECRET)) {
+        return res.status(401).json({ error: 'Invalid signature' });
+    }
 
     let body;
     try { body = JSON.parse(req.body.toString()); } catch { return res.sendStatus(400); }
@@ -950,12 +963,6 @@ async function processComment(body, commentValue, igAccountId, signature, rawBod
 
     if (!settingsRows || settingsRows.length === 0) return;
     const settings = settingsRows[0];
-
-    // Validate signature
-    if (settings.app_secret && signature) {
-        const expected = 'sha256=' + crypto.createHmac('sha256', settings.app_secret).update(rawBody).digest('hex');
-        if (signature !== expected) return;
-    }
 
     if (!settings.bot_enabled) return;
 
@@ -1089,138 +1096,18 @@ app.listen(PORT, () => console.log(`[DMGennie] Backend listening on port ${PORT}
 
 // Step 1 — Redirect user to Meta's OAuth dialog
 app.get('/auth/instagram', async (req, res) => {
-    const userId = await getUserId(req);
-    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
-
-    const appId = process.env.META_APP_ID;
-    const redirectUri = process.env.META_REDIRECT_URI || `${process.env.APP_URL}/auth/instagram/callback`;
-
-    const scopes = [
-        'instagram_basic',
-        'instagram_manage_comments',
-        'instagram_manage_messages',
-        'pages_show_list',
-        'pages_read_engagement',
-    ].join(',');
-
-    // Store userId in state so we can retrieve it in callback
-    const state = Buffer.from(JSON.stringify({ userId })).toString('base64');
-
-    const authUrl = `https://www.facebook.com/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scopes}&state=${encodeURIComponent(state)}&response_type=code`;
-
-    res.json({ url: authUrl });
+    req.query.action = 'instagram';
+    return authApiHandler(req, res);
 });
 
 // Step 2 — Meta redirects back here with a code
 app.get('/auth/instagram/callback', async (req, res) => {
-    const { code, state, error } = req.query;
-
-    if (error) {
-        return res.redirect(`${process.env.FRONTEND_URL}/dashboard?instagram=error&reason=${error}`);
-    }
-
-    if (!code || !state) {
-        return res.redirect(`${process.env.FRONTEND_URL}/dashboard?instagram=error&reason=missing_params`);
-    }
-
-    let userId;
-    try {
-        const decoded = JSON.parse(Buffer.from(decodeURIComponent(state), 'base64').toString());
-        userId = decoded.userId;
-    } catch {
-        return res.redirect(`${process.env.FRONTEND_URL}/dashboard?instagram=error&reason=invalid_state`);
-    }
-
-    const appId = process.env.META_APP_ID;
-    const appSecret = process.env.META_APP_SECRET;
-    const redirectUri = process.env.META_REDIRECT_URI || `${process.env.APP_URL}/auth/instagram/callback`;
-
-    try {
-        // Exchange code for short-lived token
-        const tokenRes = await axios.get('https://graph.facebook.com/v25.0/oauth/access_token', {
-            params: {
-                client_id: appId,
-                client_secret: appSecret,
-                redirect_uri: redirectUri,
-                code,
-            }
-        });
-
-        const shortToken = tokenRes.data.access_token;
-
-        // Exchange for long-lived token (60 days)
-        const longTokenRes = await axios.get('https://graph.facebook.com/v25.0/oauth/access_token', {
-            params: {
-                grant_type: 'fb_exchange_token',
-                client_id: appId,
-                client_secret: appSecret,
-                fb_exchange_token: shortToken,
-            }
-        });
-
-        const longToken = longTokenRes.data.access_token;
-
-        // Get Facebook pages linked to this user
-        const pagesRes = await axios.get('https://graph.facebook.com/v25.0/me/accounts', {
-            params: { access_token: longToken, fields: 'id,name,access_token,instagram_business_account' }
-        });
-
-        const pages = pagesRes.data.data || [];
-
-        // Find the page that has an Instagram business account
-        let igAccountId = null;
-        let pageAccessToken = null;
-        let igHandle = null;
-
-        for (const page of pages) {
-            if (page.instagram_business_account) {
-                igAccountId = page.instagram_business_account.id;
-                pageAccessToken = page.access_token;
-
-                // Get Instagram profile
-                try {
-                    const igProfile = await axios.get(`https://graph.facebook.com/v25.0/${igAccountId}`, {
-                        params: { fields: 'username,name', access_token: pageAccessToken }
-                    });
-                    igHandle = '@' + igProfile.data.username;
-                } catch { }
-                break;
-            }
-        }
-
-        if (!igAccountId || !pageAccessToken) {
-            return res.redirect(`${process.env.FRONTEND_URL}/dashboard?instagram=error&reason=no_ig_account`);
-        }
-
-        // Save to Supabase
-        await supabase.from('user_settings').update({
-            page_access_token: pageAccessToken,
-            instagram_account_id: igAccountId,
-            instagram_handle: igHandle || '',
-            app_secret: appSecret,
-            updated_at: new Date().toISOString(),
-        }).eq('user_id', userId);
-
-        // Redirect back to dashboard with success
-        return res.redirect(`${process.env.FRONTEND_URL}/dashboard?instagram=connected&handle=${encodeURIComponent(igHandle || igAccountId)}`);
-
-    } catch (err) {
-        console.error('OAuth error:', err.response?.data || err.message);
-        return res.redirect(`${process.env.FRONTEND_URL}/dashboard?instagram=error&reason=token_exchange_failed`);
-    }
+    req.query.action = 'callback';
+    return authApiHandler(req, res);
 });
 
 // Step 3 — Disconnect Instagram
 app.post('/auth/instagram/disconnect', async (req, res) => {
-    const userId = await getUserId(req);
-    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
-
-    await supabase.from('user_settings').update({
-        page_access_token: '',
-        instagram_account_id: '',
-        instagram_handle: '',
-        updated_at: new Date().toISOString(),
-    }).eq('user_id', userId);
-
-    res.json({ success: true });
+    req.query.action = 'disconnect';
+    return authApiHandler(req, res);
 });

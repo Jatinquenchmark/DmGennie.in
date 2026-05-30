@@ -260,7 +260,7 @@ async function webhookHandler(req, res) {
 
 export default async function handler(req, res) {
     const action = String(req.query.action || 'pricing');
-    if (action !== 'webhook') cors(res);
+    if (action !== 'webhook') cors(req, res);
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     if (action === 'pricing') return pricingHandler(req, res);

@@ -27,6 +27,18 @@ async function getRawBody(req) {
     });
 }
 
+function isValidMetaSignature(rawBody, signature, appSecret) {
+    if (!rawBody || !signature || !appSecret) return false;
+    if (typeof signature !== 'string' || !signature.startsWith('sha256=')) return false;
+
+    const expected = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex');
+    const expectedBuffer = Buffer.from(expected);
+    const signatureBuffer = Buffer.from(signature);
+
+    return expectedBuffer.length === signatureBuffer.length
+        && crypto.timingSafeEqual(expectedBuffer, signatureBuffer);
+}
+
 export default async function handler(req, res) {
     // Webhook verification
     if (req.method === 'GET') {
@@ -38,12 +50,16 @@ export default async function handler(req, res) {
         if (mode === 'subscribe' && token === verifyToken) {
             return res.status(200).send(challenge);
         }
-        return res.status(403).json({ error: 'Forbidden', received: token });
+        return res.status(403).json({ error: 'Forbidden' });
     }
 
     if (req.method === 'POST') {
         const rawBody = await getRawBody(req);
         const signature = req.headers['x-hub-signature-256'];
+
+        if (!isValidMetaSignature(rawBody, signature, process.env.META_APP_SECRET)) {
+            return res.status(401).json({ error: 'Invalid signature' });
+        }
 
         let body;
         try { body = JSON.parse(rawBody.toString()); } catch { return res.status(400).end(); }
@@ -94,10 +110,11 @@ async function processComment(supabase, commentValue, igAccountId, signature, ra
         console.log('[processComment] fallback rows (any connected):', settingsRows?.length ?? 0);
     }
     const settings = settingsRows[0];
+    if (!settings) {
+        console.warn('[processComment] No connected Instagram settings found');
+        return;
+    }
     console.log('[processComment] Using account:', settings.instagram_account_id);
-
-    // Signature check temporarily disabled
-    console.log('[processComment] Skipping signature check');
 
     if (!settings.bot_enabled) {
         console.log('[processComment] Bot is disabled');

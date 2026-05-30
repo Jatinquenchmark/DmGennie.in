@@ -70,8 +70,18 @@ export async function ensureSettings(userId) {
     return created;
 }
 
-export function cors(res) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+function getAllowedCorsOrigins() {
+    const origins = ['https://www.dmgennie.in', 'https://dmgennie.in'];
+    if (process.env.NODE_ENV !== 'production') origins.push('http://localhost:5173');
+    return origins;
+}
+
+export function cors(req, res) {
+    const origin = req?.headers?.origin;
+    if (origin && getAllowedCorsOrigins().includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Vary', 'Origin');
+    }
     res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }

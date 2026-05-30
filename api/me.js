@@ -7,8 +7,6 @@ function mapSettings(s) {
         botEnabled: s.bot_enabled,
         instagramAccountId: s.instagram_account_id,
         instagramHandle: s.instagram_handle,
-        pageAccessToken: s.page_access_token,
-        appSecret: s.app_secret,
         verifyToken: s.verify_token,
         successPublicReply: s.success_public_reply,
         fallbackPublicReply: s.fallback_public_reply,
@@ -18,7 +16,7 @@ function mapSettings(s) {
 }
 
 export default async function handler(req, res) {
-    cors(res);
+    cors(req, res);
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const user = await getUser(req);
@@ -36,8 +34,6 @@ export default async function handler(req, res) {
                 botEnabled: 'bot_enabled',
                 instagramAccountId: 'instagram_account_id',
                 instagramHandle: 'instagram_handle',
-                pageAccessToken: 'page_access_token',
-                appSecret: 'app_secret',
                 verifyToken: 'verify_token',
                 successPublicReply: 'success_public_reply',
                 fallbackPublicReply: 'fallback_public_reply',

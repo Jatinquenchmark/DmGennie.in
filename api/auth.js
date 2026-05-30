@@ -1,7 +1,76 @@
+import crypto from 'crypto';
 import axios from 'axios';
 import { supabase, getUserId, ensureSettings, cors } from '../server/supabaseApi.js';
 
 const API_VERSION = 'v25.0';
+const INSTAGRAM_AUTH_LIMIT = 10;
+const INSTAGRAM_AUTH_WINDOW_MS = 60 * 1000;
+const instagramAuthHits = new Map();
+
+function getClientIp(req) {
+    const forwardedFor = req.headers['x-forwarded-for'];
+    if (typeof forwardedFor === 'string' && forwardedFor.trim()) {
+        return forwardedFor.split(',')[0].trim();
+    }
+    return req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown';
+}
+
+function isInstagramAuthRateLimited(req) {
+    const ip = getClientIp(req);
+    const now = Date.now();
+    const hit = instagramAuthHits.get(ip);
+
+    if (!hit || now - hit.windowStartedAt >= INSTAGRAM_AUTH_WINDOW_MS) {
+        instagramAuthHits.set(ip, { count: 1, windowStartedAt: now });
+        return false;
+    }
+
+    hit.count += 1;
+    instagramAuthHits.set(ip, hit);
+    return hit.count > INSTAGRAM_AUTH_LIMIT;
+}
+
+function timingSafeEqualText(left, right) {
+    const leftBuffer = Buffer.from(left);
+    const rightBuffer = Buffer.from(right);
+    return leftBuffer.length === rightBuffer.length && crypto.timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+function getOAuthStateSecret() {
+    return process.env.META_APP_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
+}
+
+function createOAuthState(userId) {
+    const secret = getOAuthStateSecret();
+    if (!secret) return null;
+
+    const payload = {
+        userId,
+        expiresAt: Date.now() + 10 * 60 * 1000,
+    };
+    const encoded = Buffer.from(JSON.stringify(payload)).toString('base64url');
+    const signature = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
+    return `${encoded}.${signature}`;
+}
+
+function parseOAuthState(state) {
+    const secret = getOAuthStateSecret();
+    if (!secret || typeof state !== 'string') return null;
+
+    const [encoded, signature] = state.split('.');
+    if (!encoded || !signature) return null;
+
+    const expected = crypto.createHmac('sha256', secret).update(encoded).digest('base64url');
+    if (!timingSafeEqualText(signature, expected)) return null;
+
+    try {
+        const payload = JSON.parse(Buffer.from(encoded, 'base64url').toString());
+        if (!payload.userId || !payload.expiresAt || payload.expiresAt < Date.now()) return null;
+        return payload.userId;
+    } catch {
+        return null;
+    }
+}
 
 async function instagramAuthHandler(req, res) {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
@@ -10,7 +79,7 @@ async function instagramAuthHandler(req, res) {
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
     const appId = process.env.META_APP_ID;
-    const redirectUri = process.env.META_REDIRECT_URI || `${process.env.APP_URL}/auth/instagram/callback`;
+    const redirectUri = process.env.META_REDIRECT_URI || `${process.env.APP_URL}/api/auth?action=callback`;
     const scopes = [
         'instagram_basic',
         'instagram_manage_comments',
@@ -18,7 +87,8 @@ async function instagramAuthHandler(req, res) {
         'pages_show_list',
         'pages_read_engagement',
     ].join(',');
-    const state = Buffer.from(JSON.stringify({ userId })).toString('base64');
+    const state = createOAuthState(userId);
+    if (!state) return res.status(500).json({ error: 'Instagram connection is not configured.' });
     const authUrl = `https://www.facebook.com/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scopes}&state=${encodeURIComponent(state)}&response_type=code`;
 
     return res.json({ url: authUrl });
@@ -29,19 +99,15 @@ async function instagramCallbackHandler(req, res) {
 
     const { code, state, error } = req.query;
     const frontendUrl = process.env.FRONTEND_URL || 'https://www.dmgennie.in';
-    if (error) return res.redirect(`${frontendUrl}/dashboard?instagram=error&reason=${error}`);
+    if (error) return res.redirect(`${frontendUrl}/dashboard?instagram=error&reason=${encodeURIComponent(String(error))}`);
     if (!code || !state) return res.redirect(`${frontendUrl}/dashboard?instagram=error&reason=missing_params`);
 
-    let userId;
-    try {
-        userId = JSON.parse(Buffer.from(state, 'base64').toString()).userId;
-    } catch {
-        return res.redirect(`${frontendUrl}/dashboard?instagram=error&reason=invalid_state`);
-    }
+    const userId = parseOAuthState(state);
+    if (!userId) return res.redirect(`${frontendUrl}/dashboard?instagram=error&reason=invalid_state`);
 
     const appId = process.env.META_APP_ID;
     const appSecret = process.env.META_APP_SECRET;
-    const redirectUri = process.env.META_REDIRECT_URI || `${process.env.APP_URL}/auth/instagram/callback`;
+    const redirectUri = process.env.META_REDIRECT_URI || `${process.env.APP_URL}/api/auth?action=callback`;
 
     try {
         const tokenRes = await axios.get(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, {
@@ -133,15 +199,23 @@ async function profileHandler(req, res) {
         await supabase.from('user_settings').update({ followers: profile.followers_count || 0 }).eq('user_id', userId);
         return res.json(profile);
     } catch (error) {
-        return res.status(500).json({ error: error.response?.data?.error || error.message });
+        console.error('Instagram profile load failed:', error.response?.data || error.message);
+        return res.status(500).json({ error: 'Unable to load Instagram profile.' });
     }
 }
 
 export default async function handler(req, res) {
-    cors(res);
+    cors(req, res);
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const action = String(req.query.action || 'instagram');
+    if (action === 'instagram' && isInstagramAuthRateLimited(req)) {
+        return res.status(429).json({
+            error: 'Too Many Requests',
+            message: 'Too many Instagram connection attempts. Please try again in a minute.',
+        });
+    }
+
     if (action === 'instagram') return instagramAuthHandler(req, res);
     if (action === 'callback') return instagramCallbackHandler(req, res);
     if (action === 'disconnect') return disconnectHandler(req, res);
