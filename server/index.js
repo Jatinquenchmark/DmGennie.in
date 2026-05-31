@@ -29,7 +29,11 @@ const supabase = createClient(
 const app = express();
 app.use('/webhook', express.raw({ type: 'application/json' }));
 app.use('/api/billing/webhook', express.raw({ type: 'application/json' }));
-app.use(express.json());
+const jsonParser = express.json();
+app.use((req, res, next) => {
+    if (['/webhook', '/api/webhook', '/api/billing/webhook'].includes(req.path)) return next();
+    return jsonParser(req, res, next);
+});
 app.use(cors({
     origin(origin, callback) {
         if (!origin || allowedCorsOrigins.includes(origin)) return callback(null, true);

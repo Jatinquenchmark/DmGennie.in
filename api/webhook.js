@@ -7,6 +7,7 @@ const API_VERSION = 'v25.0';
 const SUCCESS_STATUSES = ['sent', 'success', 'delivered'];
 
 export const config = {
+    // Keep the request stream untouched so Meta signature validation uses the exact bytes sent.
     api: { bodyParser: false }
 };
 
@@ -77,6 +78,7 @@ export default async function handler(req, res) {
         let rawBody;
         try {
             rawBody = await getRawBody(req);
+            console.log('[Webhook] First 50 bytes of raw body:', rawBody.toString('utf8').substring(0, 50));
         } catch (error) {
             console.error('[Webhook] Failed to read raw body:', error?.message || error);
             return res.status(200).send('EVENT_RECEIVED');
