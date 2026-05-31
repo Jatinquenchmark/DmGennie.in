@@ -2,7 +2,7 @@
 
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ShieldCheck, Sparkles } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
 import { TrustChips } from './TrustChips'
 
 export function Features() {
@@ -79,21 +79,6 @@ export function Features() {
           </p>
           <div className="relative mx-auto mt-8 h-px max-w-2xl bg-gradient-to-r from-transparent via-white/24 to-transparent" />
 
-          <div className="relative mx-auto mt-8 inline-flex max-w-full flex-col items-center gap-3 rounded-[1.35rem] border border-white/12 bg-white/[0.075] p-3 shadow-[0_26px_80px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:flex-row sm:rounded-full sm:p-2 sm:pr-5">
-            <div className="pointer-events-none absolute inset-0 rounded-[inherit] bg-gradient-to-r from-white/[0.12] via-transparent to-[#d7a2ad]/[0.08]" />
-            <div className="relative flex h-16 w-32 items-center justify-center rounded-2xl bg-white px-3 shadow-[0_10px_30px_rgba(255,255,255,0.08)] sm:h-14 sm:w-32 sm:rounded-full">
-              <img src="/brand-assets/meta-business-partner.png" alt="Meta Business Partner" className="h-full w-full object-contain" loading="lazy" />
-            </div>
-            <div className="relative px-2 text-center sm:text-left">
-              <div className="flex items-center justify-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-[#f1bd51] sm:justify-start">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Trusted partner badge
-              </div>
-              <div className="mt-1 text-sm font-semibold leading-relaxed text-white/72">
-                Meta Business Partner for compliant Instagram automation.
-              </div>
-            </div>
-          </div>
         </div>
 
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4 lg:gap-7">
