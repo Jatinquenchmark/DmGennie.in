@@ -140,31 +140,6 @@ export function Hero() {
             </a>
           </div>
 
-          <motion.div
-            whileHover={{ y: -2, boxShadow: '0 24px 62px rgba(109, 41, 72, 0.22)' }}
-            transition={{ duration: 0.22, ease: 'easeOut' }}
-            className="relative mx-auto mt-6 inline-flex max-w-full items-center gap-3.5 overflow-hidden rounded-full border border-[#6d2948]/28 bg-[linear-gradient(135deg,rgba(255,255,255,0.92),rgba(255,238,246,0.82))] px-5 py-3 shadow-[0_18px_50px_rgba(109,41,72,0.16),inset_0_1px_0_rgba(255,255,255,0.85)] ring-1 ring-white/75 backdrop-blur-xl lg:mx-0"
-          >
-            <span className="pointer-events-none absolute inset-0 rounded-full bg-[linear-gradient(90deg,rgba(109,41,72,0.12),transparent_42%,rgba(215,162,173,0.16))]" />
-            <span className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
-            <span className="relative flex h-10 w-[4.75rem] shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#6d2948]/18 bg-white px-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_24px_rgba(109,41,72,0.10)]">
-              <img
-                src="/brand-assets/meta-business-partner.png"
-                alt="Meta"
-                className="h-auto w-full object-contain"
-                loading="lazy"
-              />
-            </span>
-            <span className="relative min-w-0 text-left">
-              <span className="block text-[15px] font-black leading-none text-[#351424] sm:text-base">
-                Official Meta API
-              </span>
-              <span className="mt-1.5 block text-[12px] font-bold leading-none text-[#7a4b60] sm:text-[13px]">
-                Built on Meta&apos;s official APIs
-              </span>
-            </span>
-          </motion.div>
-
           <TrustChips className="mt-6 justify-center lg:justify-start" />
 
         </motion.div>
