@@ -48,13 +48,13 @@ function isValidMetaSignature(rawBody, signature, appSecret) {
         if (!valid) reason = 'signature digest mismatch';
     }
 
-    console.log('[Webhook] META_APP_SECRET exists:', Boolean(appSecret));
-    console.log('[Webhook] Signature header exists:', Boolean(signature));
-    console.log('[Webhook] Raw body length:', rawBody ? rawBody.length : 'MISSING');
-    console.log('[Webhook] Received signature prefix:', typeof signature === 'string' ? signature.slice(0, 12) : 'MISSING');
-    console.log('[Webhook] Expected signature prefix:', expectedSignature ? expectedSignature.slice(0, 12) : 'MISSING');
-    console.log('[Webhook] Signature valid:', valid);
-    if (!valid) console.warn('[Webhook] Signature validation failed:', reason);
+    if (!valid) {
+        console.log('[Webhook] Received signature:', signature);
+        console.log('[Webhook] App secret length:', appSecret ? appSecret.length : 'MISSING');
+        console.log('[Webhook] Raw body length:', rawBody ? rawBody.length : 'MISSING');
+        console.log('[Webhook] Expected signature:', expectedSignature || 'MISSING');
+        console.warn('[Webhook] Signature validation failed:', reason);
+    }
 
     return valid;
 }
