@@ -150,18 +150,17 @@ export function Hero() {
             <span className="relative flex h-10 w-[4.75rem] shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#6d2948]/18 bg-white px-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_10px_24px_rgba(109,41,72,0.10)]">
               <img
                 src="/brand-assets/meta-business-partner.png"
-                alt="Meta Business Partner"
+                alt="Meta"
                 className="h-auto w-full object-contain"
                 loading="lazy"
               />
             </span>
             <span className="relative min-w-0 text-left">
-              <span className="flex items-center gap-2 text-[15px] font-black leading-none text-[#351424] sm:text-base">
-                Meta Business Partner
-                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_0_5px_rgba(16,185,129,0.14),0_0_16px_rgba(16,185,129,0.45)]" />
+              <span className="block text-[15px] font-black leading-none text-[#351424] sm:text-base">
+                Official Meta API
               </span>
               <span className="mt-1.5 block text-[12px] font-bold leading-none text-[#7a4b60] sm:text-[13px]">
-                Official Meta API Integration
+                Built on Meta&apos;s official APIs
               </span>
             </span>
           </motion.div>
