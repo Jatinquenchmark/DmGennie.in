@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowRight,
   Check,
+  Eye,
+  EyeOff,
   Loader2,
   Send,
   Shield,
@@ -272,12 +274,14 @@ export default function Signup() {
   const [sessionRedirecting, setSessionRedirecting] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false)
   const [signUpError, setSignUpError] = useState('')
   const [signUpLoading, setSignUpLoading] = useState(false)
   const [signUpSuccess, setSignUpSuccess] = useState(false)
 
   const [signInEmail, setSignInEmail] = useState('')
   const [signInPassword, setSignInPassword] = useState('')
+  const [showSignInPassword, setShowSignInPassword] = useState(false)
   const [signInError, setSignInError] = useState('')
   const [signInNotice, setSignInNotice] = useState('')
   const [signInLoading, setSignInLoading] = useState(false)
@@ -594,7 +598,17 @@ export default function Signup() {
 
                         <form onSubmit={handleSignUp} className="space-y-3.5" noValidate>
                           <input type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} autoComplete="email" />
-                          <input type="password" placeholder="Password (min. 6 characters)" value={password} onChange={(e) => setPassword(e.target.value)} className={inputCls} autoComplete="new-password" />
+                          <div className="relative">
+                            <input type={showSignUpPassword ? 'text' : 'password'} placeholder="Password (min. 6 characters)" value={password} onChange={(e) => setPassword(e.target.value)} className={`${inputCls} pr-11`} autoComplete="new-password" />
+                            <button
+                              type="button"
+                              onClick={() => setShowSignUpPassword((v) => !v)}
+                              aria-label={showSignUpPassword ? 'Hide password' : 'Show password'}
+                              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-[#a89ba4] transition-colors hover:text-[#6d2948]"
+                            >
+                              {showSignUpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </button>
+                          </div>
 
                           <p className="text-center text-[11px] leading-relaxed text-[#817782]">
                             By joining you agree to our{' '}
@@ -666,7 +680,17 @@ export default function Signup() {
 
                     <form onSubmit={handleSignIn} className="space-y-3.5" noValidate>
                       <input type="email" placeholder="Email Address" value={signInEmail} onChange={(e) => setSignInEmail(e.target.value)} className={inputCls} autoComplete="email" />
-                      <input type="password" placeholder="Password" value={signInPassword} onChange={(e) => setSignInPassword(e.target.value)} className={inputCls} autoComplete="current-password" />
+                      <div className="relative">
+                        <input type={showSignInPassword ? 'text' : 'password'} placeholder="Password" value={signInPassword} onChange={(e) => setSignInPassword(e.target.value)} className={`${inputCls} pr-11`} autoComplete="current-password" />
+                        <button
+                          type="button"
+                          onClick={() => setShowSignInPassword((v) => !v)}
+                          aria-label={showSignInPassword ? 'Hide password' : 'Show password'}
+                          className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-[#a89ba4] transition-colors hover:text-[#6d2948]"
+                        >
+                          {showSignInPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                      </div>
                       <div className="flex justify-end">
                         <button
                           type="button"

@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import { Instagram, Mail, MapPin } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 function FooterLogo() {
   return (
-    <Link to="/" className="inline-flex items-center gap-2.5 group">
+    <Link to="/" onClick={() => window.scrollTo(0, 0)} className="inline-flex items-center gap-2.5 group">
       <svg width="30" height="30" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect width="40" height="40" rx="10" fill="#6d2948" fillOpacity="0.12" />
         <path d="M10 27 L19 13" stroke="#6d2948" strokeWidth="3.8" strokeLinecap="round" />
@@ -45,6 +46,9 @@ const supportLinks = [
 ]
 
 export function Footer() {
+  const { session } = useAuth();
+  const filteredLegalLinks = session ? legalLinks : legalLinks.filter(l => l.href !== '/delete-data');
+
   return (
     <footer className="relative overflow-hidden border-t border-[#eadde2] bg-[#f8f1f3] text-[#151119]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_8%,rgba(109,41,72,0.12),transparent_32%),radial-gradient(circle_at_86%_24%,rgba(200,154,111,0.12),transparent_28%),linear-gradient(135deg,rgba(255,255,255,0.82),rgba(255,255,255,0.18)_48%,rgba(109,41,72,0.05))]" />
@@ -118,12 +122,22 @@ export function Footer() {
             <ul className="space-y-3">
               {productLinks.map((l) => (
                 <li key={l.label}>
-                  <a
-                    href={l.href}
-                    className="text-sm text-[#665d66] transition-colors hover:text-[#151119]"
-                  >
-                    {l.label}
-                  </a>
+                  {l.href.startsWith('/') && !l.href.includes('#') ? (
+                    <Link
+                      to={l.href}
+                      onClick={() => window.scrollTo(0, 0)}
+                      className="text-sm text-[#665d66] transition-colors hover:text-[#151119]"
+                    >
+                      {l.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={l.href}
+                      className="text-sm text-[#665d66] transition-colors hover:text-[#151119]"
+                    >
+                      {l.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
@@ -136,6 +150,7 @@ export function Footer() {
                 <li key={l.label}>
                   <Link
                     to={l.href}
+                    onClick={() => window.scrollTo(0, 0)}
                     className="text-sm text-[#665d66] transition-colors hover:text-[#151119]"
                   >
                     {l.label}
@@ -153,6 +168,7 @@ export function Footer() {
                   {l.href.startsWith('/') ? (
                     <Link
                       to={l.href}
+                      onClick={() => window.scrollTo(0, 0)}
                       className="text-sm text-[#665d66] transition-colors hover:text-[#151119]"
                     >
                       {l.label}
@@ -167,10 +183,11 @@ export function Footer() {
                   )}
                 </li>
               ))}
-              {legalLinks.map((l) => (
+              {filteredLegalLinks.map((l) => (
                 <li key={l.label}>
                   <Link
                     to={l.href}
+                    onClick={() => window.scrollTo(0, 0)}
                     className="text-sm text-[#665d66] transition-colors hover:text-[#151119]"
                   >
                     {l.label}
@@ -187,9 +204,9 @@ export function Footer() {
             {' '}DMGennie is not affiliated with or endorsed by Meta Platforms, Inc.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-5">
-            <Link to="/privacy" className="text-xs text-[#756b73] transition-colors hover:text-[#151119]">Privacy</Link>
-            <Link to="/terms" className="text-xs text-[#756b73] transition-colors hover:text-[#151119]">Terms</Link>
-            <Link to="/delete-data" className="text-xs text-[#756b73] transition-colors hover:text-[#151119]">Delete Data</Link>
+            <Link to="/privacy" onClick={() => window.scrollTo(0, 0)} className="text-xs text-[#756b73] transition-colors hover:text-[#151119]">Privacy</Link>
+            <Link to="/terms" onClick={() => window.scrollTo(0, 0)} className="text-xs text-[#756b73] transition-colors hover:text-[#151119]">Terms</Link>
+            {session && <Link to="/delete-data" onClick={() => window.scrollTo(0, 0)} className="text-xs text-[#756b73] transition-colors hover:text-[#151119]">Delete Data</Link>}
           </div>
         </div>
       </div>

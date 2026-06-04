@@ -1240,6 +1240,7 @@ function Sidebar({
     onUpgrade: () => void;
 }) {
     const handle = settings?.instagramHandle || "@dmgennie.in";
+    const { session } = useAuth();
 
     return (
         <aside className="shrink-0 rounded-[26px] border border-white bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)] lg:fixed lg:left-[max(1rem,calc((100vw-1440px)/2+1rem))] lg:top-4 lg:h-[calc(100vh-2rem)] lg:w-[272px] lg:max-w-[272px] xl:left-[max(1.25rem,calc((100vw-1440px)/2+1.25rem))] xl:top-5 xl:h-[calc(100vh-2.5rem)]">
@@ -1265,7 +1266,7 @@ function Sidebar({
                         </div>
                         <div className="min-w-0 flex-1">
                             <div className="flex min-w-0 items-center gap-1.5 leading-4">
-                                <span className="truncate text-[13px] font-black leading-4 text-[#0F172A]">{handle}</span>
+                                <span className="truncate text-[13px] font-black leading-4 text-[#0F172A]">{session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || handle}</span>
                                 <span
                                     title={connected ? "Connected" : "Disconnected"}
                                     className={cx(
@@ -1276,7 +1277,7 @@ function Sidebar({
                                     <Power className="h-3.5 w-3.5 stroke-[3]" />
                                 </span>
                             </div>
-                            <div className="truncate text-[11px] font-bold leading-4 text-[#64748B]">prince@dmgennie.in</div>
+                            <div className="truncate text-[11px] font-bold leading-4 text-[#64748B]">{session?.user?.email}</div>
                         </div>
                     </div>
                 </div>
@@ -1755,7 +1756,7 @@ function MetricCard({ label, value, icon, tone, muted, tooltip }: { label: strin
 }
 
 function HomeAutomationPanel({ triggers, onNavigate }: { triggers: Trigger[]; onNavigate: (tab: Tab) => void }) {
-    const rows = triggers.slice(0, 3);
+    const rows = triggers;
 
     return (
         <Panel
@@ -5996,6 +5997,7 @@ const referralFilters = ["All", "Joined", "Trial Active", "Converted", "Paying",
 const minimumPayoutAmount = 500;
 
 function ReferralPage({ preview = false }: { preview?: boolean }) {
+    const { session } = useAuth();
     const referralCode = preview ? "PRINCE4686" : "USER_REFERRAL_CODE";
     const referralLink = `https://dmgennie.in/?ref=${referralCode}`;
     const [activeTab, setActiveTab] = useState<ReferralDashboardTab>("Overview");
@@ -6484,7 +6486,7 @@ function ReferralHeroCard({
                         <div className="flex items-center gap-3">
                             <FallbackAvatar value="@dmgennie.in" />
                             <div>
-                                <p className="text-sm font-black">Prince Saini</p>
+                                <p className="text-sm font-black">{session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || 'Creator'}</p>
                                 <p className="text-xs font-semibold text-white/60">Code: {referralCode}</p>
                             </div>
                         </div>

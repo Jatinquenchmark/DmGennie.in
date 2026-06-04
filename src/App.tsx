@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom'
 import { Hero } from './components/Hero'
 import { FeatureShowcase } from './components/FeatureShowcase'
 import { Features } from './components/Features'
@@ -21,11 +21,13 @@ import ReviewerDemo from './pages/ReviewerDemo'
 import Compare from './pages/Compare'
 import Referral from './pages/Referral'
 import NotFound from './pages/NotFound'
-import { AuthProvider } from './context/AuthContext'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminRoute from './components/AdminRoute'
 
 function HomePage() {
+  const { session } = useAuth();
+  if (session) return <Navigate to="/dashboard" replace />;
   return (
     <div className="min-h-screen bg-background text-foreground">
       <main className="relative" role="main">
