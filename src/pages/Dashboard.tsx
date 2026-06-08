@@ -13,6 +13,7 @@ import {
     BarChart3,
     Bell,
     Bot,
+    Calendar,
     Check,
     CheckCircle2,
     ChevronLeft,
@@ -1025,6 +1026,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         activity={activity}
                                         triggers={triggers}
                                         accountPlan={accountPlan}
+                                        accountCreatedAt={preview ? "2024-12-01T00:00:00Z" : session?.user?.created_at ?? null}
                                         onNavigate={setTab}
                                         onToggleBot={toggleBot}
                                         botEnabled={botEnabled}
@@ -1243,7 +1245,7 @@ function Sidebar({
     const { session } = useAuth();
 
     return (
-        <aside className="shrink-0 rounded-[26px] border border-white bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)] lg:fixed lg:left-[max(1rem,calc((100vw-1440px)/2+1rem))] lg:top-4 lg:h-[calc(100vh-2rem)] lg:w-[272px] lg:max-w-[272px] xl:left-[max(1.25rem,calc((100vw-1440px)/2+1.25rem))] xl:top-5 xl:h-[calc(100vh-2.5rem)]">
+        <aside className="shrink-0 rounded-[26px] border border-white bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)] lg:fixed lg:left-0 lg:top-0 lg:h-screen lg:w-[272px] lg:max-w-[272px] lg:rounded-none lg:border-r lg:border-slate-200">
             <div className="flex h-full min-h-0 flex-col p-3.5">
                 <Link to="/" className="mb-3 flex items-center gap-2.5 rounded-2xl px-1 py-0.5">
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#5B4DFF] text-white shadow-[0_12px_26px_rgba(91,77,255,0.22)]">
@@ -1304,11 +1306,21 @@ function Sidebar({
 
                 <div className="mt-2 space-y-1.5">
                     <SidebarPlanCompact usage={usage} accountPlan={accountPlan} proOffer={proOffer} onUpgrade={onUpgrade} />
+                    {!accountPlan.isPro && (
+                        <button
+                            onClick={onUpgrade}
+                            className={cx("flex h-10 w-full items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-black", goldCtaCls)}
+                        >
+                            <Crown className={cx("h-4 w-4", goldCrownCls)} />
+                            {accountPlan.subscriptionStatus === "payment_pending"
+                                ? "Complete payment"
+                                : proOffer.eligible
+                                    ? `Start Pro for ₹${proOffer.amountInr}`
+                                    : "Upgrade to Pro"}
+                        </button>
+                    )}
                     <button onClick={onLogout} className="flex h-9 w-full items-center justify-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-4 text-[13px] font-black text-[#475569] transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600">
                         <LogOut className="h-4 w-4" /> Logout
-                    </button>
-                    <button onClick={() => onNavigate("help")} className="flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[#10B981] px-4 text-[13px] font-black text-white shadow-[0_12px_26px_rgba(16,185,129,0.16)] transition hover:-translate-y-0.5 hover:bg-emerald-600">
-                        <Headphones className="h-4 w-4" /> Support/Feedback
                     </button>
                 </div>
             </div>
@@ -1323,41 +1335,59 @@ function SidebarPlanCompact({ usage, accountPlan, proOffer, onUpgrade }: { usage
     const isPaymentPending = accountPlan.subscriptionStatus === "payment_pending";
     const renewalLabel = accountPlan.currentPeriodEnd ? new Date(accountPlan.currentPeriodEnd).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : null;
     const planLabel = isPro ? "Pro" : isPaymentPending ? "Payment pending" : "Starter";
+    const [expanded, setExpanded] = useState(isPro);
 
     return (
         <div className="rounded-[16px] border border-[#E5E7EB] bg-[#F8FAFC] p-2.5">
-            <div className="mb-2 flex items-center justify-between gap-2">
+            <button
+                type="button"
+                onClick={() => setExpanded((value) => !value)}
+                className="flex w-full items-center justify-between gap-2 text-left"
+                aria-expanded={expanded}
+            >
                 <div>
                     <p className="text-[12px] font-black leading-4 text-[#0F172A]">{planLabel} plan</p>
                     <p className="text-[10px] font-bold leading-3 text-[#64748B]">Plan & usage</p>
                 </div>
-                <span className={cx("inline-flex h-6 items-center rounded-full bg-white px-2 text-[10px] font-black ring-1", isPro ? "text-emerald-700 ring-emerald-100" : isPaymentPending ? "text-amber-700 ring-amber-100" : "text-[#64748B] ring-[#E5E7EB]")}>{planLabel}</span>
-            </div>
+                <span className="flex items-center gap-1.5">
+                    <span className={cx("inline-flex h-6 items-center rounded-full bg-white px-2 text-[10px] font-black ring-1", isPro ? "text-emerald-700 ring-emerald-100" : isPaymentPending ? "text-amber-700 ring-amber-100" : "text-[#64748B] ring-[#E5E7EB]")}>{planLabel}</span>
+                    <ChevronDown className={cx("h-4 w-4 text-slate-400 transition-transform duration-200", expanded && "rotate-180")} />
+                </span>
+            </button>
 
-            <div className="space-y-1.5">
-                <CompactUsageLine icon={<Send className="h-3.5 w-3.5" />} label="DMs" value={formatUsage(usage.dmsThisMonth, usage.dmLimit)} progress={dmsProgress} />
-                <CompactUsageLine icon={<User className="h-3.5 w-3.5" />} label="Contacts" value={formatUsage(usage.contactsThisMonth, usage.contactLimit)} progress={contactsProgress} />
-            </div>
+            <div
+                className={cx(
+                    "grid transition-all duration-300 ease-out",
+                    expanded ? "mt-2 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                )}
+            >
+                <div className="overflow-hidden">
+                    <div className="space-y-1.5">
+                        <CompactUsageLine icon={<Send className="h-3.5 w-3.5" />} label="DMs" value={formatUsage(usage.dmsThisMonth, usage.dmLimit)} progress={dmsProgress} />
+                        <CompactUsageLine icon={<User className="h-3.5 w-3.5" />} label="Contacts" value={formatUsage(usage.contactsThisMonth, usage.contactLimit)} progress={contactsProgress} />
+                    </div>
 
-            {isPro ? (
-                <div className="mt-2 rounded-[0.85rem] bg-emerald-50 px-2.5 py-2 text-[10.5px] font-bold leading-4 text-emerald-700 ring-1 ring-emerald-100">
-                    <span className="font-black">Pro active.</span> {renewalLabel ? `Renews on ${renewalLabel}.` : "All Pro features unlocked."}
+                    {isPro ? (
+                        <div className="mt-2 rounded-[0.85rem] bg-emerald-50 px-2.5 py-2 text-[10.5px] font-bold leading-4 text-emerald-700 ring-1 ring-emerald-100">
+                            <span className="font-black">Pro active.</span> {renewalLabel ? `Renews on ${renewalLabel}.` : "All Pro features unlocked."}
+                        </div>
+                    ) : (
+                        <>
+                            <p className="mt-2 text-[10.5px] font-bold leading-4 text-[#64748B]">
+                                <span className="font-black text-[#0F172A]">{isPaymentPending ? "Payment pending." : "Unlock Pro."}</span> {isPaymentPending ? "Complete payment to unlock Pro." : `${proOffer.eligible ? `First month ₹${proOffer.amountInr}. ` : ""}More DMs, unlimited contacts & Pro tools.`}
+                            </p>
+
+                            <button
+                                onClick={onUpgrade}
+                                className={cx("mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-full px-3 text-[12px] font-black", goldCtaCls)}
+                            >
+                                <Crown className={cx("h-3.5 w-3.5", goldCrownCls)} />
+                                {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade now"}
+                            </button>
+                        </>
+                    )}
                 </div>
-            ) : (
-                <>
-                    <p className="mt-2 text-[10.5px] font-bold leading-4 text-[#64748B]">
-                        <span className="font-black text-[#0F172A]">{isPaymentPending ? "Payment pending." : "Unlock Pro."}</span> {isPaymentPending ? "Complete payment to unlock Pro." : `${proOffer.eligible ? `First month ₹${proOffer.amountInr}. ` : ""}More DMs, unlimited contacts & Pro tools.`}
-                    </p>
-
-                    <button
-                        onClick={onUpgrade}
-                        className={cx("mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-full px-3 text-[12px] font-black", goldCtaCls)}
-                    >
-                        <Crown className={cx("h-3.5 w-3.5", goldCrownCls)} />
-                        {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade now"}
-                    </button>
-                </>
-            )}
+            </div>
         </div>
     );
 }
@@ -1446,6 +1476,7 @@ function HomePage({
     activity,
     triggers,
     accountPlan,
+    accountCreatedAt,
     botEnabled,
     onNavigate,
     onToggleBot,
@@ -1461,6 +1492,7 @@ function HomePage({
     activity: LogEntry[];
     triggers: Trigger[];
     accountPlan: AccountPlanState;
+    accountCreatedAt?: string | null;
     botEnabled: boolean;
     onNavigate: (tab: Tab) => void;
     onToggleBot: () => void;
@@ -1470,7 +1502,7 @@ function HomePage({
         { title: "Auto DM from Comments", copy: "Send DMs to users who comment on your posts.", icon: <MessageCircle className="h-6 w-6" />, cta: "Create workflow", badge: "Popular", intent: "Best for links", setup: "2 min setup" },
         { title: "Grow Followers", copy: "Ask users to follow before delivering links.", icon: <TrendingUp className="h-6 w-6" />, cta: "Grow audience", badge: "Trending", featured: true, intent: "Audience growth", setup: "Ready flow", feature: "growFollowers" as const },
         { title: "Generate Leads", copy: "Capture emails and phone numbers from Instagram conversations.", icon: <UserPlus className="h-6 w-6" />, cta: "Build lead flow", intent: "Lead capture", setup: "Ready flow", feature: "leadGen" as const },
-        { title: "Auto-reply DMs", copy: "Reply faster with simple message automation.", icon: <Bot className="h-6 w-6" />, cta: "Set replies", intent: "Inbox replies", setup: "3 min setup", feature: "autoReply" as const },
+        { title: "Story Automation", copy: "Reply to story mentions and replies automatically.", icon: <ImageIcon className="h-6 w-6" />, cta: "Set up stories", intent: "Story replies", setup: "3 min setup", feature: "autoReply" as const },
     ];
 
     return (
@@ -1478,56 +1510,131 @@ function HomePage({
             <section className="relative overflow-hidden rounded-[22px] border border-white bg-white p-4 shadow-[0_18px_48px_rgba(15,23,42,0.055)]">
                 <div className="pointer-events-none absolute -right-20 -top-28 h-64 w-64 rounded-full bg-[#5B4DFF]/10 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-32 left-1/3 h-56 w-56 rounded-full bg-fuchsia-300/10 blur-3xl" />
-                <div className="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_330px] xl:items-stretch">
-                    <div className="min-w-0">
-                        <div className="mb-3 flex flex-wrap items-center gap-2">
-                            <StatusPill icon={<Instagram className="h-3.5 w-3.5" />} label={connected ? "Instagram connected" : "Instagram not connected"} tone={connected ? "green" : "red"} />
-                            <StatusPill icon={<ShieldCheck className="h-3.5 w-3.5" />} label="Meta API active" tone="indigo" title="Connected through official Meta APIs and secure OAuth." />
-                        </div>
+                <div className="relative space-y-4">
+                    <div>
                         <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[30px]">Welcome back, {ownerName} 👋</h1>
                         <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-[#64748B]">
                             Launch flows, monitor delivery, and turn Instagram comments into leads from one calm workspace.
                         </p>
-                        <div className="mt-4 grid max-w-2xl grid-cols-1 gap-2 sm:grid-cols-3">
-                            <HomeHeroStat label="DMs today" value={stats.dmsSentToday.toLocaleString()} tone="purple" />
-                            <HomeHeroStat label="Live flows" value={activeTriggers.toLocaleString()} tone="green" />
-                            <HomeHeroStat label="Delivery" value={formatPercent(deliveryRate)} tone="blue" />
-                        </div>
                     </div>
 
-                    <div className="rounded-[20px] border border-slate-100 bg-white/80 p-3.5 shadow-[0_12px_32px_rgba(15,23,42,0.045)] backdrop-blur">
-                        <div className="mb-3 flex items-start gap-3">
-                            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem] bg-[#EEF0FF] text-[#5B4DFF]">
-                                <Sparkles className="h-5 w-5" />
-                            </span>
-                            <div>
-                                <p className="text-[11px] font-black uppercase tracking-[0.12em] text-[#94A3B8]">Recommended next step</p>
-                                <h2 className="mt-1 text-sm font-black text-[#0F172A]">Create a comment-to-DM workflow</h2>
-                                <p className="mt-1 text-xs font-semibold leading-5 text-[#64748B]">Start with a keyword and send the right link automatically.</p>
-                            </div>
-                        </div>
-                        <div className="grid gap-2">
-                            <PrimaryButton compact onClick={() => onNavigate("automations")}><Plus className="h-4 w-4" /> New Automation</PrimaryButton>
-                            <button onClick={onToggleBot} className={cx("inline-flex h-9 items-center justify-center gap-2 rounded-[0.9rem] px-3 text-[13px] font-black transition", botEnabled ? "bg-slate-950 text-white hover:bg-slate-800" : "bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50")}>
-                                {botEnabled ? <Power className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-                                {botEnabled ? "Automation active" : "Automation paused"}
-                            </button>
-                        </div>
-                    </div>
+                    <HomeStartHereChecklist connected={connected} activeTriggers={activeTriggers} onNavigate={onNavigate} />
+
+                    {accountPlan.isPro ? (
+                        <ProFeaturesShowcase onNavigate={onNavigate} />
+                    ) : (
+                        <button
+                            onClick={onUpgrade}
+                            className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-[0.9rem] px-5 text-sm font-black", goldCtaCls)}
+                        >
+                            <Crown className={cx("h-4 w-4", goldCrownCls)} />
+                            {accountPlan.subscriptionStatus === "payment_pending" ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
+                        </button>
+                    )}
                 </div>
             </section>
 
-            {!accountPlan.isPro && <HomeUpgradeBanner accountPlan={accountPlan} proOffer={proOffer} onUpgrade={onUpgrade} />}
-
-            <StartHereStrip connected={connected} activeTriggers={activeTriggers} onNavigate={onNavigate} />
-
-            <MetricGrid stats={stats} activeTriggers={activeTriggers} leadsCollected={leadsCollected} deliveryRate={deliveryRate} />
-
             <QuickActionGrid actions={actions} featureAccess={accountPlan.featureAccess} onNavigate={onNavigate} onUpgrade={onUpgrade} />
 
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(360px,1.05fr)]">
-                <RecentActivity activity={activity} onNavigate={onNavigate} />
-                <HomeAutomationPanel triggers={triggers} onNavigate={onNavigate} />
+            <MetricGrid stats={stats} leadsCollected={leadsCollected} activity={activity} accountCreatedAt={accountCreatedAt} />
+
+            <ActivityLauncher activity={activity} onNavigate={onNavigate} />
+        </div>
+    );
+}
+
+function ProFeaturesShowcase({ onNavigate }: { onNavigate: (tab: Tab) => void }) {
+    const features = [
+        { title: "Advanced analytics", copy: "Charts, conversion funnels, content performance.", icon: <BarChart3 className="h-5 w-5" />, tab: "analytics" as Tab },
+        { title: "Export contacts", copy: "Download leads as CSV for your CRM.", icon: <Download className="h-5 w-5" />, tab: "contacts" as Tab },
+        { title: "Pro automations", copy: "Lead capture, ask-for-follow, re-trigger flows.", icon: <Sparkles className="h-5 w-5" />, tab: "automations" as Tab },
+    ];
+    return (
+        <div className="rounded-[18px] border border-[#E8C56C]/60 bg-[linear-gradient(135deg,#FFFDF6_0%,#FFF7DA_55%,#FFFDF6_100%)] p-3.5">
+            <div className="mb-3 flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white ring-1 ring-[#E8C56C]/60">
+                    <Crown className={cx("h-4 w-4", goldCrownCls)} />
+                </span>
+                <div>
+                    <h3 className="text-sm font-black text-[#0F172A]">Your Pro features</h3>
+                    <p className="text-[11px] font-bold text-[#8A5D17]">Jump to advanced tools unlocked with your plan.</p>
+                </div>
+            </div>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                {features.map((feature) => (
+                    <button
+                        key={feature.title}
+                        onClick={() => onNavigate(feature.tab)}
+                        className="group flex items-start gap-3 rounded-[14px] border border-white bg-white/85 p-3 text-left transition hover:-translate-y-0.5 hover:border-[#E8C56C]/80 hover:bg-white"
+                    >
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-[#FFF7DA] text-[#8A5D17] ring-1 ring-[#E8C56C]/50">
+                            {feature.icon}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                            <p className="flex items-center gap-1 text-[13px] font-black text-[#0F172A]">
+                                {feature.title}
+                                <ArrowRight className="h-3.5 w-3.5 text-[#8A5D17] transition group-hover:translate-x-0.5" />
+                            </p>
+                            <p className="mt-0.5 text-[11px] font-semibold leading-4 text-[#64748B]">{feature.copy}</p>
+                        </div>
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function HomeStartHereChecklist({ connected, activeTriggers, onNavigate }: { connected: boolean; activeTriggers: number; onNavigate: (tab: Tab) => void }) {
+    const steps = [
+        { label: "Connect Instagram", done: connected },
+        { label: "Create automation", done: activeTriggers > 0 },
+        { label: "Send test DM", done: activeTriggers > 0 },
+        { label: "Collect first lead", done: false },
+    ];
+    const complete = steps.filter((step) => step.done).length;
+    const allDone = complete === steps.length;
+    const progress = (complete / steps.length) * 100;
+
+    if (allDone) return null;
+
+    return (
+        <div className="rounded-[18px] border border-slate-100 bg-white/80 px-3.5 py-2.5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] backdrop-blur">
+            <div className="flex flex-wrap items-center gap-3">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.75rem] bg-[#EEF0FF] text-[#5B4DFF]">
+                    <CheckCircle2 className="h-4 w-4" />
+                </span>
+                <div className="min-w-0 shrink-0">
+                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#94A3B8]">Start Here</p>
+                    <p className="text-xs font-black text-[#0F172A]">{complete} of {steps.length} completed</p>
+                </div>
+                <div className="hidden h-1.5 w-24 shrink-0 overflow-hidden rounded-full bg-slate-100 sm:block">
+                    <div className="h-full rounded-full bg-[#5B4DFF] transition-all duration-300" style={{ width: `${progress}%` }} />
+                </div>
+
+                <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                    {steps.map((step) => (
+                        <li
+                            key={step.label}
+                            className={cx(
+                                "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-black",
+                                step.done ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100" : "bg-slate-50 text-slate-600 ring-1 ring-slate-100"
+                            )}
+                        >
+                            <span className={cx("flex h-4 w-4 items-center justify-center rounded-full", step.done ? "bg-emerald-100 text-emerald-600" : "bg-white text-slate-400 ring-1 ring-slate-200")}>
+                                {step.done ? <Check className="h-3 w-3 stroke-[3]" /> : <span className="h-1 w-1 rounded-full bg-current" />}
+                            </span>
+                            <span className="truncate">{step.label}</span>
+                        </li>
+                    ))}
+                </ul>
+
+                <button
+                    type="button"
+                    onClick={() => onNavigate("automations")}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-full bg-slate-950 px-3 py-1.5 text-[11px] font-black text-white transition hover:bg-slate-800"
+                >
+                    Continue <ArrowRight className="h-3 w-3" />
+                </button>
             </div>
         </div>
     );
@@ -1563,15 +1670,15 @@ function SectionHeading({ title, subtitle, action }: { title: string; subtitle?:
 function HomeUpgradeBanner({ accountPlan, proOffer, onUpgrade }: { accountPlan: AccountPlanState; proOffer: ProOfferData; onUpgrade: () => void }) {
     const isPaymentPending = accountPlan.subscriptionStatus === "payment_pending";
     return (
-        <section className="overflow-hidden rounded-[20px] border border-indigo-200/70 bg-[linear-gradient(135deg,#F8F7FF_0%,#EEF0FF_48%,#FFF8FE_100%)] p-3.5 shadow-[0_12px_34px_rgba(91,77,255,0.08)]">
+        <section className="overflow-hidden rounded-[20px] border border-[#E8C56C]/70 bg-[linear-gradient(135deg,#FFFDF6_0%,#FFF7DA_48%,#FFFDF6_100%)] p-3.5 shadow-[0_12px_34px_rgba(120,83,20,0.08)]">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem] bg-white text-[#5B4DFF] shadow-sm ring-1 ring-indigo-100">
-                        <Crown className="h-5 w-5" />
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem] bg-white text-[#8A5D17] shadow-sm ring-1 ring-[#E8C56C]/50">
+                        <Crown className={cx("h-5 w-5", goldCrownCls)} />
                     </span>
                     <div>
                         <h2 className="text-base font-black tracking-tight text-[#0F172A]">Unlock Pro Power</h2>
-                        <p className="mt-0.5 text-sm font-semibold leading-5 text-[#64748B]">
+                        <p className="mt-0.5 text-sm font-semibold leading-5 text-[#8A5D17]">
                         {isPaymentPending ? "Payment pending. Complete payment to unlock Pro." : proOffer.eligible ? `First month only. Then ₹${proOffer.renewalMonthlyPriceInr}/month.` : "Get 20,000 DMs, exports & advanced analytics."}
                         </p>
                     </div>
@@ -1714,27 +1821,219 @@ function StartHereStrip({ connected, activeTriggers, onNavigate }: { connected: 
     );
 }
 
-function MetricGrid({ stats, activeTriggers, leadsCollected, deliveryRate }: { stats: Stats; activeTriggers: number; leadsCollected: number; deliveryRate: number | null }) {
+const METRIC_RANGES = [
+    { key: "7d", label: "7 days", days: 7 },
+    { key: "1m", label: "1 month", days: 30 },
+    { key: "3m", label: "3 months", days: 90 },
+    { key: "6m", label: "6 months", days: 180 },
+    { key: "1y", label: "1 year", days: 365 },
+    { key: "5y", label: "5 years", days: 365 * 5 },
+    { key: "all", label: "All time", days: Number.POSITIVE_INFINITY },
+] as const;
+type MetricRangeKey = (typeof METRIC_RANGES)[number]["key"];
+
+const tonePalette: Record<string, { bg: string; text: string; stroke: string }> = {
+    indigo: { bg: "bg-indigo-50", text: "text-[#5B4DFF]", stroke: "#5B4DFF" },
+    purple: { bg: "bg-purple-50", text: "text-purple-600", stroke: "#A855F7" },
+    green: { bg: "bg-emerald-50", text: "text-emerald-600", stroke: "#10B981" },
+    blue: { bg: "bg-sky-50", text: "text-sky-600", stroke: "#0EA5E9" },
+    amber: { bg: "bg-amber-50", text: "text-amber-600", stroke: "#F59E0B" },
+};
+
+function MetricGrid({ stats, leadsCollected, activity = [], accountCreatedAt }: { stats: Stats; leadsCollected: number; activity?: LogEntry[]; accountCreatedAt?: string | null }) {
+    const accountAgeDays = useMemo(() => {
+        if (!accountCreatedAt) return Number.POSITIVE_INFINITY;
+        const created = new Date(accountCreatedAt).getTime();
+        if (Number.isNaN(created)) return Number.POSITIVE_INFINITY;
+        return Math.max(0, (Date.now() - created) / (1000 * 60 * 60 * 24));
+    }, [accountCreatedAt]);
+
+    const initialRange: MetricRangeKey = "7d";
+    const [range, setRange] = useState<MetricRangeKey>(initialRange);
+    const [pickerOpen, setPickerOpen] = useState(false);
+
+    const sentActivity = activity.filter((item) => item.status === "sent");
+    const failedActivity = activity.filter((item) => item.status !== "sent");
+
     const metrics = [
-        { label: "DMs Sent Today", value: stats.dmsSentToday.toLocaleString(), icon: <Send className="h-5 w-5" />, tone: "indigo" },
-        { label: "Active Automations", value: activeTriggers.toLocaleString(), icon: <Bot className="h-5 w-5" />, tone: "purple" },
-        { label: "Leads Collected", value: leadsCollected.toLocaleString(), icon: <UserPlus className="h-5 w-5" />, tone: "green" },
-        { label: "Followers", value: typeof stats.followers === "number" ? stats.followers.toLocaleString() : "—", icon: <Users className="h-5 w-5" />, tone: "blue", muted: true, tooltip: typeof stats.followers === "number" ? undefined : "Connect Instagram to sync follower count." },
-        { label: "Failed Messages", value: stats.failedDms.toLocaleString(), icon: <AlertTriangle className="h-5 w-5" />, tone: "amber", muted: true },
-        { label: "Delivery Rate", value: formatPercent(deliveryRate), icon: <CheckCircle2 className="h-5 w-5" />, tone: "green", tooltip: deliveryRate === null ? "No messages sent yet." : "Successful sends divided by total DM attempts." },
+        { label: "DMs Sent", value: stats.totalDmsSent.toLocaleString(), icon: <Send className="h-6 w-6" />, tone: "indigo", entries: sentActivity, numericValue: stats.totalDmsSent },
+        { label: "Leads", value: leadsCollected.toLocaleString(), icon: <UserPlus className="h-6 w-6" />, tone: "green", entries: [] as LogEntry[], numericValue: leadsCollected },
+        { label: "Followers", value: typeof stats.followers === "number" ? stats.followers.toLocaleString() : "—", icon: <Users className="h-6 w-6" />, tone: "blue", entries: [] as LogEntry[], numericValue: typeof stats.followers === "number" ? stats.followers : null, tooltip: typeof stats.followers === "number" ? undefined : "Connect Instagram to sync follower count." },
+        { label: "Failed", value: stats.failedDms.toLocaleString(), icon: <AlertTriangle className="h-6 w-6" />, tone: "amber", entries: failedActivity, numericValue: stats.failedDms },
     ];
 
+    const currentRange = METRIC_RANGES.find((option) => option.key === range) ?? METRIC_RANGES[0];
+
     return (
-        <section className="space-y-3">
-            <SectionHeading title="Performance snapshot" subtitle="The numbers that matter most for your Instagram automation today." />
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(145px,1fr))] gap-3">
-                {metrics.map((metric) => <MetricCard key={metric.label} {...metric} />)}
+        <section className="overflow-visible rounded-[22px] border border-white bg-white p-5 shadow-[0_10px_28px_rgba(15,23,42,0.04)]">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <h2 className="text-[18px] font-black tracking-tight text-[#0F172A]">Performance snapshot</h2>
+                    <p className="mt-0.5 text-[13px] font-semibold leading-5 text-[#64748B]">The numbers that matter most for your Instagram automation.</p>
+                </div>
+                <div className="relative">
+                    <button
+                        type="button"
+                        onClick={() => setPickerOpen((value) => !value)}
+                        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-[12px] font-black text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                        aria-haspopup="listbox"
+                        aria-expanded={pickerOpen}
+                    >
+                        <Calendar className="h-3.5 w-3.5 text-slate-500" />
+                        {currentRange.label}
+                        <ChevronDown className={cx("h-3.5 w-3.5 text-slate-500 transition-transform", pickerOpen && "rotate-180")} />
+                    </button>
+                    {pickerOpen && (
+                        <>
+                            <button type="button" aria-label="Close" className="fixed inset-0 z-30 cursor-default" onClick={() => setPickerOpen(false)} />
+                            <ul role="listbox" className="absolute bottom-full right-0 z-40 mb-1.5 w-44 overflow-hidden rounded-[14px] border border-slate-100 bg-white py-1 shadow-[0_-18px_42px_rgba(15,23,42,0.16)]">
+                                {METRIC_RANGES.map((option) => {
+                                    const disabled = option.days !== Number.POSITIVE_INFINITY && option.days > accountAgeDays;
+                                    return (
+                                        <li key={option.key}>
+                                            <button
+                                                type="button"
+                                                disabled={disabled}
+                                                onClick={() => { if (!disabled) { setRange(option.key); setPickerOpen(false); } }}
+                                                className={cx(
+                                                    "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[12px] font-black transition",
+                                                    disabled
+                                                        ? "cursor-not-allowed text-slate-300"
+                                                        : range === option.key
+                                                            ? "bg-indigo-50 text-[#5B4DFF]"
+                                                            : "text-slate-700 hover:bg-slate-50"
+                                                )}
+                                                title={disabled ? "Range exceeds account age" : undefined}
+                                            >
+                                                <span>{option.label}</span>
+                                                {disabled && <Lock className="h-3 w-3" />}
+                                                {!disabled && range === option.key && <Check className="h-3.5 w-3.5" />}
+                                            </button>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        </>
+                    )}
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 divide-y divide-slate-100 sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4">
+                {metrics.map((metric, index) => (
+                    <MetricCell
+                        key={metric.label}
+                        metric={metric}
+                        rangeLabel={currentRange.label}
+                        isLastCol={index === metrics.length - 1}
+                    />
+                ))}
             </div>
         </section>
     );
 }
 
-function MetricCard({ label, value, icon, tone, muted, tooltip }: { label: string; value: string; icon: ReactNode; tone: string; muted?: boolean; tooltip?: string }) {
+function MetricCell({
+    metric,
+    rangeLabel,
+    isLastCol,
+}: {
+    metric: { label: string; value: string; icon: ReactNode; tone: string; entries: LogEntry[]; numericValue: number | null; tooltip?: string };
+    rangeLabel: string;
+    isLastCol: boolean;
+}) {
+    const [hovered, setHovered] = useState(false);
+    const palette = tonePalette[metric.tone] ?? tonePalette.indigo;
+    const trendData = useMemo(() => {
+        if (typeof metric.numericValue !== "number" || metric.numericValue <= 0) return null;
+        const value = metric.numericValue;
+        const segments = 10;
+        return Array.from({ length: segments }, (_, i) => ({
+            x: i + 1,
+            y: Math.max(0, Math.round((value * (i + 1)) / segments)),
+        }));
+    }, [metric.numericValue]);
+
+    return (
+        <div
+            className={cx(
+                "relative isolate p-4 transition sm:p-5",
+                !isLastCol && "sm:border-r sm:border-slate-100"
+            )}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+        >
+            <div title={metric.tooltip}>
+                <div className="mb-3 flex items-center justify-between">
+                    <span className={cx("flex h-11 w-11 items-center justify-center rounded-[0.9rem]", palette.bg, palette.text)}>
+                        {metric.icon}
+                    </span>
+                </div>
+                <p className="text-[12px] font-black uppercase tracking-[0.08em] text-slate-400">{metric.label}</p>
+                <h3 className="mt-1 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{metric.value}</h3>
+            </div>
+
+            {hovered && (
+                <div
+                    className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-3 w-[300px] max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-[16px] border border-slate-100 bg-white p-3.5 shadow-[0_24px_60px_rgba(15,23,42,0.18)]"
+                    role="dialog"
+                    aria-label={`${metric.label} details`}
+                >
+                    <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                            <span className={cx("flex h-7 w-7 items-center justify-center rounded-full", palette.bg, palette.text)}>
+                                {metric.icon}
+                            </span>
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">{rangeLabel}</p>
+                                <p className="text-[13px] font-black text-[#0F172A]">{metric.label}</p>
+                            </div>
+                        </div>
+                        <p className="text-lg font-black text-slate-950">{metric.value}</p>
+                    </div>
+
+                    {/* Growth trend chart available on Pro in the Analytics tab. Hidden on home; code preserved. */}
+                    {false && (
+                        <div className="mt-3 h-24 w-full">
+                            {trendData ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={trendData} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
+                                        <CartesianGrid stroke="#F1F5F9" vertical={false} />
+                                        <XAxis dataKey="x" tick={false} axisLine={false} tickLine={false} />
+                                        <YAxis tickCount={5} tick={{ fontSize: 9, fill: "#94A3B8" }} axisLine={false} tickLine={false} width={24} />
+                                        <Tooltip cursor={{ stroke: palette.stroke, strokeOpacity: 0.2 }} contentStyle={{ fontSize: 11, borderRadius: 8 }} />
+                                        <Line type="monotone" dataKey="y" stroke={palette.stroke} strokeWidth={2} dot={false} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="flex h-full items-center justify-center rounded-[10px] bg-slate-50 text-[11px] font-bold text-slate-400">
+                                    Trend history unavailable
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="mt-3">
+                        <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Recent</p>
+                        {metric.entries.length ? (
+                            <ul className="mt-1.5 space-y-1">
+                                {metric.entries.slice(0, 5).map((item) => (
+                                    <li key={item.id} className="flex items-center justify-between gap-2 rounded-[10px] bg-slate-50 px-2 py-1.5 text-[11px]">
+                                        <span className="min-w-0 truncate font-black text-slate-700">@{item.user}</span>
+                                        <span className="shrink-0 font-bold text-slate-400">{item.time}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="mt-1.5 rounded-[10px] bg-slate-50 px-2 py-2 text-center text-[11px] font-bold text-slate-400">No recent entries for this metric.</p>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function MetricCard({ label, value, icon, tone, muted, tooltip, large }: { label: string; value: string; icon: ReactNode; tone: string; muted?: boolean; tooltip?: string; large?: boolean }) {
     const tones: Record<string, string> = {
         indigo: "bg-indigo-50 text-[#5B4DFF]",
         purple: "bg-purple-50 text-purple-600",
@@ -1744,13 +2043,13 @@ function MetricCard({ label, value, icon, tone, muted, tooltip }: { label: strin
     };
 
     return (
-        <div title={tooltip} className={cx("rounded-[18px] border border-white bg-white p-3.5 shadow-[0_10px_28px_rgba(15,23,42,0.04)]", muted && "bg-white/85", tooltip && "cursor-help")}>
-            <div className={cx("mb-2.5 flex items-center justify-between gap-2", muted && "mb-2")}>
-                <div className={cx("flex items-center justify-center rounded-[0.9rem]", muted ? "h-8 w-8" : "h-9 w-9", tones[tone])}>{icon}</div>
-                {muted && <span className="rounded-full bg-slate-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">Monitor</span>}
+        <div title={tooltip} className={cx("rounded-[20px] border border-white bg-white shadow-[0_10px_28px_rgba(15,23,42,0.04)]", large ? "p-5" : "p-3.5", muted && "bg-white/85", tooltip && "cursor-help")}>
+            <div className={cx("flex items-center justify-between gap-2", large ? "mb-4" : muted ? "mb-2" : "mb-2.5")}>
+                <div className={cx("flex items-center justify-center rounded-[0.9rem]", large ? "h-12 w-12" : muted ? "h-8 w-8" : "h-9 w-9", tones[tone])}>{icon}</div>
+                {muted && !large && <span className="rounded-full bg-slate-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">Monitor</span>}
             </div>
-            <p className="text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <h3 className={cx("mt-1 font-black tracking-tight text-slate-950", muted ? "text-lg" : "text-xl")}>{value}</h3>
+            <p className={cx("font-black uppercase tracking-[0.08em] text-slate-400", large ? "text-[13px]" : "text-[11px]")}>{label}</p>
+            <h3 className={cx("mt-1 font-black tracking-tight text-slate-950", large ? "text-3xl sm:text-4xl" : muted ? "text-lg" : "text-xl")}>{value}</h3>
         </div>
     );
 }
@@ -1882,6 +2181,141 @@ function RecentActivity({ activity, onNavigate }: { activity: LogEntry[]; onNavi
                 <EmptyState icon={<Activity className="h-6 w-6" />} title="No activity yet" copy="Once your automation sends DMs, activity will appear here." action="Create automation" onAction={() => onNavigate("automations")} />
             )}
         </Panel>
+    );
+}
+
+function formatActivityCount(count: number): string {
+    if (count < 0) return "0";
+    if (count <= 9) return String(count);
+    if (count <= 99) return `${Math.floor(count / 10) * 10}+`;
+    if (count <= 999) return `${Math.floor(count / 100) * 100}+`;
+    if (count <= 4999) return `${Math.floor(count / 250) * 250}+`;
+    if (count <= 9999) return `${Math.floor(count / 500) * 500}+`;
+    return "10k+";
+}
+
+function ActivityLauncher({ activity, onNavigate }: { activity: LogEntry[]; onNavigate: (tab: Tab) => void }) {
+    const [open, setOpen] = useState(false);
+    const [seenCount, setSeenCount] = useState(0);
+    const closeTimer = useRef<number | null>(null);
+    const markSeenTimer = useRef<number | null>(null);
+
+    const cancelClose = () => {
+        if (closeTimer.current !== null) {
+            window.clearTimeout(closeTimer.current);
+            closeTimer.current = null;
+        }
+    };
+
+    const scheduleClose = () => {
+        cancelClose();
+        closeTimer.current = window.setTimeout(() => {
+            setOpen(false);
+            closeTimer.current = null;
+        }, 500);
+    };
+
+    useEffect(() => () => {
+        cancelClose();
+        if (markSeenTimer.current !== null) {
+            window.clearTimeout(markSeenTimer.current);
+            markSeenTimer.current = null;
+        }
+    }, []);
+
+    useEffect(() => {
+        if (markSeenTimer.current !== null) {
+            window.clearTimeout(markSeenTimer.current);
+            markSeenTimer.current = null;
+        }
+        if (open) {
+            markSeenTimer.current = window.setTimeout(() => {
+                setSeenCount(activity.length);
+                markSeenTimer.current = null;
+            }, 2000);
+        }
+    }, [open, activity.length]);
+
+    const unseenCount = Math.max(0, activity.length - seenCount);
+    const countLabel = formatActivityCount(unseenCount);
+
+    return (
+        <div
+            className="fixed right-0 top-1/2 z-40 -translate-y-1/2"
+            onMouseEnter={() => { cancelClose(); setOpen(true); }}
+            onMouseLeave={scheduleClose}
+        >
+            <button
+                type="button"
+                className="relative flex h-48 w-7 items-center justify-center gap-1.5 rounded-l-[12px] bg-[#0F172A] px-1 py-3 text-white shadow-[0_18px_38px_rgba(15,23,42,0.28)] transition hover:bg-slate-800"
+                aria-label="Recent activity"
+                aria-expanded={open}
+            >
+                {open ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
+                <span className="whitespace-nowrap text-[11px] font-black uppercase tracking-[0.18em] [writing-mode:vertical-rl]">Recent activity</span>
+                {unseenCount > 0 && (
+                    <span className="absolute -left-1 -top-1 inline-flex min-h-[20px] min-w-[20px] items-center justify-center rounded-full bg-[#EF4444] px-1.5 text-[10px] font-black text-white ring-2 ring-white">
+                        {countLabel}
+                    </span>
+                )}
+            </button>
+
+            <div
+                className={cx(
+                    "absolute right-0 top-1/2 origin-right -translate-y-1/2 overflow-hidden rounded-l-[18px] border border-r-0 border-slate-100 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.18)] transition-all duration-200",
+                    open ? "pointer-events-auto w-[320px] max-w-[calc(100vw-2rem)] opacity-100" : "pointer-events-none w-0 opacity-0"
+                )}
+                aria-hidden={!open}
+            >
+                <div className="flex items-center justify-between gap-2 border-b border-slate-100 bg-white px-3.5 py-2.5">
+                    <div className="flex items-center gap-2">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#EEF0FF] text-[#5B4DFF]">
+                            <Activity className="h-4 w-4" />
+                        </span>
+                        <div>
+                            <p className="text-[11px] font-black uppercase tracking-[0.1em] text-slate-400">Recent activity</p>
+                            <p className="text-[12px] font-black text-[#0F172A]">{countLabel} events</p>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => onNavigate("inbox")}
+                        className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-[#5B4DFF] ring-1 ring-slate-100 transition hover:bg-slate-100"
+                    >
+                        View inbox
+                    </button>
+                </div>
+                <div className="max-h-[360px] overflow-y-auto px-2 py-2">
+                    {activity.length ? (
+                        <ul className="space-y-1.5">
+                            {activity.map((item) => (
+                                <li key={item.id}>
+                                    <button
+                                        type="button"
+                                        onClick={() => onNavigate("inbox")}
+                                        className="flex w-full items-start gap-2.5 rounded-[12px] border border-transparent bg-white px-2.5 py-2 text-left transition hover:border-slate-100 hover:bg-slate-50"
+                                    >
+                                        <span className={cx("flex h-7 w-7 shrink-0 items-center justify-center rounded-full", item.status === "sent" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600")}>
+                                            {item.status === "sent" ? <Send className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}
+                                        </span>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="truncate text-[12px] font-black text-[#0F172A]">{item.status === "sent" ? "DM sent" : "Failed DM"} to {item.user}</p>
+                                            <p className="truncate text-[11px] font-semibold text-slate-500">Trigger: <span className="font-black text-slate-700">{item.trigger || item.keyword}</span></p>
+                                        </div>
+                                        <span className="shrink-0 text-[10px] font-bold text-slate-400">{item.time}</span>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <div className="px-3 py-6 text-center">
+                            <Activity className="mx-auto h-5 w-5 text-slate-300" />
+                            <p className="mt-2 text-[12px] font-bold text-slate-500">No recent activity yet.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
     );
 }
 
@@ -2141,10 +2575,13 @@ function UpgradeModal({ proOffer, onClose, onUpgrade }: { proOffer: ProOfferData
                 </div>
                 <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
                     <SecondaryButton onClick={onClose}>Maybe later</SecondaryButton>
-                    <PrimaryButton onClick={onUpgrade}>
-                        <Crown className="h-4 w-4" />
+                    <button
+                        onClick={onUpgrade}
+                        className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-[0.9rem] px-5 text-sm font-black", goldCtaCls)}
+                    >
+                        <Crown className={cx("h-4 w-4", goldCrownCls)} />
                         {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
-                    </PrimaryButton>
+                    </button>
                 </div>
             </div>
         </ModalShell>
@@ -2154,19 +2591,19 @@ function UpgradeModal({ proOffer, onClose, onUpgrade }: { proOffer: ProOfferData
 function AutomationMiniUpgradeStrip({ onUpgrade, proOffer }: { onUpgrade: () => void; proOffer: ProOfferData }) {
     const isPaymentPending = proOffer.reason.toLowerCase().includes("payment pending");
     return (
-        <section className="rounded-[18px] border border-indigo-200/60 bg-gradient-to-r from-[#EEF0FF] via-white to-[#F8EEFF] p-3.5 shadow-[0_12px_32px_rgba(91,77,255,0.07)]">
+        <section className="rounded-[18px] border border-[#E8C56C]/70 bg-gradient-to-r from-[#FFFDF6] via-[#FFF7DA] to-[#FFFDF6] p-3.5 shadow-[0_12px_32px_rgba(120,83,20,0.07)]">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem] bg-white text-[#5B4DFF] shadow-sm ring-1 ring-indigo-100">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem] bg-white text-[#8A5D17] shadow-sm ring-1 ring-[#E8C56C]/50">
                         <Sparkles className="h-5 w-5" />
                     </span>
                     <div>
                         <h2 className="text-sm font-black text-[#0F172A]">Unlock Pro Power</h2>
-                        <p className="text-xs font-semibold text-[#64748B]">{isPaymentPending ? "Payment pending. Complete payment to unlock Pro." : proOffer.eligible ? `First month only. Then ₹${proOffer.renewalMonthlyPriceInr}/month.` : "Get 20,000 DMs, exports, and advanced analytics."}</p>
+                        <p className="text-xs font-semibold text-[#8A5D17]">{isPaymentPending ? "Payment pending. Complete payment to unlock Pro." : proOffer.eligible ? `First month only. Then ₹${proOffer.renewalMonthlyPriceInr}/month.` : "Get 20,000 DMs, exports, and advanced analytics."}</p>
                     </div>
                 </div>
-                <button onClick={onUpgrade} className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white shadow-[0_10px_22px_rgba(91,77,255,0.18)] transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
-                    <Crown className="h-3.5 w-3.5" />
+                <button onClick={onUpgrade} className={cx("inline-flex h-9 items-center justify-center gap-2 rounded-full px-4 text-xs font-black", goldCtaCls)}>
+                    <Crown className={cx("h-3.5 w-3.5", goldCrownCls)} />
                     {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
                 </button>
             </div>
