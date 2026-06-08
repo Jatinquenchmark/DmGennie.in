@@ -1,97 +1,110 @@
-# Welcome to your Lovable project
+# DMGennie - Instagram Automation & Lead Generation Dashboard
 
-## Project info
+DMGennie is a powerful, creator-focused Instagram automation workspace designed to capture leads, automate direct messages (DMs) from comment keywords, and monitor account performance metrics. 
 
-**URL**: https://lovable.dev/projects/1169db3a-30f3-49bc-bd0b-9cda42ae0ebe
+---
 
-## How can I edit this code?
+## 🚀 Key Features
 
-There are several ways of editing your application.
+### 1. Navigation & Workspace Layout
+* **Left Sidebar**: Positioned flush against the left viewport edge for maximum workspace utilization.
+* **Sidebar Plan & Usage**: Displays a collapsible plan & usage progress card (minimized by default for Starter plan users).
+* **Permanent Pro Upgrade CTA**: Prominently features a golden Pro upgrade button right below plan usage (hidden once upgraded).
+* **Clean Routing**: Integrated tabs for seamless page transitions between Dashboard, Automations, Inbox, Contacts, Analytics, and Settings.
 
-**Use Lovable**
+### 2. Homepage Welcome Experience
+* **Welcome Hero**: A clean dashboard hero card personalizing the experience for the user.
+* **Pro Features Showcase**: Dynamically replaces the "Upgrade to Pro" card for Pro members with active navigation links to Pro-only capabilities (Analytics, Contacts, Automations).
+* **Horizontal Start Here Checklist**: Positioned below the main description, tracking onboarding milestones (Instagram connection, first automation, test send, first lead). Automatically hides once all 4 onboarding steps are completed.
+* **Quick Actions**: Prominent cards facilitating fast creation of "Auto DM from Comments", "Grow Followers", "Generate Leads", and "Story Automation".
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/1169db3a-30f3-49bc-bd0b-9cda42ae0ebe) and start prompting.
+### 3. Floating Recent Activity Overlay
+* **Interactive Activity Launcher**: A thin, vertically-centered pill floating on the right viewport edge.
+* **Hover-to-Expand**: Automatically slides out an activity log overlay on hover and collapses 500ms after the pointer leaves the container.
+* **Actionable Entries**: Log entries link directly to the user's Inbox for immediate response.
+* **Instagram-Style Notification Badge**: Displays a red notification bubble representing unseen events, with custom threshold-rounding logic:
+  * **Under 10**: Exact count (e.g. `5`)
+  * **10 - 99**: Rounded down to nearest 10 (e.g., `10+`, `20+`)
+  * **100 - 999**: Rounded down to nearest 100 (e.g., `100+`, `200+`)
+  * **1,000 - 4,999**: Rounded down to nearest 250 (e.g., `1000+`, `1250+`)
+  * **5,000 - 9,999**: Rounded down to nearest 500 (e.g., `5000+`, `5500+`)
+  * **10,000+**: Displayed as `10k+`
+* **Auto-Clear**: Clears the badge notification bubble after the panel remains open for 2 seconds.
 
-Changes made via Lovable will be committed automatically to this repo.
+### 4. Performance Snapshot (Metric Grid)
+* **Unified Metrics Layout**: A full-width continuous grid at the bottom of the page separating metrics (DMs Sent, Leads Collected, Followers, Failed Messages) with neat borders.
+* **Time Range Selector**: Dropdown selector supporting `7 days`, `1 month`, `3 months`, `6 months`, `1 year`, `5 years`, and `All time`.
+  * **Smart Account-Age Gating**: Options exceeding the user's account age (tracked via `session.user.created_at`) are automatically disabled and grayed out.
+* **Activity Hover Overlays**: Hovering over any metric card launches a smooth upward-expanding overlay containing the 5 most recent activities of that type.
 
-**Use your preferred IDE**
+### 5. Premium Gold Theme Accent
+* All premium triggers, Pro badge layouts, checkout modal cards, and upgrade actions share a consistent golden gradient style (`goldCtaCls` / `goldCrownCls`) coupled with amber borders and backgrounds to highlight subscription value.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🛠️ Technology Stack
 
-Follow these steps:
+* **Frontend**: React, TypeScript, Vite, Tailwind CSS, shadcn-ui, Framer Motion, Lucide icons.
+* **Backend**: Node.js, Express.
+* **Database & Authentication**: Supabase (PostgreSQL database, Auth, & Service Role API).
+* **Payment Gateway**: Razorpay (Subscriptions, Coupons, & Webhooks).
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 💻 Local Development Setup
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Prerequisites
+* Ensure you have Node.js and npm installed.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+### Installation Steps
 
-**Edit a file directly in GitHub**
+1. Clone the repository and navigate into it:
+   ```bash
+   git clone <YOUR_GIT_URL>
+   cd DmGennie
+   ```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+2. Install the project dependencies:
+   ```bash
+   npm install
+   ```
 
-**Use GitHub Codespaces**
+3. Create a `.env.local` or `.env` file in the root directory and specify your Supabase keys:
+   ```env
+   VITE_SUPABASE_URL=https://your-project.id.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key
+   ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+4. Start the frontend development server:
+   ```bash
+   npm run dev
+   ```
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## 🔑 Backend & Billing Configuration
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## Admin account setup
-
-DMGennie supports a backend-verified admin role. Admin passwords must live only in the server environment and must never be added to frontend code.
-
-1. Add server-side environment variables:
-
-```sh
+### 1. Admin Account Setup
+DMGennie supports a backend-verified admin role. Configure environment variables on the backend:
+```env
 SUPABASE_URL=https://your-project-id.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ADMIN_EMAIL=admin@dmgennie.in
 ADMIN_PASSWORD=your-strong-admin-password
 ```
 
-2. Run the Supabase migration in `supabase/migrations/20260528000000_admin_roles.sql` to create `public.user_roles`.
-
-3. Seed or update the admin account:
-
-```sh
+Apply the admin roles migration in `supabase/migrations/20260528000000_admin_roles.sql` to create `public.user_roles`, and seed/update the admin user:
+```bash
 npm run seed:admin
 ```
 
-4. Start the app and sign in from `/signup` using the admin email/password. Admins are redirected to `/admin`; normal users continue to `/dashboard`.
+Admins logging in from `/signup` or `/signin` are redirected to the admin panel (`/admin`), while normal users are routed directly to `/dashboard`.
 
-Admin API routes verify the authenticated user role on the backend before returning platform data. Normal users cannot access `/api/admin/*` data.
+### 2. Razorpay Pro Intro Offer Setup
+DMGennie supports a ₹1 first-month introductory offer, renewing at standard monthly prices thereafter.
 
-## Pro intro offer setup
-
-DMGennie supports a first-month Pro intro offer: ₹1 for the first month, then the normal Pro monthly price from server config.
-
-1. Add server-side billing variables:
-
-```sh
+Add backend variables:
+```env
 PRO_MONTHLY_PRICE_INR=499
 PRO_ANNUAL_MONTHLY_PRICE_INR=399
 PRO_INTRO_FIRST_MONTH_INR=1
@@ -102,20 +115,4 @@ RAZORPAY_PRO_INTRO_OFFER_ID=offer_xxxxx
 RAZORPAY_WEBHOOK_SECRET=your-razorpay-webhook-secret
 ```
 
-2. Run `supabase/migrations/20260528010000_pro_intro_offer.sql` so each user can be marked as having used the intro offer.
-
-3. Configure the Razorpay monthly Pro plan to renew at `PRO_MONTHLY_PRICE_INR`, and configure the Razorpay offer/coupon so only the first month is ₹1.
-
-4. Point Razorpay webhooks to `/api/billing/webhook`. The webhook marks `has_used_pro_intro_offer=true` only after a successful subscription charge/payment event, so users cannot reuse the ₹1 offer repeatedly.
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/1169db3a-30f3-49bc-bd0b-9cda42ae0ebe) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Apply the migration in `supabase/migrations/20260528010000_pro_intro_offer.sql` to track if users have redeemed the intro offer. Point Razorpay webhooks to `/api/billing/webhook` to record `has_used_pro_intro_offer=true` on successful payment.
