@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -7714,49 +7715,438 @@ function SettingsPage(props: {
 }
 
 function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openFaq: number; onQuery: (value: string) => void; onOpenFaq: (index: number) => void }) {
+    const [captchaStatus, setCaptchaStatus] = useState<'idle' | 'loading' | 'checked'>('idle');
+    const [showAllFaqs, setShowAllFaqs] = useState(false);
+    const [formData, setFormData] = useState({
+        topic: '',
+        message: '',
+        userType: [] as string[],
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: ''
+    });
+    const [errors, setErrors] = useState<string[]>([]);
+    const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [showErrorAlert, setShowErrorAlert] = useState(false);
+    
+    const handleCaptcha = () => {
+        if (captchaStatus !== 'idle') return;
+        setCaptchaStatus('loading');
+        setTimeout(() => setCaptchaStatus('checked'), 1200);
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+        setErrors(prev => prev.filter(err => !err.includes(name)));
+    };
+
+    const handleCheckboxChange = (option: string) => {
+        setFormData(prev => ({
+            ...prev,
+            userType: prev.userType.includes(option)
+                ? prev.userType.filter(item => item !== option)
+                : [...prev.userType, option]
+        }));
+        setErrors(prev => prev.filter(err => !err.includes('userType')));
+    };
+
+    const handleCancel = () => {
+        setFormData({
+            topic: '',
+            message: '',
+            userType: [],
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: ''
+        });
+        setCaptchaStatus('idle');
+        setErrors([]);
+        setShowErrorAlert(false);
+    };
+
+    const validateForm = () => {
+        const newErrors: string[] = [];
+
+        if (!formData.topic.trim()) {
+            newErrors.push('topic');
+        }
+        if (!formData.message.trim()) {
+            newErrors.push('message');
+        }
+        if (formData.userType.length === 0) {
+            newErrors.push('userType');
+        }
+        if (!formData.firstName.trim()) {
+            newErrors.push('firstName');
+        }
+        if (!formData.lastName.trim()) {
+            newErrors.push('lastName');
+        }
+        if (!formData.email.trim()) {
+            newErrors.push('email');
+        }
+        if (!formData.phone.trim()) {
+            newErrors.push('phone');
+        }
+        if (captchaStatus !== 'checked') {
+            newErrors.push('captcha');
+        }
+
+        setErrors(newErrors);
+        if (newErrors.length > 0) {
+            setShowErrorAlert(true);
+            setTimeout(() => setShowErrorAlert(false), 5000);
+        }
+        return newErrors.length === 0;
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!validateForm()) {
+            return;
+        }
+
+        setSubmitSuccess(true);
+        
+        setTimeout(() => {
+            setFormData({
+                topic: '',
+                message: '',
+                userType: [],
+                firstName: '',
+                lastName: '',
+                email: '',
+                phone: ''
+            });
+            setCaptchaStatus('idle');
+            setSubmitSuccess(false);
+        }, 3000);
+    };
+
     const faqs = [
-        ["How do I connect Instagram?", "Go to Settings, choose Instagram, and connect your professional Instagram account through Meta OAuth."],
-        ["Can I send links automatically?", "Yes. Create an automation with a comment keyword and add the link in your automated DM."],
-        ["Do you store Instagram passwords?", "No. DMGennie uses OAuth and official Meta APIs, so your password is never stored."],
-        ["Why did a DM fail?", "Some users have closed DMs. Use a fallback public reply to ask them to open DMs or follow first."],
-    ].filter((faq) => faq.join(" ").toLowerCase().includes(query.toLowerCase()));
+        ["How do I connect Instagram?", "Go to Settings and connect via Meta OAuth."],
+        ["Can I send links automatically?", "Yes, use comment triggers for instant DMs."],
+        ["Is my data secure?", "Yes, we use official Meta APIs only."],
+        ["How do I upgrade my plan?", "Visit the Billing section in Settings."],
+        ["Can I use multiple accounts?", "Pro users can connect multiple accounts."],
+        ["Why did a DM fail?", "Usually due to privacy or closed DMs."],
+    ];
+
+    const systemFont = {
+        fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, sans-serif'
+    };
+
+    const sectionLabel = "block text-[16px] font-[900] uppercase tracking-tighter text-slate-950 mb-4 ml-1";
 
     return (
-        <PageShell title="Help" subtitle="Find answers, setup guidance, and support options.">
-            <Panel>
-                <SearchBox value={query} onChange={onQuery} placeholder="Search help articles..." />
-            </Panel>
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(300px,340px)]">
-                <Panel title="Frequently asked questions">
-                    <div className="space-y-3">
-                        {faqs.map(([question, answer], index) => (
-                            <button key={question} onClick={() => onOpenFaq(openFaq === index ? -1 : index)} className="w-full rounded-2xl border border-slate-100 bg-white p-4 text-left transition hover:bg-slate-50">
-                                <span className="flex items-center justify-between gap-3">
-                                    <span className="font-black text-slate-950">{question}</span>
-                                    <ChevronDown className={cx("h-4 w-4 text-slate-400 transition", openFaq === index && "rotate-180")} />
-                                </span>
-                                {openFaq === index && <span className="mt-3 block text-sm font-medium leading-6 text-slate-500">{answer}</span>}
-                            </button>
-                        ))}
-                    </div>
-                </Panel>
-                <Panel title="Still need help?">
-                    <div className="rounded-3xl bg-indigo-50 p-5 text-center">
-                        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-indigo-600"><LifeBuoy className="h-6 w-6" /></span>
-                        <h3 className="mt-4 font-black">Talk to support</h3>
-                        <p className="mt-2 text-sm font-medium leading-6 text-slate-500">Get help setting up automations or connecting Instagram.</p>
-                        <div className="mt-5 grid gap-2">
-                            <a href="mailto:support@dmgennie.in" className="inline-flex items-center justify-center gap-2 rounded-[1rem] border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50">
-                                <Mail className="h-4 w-4" /> support@dmgennie.in
-                            </a>
-                            <a href="https://wa.me/?text=Hi%20DMGennie%20support%2C%20I%20need%20help%20with%20my%20dashboard." target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-[1rem] bg-[#5B4DFF] px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
-                                <MessageCircle className="h-4 w-4" /> WhatsApp support
-                            </a>
+        <div style={systemFont} className="w-full max-w-[1500px] mx-auto">
+            <PageShell title="Help & Support" subtitle="Get in touch with the DMGennie team.">
+                {/* ERROR ALERT - PROFESSIONAL DESIGN */}
+                {showErrorAlert && (
+                    <div className="fixed top-6 right-6 z-[100] animate-in slide-in-from-top-2 fade-in duration-300">
+                        <div className="bg-white rounded-2xl border-2 border-red-200 shadow-xl shadow-red-500/10 p-5 max-w-sm">
+                            <div className="flex items-start gap-4">
+                                <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                                    <AlertCircle className="h-5 w-5 text-red-600" />
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="text-sm font-black text-slate-950 mb-1">Please Complete All Fields</h4>
+                                    <p className="text-xs font-medium text-slate-500">Make sure all required fields are filled in before submitting.</p>
+                                </div>
+                                <button 
+                                    onClick={() => setShowErrorAlert(false)}
+                                    className="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0"
+                                >
+                                    <X className="h-5 w-5" />
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </Panel>
-            </div>
-        </PageShell>
+                )}
+
+                {/* SUCCESS MODAL - PROFESSIONAL DESIGN */}
+                {submitSuccess && (
+                    <div className="fixed inset-0 flex items-center justify-center z-[100] bg-black/20 backdrop-blur-sm">
+                        <div className="bg-white rounded-3xl p-10 shadow-2xl animate-in fade-in zoom-in duration-300 max-w-sm">
+                            <div className="flex flex-col items-center gap-5">
+                                <div className="h-20 w-20 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center">
+                                    <Check className="h-10 w-10 text-emerald-600" />
+                                </div>
+                                <div className="text-center">
+                                    <h3 className="text-2xl font-black text-slate-950 mb-2">Message Sent!</h3>
+                                    <p className="text-sm font-medium text-slate-500">Your message has been submitted successfully. We'll get back to you soon!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="mt-4 grid gap-8 lg:grid-cols-[1fr_360px] items-stretch w-full min-h-[600px]">
+                    
+                    {/* LEFT SIDE: STRETCHED & VALIDATED CONTACT FORM */}
+                    <div className="rounded-[2.5rem] border border-slate-100 bg-white p-10 shadow-[0_15px_50px_rgba(0,0,0,0.02)] flex flex-col justify-between w-full">
+                        <div className="w-full">
+                            <div className="flex items-center justify-between mb-10">
+                                <div>
+                                    <h2 className="text-4xl font-[900] uppercase tracking-tighter text-slate-950">Contact Us</h2>
+                                    <p className="mt-1 text-base font-medium text-slate-400">We'd love to hear from you.</p>
+                                </div>
+                                <a href="tel:+910000000000" className="flex items-center gap-2 rounded-full border-2 border-slate-950 px-8 py-2.5 text-xs font-black uppercase tracking-widest hover:bg-slate-950 hover:text-white transition-all">
+                                    <Headphones className="h-4 w-4" /> Call Us
+                                </a>
+                            </div>
+
+                            <div className="grid grid-cols-1 xl:grid-cols-2 gap-x-16 gap-y-8 w-full">
+                                {/* Column 1: Topic & Message */}
+                                <div className="space-y-8">
+                                    <div>
+                                        <label className={sectionLabel}>Select a Topic</label>
+                                        <div className={`relative border-b-2 pb-2 focus-within:border-indigo-600 transition-all duration-200 ${errors.includes('topic') ? 'border-red-500 border-b-2' : 'border-slate-950'}`}>
+                                            <select 
+                                                name="topic"
+                                                value={formData.topic}
+                                                onChange={handleInputChange}
+                                                required 
+                                                className="w-full bg-transparent text-sm font-medium text-slate-600 outline-none appearance-none cursor-pointer"
+                                            >
+                                                <option value="">Choose a topic...</option>
+                                                <option value="general">General Question</option>
+                                                <option value="tech">Technical Issue</option>
+                                                <option value="billing">Billing & Subscription</option>
+                                                <option value="partner">Partnership Inquiry</option>
+                                            </select>
+                                            <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-5 w-5 pointer-events-none text-slate-400" />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className={sectionLabel}>Your Message</label>
+                                        <div className={`rounded-2xl border-2 p-4 focus-within:border-indigo-600 focus-within:bg-white transition-all duration-200 ${errors.includes('message') ? 'border-red-300 bg-red-50/30' : 'border-slate-100 bg-slate-50/30 focus-within:border-slate-950'}`}>
+                                            <textarea 
+                                                name="message"
+                                                value={formData.message}
+                                                onChange={handleInputChange}
+                                                required
+                                                placeholder="How can we help you today?" 
+                                                className="w-full h-32 bg-transparent outline-none resize-none text-sm font-medium text-slate-600 placeholder:text-slate-300"
+                                            ></textarea>
+                                        </div>
+                                    </div>
+
+                                    {/* FIXED RECAPTCHA - CLICK ANYWHERE ON THIS BOX */}
+                                    <div 
+                                        onClick={handleCaptcha}
+                                        className={`flex items-center justify-between gap-4 rounded border-2 p-3 w-[300px] shadow-sm select-none cursor-pointer transition-all duration-200 ${errors.includes('captcha') ? 'border-red-300 bg-red-50' : 'border-[#d3d3d3] bg-[#f9f9f9] hover:bg-[#f5f5f5]'}`}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-7 w-7 rounded-[2px] border-2 border-[#c1c1c1] bg-white transition-all flex items-center justify-center overflow-hidden">
+                                                {captchaStatus === 'loading' && <RefreshCw className="h-5 w-5 text-indigo-600 animate-spin" />}
+                                                {captchaStatus === 'checked' && <Check className="h-6 w-6 text-emerald-600 stroke-[4px]" />}
+                                            </div>
+                                            <span className="text-[14px] font-normal text-[#222]">I'm not a robot</span>
+                                        </div>
+                                        <div className="flex flex-col items-center opacity-80">
+                                            <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="recaptcha" className="h-8 w-8" />
+                                            <span className="text-[8px] text-[#555] mt-0.5 font-medium">reCAPTCHA</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Column 2: Checkboxes & Contact Info */}
+                                <div className="space-y-10">
+                                    <div>
+                                        <label className={sectionLabel}>Let us know you better</label>
+                                        <div className="grid grid-cols-2 gap-y-5 gap-x-8">
+                                            {["Creator", "Partner", "Media", "Other"].map((option  ) => (
+                                                <label key={option} className="flex items-center gap-3 cursor-pointer group">
+                                                    <div className={`relative flex h-5 w-5 items-center justify-center rounded-md border-2 bg-white transition-all duration-200 group-hover:border-indigo-500 ${errors.includes('userType') ? 'border-red-400' : 'border-slate-300'}`}>
+                                                        <input 
+                                                            type="checkbox" 
+                                                            checked={formData.userType.includes(option)}
+                                                            onChange={() => handleCheckboxChange(option)}
+                                                            className="peer absolute h-full w-full opacity-0 cursor-pointer" 
+                                                        />
+                                                        <div className="h-2.5 w-2.5 rounded-sm bg-indigo-600 opacity-0 peer-checked:opacity-100 transition-all scale-50 peer-checked:scale-100 shadow-sm"></div>
+                                                    </div>
+                                                    <span className="text-sm font-bold text-slate-500 group-hover:text-slate-950 transition-colors">{option}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <label className={sectionLabel}>Contact Info</label>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <input 
+                                                    name="firstName"
+                                                    value={formData.firstName}
+                                                    onChange={handleInputChange}
+                                                    required 
+                                                    type="text" 
+                                                    placeholder="First Name" 
+                                                    className={`w-full rounded-xl border-2 bg-slate-50/30 p-3.5 text-sm font-medium text-slate-600 outline-none focus:bg-white transition-all duration-200 ${errors.includes('firstName') ? 'border-red-300 focus:border-red-400' : 'border-slate-100 focus:border-slate-950'}`} 
+                                                />
+                                            </div>
+                                            <div>
+                                                <input 
+                                                    name="lastName"
+                                                    value={formData.lastName}
+                                                    onChange={handleInputChange}
+                                                    required 
+                                                    type="text" 
+                                                    placeholder="Last Name" 
+                                                    className={`w-full rounded-xl border-2 bg-slate-50/30 p-3.5 text-sm font-medium text-slate-600 outline-none focus:bg-white transition-all duration-200 ${errors.includes('lastName') ? 'border-red-300 focus:border-red-400' : 'border-slate-100 focus:border-slate-950'}`} 
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <input 
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleInputChange}
+                                                required 
+                                                type="email" 
+                                                placeholder="Email Address" 
+                                                className={`w-full rounded-xl border-2 bg-slate-50/30 p-3.5 text-sm font-medium text-slate-600 outline-none focus:bg-white transition-all duration-200 ${errors.includes('email') ? 'border-red-300 focus:border-red-400' : 'border-slate-100 focus:border-slate-950'}`} 
+                                            />
+                                        </div>
+                                        <div>
+                                            <input 
+                                                name="phone"
+                                                value={formData.phone}
+                                                onChange={handleInputChange}
+                                                required 
+                                                type="tel" 
+                                                placeholder="Phone Number" 
+                                                className={`w-full rounded-xl border-2 bg-slate-50/30 p-3.5 text-sm font-medium text-slate-600 outline-none focus:bg-white transition-all duration-200 ${errors.includes('phone') ? 'border-red-300 focus:border-red-400' : 'border-slate-100 focus:border-slate-950'}`} 
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* BUTTONS: IMPRESSIVE & CLEAN */}
+                        <div className="flex items-center justify-end gap-6 mt-10 pt-8 border-t border-slate-50">
+                            <button 
+                                type="button" 
+                                onClick={handleCancel}
+                                className="px-12 py-4 rounded-2xl bg-slate-50 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-95"
+                            >
+                                Cancel
+                            </button>
+                            <button type="submit" className="px-28 py-5 rounded-2xl bg-[#5B4DFF] text-white font-black uppercase tracking-widest text-[11px] shadow-xl shadow-indigo-500/20 hover:translate-y-[-2px] hover:brightness-105 transition-all active:scale-95 flex items-center gap-3">
+                                Submit Message
+                                <Send className="h-5 w-5 opacity-80" />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* RIGHT SIDE: FAQ (HALF) + SUPPORT JOURNEY (HALF) */}
+                    <div className="flex flex-col gap-6 h-full relative">
+                        {/* FAQ SECTION - HALF HEIGHT */}
+                        <div className={`rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.01)] flex-1 flex flex-col transition-all duration-300 ${showAllFaqs ? 'blur-sm opacity-50 pointer-events-none' : ''}`}>
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-lg font-black text-slate-950 flex items-center gap-3">
+                                    <CircleHelp className="h-5 w-5 text-[#5B4DFF]" />
+                                    Quick FAQ
+                                </h3>
+                                <button 
+                                    type="button"
+                                    onClick={() => setShowAllFaqs(true)}
+                                    className="text-[12px] font-black uppercase tracking-widest text-[#5B4DFF] hover:text-[#4A3FD5] hover:bg-indigo-50 px-4 py-2 rounded-full transition-all"
+                                >
+                                    See More
+                                </button>
+                            </div>
+                            <div className="space-y-6 flex-1 overflow-y-auto">
+                                {faqs.slice(0, 2).map(([question, answer], index) => (
+                                    <div key={index} className="group cursor-default pb-4 border-b border-slate-100 last:border-0">
+                                        <h4 className="text-[14px] font-black text-slate-950 mb-1.5 group-hover:text-[#5B4DFF] transition-colors leading-tight">{question}</h4>
+                                        <p className="text-[12px] font-bold leading-relaxed text-slate-400 group-hover:text-slate-600 transition-colors">{answer}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* SUPPORT JOURNEY SECTION - HALF HEIGHT */}
+                        <div className={`rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.01)] flex-1 flex flex-col justify-between transition-all duration-300 ${showAllFaqs ? 'blur-sm opacity-50 pointer-events-none' : ''}`}>
+                            <div>
+                                <h3 className="text-lg font-black text-slate-950 mb-8 flex items-center gap-3 text-center justify-center">
+                                    <span className="text-[#5B4DFF]">Support Journey</span>
+                                </h3>
+                                <div className="flex flex-col items-center gap-6 relative flex-1 justify-center">
+                                    <div className="absolute top-0 bottom-0 w-[2px] bg-gradient-to-b from-indigo-200 via-indigo-300 to-indigo-200"></div>
+                                    
+                                    <div className="relative z-10 flex flex-col items-center text-center">
+                                        <div className="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center border-2 border-indigo-200 text-indigo-600 shadow-lg shadow-indigo-200/50">
+                                            <Send className="h-3.5 w-3.5" />
+                                        </div>
+                                        <p className="mt-2 text-[11px] font-black uppercase text-slate-950">Sent</p>
+                                    </div>
+                                    
+                                    <div className="relative z-10 flex flex-col items-center text-center">
+                                        <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center border-2 border-amber-200 text-amber-600 shadow-lg shadow-amber-200/50 animate-pulse">
+                                            <RefreshCw className="h-3.5 w-3.5" />
+                                        </div>
+                                        <p className="mt-2 text-[11px] font-black uppercase text-slate-950">Review</p>
+                                    </div>
+                                    
+                                    <div className="relative z-10 flex flex-col items-center text-center">
+                                        <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center border-2 border-emerald-200 text-emerald-600 shadow-lg shadow-emerald-200/50">
+                                            <Check className="h-3.5 w-3.5" />
+                                        </div>
+                                        <p className="mt-2 text-[11px] font-black uppercase text-slate-950">Solved</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div className="mt-6 pt-6 border-t border-slate-100 flex justify-center gap-6">
+                                <Mail className="h-5 w-5 text-slate-300 hover:text-[#5B4DFF] cursor-pointer transition-all hover:scale-125" />
+                                <MessageCircle className="h-5 w-5 text-slate-300 hover:text-[#5B4DFF] cursor-pointer transition-all hover:scale-125" />
+                                <Instagram className="h-5 w-5 text-slate-300 hover:text-[#5B4DFF] cursor-pointer transition-all hover:scale-125" />
+                            </div>
+                        </div>
+
+                        {/* ALL FAQs MODAL OVERLAY */}
+                        {showAllFaqs && (
+                            <div className="absolute inset-0 rounded-[2.5rem] bg-white/95 backdrop-blur-md p-8 shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col z-50 animate-in fade-in duration-300">
+                                <div className="flex items-center justify-between mb-6">
+                                    <h3 className="text-lg font-black text-slate-950 flex items-center gap-3">
+                                        <CircleHelp className="h-5 w-5 text-[#5B4DFF]" />
+                                        All FAQs
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowAllFaqs(false)}
+                                        className="text-[12px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-950 px-4 py-2 rounded-full hover:bg-slate-100 transition-all"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
+                                <div className="space-y-6 overflow-y-auto flex-1 pr-2">
+                                    {faqs.map(([question, answer], index) => (
+                                        <div key={index} className="group cursor-default pb-4 border-b border-slate-100 last:border-0">
+                                            <h4 className="text-[14px] font-black text-slate-950 mb-1.5 group-hover:text-[#5B4DFF] transition-colors leading-tight">{question}</h4>
+                                            <p className="text-[12px] font-bold leading-relaxed text-slate-400 group-hover:text-slate-600 transition-colors">{answer}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                </form>
+            </PageShell>
+        </div>
     );
 }
 
