@@ -36,6 +36,7 @@ const compareLinks = [
 const legalLinks = [
   { label: 'Privacy Policy', href: '/privacy' },
   { label: 'Terms of Service', href: '/terms' },
+  { label: 'Refund Policy', href: '/refund-policy' },
   { label: 'Data Deletion', href: '/delete-data' },
 ]
 
@@ -189,6 +190,7 @@ export function Footer() {
           <div className="flex flex-wrap items-center justify-center gap-5">
             <Link to="/privacy" className="text-xs text-[#756b73] transition-colors hover:text-[#151119]">Privacy</Link>
             <Link to="/terms" className="text-xs text-[#756b73] transition-colors hover:text-[#151119]">Terms</Link>
+            <Link to="/refund-policy" className="text-xs text-[#756b73] transition-colors hover:text-[#151119]">Refunds</Link>
             <Link to="/delete-data" className="text-xs text-[#756b73] transition-colors hover:text-[#151119]">Delete Data</Link>
           </div>
         </div>

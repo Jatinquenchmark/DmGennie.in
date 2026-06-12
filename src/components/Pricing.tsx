@@ -8,6 +8,14 @@ import { useAuth } from '@/context/AuthContext'
 
 type PricingConfig = {
   currency: 'INR'
+  displayCurrencies?: Record<string, {
+    code: string
+    label: string
+    symbol: string
+    locale: string
+    rateFromInr: number
+    approximate?: boolean
+  }>
   plans: {
     pro: {
       monthlyPriceInr: number
@@ -35,6 +43,24 @@ type PricingConfig = {
 
 const defaultPricing: PricingConfig = {
   currency: 'INR',
+  displayCurrencies: {
+    INR: {
+      code: 'INR',
+      label: 'INR',
+      symbol: '₹',
+      locale: 'en-IN',
+      rateFromInr: 1,
+      approximate: false,
+    },
+    USD: {
+      code: 'USD',
+      label: 'USD',
+      symbol: '$',
+      locale: 'en-US',
+      rateFromInr: 0.012,
+      approximate: true,
+    },
+  },
   plans: {
     pro: {
       monthlyPriceInr: 499,
@@ -92,6 +118,7 @@ const plans = [
 
 export function Pricing() {
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly')
+  const [selectedCurrency, setSelectedCurrency] = useState('INR')
   const [pricing, setPricing] = useState<PricingConfig>(defaultPricing)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [notice, setNotice] = useState('')
@@ -118,6 +145,24 @@ export function Pricing() {
   const proMonthly = pricing.plans.pro.monthlyPriceInr
   const proAnnual = pricing.plans.pro.annualMonthlyPriceInr
   const introAmount = pricing.proIntroOffer.amountInr
+  const displayCurrencies = pricing.displayCurrencies || defaultPricing.displayCurrencies || {}
+  const currencyOptions = Object.values(displayCurrencies)
+  const activeCurrency = displayCurrencies[selectedCurrency] || displayCurrencies.INR || currencyOptions[0]
+  const formatMoney = (amountInr: number) => {
+    if (!activeCurrency) return `₹${amountInr.toLocaleString('en-IN')}`
+    const converted = amountInr * activeCurrency.rateFromInr
+    const maximumFractionDigits = activeCurrency.code === 'INR' ? 0 : 2
+    const minimumFractionDigits = activeCurrency.code === 'INR' ? 0 : converted > 0 && converted < 1 ? 2 : 0
+    return new Intl.NumberFormat(activeCurrency.locale || 'en-IN', {
+      style: 'currency',
+      currency: activeCurrency.code,
+      minimumFractionDigits,
+      maximumFractionDigits,
+    }).format(converted)
+  }
+  const introPriceLabel = formatMoney(introAmount)
+  const proMonthlyLabel = formatMoney(proMonthly)
+  const proAnnualLabel = formatMoney(proAnnual)
 
   const handlePlanCta = async (planName: string) => {
     setNotice('')
@@ -175,36 +220,61 @@ export function Pricing() {
           </p>
         </div>
 
-        <div className="mx-auto mb-16 flex w-fit items-center gap-4 rounded-2xl border border-white/80 bg-white/75 px-5 py-3 shadow-[0_16px_44px_rgba(109,41,72,0.10)] backdrop-blur">
-          <button
-            type="button"
-            onClick={() => setBilling('monthly')}
-            className={`text-base font-bold transition-colors ${billing === 'monthly' ? 'text-[#151119]' : 'text-[#7b727a]'}`}
-          >
-            Monthly
-          </button>
-          <button
-            type="button"
-            onClick={() => setBilling(billing === 'monthly' ? 'yearly' : 'monthly')}
-            className={`relative h-9 w-16 rounded-full border-2 p-1 transition-all ${
-              billing === 'yearly' ? 'border-[#6d2948] bg-[#6d2948]' : 'border-[#6d2948] bg-[#f3edf0]'
-            }`}
-            aria-label="Toggle annual pricing"
-          >
-            <span
-              className={`block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
-                billing === 'yearly' ? 'translate-x-7' : 'translate-x-0'
+        <div className="mx-auto mb-16 flex w-fit max-w-full flex-col items-center gap-3 rounded-2xl border border-white/80 bg-white/75 px-5 py-3 shadow-[0_16px_44px_rgba(109,41,72,0.10)] backdrop-blur sm:flex-row">
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setBilling('monthly')}
+              className={`text-base font-bold transition-colors ${billing === 'monthly' ? 'text-[#151119]' : 'text-[#7b727a]'}`}
+            >
+              Monthly
+            </button>
+            <button
+              type="button"
+              onClick={() => setBilling(billing === 'monthly' ? 'yearly' : 'monthly')}
+              className={`relative h-9 w-16 rounded-full border-2 p-1 transition-all ${
+                billing === 'yearly' ? 'border-[#6d2948] bg-[#6d2948]' : 'border-[#6d2948] bg-[#f3edf0]'
               }`}
-            />
-          </button>
-          <button
-            type="button"
-            onClick={() => setBilling('yearly')}
-            className={`text-base font-bold transition-colors ${billing === 'yearly' ? 'text-[#151119]' : 'text-[#7b727a]'}`}
-          >
-            Annual
-          </button>
-          <span className="rounded-lg bg-[#f4edf1] px-3 py-1 text-sm font-black text-[#6d2948]">20% Off</span>
+              aria-label="Toggle annual pricing"
+            >
+              <span
+                className={`block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+                  billing === 'yearly' ? 'translate-x-7' : 'translate-x-0'
+                }`}
+              />
+            </button>
+            <button
+              type="button"
+              onClick={() => setBilling('yearly')}
+              className={`text-base font-bold transition-colors ${billing === 'yearly' ? 'text-[#151119]' : 'text-[#7b727a]'}`}
+            >
+              Annual
+            </button>
+            <span className="rounded-lg bg-[#f4edf1] px-3 py-1 text-sm font-black text-[#6d2948]">20% Off</span>
+          </div>
+          <div className="h-px w-full bg-[#eadde2] sm:h-8 sm:w-px" />
+          <div className="flex flex-col items-center gap-1">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-black uppercase tracking-[0.14em] text-[#8a7b84]">Currency</span>
+              <div className="flex rounded-xl border border-[#eadde2] bg-white/70 p-1">
+                {currencyOptions.map((currency) => (
+                  <button
+                    key={currency.code}
+                    type="button"
+                    onClick={() => setSelectedCurrency(currency.code)}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-black transition ${
+                      selectedCurrency === currency.code ? 'bg-[#6d2948] text-white shadow-sm' : 'text-[#6a6168] hover:bg-[#f4edf1]'
+                    }`}
+                  >
+                    {currency.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {activeCurrency?.approximate && (
+              <span className="text-[11px] font-semibold text-[#8a7b84]">Approximate display. Checkout verifies live pricing.</span>
+            )}
+          </div>
         </div>
 
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-stretch gap-7 lg:grid-cols-3">
@@ -216,12 +286,12 @@ export function Pricing() {
               const showIntroOffer = isPro && billing === 'monthly' && !proActive && !paymentPending && (!session?.access_token || pricing.proIntroOffer.eligible)
               const price = isPro
                 ? proActive
-                  ? `₹${proMonthly}`
+                  ? proMonthlyLabel
                   : billing === 'monthly'
-                  ? showIntroOffer ? `₹${introAmount}` : `₹${proMonthly}`
-                  : `₹${proAnnual}`
+                  ? showIntroOffer ? introPriceLabel : proMonthlyLabel
+                  : proAnnualLabel
                 : plan.name === 'Free'
-                  ? '₹0'
+                  ? formatMoney(0)
                   : 'Custom'
               const helper = isPro
                 ? proActive
@@ -229,8 +299,8 @@ export function Pricing() {
                   : paymentPending
                     ? 'Payment pending. Complete payment to unlock Pro.'
                     : billing === 'monthly'
-                  ? showIntroOffer ? `Then ₹${proMonthly}/month after the first month.` : pricing.proIntroOffer.reason || `₹${proMonthly}/month.`
-                  : `Billed annually at the equivalent of ₹${proAnnual}/month.`
+                  ? showIntroOffer ? `Then ${proMonthlyLabel}/month after the first month.` : pricing.proIntroOffer.reason || `${proMonthlyLabel}/month.`
+                  : `Billed annually at the equivalent of ${proAnnualLabel}/month.`
                 : undefined
               const cta = isPro
                 ? proActive
@@ -238,7 +308,7 @@ export function Pricing() {
                   : paymentPending
                     ? 'Complete payment'
                     : billing === 'monthly'
-                  ? showIntroOffer ? 'Start Pro for ₹1' : 'Upgrade to Pro'
+                  ? showIntroOffer ? `Start Pro for ${introPriceLabel}` : 'Upgrade to Pro'
                   : 'Get Pro'
                 : plan.name === 'Free'
                   ? 'Create a Free Account'
@@ -263,7 +333,7 @@ export function Pricing() {
 
               {plan.highlight && (
                 <div className="relative mx-auto mb-7 inline-flex items-center rounded-full border border-white/20 bg-white/14 px-5 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#f9dfb5] shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur">
-                  {proActive ? 'Pro active' : paymentPending ? 'Payment pending' : (!session?.access_token || pricing.proIntroOffer.eligible) ? 'Limited offer · ₹1 first month' : 'Most Popular'}
+                  {proActive ? 'Pro active' : paymentPending ? 'Payment pending' : (!session?.access_token || pricing.proIntroOffer.eligible) ? `Limited offer · ${introPriceLabel} first month` : 'Most Popular'}
                 </div>
               )}
               {!plan.highlight && <div className="mb-7 h-8" />}
@@ -287,7 +357,7 @@ export function Pricing() {
                 {showIntroOffer && (
                   <div className="mt-3 inline-flex flex-wrap justify-center gap-2">
                     <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-black text-[#f9dfb5] ring-1 ring-white/18">Limited offer</span>
-                    <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-black text-white ring-1 ring-white/18">₹1 first month</span>
+                    <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-black text-white ring-1 ring-white/18">{introPriceLabel} first month</span>
                   </div>
                 )}
                 {plan.highlight && billing === 'yearly' && (
@@ -314,7 +384,7 @@ export function Pricing() {
               )}
               {showIntroOffer && (
                 <p className="relative mt-2 text-center text-xs font-semibold leading-5 text-white/62">
-                  {pricing.proIntroOffer.disclaimer}
+                  {`${introPriceLabel} for the first month. Renews at ${proMonthlyLabel}/month unless cancelled.`}
                 </p>
               )}
 

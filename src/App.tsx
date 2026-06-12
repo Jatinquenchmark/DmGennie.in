@@ -16,6 +16,7 @@ import Dashboard from './pages/Dashboard'
 import AdminDashboard from './pages/AdminDashboard'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
+import RefundPolicy from './pages/RefundPolicy'
 import DeleteData from './pages/DeleteData'
 import ReviewerDemo from './pages/ReviewerDemo'
 import Compare from './pages/Compare'
@@ -91,6 +92,7 @@ export default function App() {
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/refund-policy" element={<RefundPolicy />} />
           <Route path="/delete-data" element={<DeleteData />} />
           <Route path="/reviewer-demo" element={<ReviewerDemo />} />
           <Route path="/compare/:slug" element={<Compare />} />

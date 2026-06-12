@@ -75,6 +75,24 @@ export function getBillingConfig() {
 
     return {
         currency: 'INR',
+        displayCurrencies: {
+            INR: {
+                code: 'INR',
+                label: 'INR',
+                symbol: '₹',
+                locale: 'en-IN',
+                rateFromInr: 1,
+                approximate: false,
+            },
+            USD: {
+                code: 'USD',
+                label: 'USD',
+                symbol: '$',
+                locale: 'en-US',
+                rateFromInr: Number(process.env.USD_RATE_FROM_INR || process.env.VITE_USD_RATE_FROM_INR || 0.012),
+                approximate: true,
+            },
+        },
         plans: {
             free: {
                 id: 'starter',
