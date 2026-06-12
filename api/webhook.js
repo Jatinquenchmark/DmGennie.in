@@ -1,12 +1,10 @@
+import crypto from 'crypto';
 import axios from 'axios';
 import { createClient } from '@supabase/supabase-js';
-import { getPlanLimitsForState, getSubscriptionState } from '../server/billingConfig.js';
 
 const API_VERSION = 'v25.0';
-const SUCCESS_STATUSES = ['sent', 'success', 'delivered'];
 
 export const config = {
-    // Keep the request stream untouched so Meta signature validation uses the exact bytes sent.
     api: { bodyParser: false }
 };
 
@@ -19,11 +17,12 @@ function getSupabase() {
 }
 
 async function getRawBody(req) {
-    const chunks = [];
-    for await (const chunk of req) {
-        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-    }
-    return Buffer.concat(chunks);
+    return new Promise((resolve, reject) => {
+        const chunks = [];
+        req.on('data', chunk => chunks.push(chunk));
+        req.on('end', () => resolve(Buffer.concat(chunks)));
+        req.on('error', reject);
+    });
 }
 
 export default async function handler(req, res) {
@@ -32,55 +31,44 @@ export default async function handler(req, res) {
         const mode = req.query['hub.mode'];
         const token = req.query['hub.verify_token'];
         const challenge = req.query['hub.challenge'];
-        const verifyToken = process.env.WEBHOOK_VERIFY_TOKEN || 'dmgennie_verify_token_123';
+        const verifyToken = process.env.WEBHOOK_VERIFY_TOKEN || 'dmgenie_verify_token_123';
 
         if (mode === 'subscribe' && token === verifyToken) {
             return res.status(200).send(challenge);
         }
-        return res.status(403).json({ error: 'Forbidden' });
+        return res.status(403).json({ error: 'Forbidden', received: token });
     }
 
     if (req.method === 'POST') {
-        let rawBody;
-        try {
-            rawBody = await getRawBody(req);
-            console.log('[Webhook] First 50 bytes of raw body:', rawBody.toString('utf8').substring(0, 50));
-        } catch (error) {
-            console.error('[Webhook] Failed to read raw body:', error?.message || error);
-            return res.status(200).send('EVENT_RECEIVED');
-        }
+        const rawBody = await getRawBody(req);
+        const signature = req.headers['x-hub-signature-256'];
 
-        // TODO: Restore Meta signature validation here after DM delivery is confirmed.
         let body;
-        try { body = JSON.parse(rawBody.toString('utf8')); } catch { return res.status(200).send('EVENT_RECEIVED'); }
+        try { body = JSON.parse(rawBody.toString()); } catch { return res.status(400).end(); }
 
         console.log('[Webhook] object:', body.object);
-        console.log('[Webhook] Signature validation temporarily skipped:', Boolean(req.headers?.['x-hub-signature-256']));
 
         if (body.object === 'instagram') {
             const supabase = getSupabase();
             for (const entry of body.entry || []) {
                 console.log('[Webhook] entry.id:', entry.id);
                 const changes = entry.changes || [];
-                if (!changes.length && entry.field === 'comments' && entry.value) {
-                    await processComment(supabase, entry.value, entry.id);
-                    continue;
-                }
                 for (const change of changes) {
                     console.log('[Webhook] change.field:', change.field);
                     if (change.field === 'comments') {
-                        await processComment(supabase, change.value, entry.id);
+                        await processComment(supabase, change.value, entry.id, signature, rawBody);
                     }
                 }
             }
         }
 
+        // Send 200 AFTER processing is complete
         return res.status(200).send('EVENT_RECEIVED');
     }
     res.status(405).end();
 }
 
-async function processComment(supabase, commentValue, igAccountId) {
+async function processComment(supabase, commentValue, igAccountId, signature, rawBody) {
     console.log('[processComment] entry.id (igAccountId param):', igAccountId);
 
     // BUG FIX: entry.id in Meta webhooks is the commenter's user ID, NOT your business account ID.
@@ -104,17 +92,21 @@ async function processComment(supabase, commentValue, igAccountId) {
         console.log('[processComment] fallback rows (any connected):', settingsRows?.length ?? 0);
     }
     const settings = settingsRows[0];
-    if (!settings) {
-        console.warn('[processComment] No connected Instagram settings found');
-        return;
-    }
     console.log('[processComment] Using account:', settings.instagram_account_id);
+
+    // Signature check temporarily disabled
+    console.log('[processComment] Skipping signature check');
 
     if (!settings.bot_enabled) {
         console.log('[processComment] Bot is disabled');
         return;
     }
 
+    console.log('[commentValue] id:', commentValue.id);
+    console.log('[commentValue] comment_id:', commentValue.comment_id);
+    console.log('[commentValue] from.id:', commentValue.from?.id);
+    console.log('[commentValue] from.username:', commentValue.from?.username);
+    console.log('[commentValue] text:', commentValue.text);
     const commentId = commentValue.comment_id || commentValue.id;
     const commentText = (commentValue.text || '').toLowerCase();
     const username = commentValue.from?.username || 'unknown';
@@ -132,19 +124,6 @@ async function processComment(supabase, commentValue, igAccountId) {
         if (!commentText.includes(trigger.keyword.toLowerCase())) continue;
 
         console.log(`[processComment] ✅ Matched trigger "${trigger.keyword}"`);
-        const limitStatus = await getAutomationLimitStatus(supabase, settings);
-        if (limitStatus.blocked) {
-            await supabase.from('activity_log').insert({
-                user_id: settings.user_id,
-                username: `@${username}`,
-                keyword: trigger.keyword,
-                trigger_keyword: trigger.keyword,
-                status: limitStatus.reason,
-            });
-            console.warn(`[processComment] Blocked by plan limit: ${limitStatus.reason}`);
-            return;
-        }
-
         const dmSuccess = await sendPrivateReply(settings, commentId, trigger.reply_message);
 
         if (dmSuccess) {
@@ -183,38 +162,6 @@ async function processComment(supabase, commentValue, igAccountId) {
     }
 }
 
-async function getAutomationLimitStatus(supabase, settings) {
-    const subscription = getSubscriptionState(null, settings);
-    const limits = getPlanLimitsForState(subscription);
-    const startMonth = new Date();
-    startMonth.setUTCDate(1);
-    startMonth.setUTCHours(0, 0, 0, 0);
-
-    const { count: dmsThisMonth } = await supabase
-        .from('activity_log')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', settings.user_id)
-        .in('status', SUCCESS_STATUSES)
-        .gte('created_at', startMonth.toISOString());
-
-    if ((dmsThisMonth || 0) >= limits.dmLimit) {
-        return { blocked: true, reason: 'blocked_due_to_dm_limit' };
-    }
-
-    const { count: contactsThisMonth } = await supabase
-        .from('activity_log')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', settings.user_id)
-        .in('status', ['lead_captured', 'email_captured', 'captured'])
-        .gte('created_at', startMonth.toISOString());
-
-    if ((contactsThisMonth || 0) >= limits.contactLimit) {
-        return { blocked: true, reason: 'blocked_due_to_contact_limit' };
-    }
-
-    return { blocked: false };
-}
-
 async function sendPrivateReply(settings, commentId, message) {
     if (!settings.page_access_token || !settings.instagram_account_id) {
         console.warn('[sendPrivateReply] Missing token or account ID');
@@ -222,16 +169,11 @@ async function sendPrivateReply(settings, commentId, message) {
     }
     try {
         const res = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${commentId}/private_replies`,
-            { message },
-            { 
-                headers: { 
-                    'Authorization': `Bearer ${settings.page_access_token}`, 
-                    'Content-Type': 'application/json' 
-                } 
-            }
+            `https://graph.facebook.com/${API_VERSION}/${settings.instagram_account_id}/messages`,
+            { recipient: { comment_id: commentId }, message: { text: message } },
+            { headers: { 'Authorization': `Bearer ${settings.page_access_token}`, 'Content-Type': 'application/json' } }
         );
-        console.log('[sendPrivateReply] ✅ Private reply sent:', res.data);
+        console.log('[sendPrivateReply] ✅ DM sent:', res.data.message_id);
         return true;
     } catch (err) {
         const e = err.response?.data?.error || {};
