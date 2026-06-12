@@ -124,8 +124,8 @@ async function processComment(supabase, commentValue, igAccountId, signature, ra
         if (!commentText.includes(trigger.keyword.toLowerCase())) continue;
 
         console.log(`[processComment] ✅ Matched trigger "${trigger.keyword}"`);
-        const dmSuccess = await sendPrivateReply(settings, commentId, trigger.reply_message);
-
+        const senderId = commentValue.from?.id;
+        const dmSuccess = await sendPrivateReply(settings, senderId, trigger.reply_message);
         if (dmSuccess) {
             await supabase.from('user_settings').update({
                 total_dms_sent: (settings.total_dms_sent || 0) + 1,
@@ -162,18 +162,21 @@ async function processComment(supabase, commentValue, igAccountId, signature, ra
     }
 }
 
-async function sendPrivateReply(settings, commentId, message) {
-    if (!settings.page_access_token || !settings.instagram_account_id) {
-        console.warn('[sendPrivateReply] Missing token or account ID');
+async function sendPrivateReply(settings, recipientId, message) {
+    if (!settings.page_access_token || !recipientId) {
+        console.warn('[sendPrivateReply] Missing token or recipient ID');
         return false;
     }
     try {
         const res = await axios.post(
             `https://graph.facebook.com/${API_VERSION}/${settings.instagram_account_id}/messages`,
-            { recipient: { comment_id: commentId }, message: { text: message } },
+            {
+                recipient: { id: recipientId },
+                message: { text: message }
+            },
             { headers: { 'Authorization': `Bearer ${settings.page_access_token}`, 'Content-Type': 'application/json' } }
         );
-        console.log('[sendPrivateReply] ✅ DM sent:', res.data.message_id);
+        console.log('[sendPrivateReply] ✅ DM sent:', res.data);
         return true;
     } catch (err) {
         const e = err.response?.data?.error || {};
