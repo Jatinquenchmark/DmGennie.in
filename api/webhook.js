@@ -169,7 +169,7 @@ async function sendPrivateReply(settings, recipientId, message) {
     }
     try {
         const res = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${settings.instagram_account_id}/messages`,
+            `https://graph.instagram.com/${API_VERSION}/${settings.instagram_account_id}/messages`,
             {
                 recipient: { id: recipientId },
                 message: { text: message }
@@ -188,8 +188,8 @@ async function sendPrivateReply(settings, recipientId, message) {
 async function sendPublicReply(settings, commentId, message) {
     if (!settings.page_access_token) return false;
     try {
-        await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${commentId}/replies`,
+        const res = await axios.post(
+            `https://graph.instagram.com/${API_VERSION}/${commentId}/replies`,
             { message },
             { headers: { 'Authorization': `Bearer ${settings.page_access_token}`, 'Content-Type': 'application/json' } }
         );
