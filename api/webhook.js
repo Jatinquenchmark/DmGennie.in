@@ -192,31 +192,35 @@ async function sendPrivateReply(settings, commentId, message) {
     }
 }
 
-async function sendPublicReply(settings, commentId, message) {
+async function sendPrivateReply(settings, commentId, message) {
     const token = settings.page_access_token;
-    console.log('[Token Check - Public]', {
+
+    console.log('[Token Check]', {
         hasToken: !!token,
         tokenStart: token?.slice(0, 10),
         tokenLength: token?.length,
     });
+
     if (!token || !commentId) {
-        console.warn('[sendPublicReply] Missing token or comment ID');
+        console.warn('[sendPrivateReply] Missing token or comment ID');
         return false;
     }
+
     try {
-        // Public replies are posted as a reply to the specific comment
         const res = await axios.post(
-            `https://graph.instagram.com/v23.0/${commentId}/replies`,
+            `https://graph.facebook.com/v23.0/${commentId}/private_replies`,
             {
                 message,
                 access_token: token,
             },
             { headers: { 'Content-Type': 'application/json' } }
         );
-        console.log('[sendPublicReply] ✅ Public reply sent');
+
+        console.log('[sendPrivateReply] ✅ Private reply sent:', res.data);
         return true;
     } catch (err) {
-        console.error('[sendPublicReply] ❌ Failed:', err.response?.data?.error?.message || err.message);
+        const e = err.response?.data?.error || {};
+        console.error(`[sendPrivateReply] ❌ Failed [${e.code}/${e.error_subcode}]: ${e.message || err.message}`);
         return false;
     }
 }
