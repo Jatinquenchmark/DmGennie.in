@@ -169,7 +169,7 @@ async function sendPrivateReply(settings, recipientId, message) {
     }
     try {
         const res = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${settings.instagram_account_id}/messages`,
+            `https://graph.facebook.com/${API_VERSION}/${recipientId}/conversations`,
             {
                 recipient: { id: recipientId },
                 message: { text: message }
