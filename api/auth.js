@@ -3,7 +3,7 @@ import axios from 'axios';
 import { supabase, getUserId, ensureSettings, cors } from '../server/supabaseApi.js';
 
 const API_VERSION = 'v25.0';
-const DEFAULT_INSTAGRAM_REDIRECT_URI = 'https://dm-gennie-in.vercel.app/api/auth/instagram/callback';
+const REQUIRED_INSTAGRAM_REDIRECT_URI = 'https://dm-gennie-in.vercel.app/api/auth/instagram/callback';
 const INSTAGRAM_BUSINESS_SCOPES = [
     'instagram_business_basic',
     'instagram_business_manage_comments',
@@ -55,9 +55,11 @@ function getInstagramClientSecret() {
 }
 
 function getInstagramRedirectUri() {
-    const configured = process.env.INSTAGRAM_REDIRECT_URI || '';
-    if (!configured || configured.includes('/api/auth?action=callback')) return DEFAULT_INSTAGRAM_REDIRECT_URI;
-    return configured;
+    return process.env.INSTAGRAM_REDIRECT_URI?.trim() || '';
+}
+
+function isValidInstagramRedirectUri(redirectUri) {
+    return redirectUri === REQUIRED_INSTAGRAM_REDIRECT_URI;
 }
 
 function redirectToInstagramSettings(res, params) {
@@ -106,16 +108,23 @@ async function instagramAuthHandler(req, res) {
     const appId = getInstagramAppId();
     const redirectUri = getInstagramRedirectUri();
     if (!appId) return res.status(500).json({ error: 'Instagram app is not configured.' });
+    if (!redirectUri) return res.status(500).json({ error: 'Instagram redirect URI is not configured.' });
+    if (!isValidInstagramRedirectUri(redirectUri)) {
+        console.error('[Instagram OAuth] Invalid INSTAGRAM_REDIRECT_URI:', redirectUri);
+        return res.status(500).json({ error: 'Instagram redirect URI does not match the configured Meta callback.' });
+    }
     const scopes = INSTAGRAM_BUSINESS_SCOPES.join(',');
     const state = createOAuthState(userId);
     if (!state) return res.status(500).json({ error: 'Instagram connection is not configured.' });
-    const authUrl = `https://www.instagram.com/oauth/authorize?client_id=${encodeURIComponent(appId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes)}&state=${encodeURIComponent(state)}`;
+    const instagramAuthUrl = `https://www.instagram.com/oauth/authorize?client_id=${encodeURIComponent(appId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes)}&state=${encodeURIComponent(state)}`;
 
-    console.log('[Instagram OAuth] OAuth URL generated:', authUrl);
+    console.log('INSTAGRAM_REDIRECT_URI:', process.env.INSTAGRAM_REDIRECT_URI);
+    console.log('Instagram OAuth URL:', instagramAuthUrl);
+    console.log('[Instagram OAuth] OAuth URL generated:', instagramAuthUrl);
     console.log('[Instagram OAuth] Redirect URI:', redirectUri);
     console.log('[Instagram OAuth] Scopes:', scopes);
 
-    return res.json({ url: authUrl });
+    return res.json({ url: instagramAuthUrl });
 }
 
 async function exchangeCodeForShortToken({ appId, appSecret, redirectUri, code }) {
@@ -232,6 +241,10 @@ async function instagramCallbackHandler(req, res) {
     if (!appId || !appSecret) {
         console.error('[Instagram OAuth] Missing app ID or app secret');
         return redirectToInstagramSettings(res, { error: 'oauth_not_configured' });
+    }
+    if (!redirectUri || !isValidInstagramRedirectUri(redirectUri)) {
+        console.error('[Instagram OAuth] Invalid callback INSTAGRAM_REDIRECT_URI:', redirectUri || 'MISSING');
+        return redirectToInstagramSettings(res, { error: 'redirect_uri_mismatch' });
     }
 
     try {
