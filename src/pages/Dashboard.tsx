@@ -600,6 +600,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const [instagramPosts, setInstagramPosts] = useState<InstagramMedia[]>([]);
     const [instagramStories, setInstagramStories] = useState<InstagramMedia[]>([]);
     const [mediaLoading, setMediaLoading] = useState(false);
+    const [connectModalOpen, setConnectModalOpen] = useState(false);
     const [settingsSaved, setSettingsSaved] = useState(false);
     const [addingTrigger, setAddingTrigger] = useState(false);
     const [newKeyword, setNewKeyword] = useState("");
@@ -1061,6 +1062,9 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                     accountPlan={accountPlan}
                     proOffer={proOffer}
                     settings={settings}
+                    botEnabled={botEnabled}
+                    onToggleBot={toggleBot}
+                    onConnect={() => setConnectModalOpen(true)}
                     onNavigate={setTab}
                     onLogout={handleLogout}
                     onUpgrade={openUpgradeModal}
@@ -1120,6 +1124,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         instagramPosts={instagramPosts}
                                         instagramStories={instagramStories}
                                         mediaLoading={mediaLoading}
+                                        onConnectAccount={() => setConnectModalOpen(true)}
                                         automationCount={triggers.length}
                                     />
                                 )}
@@ -1195,6 +1200,15 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                     proOffer={proOffer}
                     onClose={() => setUpgradeModalOpen(false)}
                     onUpgrade={startProCheckout}
+                />
+            )}
+            {connectModalOpen && (
+                <ConnectInstagramModal
+                    connected={connected}
+                    handle={settings?.instagramHandle || "@your account"}
+                    onConnect={connectInstagram}
+                    onDisconnect={disconnectInstagram}
+                    onClose={() => setConnectModalOpen(false)}
                 />
             )}
             {dashboardToast && <ReferralToast message={dashboardToast} />}
@@ -1284,6 +1298,46 @@ function DashboardLoadingState() {
     );
 }
 
+// Reusable popup mirroring the Settings → Instagram connection tab. Opened from the
+// automation builder and the sidebar profile panel so users never have to leave the page.
+function ConnectInstagramModal({ connected, handle, onConnect, onDisconnect, onClose }: { connected: boolean; handle: string; onConnect: () => void; onDisconnect?: () => void; onClose: () => void }) {
+    return (
+        <ModalShell onClose={onClose}>
+            <div className="flex items-start justify-between gap-4">
+                <div>
+                    <h2 className="text-2xl font-black text-[#0F172A]">Instagram connection</h2>
+                    <p className="mt-1 text-sm font-semibold text-[#64748B]">Connect your Instagram business account to automate DMs.</p>
+                </div>
+                <button onClick={onClose} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50"><X className="h-4 w-4" /></button>
+            </div>
+            <div className="mt-5 rounded-[18px] border border-slate-100 bg-slate-50/70 p-6">
+                {connected ? (
+                    <div className="flex flex-col items-center gap-4 text-center">
+                        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100"><Instagram className="h-6 w-6" /></span>
+                        <div>
+                            <p className="text-sm font-black text-[#0F172A]">{handle} is connected</p>
+                            <p className="mt-1 text-xs font-semibold text-[#64748B]">Connected through secure Meta OAuth. No Instagram password is stored.</p>
+                        </div>
+                        <div className="flex flex-wrap items-center justify-center gap-2">
+                            <PrimaryButton compact onClick={onConnect}><Instagram className="h-4 w-4" /> Connect another</PrimaryButton>
+                            {onDisconnect && <SecondaryButton onClick={onDisconnect}>Disconnect</SecondaryButton>}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center gap-4 text-center">
+                        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#5B4DFF] ring-1 ring-indigo-100"><Instagram className="h-6 w-6" /></span>
+                        <div>
+                            <p className="text-sm font-black text-[#0F172A]">No account connected yet</p>
+                            <p className="mt-1 text-xs font-semibold text-[#64748B]">Connect your Instagram business account through Meta to start automating DMs.</p>
+                        </div>
+                        <PrimaryButton onClick={onConnect}><Instagram className="h-4 w-4" /> Connect Instagram</PrimaryButton>
+                    </div>
+                )}
+            </div>
+        </ModalShell>
+    );
+}
+
 function Sidebar({
     activeTab,
     connected,
@@ -1292,6 +1346,9 @@ function Sidebar({
     accountPlan,
     proOffer,
     settings,
+    botEnabled,
+    onToggleBot,
+    onConnect,
     onNavigate,
     onLogout,
     onUpgrade,
@@ -1303,12 +1360,16 @@ function Sidebar({
     accountPlan: AccountPlanState;
     proOffer: ProOfferData;
     settings: SettingsData | null;
+    botEnabled: boolean;
+    onToggleBot: () => void;
+    onConnect: () => void;
     onNavigate: (tab: Tab) => void;
     onLogout: () => void;
     onUpgrade: () => void;
 }) {
     const handle = settings?.instagramHandle || "@dmgennie.in";
     const { session } = useAuth();
+    const [profilePanelOpen, setProfilePanelOpen] = useState(false);
 
     return (
         <aside className="shrink-0 rounded-[26px] border border-white bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)] lg:fixed lg:left-0 lg:top-0 lg:h-screen lg:w-[272px] lg:max-w-[272px] lg:rounded-none lg:border-r lg:border-slate-200">
@@ -1327,27 +1388,68 @@ function Sidebar({
                     </span>
                 </Link>
 
-                <div className="mb-3 rounded-[16px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2 shadow-[0_1px_2px_rgba(15,23,42,0.025)]">
-                    <div className="flex items-center gap-2.5">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-500 to-orange-400 text-sm font-black text-white shadow-[0_8px_18px_rgba(217,70,239,0.12)]">
-                            {handle.replace("@", "").charAt(0).toUpperCase() || "D"}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                            <div className="flex min-w-0 items-center gap-1.5 leading-4">
-                                <span className="truncate text-[13px] font-black leading-4 text-[#0F172A]">{session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || handle}</span>
-                                <span
-                                    title={connected ? "Connected" : "Disconnected"}
-                                    className={cx(
-                                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full ring-1 transition",
-                                        connected ? "bg-emerald-50 text-emerald-600 ring-emerald-100" : "bg-rose-50 text-rose-600 ring-rose-100"
-                                    )}
-                                >
-                                    <Power className="h-3.5 w-3.5 stroke-[3]" />
-                                </span>
+                <div className="relative mb-3">
+                    <button
+                        type="button"
+                        onClick={() => setProfilePanelOpen((open) => !open)}
+                        className="w-full rounded-[16px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2 text-left shadow-[0_1px_2px_rgba(15,23,42,0.025)] transition hover:border-indigo-200 hover:bg-white"
+                    >
+                        <div className="flex items-center gap-2.5">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-500 to-orange-400 text-sm font-black text-white shadow-[0_8px_18px_rgba(217,70,239,0.12)]">
+                                {handle.replace("@", "").charAt(0).toUpperCase() || "D"}
                             </div>
-                            <div className="truncate text-[11px] font-bold leading-4 text-[#64748B]">{session?.user?.email}</div>
+                            <div className="min-w-0 flex-1">
+                                <div className="flex min-w-0 items-center gap-1.5 leading-4">
+                                    <span className="truncate text-[13px] font-black leading-4 text-[#0F172A]">{session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || handle}</span>
+                                    <span
+                                        title={connected ? "Connected" : "Disconnected"}
+                                        className={cx(
+                                            "flex h-5 w-5 shrink-0 items-center justify-center rounded-full ring-1 transition",
+                                            connected ? "bg-emerald-50 text-emerald-600 ring-emerald-100" : "bg-rose-50 text-rose-600 ring-rose-100"
+                                        )}
+                                    >
+                                        <Power className="h-3.5 w-3.5 stroke-[3]" />
+                                    </span>
+                                </div>
+                                <div className="truncate text-[11px] font-bold leading-4 text-[#64748B]">{session?.user?.email}</div>
+                            </div>
+                            <ChevronDown className={cx("h-4 w-4 shrink-0 text-slate-400 transition", profilePanelOpen && "rotate-180")} />
                         </div>
-                    </div>
+                    </button>
+
+                    {profilePanelOpen && (
+                        <>
+                            <button type="button" aria-hidden className="fixed inset-0 z-40 cursor-default" onClick={() => setProfilePanelOpen(false)} />
+                            <div className="absolute bottom-full left-0 right-0 z-50 mb-2 overflow-hidden rounded-[16px] border border-slate-100 bg-white p-1.5 shadow-[0_18px_50px_rgba(15,23,42,0.18)]">
+                                <button
+                                    type="button"
+                                    onClick={() => { setProfilePanelOpen(false); onNavigate("settings"); }}
+                                    className="flex w-full items-center gap-2.5 rounded-[12px] px-2.5 py-2 text-left text-[13px] font-bold text-[#0F172A] transition hover:bg-slate-50"
+                                >
+                                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 text-[#475569]"><User className="h-4 w-4" /></span>
+                                    View profile
+                                </button>
+                                {connected ? (
+                                    <div className="flex w-full items-center justify-between gap-2.5 rounded-[12px] px-2.5 py-2 text-left text-[13px] font-bold text-[#0F172A]">
+                                        <span className="flex items-center gap-2.5">
+                                            <span className={cx("flex h-7 w-7 items-center justify-center rounded-full", botEnabled ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400")}><Power className="h-4 w-4" /></span>
+                                            Automations {botEnabled ? "on" : "off"}
+                                        </span>
+                                        <ToggleSwitch active={botEnabled} onClick={onToggleBot} />
+                                    </div>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => { setProfilePanelOpen(false); onConnect(); }}
+                                        className="flex w-full items-center gap-2.5 rounded-[12px] px-2.5 py-2 text-left text-[13px] font-bold text-[#0F172A] transition hover:bg-slate-50"
+                                    >
+                                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#EEF0FF] text-[#5B4DFF]"><Instagram className="h-4 w-4" /></span>
+                                        Add Instagram account
+                                    </button>
+                                )}
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 <nav className="grid min-h-0 flex-1 content-start gap-1.5 pr-1">
@@ -2409,6 +2511,7 @@ function AutomationsPage(props: {
     instagramPosts: InstagramMedia[];
     instagramStories: InstagramMedia[];
     mediaLoading: boolean;
+    onConnectAccount: () => void;
     automationCount: number;
 }) {
     const [creationPhase, setCreationPhase] = useState<null | "entry" | "template">(null);
@@ -2490,7 +2593,7 @@ function AutomationsPage(props: {
                 instagramPosts={props.instagramPosts}
                 instagramStories={props.instagramStories}
                 mediaLoading={props.mediaLoading}
-                onConnectAccount={() => props.onNavigate("settings")}
+                onConnectAccount={props.onConnectAccount}
             />
         );
     }
