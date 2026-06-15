@@ -6,8 +6,8 @@ const API_VERSION = 'v25.0';
 const DEFAULT_INSTAGRAM_REDIRECT_URI = 'https://dm-gennie-in.vercel.app/api/auth/instagram/callback';
 const INSTAGRAM_BUSINESS_SCOPES = [
     'instagram_business_basic',
-    'instagram_business_manage_messages',
     'instagram_business_manage_comments',
+    'instagram_business_manage_messages',
 ];
 const INSTAGRAM_AUTH_LIMIT = 10;
 const INSTAGRAM_AUTH_WINDOW_MS = 60 * 1000;
@@ -43,15 +43,19 @@ function timingSafeEqualText(left, right) {
 }
 
 function getOAuthStateSecret() {
-    return process.env.META_APP_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    return process.env.INSTAGRAM_CLIENT_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
 }
 
 function getInstagramAppId() {
-    return process.env.INSTAGRAM_APP_ID || process.env.META_APP_ID;
+    return process.env.INSTAGRAM_CLIENT_ID;
+}
+
+function getInstagramClientSecret() {
+    return process.env.INSTAGRAM_CLIENT_SECRET;
 }
 
 function getInstagramRedirectUri() {
-    const configured = process.env.INSTAGRAM_REDIRECT_URI || process.env.META_REDIRECT_URI || '';
+    const configured = process.env.INSTAGRAM_REDIRECT_URI || '';
     if (!configured || configured.includes('/api/auth?action=callback')) return DEFAULT_INSTAGRAM_REDIRECT_URI;
     return configured;
 }
@@ -105,7 +109,7 @@ async function instagramAuthHandler(req, res) {
     const scopes = INSTAGRAM_BUSINESS_SCOPES.join(',');
     const state = createOAuthState(userId);
     if (!state) return res.status(500).json({ error: 'Instagram connection is not configured.' });
-    const authUrl = `https://www.instagram.com/oauth/authorize?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code&state=${encodeURIComponent(state)}&enable_fb_login=0&force_authentication=1`;
+    const authUrl = `https://www.instagram.com/oauth/authorize?client_id=${encodeURIComponent(appId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes)}&state=${encodeURIComponent(state)}`;
 
     console.log('[Instagram OAuth] OAuth URL generated:', authUrl);
     console.log('[Instagram OAuth] Redirect URI:', redirectUri);
@@ -179,7 +183,7 @@ async function saveInstagramConnection(userId, payload) {
         instagram_connected_at: now,
         instagram_last_synced_at: now,
         followers: payload.followersCount || 0,
-        app_secret: process.env.META_APP_SECRET,
+        app_secret: getInstagramClientSecret(),
         updated_at: now,
     };
 
@@ -195,7 +199,7 @@ async function saveInstagramConnection(userId, payload) {
         instagram_account_id: payload.instagramUserId,
         instagram_handle: payload.username ? `@${payload.username}` : '',
         followers: payload.followersCount || 0,
-        app_secret: process.env.META_APP_SECRET,
+        app_secret: getInstagramClientSecret(),
         updated_at: now,
     };
     const retry = await supabase.from('user_settings').update(legacyUpdates).eq('user_id', userId);
@@ -223,7 +227,7 @@ async function instagramCallbackHandler(req, res) {
     if (!userId) return redirectToInstagramSettings(res, { error: 'invalid_state' });
 
     const appId = getInstagramAppId();
-    const appSecret = process.env.META_APP_SECRET;
+    const appSecret = getInstagramClientSecret();
     const redirectUri = getInstagramRedirectUri();
     if (!appId || !appSecret) {
         console.error('[Instagram OAuth] Missing app ID or app secret');
