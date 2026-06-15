@@ -1,9 +1,24 @@
+import crypto from 'crypto';
 import axios from 'axios';
 import { createClient } from '@supabase/supabase-js';
 import { getPlanLimitsForState, getSubscriptionState } from '../server/billingConfig.js';
 
 const API_VERSION = 'v25.0';
 const SUCCESS_STATUSES = ['sent', 'success', 'delivered'];
+
+// Validates Meta's X-Hub-Signature-256 header against the raw request bytes,
+// using the app secret. Fails closed: any missing input returns false.
+function isValidMetaSignature(rawBody, signature, appSecret) {
+    if (!rawBody || !signature || !appSecret) return false;
+    if (typeof signature !== 'string' || !signature.startsWith('sha256=')) return false;
+
+    const expected = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex');
+    const expectedBuffer = Buffer.from(expected);
+    const signatureBuffer = Buffer.from(signature);
+
+    return expectedBuffer.length === signatureBuffer.length
+        && crypto.timingSafeEqual(expectedBuffer, signatureBuffer);
+}
 
 export const config = {
     // Keep the request stream untouched so Meta signature validation uses the exact bytes sent.
@@ -32,9 +47,10 @@ export default async function handler(req, res) {
         const mode = req.query['hub.mode'];
         const token = req.query['hub.verify_token'];
         const challenge = req.query['hub.challenge'];
-        const verifyToken = process.env.WEBHOOK_VERIFY_TOKEN || 'dmgennie_verify_token_123';
+        const verifyToken = process.env.WEBHOOK_VERIFY_TOKEN;
 
-        if (mode === 'subscribe' && token === verifyToken) {
+        // Fail closed: never accept a hardcoded/default token.
+        if (verifyToken && mode === 'subscribe' && token === verifyToken) {
             return res.status(200).send(challenge);
         }
         return res.status(403).json({ error: 'Forbidden' });
@@ -44,30 +60,31 @@ export default async function handler(req, res) {
         let rawBody;
         try {
             rawBody = await getRawBody(req);
-            console.log('[Webhook] First 50 bytes of raw body:', rawBody.toString('utf8').substring(0, 50));
         } catch (error) {
             console.error('[Webhook] Failed to read raw body:', error?.message || error);
-            return res.status(200).send('EVENT_RECEIVED');
+            return res.status(400).send('Bad Request');
         }
 
-        // TODO: Restore Meta signature validation here after DM delivery is confirmed.
-        let body;
-        try { body = JSON.parse(rawBody.toString('utf8')); } catch { return res.status(200).send('EVENT_RECEIVED'); }
+        // Verify Meta's signature over the exact raw bytes before trusting any payload.
+        // Fail closed: forged or unsigned requests are rejected.
+        const signature = req.headers['x-hub-signature-256'];
+        if (!isValidMetaSignature(rawBody, signature, process.env.META_APP_SECRET)) {
+            console.warn('[Webhook] Rejected: invalid or missing X-Hub-Signature-256');
+            return res.status(401).json({ error: 'Invalid signature' });
+        }
 
-        console.log('[Webhook] object:', body.object);
-        console.log('[Webhook] Signature validation temporarily skipped:', Boolean(req.headers?.['x-hub-signature-256']));
+        let body;
+        try { body = JSON.parse(rawBody.toString('utf8')); } catch { return res.status(400).send('Bad Request'); }
 
         if (body.object === 'instagram') {
             const supabase = getSupabase();
             for (const entry of body.entry || []) {
-                console.log('[Webhook] entry.id:', entry.id);
                 const changes = entry.changes || [];
                 if (!changes.length && entry.field === 'comments' && entry.value) {
                     await processComment(supabase, entry.value, entry.id);
                     continue;
                 }
                 for (const change of changes) {
-                    console.log('[Webhook] change.field:', change.field);
                     if (change.field === 'comments') {
                         await processComment(supabase, change.value, entry.id);
                     }
@@ -119,7 +136,7 @@ async function processComment(supabase, commentValue, igAccountId) {
     const commentText = (commentValue.text || '').toLowerCase();
     const username = commentValue.from?.username || 'unknown';
 
-    console.log(`[processComment] Comment from @${username}: "${commentText}" (id=${commentId})`);
+    console.log(`[processComment] Processing comment id=${commentId}`);
 
     if (!commentId || !commentText) return;
 
