@@ -189,7 +189,7 @@ async function sendPublicReply(settings, commentId, message) {
     if (!settings.page_access_token) return false;
     try {
         const res = await axios.post(
-            `https://graph.instagram.com/${API_VERSION}/${commentId}/replies`,
+            `https://graph.facebook.com/${API_VERSION}/${settings.instagram_account_id}/messages`,
             { message },
             { headers: { 'Authorization': `Bearer ${settings.page_access_token}`, 'Content-Type': 'application/json' } }
         );
