@@ -772,6 +772,15 @@ app.get('/api/instagram/media', async (req, res) => {
     });
 });
 
+// ── Session geo (security signal) ──────────────────────────
+app.get('/api/session', (req, res) => {
+    const country = req.headers['x-vercel-ip-country']
+        || req.headers['cf-ipcountry']
+        || req.headers['x-country-code']
+        || 'unknown';
+    res.json({ country: String(country).toUpperCase() });
+});
+
 // ── Triggers ───────────────────────────────────────────────
 app.get('/api/triggers', async (req, res) => {
     const userId = await getUserId(req);

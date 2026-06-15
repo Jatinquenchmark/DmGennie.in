@@ -13,7 +13,7 @@ import {
   Shield,
 } from 'lucide-react'
 import { LoadingScreen } from '@/components/Loading'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth, beginSession } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 
 function DMGennieLogo() {
@@ -300,6 +300,7 @@ export default function Signup() {
   const [signInEmail, setSignInEmail] = useState('')
   const [signInPassword, setSignInPassword] = useState('')
   const [showSignInPassword, setShowSignInPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const [signInError, setSignInError] = useState('')
   const [signInNotice, setSignInNotice] = useState('')
   const [signInLoading, setSignInLoading] = useState(false)
@@ -448,6 +449,9 @@ export default function Signup() {
       return
     }
 
+    // Start the session clock and capture the "remember me" preference.
+    beginSession(rememberMe)
+
     try {
       const token = data.session?.access_token
       if (token) {
@@ -505,6 +509,8 @@ export default function Signup() {
     }
 
     setGoogleLoading(true)
+    // Capture the session preference before redirecting out to Google.
+    beginSession(rememberMe)
 
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -730,7 +736,16 @@ export default function Signup() {
                           {showSignInPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                       </div>
-                      <div className="flex justify-end">
+                      <div className="flex items-center justify-between gap-3">
+                        <label className="flex cursor-pointer select-none items-center gap-2 text-sm font-bold text-[#756b73]">
+                          <input
+                            type="checkbox"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                            className="h-4 w-4 rounded border-[#d8c7d0] text-[#6d2948] accent-[#6d2948] focus:ring-[#6d2948]"
+                          />
+                          Remember me on this device
+                        </label>
                         <button
                           type="button"
                           onClick={handlePasswordReset}
