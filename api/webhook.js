@@ -161,32 +161,41 @@ async function processComment(supabase, commentValue, igAccountId, signature, ra
     }
 }
 
-
 async function sendPrivateReply(settings, commentId, message) {
     const token = settings.page_access_token;
+    const igUserId = settings.instagram_account_id;
 
-    console.log('[Token Check]', {
+    console.log('[Token Check Private]', {
         hasToken: !!token,
         tokenStart: token?.slice(0, 10),
         tokenLength: token?.length,
+        igUserId,
+        commentId,
     });
 
-    if (!token || !commentId) {
-        console.warn('[sendPrivateReply] Missing token or comment ID');
+    if (!token || !commentId || !igUserId) {
+        console.warn('[sendPrivateReply] Missing token, IG user ID, or comment ID');
         return false;
     }
 
     try {
+        // Messenger API for Instagram: send private DM triggered by a comment
+        // POST /{ig-user-id}/messages with recipient.comment_id
         const res = await axios.post(
-            `https://graph.instagram.com/v25.0/${commentId}/private_replies`,
+            `https://graph.instagram.com/v25.0/${igUserId}/messages`,
             {
-                message,
-                access_token: token,
+                recipient: {
+                    comment_id: commentId
+                },
+                message: {
+                    text: message
+                },
+                access_token: token
             },
             { headers: { 'Content-Type': 'application/json' } }
         );
 
-        console.log('[sendPrivateReply] ✅ Private reply sent:', res.data);
+        console.log('[sendPrivateReply] ✅ Private DM sent:', res.data);
         return true;
     } catch (err) {
         const e = err.response?.data?.error || {};
@@ -197,33 +206,29 @@ async function sendPrivateReply(settings, commentId, message) {
 
 async function sendPublicReply(settings, commentId, message) {
     const token = settings.page_access_token;
-
     console.log('[Token Check - Public]', {
         hasToken: !!token,
         tokenStart: token?.slice(0, 10),
         tokenLength: token?.length,
     });
-
     if (!token || !commentId) {
         console.warn('[sendPublicReply] Missing token or comment ID');
         return false;
     }
-
     try {
+        // Public replies are posted as a reply to the specific comment
         const res = await axios.post(
-            `https://graph.instagram.com/v25.0/${commentId}/replies`,
+            `https://graph.instagram.com/v23.0/${commentId}/replies`,
             {
                 message,
                 access_token: token,
             },
             { headers: { 'Content-Type': 'application/json' } }
         );
-
-        console.log('[sendPublicReply] ✅ Public reply sent:', res.data);
+        console.log('[sendPublicReply] ✅ Public reply sent');
         return true;
     } catch (err) {
-        const e = err.response?.data?.error || {};
-        console.error(`[sendPublicReply] ❌ Failed [${e.code}/${e.error_subcode}]: ${e.message || err.message}`);
+        console.error('[sendPublicReply] ❌ Failed:', err.response?.data?.error?.message || err.message);
         return false;
     }
 }
