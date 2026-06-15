@@ -3,7 +3,7 @@ import axios from 'axios';
 import { supabase, getUserId, ensureSettings, cors } from '../server/supabaseApi.js';
 
 const API_VERSION = 'v25.0';
-const REQUIRED_INSTAGRAM_REDIRECT_URI = 'https://dm-gennie-in.vercel.app/api/auth/instagram/callback';
+const PRIMARY_INSTAGRAM_REDIRECT_URI = 'https://dm-gennie-in.vercel.app/auth/instagram/callback';
 const INSTAGRAM_BUSINESS_SCOPES = [
     'instagram_business_basic',
     'instagram_business_manage_comments',
@@ -59,7 +59,7 @@ function getInstagramRedirectUri() {
 }
 
 function isValidInstagramRedirectUri(redirectUri) {
-    return redirectUri === REQUIRED_INSTAGRAM_REDIRECT_URI;
+    return redirectUri === PRIMARY_INSTAGRAM_REDIRECT_URI;
 }
 
 function redirectToInstagramSettings(res, params) {
@@ -224,8 +224,10 @@ async function instagramCallbackHandler(req, res) {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
     const { code, state, error } = req.query;
+    console.log('Callback path hit:', req.url || req.headers['x-original-url'] || '/auth/instagram/callback');
     console.log('[Instagram OAuth] Callback hit');
     console.log('[Instagram OAuth] Code received:', Boolean(code));
+    console.log('Code received:', Boolean(code));
     if (error) {
         console.warn('[Instagram OAuth] Meta returned error:', error);
         return redirectToInstagramSettings(res, { error: 'meta_oauth_failed' });
@@ -252,9 +254,11 @@ async function instagramCallbackHandler(req, res) {
         try {
             shortTokenData = await exchangeCodeForShortToken({ appId, appSecret, redirectUri, code: String(code) });
         } catch (tokenError) {
+            console.error('Token exchange failure:', tokenError.response?.data || tokenError.message);
             console.error('[Instagram OAuth] Short-lived token exchange failure:', tokenError.response?.data || tokenError.message);
             return redirectToInstagramSettings(res, { error: 'token_exchange_failed' });
         }
+        console.log('Token exchange success:', Boolean(shortTokenData?.access_token));
         console.log('[Instagram OAuth] Short-lived token exchange success:', Boolean(shortTokenData?.access_token));
         if (!shortTokenData?.access_token) {
             return redirectToInstagramSettings(res, { error: 'token_exchange_failed' });
@@ -264,6 +268,7 @@ async function instagramCallbackHandler(req, res) {
         try {
             longTokenData = await exchangeForLongLivedToken({ appSecret, accessToken: shortTokenData.access_token });
         } catch (tokenError) {
+            console.error('Token exchange failure:', tokenError.response?.data || tokenError.message);
             console.error('[Instagram OAuth] Long-lived token exchange failure:', tokenError.response?.data || tokenError.message);
             return redirectToInstagramSettings(res, { error: 'token_exchange_failed' });
         }
@@ -294,7 +299,9 @@ async function instagramCallbackHandler(req, res) {
                 accountType: profile?.account_type || null,
                 followersCount: profile?.followers_count || 0,
             });
+            console.log('Supabase save success:', true);
         } catch (saveError) {
+            console.error('Supabase save failure:', saveError.message || saveError);
             console.error('[Instagram OAuth] Database save failure:', saveError.message || saveError);
             return redirectToInstagramSettings(res, { error: 'database_save_failed' });
         }
