@@ -161,6 +161,7 @@ async function processComment(supabase, commentValue, igAccountId, signature, ra
     }
 }
 
+
 async function sendPrivateReply(settings, commentId, message) {
     const token = settings.page_access_token;
 
@@ -177,7 +178,7 @@ async function sendPrivateReply(settings, commentId, message) {
 
     try {
         const res = await axios.post(
-            `https://graph.facebook.com/v23.0/${commentId}/private_replies`,
+            `https://graph.instagram.com/v25.0/${commentId}/private_replies`,
             {
                 message,
                 access_token: token,
@@ -190,6 +191,39 @@ async function sendPrivateReply(settings, commentId, message) {
     } catch (err) {
         const e = err.response?.data?.error || {};
         console.error(`[sendPrivateReply] ❌ Failed [${e.code}/${e.error_subcode}]: ${e.message || err.message}`);
+        return false;
+    }
+}
+
+async function sendPublicReply(settings, commentId, message) {
+    const token = settings.page_access_token;
+
+    console.log('[Token Check - Public]', {
+        hasToken: !!token,
+        tokenStart: token?.slice(0, 10),
+        tokenLength: token?.length,
+    });
+
+    if (!token || !commentId) {
+        console.warn('[sendPublicReply] Missing token or comment ID');
+        return false;
+    }
+
+    try {
+        const res = await axios.post(
+            `https://graph.instagram.com/v25.0/${commentId}/replies`,
+            {
+                message,
+                access_token: token,
+            },
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+
+        console.log('[sendPublicReply] ✅ Public reply sent:', res.data);
+        return true;
+    } catch (err) {
+        const e = err.response?.data?.error || {};
+        console.error(`[sendPublicReply] ❌ Failed [${e.code}/${e.error_subcode}]: ${e.message || err.message}`);
         return false;
     }
 }
