@@ -385,6 +385,10 @@ const previewContactMetrics: ContactMetrics = {
 
 const suggestedKeywords = ["link", "send", "price", "info", "demo", "guide", "offer", "course", "ebook", "discount", "buy", "join"];
 const defaultCommentReplies = ["Got it, check your inbox! 📬", "Great! Check your messages 💌", "Sent :)", "Check your DM"];
+const defaultFailedMessages = [
+    "I tried to DM you but couldn't reach your inbox. Please send me a quick DM and I'll share the link right away.",
+    "Looks like your DM settings blocked my message. Drop me a message and I'll send it over.",
+];
 
 const normalizeKeyword = (keyword: string) => keyword.replace("+", "").trim().toLowerCase();
 
@@ -445,6 +449,33 @@ const fallbackInstagramMedia: InstagramMedia[] = [
         caption: "Free checklist for creators. Comment CHECKLIST.",
         color: "from-amber-100 via-white to-[#FFF7DA]",
         metric: "984 clicks",
+    },
+];
+
+const fallbackInstagramStories: InstagramMedia[] = [
+    {
+        id: "story-launch",
+        title: "Launch countdown",
+        type: "Post",
+        caption: "Reply GO and I will send early access.",
+        color: "from-[#5B4DFF] via-[#8A3FFC] to-[#F05A8A]",
+        metric: "Expires in 18h",
+    },
+    {
+        id: "story-poll",
+        title: "Poll: which guide?",
+        type: "Post",
+        caption: "Reply GUIDE to get the winning resource.",
+        color: "from-[#2B1635] via-[#7A2E57] to-[#F3B8D0]",
+        metric: "Expires in 9h",
+    },
+    {
+        id: "story-bts",
+        title: "Behind the scenes",
+        type: "Post",
+        caption: "Reply INFO for the full toolkit.",
+        color: "from-emerald-900 via-teal-600 to-cyan-300",
+        metric: "Expires in 4h",
     },
 ];
 
@@ -2342,27 +2373,29 @@ function AutomationsPage(props: {
     accountPlan: AccountPlanState;
     automationCount: number;
 }) {
-    const [templateOpen, setTemplateOpen] = useState(false);
+    const [creationPhase, setCreationPhase] = useState<null | "entry" | "template">(null);
     const [builderOpen, setBuilderOpen] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<AutomationTemplate | null>(null);
+    const [builderScratch, setBuilderScratch] = useState(false);
     const [triggerFilter, setTriggerFilter] = useState("All triggers");
     const [viewMode, setViewMode] = useState<"list" | "grid">("list");
     const [launchSuccess, setLaunchSuccess] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<Trigger | null>(null);
     const automationLimitReached = !props.accountPlan.isPro && props.automationCount >= props.accountPlan.limits.automationLimit;
 
-    const openTemplates = () => {
+    const startCreation = () => {
         if (automationLimitReached) {
             props.onUpgrade();
             return;
         }
         props.onAddOpen();
-        setTemplateOpen(true);
+        setCreationPhase("entry");
     };
 
-    const openBuilder = (template?: AutomationTemplate) => {
+    const openBuilder = (template?: AutomationTemplate, scratch = false) => {
         setSelectedTemplate(template || null);
-        setTemplateOpen(false);
+        setBuilderScratch(scratch);
+        setCreationPhase(null);
         setBuilderOpen(true);
     };
 
@@ -2375,12 +2408,18 @@ function AutomationsPage(props: {
             keyword: trigger.keyword,
             replyMessage: trigger.replyMessage,
             icon: <MessageCircle className="h-5 w-5" />,
-        });
+        }, false);
     };
 
     const closeBuilder = () => {
         setBuilderOpen(false);
         setSelectedTemplate(null);
+        setBuilderScratch(false);
+        props.onAddCancel();
+    };
+
+    const cancelCreation = () => {
+        setCreationPhase(null);
         props.onAddCancel();
     };
 
@@ -2388,6 +2427,7 @@ function AutomationsPage(props: {
         await props.onAdd(draft);
         setBuilderOpen(false);
         setSelectedTemplate(null);
+        setBuilderScratch(false);
         props.onAddCancel();
         setLaunchSuccess(true);
     };
@@ -2402,8 +2442,8 @@ function AutomationsPage(props: {
         return (
             <AutomationBuilder
                 template={selectedTemplate}
-                initialKeyword={props.newKeyword}
-                initialReply={props.newReply}
+                scratch={builderScratch}
+                existingAutomations={props.triggers}
                 onCancel={closeBuilder}
                 onSave={saveBuilder}
                 accountPlan={props.accountPlan}
@@ -2412,11 +2452,35 @@ function AutomationsPage(props: {
         );
     }
 
+    if (creationPhase === "entry") {
+        return (
+            <AutomationCreationEntry
+                onBack={cancelCreation}
+                onTemplate={() => setCreationPhase("template")}
+                onScratch={() => openBuilder(undefined, true)}
+            />
+        );
+    }
+
+    if (creationPhase === "template") {
+        return (
+            <AutomationTemplatePicker
+                onBack={() => setCreationPhase("entry")}
+                onScratch={() => openBuilder(undefined, true)}
+                onSelect={(template) => openBuilder(template, false)}
+                accountPlan={props.accountPlan}
+                onUpgrade={props.onUpgrade}
+            />
+        );
+    }
+
+    const hasAutomations = props.automationCount > 0;
+
     return (
             <PageShell
                 title="Automations"
                 subtitle="Create, manage, and track your Instagram automation flows."
-            action={<PrimaryButton onClick={openTemplates}><Plus className="h-4 w-4" /> {automationLimitReached ? "Upgrade to Pro" : "New Automation"}</PrimaryButton>}
+            action={<PrimaryButton onClick={startCreation}><Plus className="h-4 w-4" /> {automationLimitReached ? "Upgrade to Pro" : "New Automation"}</PrimaryButton>}
         >
             {!props.accountPlan.isPro && <AutomationMiniUpgradeStrip onUpgrade={props.onUpgrade} proOffer={props.proOffer} />}
             {automationLimitReached && (
@@ -2451,8 +2515,10 @@ function AutomationsPage(props: {
                 </div>
             </section>
 
-            <Panel title="Workflows" action={<button onClick={openTemplates} className="inline-flex items-center gap-1.5 text-xs font-black text-[#5B4DFF] transition hover:text-[#4738E8]"><Plus className="h-3.5 w-3.5" /> New flow</button>}>
-                {visibleTriggers.length ? (
+            <Panel title="Workflows" action={<button onClick={startCreation} className="inline-flex items-center gap-1.5 text-xs font-black text-[#5B4DFF] transition hover:text-[#4738E8]"><Plus className="h-3.5 w-3.5" /> New flow</button>}>
+                {!hasAutomations ? (
+                    <EmptyState icon={<Bot className="h-6 w-6" />} title="Create your first automation" copy="Turn Instagram comments, story replies, and DMs into automatic conversations. Pick a template or start from scratch." action="Create your first automation" onAction={startCreation} />
+                ) : visibleTriggers.length ? (
                     viewMode === "list" ? (
                         <div className="space-y-2.5">
                             {visibleTriggers.map((trigger, index) => (
@@ -2484,19 +2550,10 @@ function AutomationsPage(props: {
                         </div>
                     )
                 ) : (
-                    <EmptyState icon={<Bot className="h-6 w-6" />} title="No automations yet" copy="Start with a template and launch your first Instagram automation in minutes." action="New Automation" onAction={openTemplates} />
+                    <EmptyState icon={<Search className="h-6 w-6" />} title="No automations match your search" copy="No automations match your current search or filters. Try a different keyword or reset the filters." action="Clear search & filters" onAction={() => { props.onSearch(""); props.onStatus("all"); setTriggerFilter("All triggers"); }} />
                 )}
             </Panel>
 
-            {templateOpen && (
-                <TemplateSelectionModal
-                    onClose={() => { setTemplateOpen(false); props.onAddCancel(); }}
-                    onScratch={() => openBuilder()}
-                    onSelect={openBuilder}
-                    accountPlan={props.accountPlan}
-                    onUpgrade={props.onUpgrade}
-                />
-            )}
             {launchSuccess && <AutomationSuccessModal onClose={() => setLaunchSuccess(false)} />}
             {deleteTarget && (
                 <ConfirmAutomationDeleteModal
@@ -2509,6 +2566,130 @@ function AutomationsPage(props: {
                 />
             )}
         </PageShell>
+    );
+}
+
+function AutomationCreationEntry({ onBack, onTemplate, onScratch }: { onBack: () => void; onTemplate: () => void; onScratch: () => void }) {
+    return (
+        <div className="space-y-5">
+            <div className="flex items-center gap-3">
+                <button onClick={onBack} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-50">
+                    <ArrowRight className="h-4 w-4 rotate-180" />
+                </button>
+                <div>
+                    <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[28px]">Create a new automation</h1>
+                    <p className="mt-1 text-sm font-semibold text-slate-500">How would you like to start?</p>
+                </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+                <button
+                    onClick={onTemplate}
+                    className="group flex flex-col items-start rounded-[24px] border border-slate-100 bg-white p-6 text-left shadow-[0_14px_40px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_22px_50px_rgba(79,70,229,0.12)]"
+                >
+                    <span className="flex h-14 w-14 items-center justify-center rounded-[1.1rem] bg-[#EEF0FF] text-[#5B4DFF]">
+                        <Sparkles className="h-7 w-7" />
+                    </span>
+                    <h2 className="mt-5 text-xl font-black text-[#0F172A]">Use a template</h2>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-[#64748B]">Pick a ready-made setup and we will fill in the details for you. Best if you are just getting started.</p>
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-black text-[#5B4DFF]">
+                        Browse templates <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                    </span>
+                </button>
+
+                <button
+                    onClick={onScratch}
+                    className="group flex flex-col items-start rounded-[24px] border border-slate-100 bg-white p-6 text-left shadow-[0_14px_40px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_22px_50px_rgba(79,70,229,0.12)]"
+                >
+                    <span className="flex h-14 w-14 items-center justify-center rounded-[1.1rem] bg-slate-100 text-[#0F172A]">
+                        <Wand2 className="h-7 w-7" />
+                    </span>
+                    <h2 className="mt-5 text-xl font-black text-[#0F172A]">Start from scratch</h2>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-[#64748B]">Build your automation step by step with a blank setup. Best if you know exactly what you want.</p>
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-black text-[#5B4DFF]">
+                        Start building <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                    </span>
+                </button>
+            </div>
+        </div>
+    );
+}
+
+function AutomationTemplatePicker({
+    onBack,
+    onScratch,
+    onSelect,
+    accountPlan,
+    onUpgrade,
+}: {
+    onBack: () => void;
+    onScratch: () => void;
+    onSelect: (template: AutomationTemplate) => void;
+    accountPlan: AccountPlanState;
+    onUpgrade: () => void;
+}) {
+    const [query, setQuery] = useState("");
+    const isProTemplate = (template: AutomationTemplate) => Boolean(templateRequiredFeature(template)) || template.badge === "Pro";
+    const matches = automationTemplates.filter((template) =>
+        `${template.title} ${template.description} ${template.trigger} ${template.category}`.toLowerCase().includes(query.toLowerCase())
+    );
+    const freeTemplates = matches.filter((template) => !isProTemplate(template));
+    const proTemplates = matches.filter((template) => isProTemplate(template));
+
+    return (
+        <div className="space-y-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                    <button onClick={onBack} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-50">
+                        <ArrowRight className="h-4 w-4 rotate-180" />
+                    </button>
+                    <div>
+                        <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[28px]">Choose a template</h1>
+                        <p className="mt-1 text-sm font-semibold text-slate-500">Pick a starting point. You can change everything later.</p>
+                    </div>
+                </div>
+                <SecondaryButton onClick={onScratch}><Wand2 className="h-4 w-4" /> Start from scratch</SecondaryButton>
+            </div>
+
+            <SearchBox value={query} onChange={setQuery} placeholder="Search templates..." />
+
+            {matches.length === 0 ? (
+                <div className="rounded-[20px] border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
+                    <p className="text-sm font-black text-[#0F172A]">No templates match your search</p>
+                    <p className="mt-1 text-xs font-semibold text-[#64748B]">Try another keyword, or start from scratch.</p>
+                </div>
+            ) : (
+                <div className="space-y-6">
+                    {freeTemplates.length > 0 && (
+                        <div>
+                            <div className="mb-3 flex items-center gap-2">
+                                <h2 className="text-sm font-black uppercase tracking-[0.12em] text-slate-400">Free templates</h2>
+                                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-500">{freeTemplates.length}</span>
+                            </div>
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                {freeTemplates.map((template) => (
+                                    <TemplateCard key={template.title} template={template} accountPlan={accountPlan} onSelect={onSelect} onUpgrade={onUpgrade} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {proTemplates.length > 0 && (
+                        <div>
+                            <div className="mb-3 flex items-center gap-2">
+                                <Crown className={cx("h-4 w-4", goldCrownCls)} />
+                                <h2 className="text-sm font-black uppercase tracking-[0.12em] text-[#8A5D17]">Pro templates</h2>
+                                <span className="rounded-full bg-[#FFF7DA] px-2 py-0.5 text-[10px] font-black text-[#8A5D17] ring-1 ring-[#E8C56C]/50">{proTemplates.length}</span>
+                            </div>
+                            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                {proTemplates.map((template) => (
+                                    <TemplateCard key={template.title} template={template} accountPlan={accountPlan} onSelect={onSelect} onUpgrade={onUpgrade} />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
     );
 }
 
@@ -2736,95 +2917,6 @@ function AutomationDataPill({ label, value, muted }: { label: string; value: str
     );
 }
 
-function TemplateSelectionModal({
-    onClose,
-    onScratch,
-    onSelect,
-    accountPlan,
-    onUpgrade,
-}: {
-    onClose: () => void;
-    onScratch: () => void;
-    onSelect: (template: AutomationTemplate) => void;
-    accountPlan: AccountPlanState;
-    onUpgrade: () => void;
-}) {
-    const [query, setQuery] = useState("");
-    const [category, setCategory] = useState("All templates");
-    const categories = [
-        "All templates",
-        "Grow followers",
-        "Engage audience",
-        "Drive traffic",
-        "Collect leads",
-        "Post or Reel comment",
-        "DM keyword",
-        "Story reply",
-        "Live comment",
-    ];
-    const filtered = automationTemplates.filter((template) => {
-        const matchesQuery = `${template.title} ${template.description} ${template.trigger}`.toLowerCase().includes(query.toLowerCase());
-        const matchesCategory = category === "All templates" || template.category === category || template.trigger === category;
-        return matchesQuery && matchesCategory;
-    });
-
-    return (
-        <ModalShell onClose={onClose} wide>
-            <div className="flex flex-col gap-5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#5B4DFF]">Template library</p>
-                        <h2 className="mt-1 text-2xl font-black tracking-tight text-[#0F172A]">Choose an automation template</h2>
-                        <p className="mt-1 text-sm font-semibold text-[#64748B]">Start with a ready-made flow or build from scratch.</p>
-                    </div>
-                    <div className="flex gap-2">
-                        <SecondaryButton onClick={onScratch}><Wand2 className="h-4 w-4" /> Start from Scratch</SecondaryButton>
-                        <button onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-950">
-                            <X className="h-4 w-4" />
-                        </button>
-                    </div>
-                </div>
-
-                <SearchBox value={query} onChange={setQuery} placeholder="Search Instagram templates..." />
-
-                <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
-                    <aside className="rounded-[18px] border border-slate-100 bg-slate-50/70 p-2">
-                        <p className="px-3 pb-2 pt-1 text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">Categories</p>
-                        <div className="space-y-1">
-                            {categories.map((item, index) => (
-                                <button
-                                    key={item}
-                                    onClick={() => setCategory(item)}
-                                    className={cx(
-                                        "flex w-full items-center gap-2 rounded-[0.9rem] px-3 py-2 text-left text-xs font-black transition",
-                                        category === item ? "bg-white text-[#0F172A] shadow-sm" : "text-[#64748B] hover:bg-white/80 hover:text-[#0F172A]",
-                                        index === 5 && "mt-3"
-                                    )}
-                                >
-                                    {index >= 5 ? <Filter className="h-3.5 w-3.5" /> : <Sparkles className="h-3.5 w-3.5" />}
-                                    {item}
-                                </button>
-                            ))}
-                        </div>
-                    </aside>
-
-                    <div className="grid max-h-[58vh] gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
-                        {filtered.map((template) => (
-                            <TemplateCard key={template.title} template={template} accountPlan={accountPlan} onSelect={onSelect} onUpgrade={onUpgrade} />
-                        ))}
-                        {!filtered.length && (
-                            <div className="rounded-[18px] border border-dashed border-slate-200 bg-slate-50 p-6 text-center sm:col-span-2">
-                                <p className="text-sm font-black text-[#0F172A]">No matching templates</p>
-                                <p className="mt-1 text-xs font-semibold text-[#64748B]">Try another keyword or start from scratch.</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </ModalShell>
-    );
-}
-
 function TemplateCard({ template, accountPlan, onSelect, onUpgrade }: { template: AutomationTemplate; accountPlan: AccountPlanState; onSelect: (template: AutomationTemplate) => void; onUpgrade: () => void }) {
     const isAdvanced = template.badge === "Pro";
     const requiredFeature = templateRequiredFeature(template);
@@ -2866,49 +2958,54 @@ function templateRequiredFeature(template: AutomationTemplate): keyof FeatureAcc
 
 function AutomationBuilder({
     template,
-    initialKeyword,
-    initialReply,
+    scratch = false,
+    existingAutomations = [],
     onCancel,
     onSave,
     accountPlan,
     onUpgrade,
 }: {
     template: AutomationTemplate | null;
-    initialKeyword: string;
-    initialReply: string;
+    scratch?: boolean;
+    existingAutomations?: Trigger[];
     onCancel: () => void;
     onSave: (draft: AutomationDraft) => void | Promise<void>;
     accountPlan: AccountPlanState;
     onUpgrade: () => void;
 }) {
-    const [step, setStep] = useState(1);
-    const [automationName, setAutomationName] = useState(template?.title || "Auto DM from comments");
-    const [triggerType, setTriggerType] = useState(template?.trigger || "Post or Reel comment");
-    const [selectedPost, setSelectedPost] = useState("All posts & reels");
+    const [automationName, setAutomationName] = useState(template?.title || (scratch ? "My automation" : "Auto DM from comments"));
+    const [triggerType, setTriggerType] = useState(template ? (template.trigger || "Post or Reel comment") : (scratch ? "" : "Post or Reel comment"));
+    const [changingTrigger, setChangingTrigger] = useState(scratch && !template);
+    const [selectedPosts, setSelectedPosts] = useState<string[]>(["All posts & reels"]);
+    const [selectedStories, setSelectedStories] = useState<string[]>([fallbackInstagramStories[0].title]);
+    const [contentModalOpen, setContentModalOpen] = useState(false);
+    const [contentVisibleCount, setContentVisibleCount] = useState(3);
     const [mediaQuery, setMediaQuery] = useState("");
     const [mediaFilter, setMediaFilter] = useState("All");
     const [storyReplyMode, setStoryReplyMode] = useState("Specific keyword in story reply");
     const [liveCommentMode, setLiveCommentMode] = useState("Specific live comment keyword");
-    const [keywords, setKeywords] = useState<string[]>(() => Array.from(new Set([normalizeKeyword(template?.keyword || initialKeyword || "link"), "send", "price"].filter(Boolean))));
+    const [keywords, setKeywords] = useState<string[]>(() => scratch ? [] : Array.from(new Set([normalizeKeyword(template?.keyword || "link"), "send", "price"].filter(Boolean))));
     const [anyKeyword, setAnyKeyword] = useState(false);
     const [welcomeEnabled, setWelcomeEnabled] = useState(true);
     const [welcomeDm, setWelcomeDm] = useState("Hey @username, thanks for commenting.");
-    const [finalDm, setFinalDm] = useState(template?.replyMessage || initialReply || "Here is the link you asked for.");
+    const [finalDm, setFinalDm] = useState(scratch ? "" : (template?.replyMessage || "Here is the link you asked for."));
     const [linkEnabled, setLinkEnabled] = useState(true);
     const [buttonText, setButtonText] = useState("Open Link");
-    const [linkUrl, setLinkUrl] = useState("https://dmgennie.in/guide");
-    const [commentReplies, setCommentReplies] = useState(defaultCommentReplies);
-    const [openingMessageEnabled, setOpeningMessageEnabled] = useState(true);
-    const [previewTab, setPreviewTab] = useState<PreviewTab>("Post");
-    const [postModalOpen, setPostModalOpen] = useState(false);
-    const [keywordsModalOpen, setKeywordsModalOpen] = useState(false);
+    const [linkUrl, setLinkUrl] = useState(scratch ? "" : "https://dmgennie.in/guide");
+    const [commentReplies, setCommentReplies] = useState<string[]>(scratch ? [] : defaultCommentReplies);
+    const [failedProtocolEnabled, setFailedProtocolEnabled] = useState(true);
+    const [failedMessages, setFailedMessages] = useState<string[]>(defaultFailedMessages);
+    const [storyExpirationEnabled, setStoryExpirationEnabled] = useState(true);
+    const [reTriggerEnabled, setReTriggerEnabled] = useState(false);
     const [repliesModalOpen, setRepliesModalOpen] = useState(false);
     const [responseModalOpen, setResponseModalOpen] = useState(false);
     const [reviewOpen, setReviewOpen] = useState(false);
-    const [builderError, setBuilderError] = useState("");
+    const [duplicateWarning, setDuplicateWarning] = useState<{ title: string; onContinue: () => void; onCancel?: () => void } | null>(null);
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+    const [showValidationToast, setShowValidationToast] = useState(false);
     const [saving, setSaving] = useState(false);
     const [askFollowFirst, setAskFollowFirst] = useState(false);
-    const [askEmailFirst, setAskEmailFirst] = useState(template?.category === "Collect leads");
+    const [askEmailFirst, setAskEmailFirst] = useState(scratch ? false : template?.category === "Collect leads");
     const [followUpEnabled, setFollowUpEnabled] = useState(false);
     const [followUpDelay, setFollowUpDelay] = useState("1 day");
     const [followUpMessage, setFollowUpMessage] = useState("Just checking in. Did you get the guide?");
@@ -2916,26 +3013,44 @@ function AutomationBuilder({
     const [builderToast, setBuilderToast] = useState("");
     const finalDmRef = useRef<HTMLTextAreaElement | null>(null);
 
+    const isPro = accountPlan.isPro;
+    const hasTrigger = triggerType !== "";
     const primaryKeyword = keywords[0] || "link";
-    const selectedMedia = fallbackInstagramMedia.find((media) => media.title === selectedPost) || fallbackInstagramMedia[0];
-    const contentSource = triggerType === "Live comment" ? "live" : triggerType === "Story reply" ? "story" : triggerType === "DM keyword" ? "dm" : "post";
+    const selectedMedia = fallbackInstagramMedia.find((media) => media.title === (selectedPosts[0] || "All posts & reels")) || fallbackInstagramMedia[0];
+    const selectedStoryMedia = fallbackInstagramStories.find((story) => story.title === (selectedStories[0] || fallbackInstagramStories[0].title)) || fallbackInstagramStories[0];
+    const contentSource = triggerType === "Live comment" ? "live" : triggerType === "Story reply" ? "story" : triggerType === "DM keyword" ? "dm" : triggerType === "Post or Reel comment" ? "post" : "";
     const safeWelcomeDm = welcomeDm.trim() || "Hey @username, thanks for commenting.";
     const safeFinalDm = finalDm.trim() || "Hey @username, here is the link you asked for.";
-    const keywordText = anyKeyword ? "Any keyword" : keywords.length ? keywords.map((item) => `+${item}`).join(", ") : "+link";
+    const keywordText = anyKeyword ? "Any keyword" : keywords.length ? keywords.map((item) => `+${item}`).join(", ") : "No keywords yet";
     const repliesCount = commentReplies.filter((reply) => reply.trim()).length;
-    const mediaItemsCount = fallbackInstagramMedia.filter((media) => media.id !== "all").length;
-    const keywordRequired = contentSource === "post" || contentSource === "dm" || (contentSource === "story" && storyReplyMode === "Specific keyword in story reply") || (contentSource === "live" && liveCommentMode === "Specific live comment keyword");
+    const keywordRequired = hasTrigger && (contentSource === "post" || contentSource === "dm" || (contentSource === "story" && storyReplyMode === "Specific keyword in story reply") || (contentSource === "live" && liveCommentMode === "Specific live comment keyword"));
+    const showsCommentReplies = hasTrigger && (contentSource === "post" || contentSource === "live");
+    const usesContentSelector = contentSource === "post" || contentSource === "story";
+    const selectedContentTitles = contentSource === "story" ? selectedStories : selectedPosts;
+    const selectedContentCountLabel = contentSource === "post" && selectedPosts.includes("All posts & reels") ? "All" : String(selectedContentTitles.length);
     const beforeFinalDmItems = [askFollowFirst ? "Follow confirmation" : "", askEmailFirst ? "Email capture" : ""].filter(Boolean);
-    const visibleMedia = fallbackInstagramMedia.filter((media) => {
-        const matchesQuery = `${media.title} ${media.caption} ${media.metric}`.toLowerCase().includes(mediaQuery.toLowerCase());
-        const matchesType = media.id === "all" || mediaFilter === "All" || (mediaFilter === "Posts" && media.type === "Post") || (mediaFilter === "Reels" && media.type === "Reel") || (mediaFilter === "Carousels" && media.type === "Carousel");
-        return matchesQuery && matchesType;
-    });
+    const previewContextMedia = contentSource === "story" ? selectedStoryMedia : selectedMedia;
+
+    const occupiedKeywords = useMemo(() => new Set(existingAutomations.map((automation) => automation.keyword.toLowerCase())), [existingAutomations]);
+    const impliedKeyword = (text: string) => {
+        const match = text.match(/\b[A-Z]{3,}\b/);
+        return match ? match[0].toLowerCase() : "";
+    };
+    const mediaIsOccupied = (media: InstagramMedia) => media.id !== "all" && occupiedKeywords.has(impliedKeyword(media.caption));
+    const storyIsOccupied = (story: InstagramMedia) => occupiedKeywords.has(impliedKeyword(story.caption));
+
+    const triggerOptions = [
+        { type: "Post or Reel comment", title: "Comment on a post or reel", copy: "Reply when someone comments a keyword on your post or reel.", icon: <MessageCircle className="h-5 w-5" />, pro: false },
+        { type: "Story reply", title: "Story reply", copy: "Reply when someone responds to your story.", icon: <MessageSquare className="h-5 w-5" />, pro: false },
+        { type: "Live comment", title: "Live comment", copy: "Reply to keywords during your Instagram Live.", icon: <Radio className="h-5 w-5" />, pro: false },
+        { type: "DM keyword", title: "DM keyword", copy: "Start a flow when someone sends a keyword in your DMs.", icon: <KeyRound className="h-5 w-5" />, pro: !accountPlan.featureAccess.autoReply },
+    ];
+    const activeTrigger = triggerOptions.find((option) => option.type === triggerType) || triggerOptions[0];
 
     const addKeyword = (keyword: string) => {
         const cleanKeyword = normalizeKeyword(keyword);
         if (!cleanKeyword) return;
-        setBuilderError("");
+        setValidationErrors((prev) => { const next = { ...prev }; delete next.keywords; return next; });
         setKeywords((prev) => prev.some((item) => item.toLowerCase() === cleanKeyword) ? prev : [...prev, cleanKeyword]);
     };
     const removeKeyword = (keyword: string) => setKeywords((prev) => prev.filter((item) => item !== keyword));
@@ -2973,60 +3088,48 @@ function AutomationBuilder({
             return next;
         });
     };
-    const handleReTrigger = () => {
+    const toggleReTrigger = () => {
         if (!requireBuilderFeature("reTrigger", "Upgrade to Pro to unlock Re-trigger.")) return;
-        showBuilderToast("Re-trigger is ready for this automation.");
+        setReTriggerEnabled((current) => {
+            const next = !current;
+            showBuilderToast(next ? "Re-trigger enabled" : "Re-trigger disabled");
+            return next;
+        });
     };
-
-    const getStepError = (targetStep = step) => {
-        if (targetStep === 1) {
-            if (!automationName.trim()) return "Please name this automation.";
-            if (!triggerType) return "Please choose a trigger.";
-            if (contentSource === "post" && !selectedMedia) return "Please choose a post, reel, or All posts & reels.";
-        }
-        if (targetStep === 2 && keywordRequired && !anyKeyword && keywords.length === 0) return "Add at least one keyword or enable Any keyword.";
-        if (targetStep === 3 && linkEnabled) {
-            if (!buttonText.trim()) return "Button text is required.";
-            if (!linkUrl.trim() || !isValidHttpUrl(linkUrl)) return "Enter a valid link URL.";
-        }
-        return "";
-    };
-
-    useEffect(() => {
-        if (step === 1) {
-            if (contentSource === "story") setPreviewTab("Story");
-            else if (contentSource === "live") setPreviewTab("Live");
-            else if (contentSource === "dm") setPreviewTab("DM");
-            else setPreviewTab("Post");
-        }
-        if (step === 2) {
-            if (contentSource === "story") setPreviewTab("Story");
-            else if (contentSource === "live") setPreviewTab("Live");
-            else if (contentSource === "dm") setPreviewTab("DM");
-            else setPreviewTab("Comments");
-        }
-        if (step === 3 || step === 4) setPreviewTab("DM");
-    }, [step, contentSource]);
 
     const chooseTrigger = (type: string) => {
         if (type === "DM keyword" && !requireBuilderFeature("autoReply", "Upgrade to Pro to unlock DM keyword automations.")) return;
         setTriggerType(type);
-        setBuilderError("");
+        setChangingTrigger(false);
+        setValidationErrors({});
     };
 
-    const goToStep = (nextStep: number) => {
-        setBuilderError("");
-        setStep(nextStep);
+    const applyContentSelection = (titles: string[]) => {
+        if (contentSource === "story") setSelectedStories(titles.length ? titles : [fallbackInstagramStories[0].title]);
+        else setSelectedPosts(titles.length ? titles : ["All posts & reels"]);
+        setContentVisibleCount(3);
+        setValidationErrors((prev) => { const next = { ...prev }; delete next.content; return next; });
     };
-
-    const goNext = () => {
-        const error = getStepError(step);
-        if (error) {
-            setBuilderError(error);
+    const confirmContentSelection = (titles: string[]) => {
+        const pool = contentSource === "story" ? fallbackInstagramStories : fallbackInstagramMedia;
+        const occupied = titles
+            .map((title) => pool.find((media) => media.title === title))
+            .filter((media): media is InstagramMedia => Boolean(media))
+            .filter((media) => (contentSource === "story" ? storyIsOccupied(media) : mediaIsOccupied(media)));
+        setContentModalOpen(false);
+        if (occupied.length) {
+            setDuplicateWarning({
+                title: occupied.map((media) => media.title).join(", "),
+                onContinue: () => { applyContentSelection(titles); setDuplicateWarning(null); },
+                onCancel: () => { setDuplicateWarning(null); setContentModalOpen(true); },
+            });
             return;
         }
-        setBuilderError("");
-        setStep((current) => Math.min(4, current + 1));
+        applyContentSelection(titles);
+    };
+    const removeSelectedContent = (title: string) => {
+        if (contentSource === "story") setSelectedStories((prev) => prev.filter((item) => item !== title));
+        else setSelectedPosts((prev) => prev.filter((item) => item !== title));
     };
 
     const insertFinalToken = (token: string) => {
@@ -3046,14 +3149,50 @@ function AutomationBuilder({
         });
     };
 
+    const computeErrors = () => {
+        const errors: Record<string, string> = {};
+        if (!triggerType) errors.trigger = "Choose a trigger.";
+        if (!automationName.trim()) errors.name = "Name your automation.";
+        if (contentSource === "post" && selectedPosts.length === 0) errors.content = "Choose a post or reel.";
+        if (contentSource === "story" && selectedStories.length === 0) errors.content = "Choose a story.";
+        if (keywordRequired && !anyKeyword && keywords.length === 0) errors.keywords = "Add at least one keyword or turn on Any keyword.";
+        if (!finalDm.trim()) errors.message = "Write the main DM message.";
+        if (linkEnabled) {
+            if (!buttonText.trim()) errors.link = "Add button text for your link.";
+            else if (!linkUrl.trim() || !isValidHttpUrl(linkUrl)) errors.link = "Enter a valid link starting with https://";
+        }
+        return errors;
+    };
+    const errorSectionLabels: Record<string, string> = {
+        trigger: "Trigger",
+        name: "Automation name",
+        content: "Content selection",
+        keywords: "Keywords",
+        message: "Main DM message",
+        link: "Link button",
+    };
+    const currentErrors = computeErrors();
+    const isComplete = Object.keys(currentErrors).length === 0;
+
+    const handleLaunch = () => {
+        const errors = computeErrors();
+        setValidationErrors(errors);
+        if (Object.keys(errors).length) {
+            setShowValidationToast(true);
+            window.setTimeout(() => setShowValidationToast(false), 4200);
+            return;
+        }
+        setReviewOpen(true);
+    };
+
     const completeSave = async () => {
-        for (let index = 1; index <= 4; index += 1) {
-            const error = getStepError(index);
-            if (error) {
-                setStep(index);
-                setBuilderError(error);
-                return;
-            }
+        const errors = computeErrors();
+        if (Object.keys(errors).length) {
+            setValidationErrors(errors);
+            setReviewOpen(false);
+            setShowValidationToast(true);
+            window.setTimeout(() => setShowValidationToast(false), 4200);
+            return;
         }
         setSaving(true);
         try {
@@ -3061,7 +3200,7 @@ function AutomationBuilder({
                 ? "leadGen"
                 : askFollowFirst || template?.category === "Grow followers"
                     ? "askForFollow"
-                    : triggerType === "DM keyword" || followUpEnabled || responses.some((response) => response.type !== "lead")
+                    : triggerType === "DM keyword" || followUpEnabled || reTriggerEnabled || responses.some((response) => response.type !== "lead")
                         ? "autoReply"
                         : undefined;
             await onSave({ keyword: anyKeyword ? "any" : primaryKeyword, replyMessage: safeFinalDm, triggerType, feature });
@@ -3070,32 +3209,14 @@ function AutomationBuilder({
         }
     };
 
-    const openReviewLaunch = () => {
-        for (let index = 1; index <= 4; index += 1) {
-            const error = getStepError(index);
-            if (error) {
-                setStep(index);
-                setBuilderError(error);
-                return;
-            }
+    const saveDraft = async () => {
+        setSaving(true);
+        try {
+            await onSave({ keyword: anyKeyword ? "any" : (keywords[0] || "draft"), replyMessage: safeFinalDm, triggerType });
+        } finally {
+            setSaving(false);
         }
-        setBuilderError("");
-        setReviewOpen(true);
     };
-
-    const reviewItems = [
-        { label: "Instagram account", value: "@dmgennie.in" },
-        { label: "Trigger", value: triggerType },
-        { label: "Selected content", value: contentSource === "post" ? selectedMedia.title : contentSource === "story" ? storyReplyMode : contentSource === "live" ? liveCommentMode : "DM keyword" },
-        { label: "Keywords", value: keywordText },
-        { label: "Welcome DM", value: welcomeEnabled ? safeWelcomeDm : "Off" },
-        { label: "Final DM", value: safeFinalDm },
-        { label: "Button", value: linkEnabled ? `${buttonText || "Open Link"} · ${linkUrl || "Missing URL"}` : "No button" },
-        { label: "Comment replies", value: `${repliesCount} saved` },
-        { label: "Before final DM", value: beforeFinalDmItems.length ? beforeFinalDmItems.join(", ") : "None" },
-        { label: "Response flow", value: `${responses.length} response${responses.length === 1 ? "" : "s"}${followUpEnabled ? ` · Follow-up after ${followUpDelay}` : ""}` },
-    ];
-    const stepLabels = ["Trigger & content", "Keywords", "Final DM", "Review"];
 
     return (
         <div className="space-y-4">
@@ -3107,343 +3228,339 @@ function AutomationBuilder({
                         </button>
                         <div className="min-w-0">
                             <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#94A3B8]">Automation builder</p>
-                            <h1 className="truncate text-lg font-black text-[#0F172A]">{automationName}</h1>
+                            <input
+                                aria-label="Automation name"
+                                className="w-full max-w-[260px] truncate border-none bg-transparent text-lg font-black text-[#0F172A] outline-none"
+                                value={automationName}
+                                onChange={(event) => { setAutomationName(event.target.value); setValidationErrors((prev) => { const next = { ...prev }; delete next.name; return next; }); }}
+                            />
                         </div>
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                        <button className="inline-flex h-9 items-center gap-2 rounded-full bg-emerald-50 px-3 text-xs font-black text-emerald-700 ring-1 ring-emerald-100">
-                            <span className="h-2 w-2 rounded-full bg-emerald-500" /> Live ready
-                        </button>
-                        <SecondaryButton onClick={handleReTrigger}><RefreshCw className="h-4 w-4" /> Re-trigger</SecondaryButton>
-                        <PrimaryButton onClick={openReviewLaunch}><Check className="h-4 w-4" /> {saving ? "Saving..." : "Save Changes"}</PrimaryButton>
+                    <div className="flex flex-wrap items-center gap-2">
+                        {!isComplete && (
+                            <SecondaryButton onClick={saveDraft}><FileText className="h-4 w-4" /> {saving ? "Saving..." : "Save Draft"}</SecondaryButton>
+                        )}
+                        {isPro ? (
+                            <button
+                                onClick={toggleReTrigger}
+                                className={cx(
+                                    "inline-flex items-center gap-2 rounded-[1rem] border px-4 py-2.5 text-sm font-black transition hover:-translate-y-0.5",
+                                    reTriggerEnabled ? "border-indigo-200 bg-[#EEF0FF] text-[#5B4DFF]" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                                )}
+                            >
+                                <RefreshCw className="h-4 w-4" /> Re-trigger{reTriggerEnabled ? " on" : ""}
+                            </button>
+                        ) : (
+                            <button onClick={toggleReTrigger} className={cx("inline-flex items-center gap-2 rounded-[1rem] px-4 py-2.5 text-sm font-black", goldCtaCls)}>
+                                <Crown className={cx("h-4 w-4", goldCrownCls)} /> Re-trigger <span className="rounded-full bg-white/40 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[0.08em]">Pro</span>
+                            </button>
+                        )}
                     </div>
                 </div>
             </section>
 
-            <BuilderStepIndicator step={step} onStep={goToStep} />
-
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(340px,380px)] xl:gap-10">
                 <div className="space-y-4">
-                    {step === 1 && (
-                        <BuilderCard title="Choose trigger and content" subtitle="Choose where DMGennie should listen, then pick the content or trigger condition.">
-                            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_260px]">
-                                <div>
-                                    <Label>Automation name</Label>
-                                    <input className={inputCls} value={automationName} onChange={(event) => setAutomationName(event.target.value)} />
-                                </div>
-                                <div>
-                                    <Label>Connected Instagram</Label>
-                                    <div className="flex h-[46px] items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-3">
-                                        <span className="flex min-w-0 items-center gap-2 text-sm font-black text-[#0F172A]">
-                                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#5B4DFF] to-[#F05A8A] text-xs text-white">D</span>
-                                            <span className="truncate">@dmgennie.in</span>
+                    {/* Trigger selection */}
+                    <BuilderCard title="What starts this automation?" subtitle="Pick the Instagram action that kicks off your flow.">
+                        {changingTrigger ? (
+                            <div className="space-y-2.5">
+                                {triggerOptions.map((option) => (
+                                    <TriggerOptionButton key={option.type} option={option} selected={option.type === triggerType} onClick={() => chooseTrigger(option.type)} />
+                                ))}
+                            </div>
+                        ) : (
+                            <>
+                                <div className="flex items-center justify-between gap-3 rounded-[16px] border border-indigo-200 bg-[#EEF0FF] p-3.5">
+                                    <span className="flex min-w-0 items-center gap-3">
+                                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem] bg-white text-[#5B4DFF]">{activeTrigger.icon}</span>
+                                        <span className="min-w-0">
+                                            <span className="block text-sm font-black text-[#0F172A]">{activeTrigger.title}</span>
+                                            <span className="block truncate text-xs font-semibold text-[#64748B]">{activeTrigger.copy}</span>
                                         </span>
-                                        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-black text-emerald-700 ring-1 ring-emerald-100"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Connected</span>
-                                    </div>
+                                    </span>
+                                    <button onClick={() => setChangingTrigger(true)} className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-black text-[#5B4DFF] ring-1 ring-indigo-100 transition hover:bg-indigo-50">Change</button>
                                 </div>
-                            </div>
 
-                            <div className="mt-5">
-                                <div className="mb-3">
-                                    <h3 className="text-sm font-black text-[#0F172A]">Choose how this automation starts</h3>
-                                    <p className="mt-0.5 text-xs font-semibold text-[#64748B]">Pick the Instagram action that should start this flow.</p>
-                                </div>
-                                <div className="grid gap-3 lg:grid-cols-2">
-                                    <ContentSourceCard
-                                        title="When someone comments on a specific post or reel"
-                                        copy="Select one post, one reel, or listen across all connected media."
-                                        icon={<MessageCircle className="h-5 w-5" />}
-                                        selected={contentSource === "post"}
-                                        action="Choose media"
-                                        onClick={() => chooseTrigger("Post or Reel comment")}
-                                    />
-                                    <ContentSourceCard
-                                        title="User comments on your live"
-                                        copy="Create a live-comment trigger and send an automated DM from live engagement."
-                                        icon={<Radio className="h-5 w-5" />}
-                                        selected={contentSource === "live"}
-                                        action="Create trigger"
-                                        onClick={() => chooseTrigger("Live comment")}
-                                    />
-                                    <ContentSourceCard
-                                        title="User replies to your story"
-                                        copy="Set up a story reply trigger for reactions, replies, and story conversations."
-                                        icon={<MessageSquare className="h-5 w-5" />}
-                                        selected={contentSource === "story"}
-                                        action="Setup trigger"
-                                        onClick={() => chooseTrigger("Story reply")}
-                                    />
-                                    <ContentSourceCard
-                                        title="DM keyword"
-                                        copy="Start a flow when someone sends a keyword in DM."
-                                        icon={<KeyRound className="h-5 w-5" />}
-                                        selected={contentSource === "dm"}
-                                        action="Setup DM keyword"
-                                        onClick={() => chooseTrigger("DM keyword")}
-                                    />
-                                </div>
-                            </div>
-
-                            {contentSource === "post" && (
-                                <div className="mt-6 rounded-[20px] border border-slate-100 bg-slate-50/70 p-4">
-                                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                                        <div>
-                                            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#5B4DFF]">Choose content</p>
-                                            <h3 className="mt-1 text-lg font-black text-[#0F172A]">Connected posts & reels</h3>
-                                            <p className="mt-1 text-sm font-semibold text-[#64748B]">Choose where DMGennie should listen for comment keywords.</p>
-                                        </div>
-                                        <span className="inline-flex h-7 w-fit items-center rounded-full bg-white px-3 text-[11px] font-black text-slate-500 ring-1 ring-slate-100">{mediaItemsCount} media items</span>
-                                    </div>
-                                    <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-                                        <SearchBox value={mediaQuery} onChange={setMediaQuery} placeholder="Search posts or reels..." />
-                                        <div className="flex flex-wrap gap-2">
-                                            {["All", "Posts", "Reels", "Carousels"].map((item) => (
-                                                <button key={item} onClick={() => setMediaFilter(item)} className={cx("h-9 rounded-full px-3 text-xs font-black transition", mediaFilter === item ? "bg-[#0F172A] text-white" : "bg-white text-slate-500 ring-1 ring-slate-100 hover:bg-slate-50")}>{item}</button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    {visibleMedia.length ? (
-                                        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                                            {visibleMedia.map((media) => (
-                                                <PostSelectionCard key={media.id} media={media} selected={selectedMedia.id === media.id} onClick={() => setSelectedPost(media.title)} />
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="mt-4 rounded-[18px] border border-dashed border-slate-200 bg-white p-6 text-center">
-                                            <ImageIcon className="mx-auto h-8 w-8 text-slate-300" />
-                                            <h4 className="mt-3 text-sm font-black text-[#0F172A]">No posts or reels found</h4>
-                                            <p className="mt-1 text-xs font-semibold text-[#64748B]">Refresh your Instagram content or choose All posts & reels.</p>
-                                            <button onClick={() => { setMediaQuery(""); setMediaFilter("All"); setSelectedPost("All posts & reels"); }} className="mt-4 inline-flex h-9 items-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white transition hover:bg-[#4738E8]">
-                                                <RefreshCw className="h-3.5 w-3.5" /> Refresh content
+                                {contentSource === "post" && (
+                                    <div className="mt-4 rounded-[18px] border border-slate-100 bg-slate-50/70 p-4">
+                                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                            <div>
+                                                <h3 className="text-sm font-black text-[#0F172A]">Which posts or reels?</h3>
+                                                <p className="text-xs font-semibold text-[#64748B]">Pick specific content, or listen across all posts & reels.</p>
+                                            </div>
+                                            <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
+                                                <ImageIcon className="h-3.5 w-3.5" /> Select posts
                                             </button>
                                         </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {contentSource === "story" && (
-                                <TriggerSetupPanel title="Story reply trigger" subtitle="Choose how DMGennie should respond when someone replies to your story.">
-                                    <div className="grid gap-2 sm:grid-cols-2">
-                                        {["Any story reply", "Specific keyword in story reply", "Emoji/reaction reply", "Story mention"].map((item) => (
-                                            <TriggerSetupOption key={item} label={item} selected={storyReplyMode === item} onClick={() => setStoryReplyMode(item)} />
-                                        ))}
+                                        <SelectedContentChips
+                                            titles={selectedPosts}
+                                            pool={fallbackInstagramMedia}
+                                            visibleCount={contentVisibleCount}
+                                            onShowMore={() => setContentVisibleCount((current) => current + 6)}
+                                            onShowLess={() => setContentVisibleCount(3)}
+                                            onRemove={removeSelectedContent}
+                                        />
+                                        {validationErrors.content && <p className="mt-2 text-xs font-black text-rose-600">{validationErrors.content}</p>}
                                     </div>
-                                    {storyReplyMode === "Story mention" && <p className="rounded-[14px] bg-white px-3 py-2 text-xs font-bold text-[#64748B] ring-1 ring-indigo-100">This trigger UI is ready. Backend support may require API integration.</p>}
-                                    {storyReplyMode === "Specific keyword in story reply" && (
-                                        <InlineKeywordSetup keywords={keywords} anyKeyword={anyKeyword} onAdd={addKeyword} onRemove={removeKeyword} onAnyKeyword={setAnyKeyword} suggestions={["link", "send", "price", "info", "demo", "guide"]} helper="Automation will trigger on any story reply." />
-                                    )}
-                                </TriggerSetupPanel>
-                            )}
+                                )}
 
-                            {contentSource === "live" && (
-                                <TriggerSetupPanel title="Live comment trigger" subtitle="Send automated DMs when people comment keywords during your Instagram Live.">
-                                    <div className="grid gap-2 sm:grid-cols-2">
-                                        {["Any live comment", "Specific live comment keyword"].map((item) => (
-                                            <TriggerSetupOption key={item} label={item} selected={liveCommentMode === item} onClick={() => setLiveCommentMode(item)} />
-                                        ))}
+                                {contentSource === "story" && (
+                                    <div className="mt-4 space-y-3">
+                                        <div className="rounded-[18px] border border-slate-100 bg-slate-50/70 p-4">
+                                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                                <div>
+                                                    <h3 className="text-sm font-black text-[#0F172A]">Which stories?</h3>
+                                                    <p className="text-xs font-semibold text-[#64748B]">Pick the active stories this automation should watch.</p>
+                                                </div>
+                                                <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
+                                                    <ImageIcon className="h-3.5 w-3.5" /> Select stories
+                                                </button>
+                                            </div>
+                                            <SelectedContentChips
+                                                titles={selectedStories}
+                                                pool={fallbackInstagramStories}
+                                                visibleCount={contentVisibleCount}
+                                                onShowMore={() => setContentVisibleCount((current) => current + 6)}
+                                                onShowLess={() => setContentVisibleCount(3)}
+                                                onRemove={removeSelectedContent}
+                                            />
+                                            {validationErrors.content && <p className="mt-2 text-xs font-black text-rose-600">{validationErrors.content}</p>}
+                                        </div>
+                                        <div className="rounded-[18px] border border-slate-100 bg-white p-4">
+                                            <h3 className="text-sm font-black text-[#0F172A]">How should it match?</h3>
+                                            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                                                {["Any story reply", "Specific keyword in story reply", "Emoji/reaction reply", "Story mention"].map((item) => (
+                                                    <TriggerSetupOption key={item} label={item} selected={storyReplyMode === item} onClick={() => setStoryReplyMode(item)} />
+                                                ))}
+                                            </div>
+                                            <div className="mt-4 flex items-start justify-between gap-3 rounded-[14px] bg-slate-50 px-3 py-3">
+                                                <span className="min-w-0">
+                                                    <span className="block text-sm font-black text-[#0F172A]">Remove automation when the story expires</span>
+                                                    <span className="block text-xs font-semibold text-[#64748B]">Recommended. Stories disappear after 24 hours.</span>
+                                                </span>
+                                                <ToggleSwitch active={storyExpirationEnabled} onClick={() => setStoryExpirationEnabled(!storyExpirationEnabled)} />
+                                            </div>
+                                            {!storyExpirationEnabled && (
+                                                <div className="mt-3 flex gap-2 rounded-[14px] border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs font-bold leading-5 text-amber-800">
+                                                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                                                    <span>Heads up: this story disappears after 24 hours. The automation will stay active, but the original story people replied to will no longer be visible.</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
-                                    {liveCommentMode === "Specific live comment keyword" && (
-                                        <InlineKeywordSetup keywords={keywords} anyKeyword={anyKeyword} onAdd={addKeyword} onRemove={removeKeyword} onAnyKeyword={setAnyKeyword} suggestions={["link", "price", "join", "offer", "course", "demo"]} helper="Automation will trigger on any live comment." />
-                                    )}
-                                </TriggerSetupPanel>
-                            )}
+                                )}
 
-                            {contentSource === "dm" && (
-                                <TriggerSetupPanel title="DM keyword trigger" subtitle="Start an automation when someone sends a keyword in your DMs.">
-                                    <InlineKeywordSetup keywords={keywords} anyKeyword={anyKeyword} onAdd={addKeyword} onRemove={removeKeyword} onAnyKeyword={setAnyKeyword} helper="Automation will trigger on any DM." />
-                                </TriggerSetupPanel>
-                            )}
+                                {contentSource === "live" && (
+                                    <div className="mt-4 rounded-[18px] border border-slate-100 bg-slate-50/70 p-4">
+                                        <h3 className="text-sm font-black text-[#0F172A]">Live comment trigger</h3>
+                                        <p className="text-xs font-semibold text-[#64748B]">No post to pick &mdash; this listens to comments during your next Instagram Live.</p>
+                                        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                                            {["Any live comment", "Specific live comment keyword"].map((item) => (
+                                                <TriggerSetupOption key={item} label={item} selected={liveCommentMode === item} onClick={() => setLiveCommentMode(item)} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {contentSource === "dm" && (
+                                    <div className="mt-4 rounded-[18px] border border-[#E8C56C]/60 bg-[#FFFDF6] p-4">
+                                        <div className="flex items-center gap-2">
+                                            <Crown className={cx("h-4 w-4", goldCrownCls)} />
+                                            <h3 className="text-sm font-black text-[#0F172A]">DM keyword trigger</h3>
+                                            <SmallBadge label="Pro" tone="gold" />
+                                        </div>
+                                        <p className="mt-1 text-xs font-semibold text-[#8A5D17]">Start a flow when someone sends a keyword in your DMs. Set your keywords below.</p>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </BuilderCard>
+
+                    {!hasTrigger && (
+                        <div className="rounded-[20px] border border-dashed border-slate-200 bg-slate-50/60 p-8 text-center">
+                            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[1rem] bg-white text-[#5B4DFF] shadow-sm"><Sparkles className="h-6 w-6" /></span>
+                            <h3 className="mt-4 text-base font-black text-[#0F172A]">Pick a trigger to get started</h3>
+                            <p className="mx-auto mt-1.5 max-w-sm text-sm font-semibold leading-6 text-[#64748B]">Choose what starts your automation above. The rest of the setup appears once you select a trigger.</p>
+                        </div>
+                    )}
+
+                    {hasTrigger && (<>
+                    {/* Keyword config */}
+                    {keywordRequired && (
+                        <BuilderCard title="Which keywords should trigger it?" subtitle="Add the words people will send. Tap a suggestion or type your own.">
+                            <InlineKeywordSetup keywords={keywords} anyKeyword={anyKeyword} onAdd={addKeyword} onRemove={removeKeyword} onAnyKeyword={setAnyKeyword} />
+                            {validationErrors.keywords && <p className="mt-2 text-xs font-black text-rose-600">{validationErrors.keywords}</p>}
                         </BuilderCard>
                     )}
 
-                    {step === 2 && (
-                        <BuilderCard title="Keywords & welcome DM" subtitle="Add the words people will comment and the first message they receive.">
-                            <div className="grid gap-4 lg:grid-cols-2">
-                                <div className="rounded-[18px] border border-slate-100 bg-white p-4">
-                                    <div className="mb-3 flex items-center justify-between gap-3">
-                                        <div>
-                                            <h3 className="text-sm font-black text-[#0F172A]">{contentSource === "dm" ? "DM keywords" : contentSource === "story" ? "Story reply keywords" : contentSource === "live" ? "Live comment keywords" : "Comment keywords"}</h3>
-                                            <p className="text-xs font-semibold text-[#64748B]">Type a keyword and press Enter.</p>
-                                        </div>
-                                        <button onClick={() => setKeywordsModalOpen(true)} className="text-xs font-black text-[#5B4DFF]">Setup</button>
-                                    </div>
-                                    <InlineKeywordSetup keywords={keywords} anyKeyword={anyKeyword} onAdd={addKeyword} onRemove={removeKeyword} onAnyKeyword={setAnyKeyword} />
-                                </div>
-
-                                <div className="rounded-[18px] border border-slate-100 bg-white p-4">
-                                    <div className="mb-3 flex items-center justify-between gap-3">
-                                        <div>
-                                            <h3 className="text-sm font-black text-[#0F172A]">Welcome DM</h3>
-                                            <p className="text-xs font-semibold text-[#64748B]">Blank = use default safe template.</p>
-                                        </div>
-                                        <ToggleSwitch active={welcomeEnabled} onClick={() => setWelcomeEnabled(!welcomeEnabled)} />
-                                    </div>
-                                    <textarea className={`${inputCls} min-h-[128px] resize-none`} placeholder="Hey @username, thanks for commenting." value={welcomeDm} onChange={(event) => setWelcomeDm(event.target.value)} />
-                                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                                        <button onClick={() => setRepliesModalOpen(true)} className="inline-flex items-center gap-1.5 text-xs font-black text-[#5B4DFF]"><MessageSquare className="h-3.5 w-3.5" /> Setup Comment Replies</button>
-                                        <span className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-500 ring-1 ring-slate-100">{repliesCount} saved replies</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </BuilderCard>
-                    )}
-
-                    {step === 3 && (
-                        <BuilderCard title="Final DM & optional link" subtitle="Write the message they receive and add an optional button.">
-                            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)]">
-                                <div className="space-y-4">
-                                    <div className="rounded-[18px] border border-slate-100 bg-white p-4">
-                                        <div className="mb-3 flex items-center justify-between">
-                                            <h3 className="text-sm font-black text-[#0F172A]">Main DM message</h3>
-                                            <SmallBadge label="Auto-template active" tone="green" />
-                                        </div>
-                                        <textarea ref={finalDmRef} className={`${inputCls} min-h-[140px] resize-none`} placeholder="Hey @username, here is the link you asked for." value={finalDm} onChange={(event) => setFinalDm(event.target.value)} />
-                                        <div className="mt-3 flex flex-wrap gap-2">
-                                            <button onClick={() => insertFinalToken("@username")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-indigo-50 hover:text-[#5B4DFF]">@username</button>
-                                            <button onClick={() => insertFinalToken("first name")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-indigo-50 hover:text-[#5B4DFF]">first name</button>
-                                        </div>
-                                    </div>
-                                    <div className="rounded-[18px] border border-slate-100 bg-white p-4">
-                                        <div className="mb-3 flex items-center justify-between">
-                                            <h3 className="text-sm font-black text-[#0F172A]">Optional link button</h3>
-                                            <ToggleSwitch active={linkEnabled} onClick={() => setLinkEnabled(!linkEnabled)} />
-                                        </div>
-                                        <div className="grid gap-3 sm:grid-cols-2">
-                                            <Field label="Button text" value={buttonText} onChange={setButtonText} />
-                                            <Field label="Link URL" value={linkUrl} onChange={setLinkUrl} />
-                                        </div>
-                                        {linkEnabled && (
-                                            <div className="mt-3 space-y-1.5 text-xs font-bold">
-                                                {!buttonText.trim() && <p className="text-rose-600">Button text is required.</p>}
-                                                {linkUrl.trim() && !isValidHttpUrl(linkUrl) && <p className="text-rose-600">Enter a valid link URL starting with https://</p>}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="space-y-4">
-                                    <div className="rounded-[18px] border border-slate-100 bg-white p-4">
-                                        <h3 className="text-sm font-black text-[#0F172A]">Before final DM</h3>
-                                        <div className="mt-3 space-y-2">
-                                            <BuilderOptionRow title="Ask them to follow first" copy="Deliver links only after follow confirmation." active={askFollowFirst} onClick={toggleAskFollowFirst} badge={accountPlan.featureAccess.askForFollow ? "Included" : "Pro"} />
-                                            <BuilderOptionRow title="Ask for email first" copy="Capture leads before sending the final link." active={askEmailFirst} onClick={toggleAskEmailFirst} badge={accountPlan.featureAccess.leadGen ? "Included" : "Pro"} />
-                                        </div>
-                                        {(askFollowFirst || askEmailFirst) && (
-                                            <div className="mt-3 rounded-[14px] bg-[#EEF0FF] px-3 py-2 text-xs font-bold text-[#5B4DFF]">
-                                                {beforeFinalDmItems.join(" and ")} will appear before the final DM in the preview.
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="rounded-[18px] border border-slate-100 bg-slate-50 p-4">
-                                        <h3 className="text-sm font-black text-[#0F172A]">Quick summary</h3>
-                                        <div className="mt-3 space-y-2 text-xs font-bold text-[#64748B]">
-                                            <p>Selected content: {contentSource === "post" ? selectedMedia.title : triggerType}</p>
-                                            <p>Keyword: {keywordText}</p>
-                                            <p>Welcome DM: {welcomeEnabled ? "Enabled" : "Off"}</p>
-                                            <p>Final DM: {safeFinalDm.slice(0, 42)}...</p>
-                                            <p>Button: {linkEnabled ? buttonText : "No button"}</p>
-                                            {linkEnabled && <p>Button URL: {linkUrl || "Missing URL"}</p>}
-                                            <p>Comment replies: {repliesCount}</p>
-                                            <p>Before final DM: {beforeFinalDmItems.length ? beforeFinalDmItems.join(", ") : "None"}</p>
-                                            <p>Responses: {responses.length ? responses.map((response) => response.title).join(", ") : "None"}</p>
-                                            <p>Follow-up: {followUpEnabled ? `${followUpDelay} · ${followUpMessage}` : "Off"}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <ResponseFlowBlock
-                                active={openingMessageEnabled}
-                                onToggle={() => setOpeningMessageEnabled(!openingMessageEnabled)}
-                                onAdd={() => setResponseModalOpen(true)}
-                                followUpEnabled={followUpEnabled}
-                                followUpDelay={followUpDelay}
-                                followUpMessage={followUpMessage}
-                                onToggleFollowUp={toggleFollowUp}
-                                onFollowUpDelay={setFollowUpDelay}
-                                onFollowUpMessage={setFollowUpMessage}
+                    {/* Public replies (keyword-style chips) */}
+                    {showsCommentReplies && (
+                        <BuilderCard title="Public comment replies" subtitle="Optional. DMGennie can also post a public reply under the comment. Add a few so replies feel natural.">
+                            <InlineReplySetup
+                                replies={commentReplies}
+                                onAdd={(value) => setCommentReplies((prev) => prev.some((item) => item.toLowerCase() === value.toLowerCase()) ? prev : [...prev, value])}
+                                onRemove={(value) => setCommentReplies((prev) => prev.filter((item) => item !== value))}
+                                suggestions={defaultCommentReplies}
                             />
                         </BuilderCard>
                     )}
 
-                    {step === 4 && (
-                        <BuilderCard title="Review and launch" subtitle="Review before going live. DMGennie will only respond when this setup is matched.">
-                            <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-                                <div className="rounded-[20px] border border-slate-100 bg-slate-50 p-4">
-                                    <div className="space-y-3">
-                                        {reviewItems.map((item, index) => (
-                                            <div key={item.label} className="grid grid-cols-[34px_minmax(0,1fr)] gap-3">
-                                                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-xs font-black text-[#5B4DFF] ring-1 ring-indigo-100">{index + 1}</span>
-                                                <div className="rounded-[16px] bg-white p-3 ring-1 ring-slate-100">
-                                                    <p className="text-xs font-black text-[#0F172A]">{item.label}</p>
-                                                    <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-[#64748B]">{item.value}</p>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                    {/* Welcome DM */}
+                    <BuilderCard title="Welcome DM" subtitle="The first message people receive. Leave it on for a friendly opener.">
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                            <p className="text-xs font-semibold text-[#64748B]">Turn off to skip straight to the main message.</p>
+                            <ToggleSwitch active={welcomeEnabled} onClick={() => setWelcomeEnabled(!welcomeEnabled)} />
+                        </div>
+                        <textarea className={`${inputCls} min-h-[64px] resize-none`} placeholder="Hey @username, thanks for commenting." value={welcomeDm} onChange={(event) => setWelcomeDm(event.target.value)} disabled={!welcomeEnabled} />
+                    </BuilderCard>
+
+                    {/* Main DM + merged link */}
+                    <BuilderCard title="Main DM message" subtitle="The message that delivers your link or answer.">
+                        <textarea ref={finalDmRef} className={`${inputCls} min-h-[130px] resize-none`} placeholder="Hey @username, here is the link you asked for." value={finalDm} onChange={(event) => { setFinalDm(event.target.value); setValidationErrors((prev) => { const next = { ...prev }; delete next.message; return next; }); }} />
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            <button onClick={() => insertFinalToken("@username")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-indigo-50 hover:text-[#5B4DFF]">@username</button>
+                            <button onClick={() => insertFinalToken("first name")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-indigo-50 hover:text-[#5B4DFF]">first name</button>
+                        </div>
+                        {validationErrors.message && <p className="mt-2 text-xs font-black text-rose-600">{validationErrors.message}</p>}
+
+                        <div className="mt-4 rounded-[16px] border border-slate-100 bg-slate-50/70 p-3.5">
+                            <div className="flex items-center justify-between gap-3">
+                                <div>
+                                    <h3 className="text-sm font-black text-[#0F172A]">Add Link <span className="text-[#64748B]">(Optional)</span></h3>
+                                    <p className="text-xs font-semibold text-[#64748B]">Shows as a tappable button inside the DM. Turn off if you don't need one.</p>
                                 </div>
-                                <div className="rounded-[20px] border border-indigo-100 bg-[#EEF0FF]/60 p-4">
-                                    <ShieldCheck className="h-8 w-8 text-[#5B4DFF]" />
-                                    <h3 className="mt-4 text-lg font-black text-[#0F172A]">Launch flow</h3>
-                                    <div className="mt-3 space-y-2 text-xs font-bold leading-5 text-[#64748B]">
-                                        <p>When someone matches <span className="text-[#0F172A]">{triggerType}</span>,</p>
-                                        <p>{anyKeyword ? "any keyword is accepted," : `if their message includes ${keywordText},`}</p>
-                                        <p>DMGennie sends the welcome DM, then delivers your final DM.</p>
-                                    </div>
-                                    <button onClick={openReviewLaunch} className="mt-5 inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[#5B4DFF] text-xs font-black text-white shadow-[0_10px_22px_rgba(91,77,255,0.18)] transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
-                                        Review & launch <ArrowRight className="h-3.5 w-3.5" />
-                                    </button>
-                                </div>
+                                <ToggleSwitch active={linkEnabled} onClick={() => { setLinkEnabled(!linkEnabled); setValidationErrors((prev) => { const next = { ...prev }; delete next.link; return next; }); }} />
                             </div>
-                        </BuilderCard>
-                    )}
+                            {linkEnabled && (
+                                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                                    <Field label="Button text" value={buttonText} onChange={(value) => { setButtonText(value); setValidationErrors((prev) => { const next = { ...prev }; delete next.link; return next; }); }} />
+                                    <Field label="Link URL" value={linkUrl} onChange={(value) => { setLinkUrl(value); setValidationErrors((prev) => { const next = { ...prev }; delete next.link; return next; }); }} />
+                                </div>
+                            )}
+                            {linkEnabled && validationErrors.link && <p className="mt-2 text-xs font-black text-rose-600">{validationErrors.link}</p>}
+                        </div>
+                    </BuilderCard>
+
+                    {/* Failed Message Protocol */}
+                    <BuilderCard title="If a DM can't be delivered" subtitle="Sometimes Instagram blocks a DM (closed inbox, restrictions, etc.). Choose what DMGennie should try instead.">
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                            <p className="text-xs font-semibold text-[#64748B]">Turn on a fallback so you never miss a lead.</p>
+                            <ToggleSwitch active={failedProtocolEnabled} onClick={() => setFailedProtocolEnabled(!failedProtocolEnabled)} />
+                        </div>
+                        {failedProtocolEnabled && (
+                            <FallbackMessageEditor messages={failedMessages} onChange={setFailedMessages} />
+                        )}
+                    </BuilderCard>
+
+                    {/* Pro features */}
+                    <BuilderCard title="Extra steps & Pro features" subtitle="Optional steps that make your automation smarter.">
+                        <div className="space-y-2.5">
+                            <ProToggleCard
+                                icon={<TrendingUp className="h-4 w-4" />}
+                                title="Ask them to follow first"
+                                copy="Deliver the link only after they follow you."
+                                active={askFollowFirst}
+                                locked={!accountPlan.featureAccess.askForFollow}
+                                onToggle={toggleAskFollowFirst}
+                            />
+                            <ProToggleCard
+                                icon={<UserPlus className="h-4 w-4" />}
+                                title="Ask for email first"
+                                copy="Capture a lead before sending the final link."
+                                active={askEmailFirst}
+                                locked={!accountPlan.featureAccess.leadGen}
+                                onToggle={toggleAskEmailFirst}
+                            />
+                            <ProToggleCard
+                                icon={<MessageSquare className="h-4 w-4" />}
+                                title="Follow-up message"
+                                copy="Send one more message after a delay."
+                                active={followUpEnabled}
+                                locked={!accountPlan.featureAccess.autoReply}
+                                onToggle={toggleFollowUp}
+                            />
+                            {followUpEnabled && accountPlan.featureAccess.autoReply && (
+                                <div className="grid gap-3 rounded-[14px] bg-slate-50 p-3 sm:grid-cols-[120px_minmax(0,1fr)]">
+                                    <input className={inputCls} value={followUpDelay} onChange={(event) => setFollowUpDelay(event.target.value)} placeholder="1 day" />
+                                    <input className={inputCls} value={followUpMessage} onChange={(event) => setFollowUpMessage(event.target.value)} placeholder="Follow-up message" />
+                                </div>
+                            )}
+                            <ProActionButton
+                                icon={<Plus className="h-4 w-4" />}
+                                title="Add a response"
+                                copy="Cards, images, lead forms, and more."
+                                locked={!isPro}
+                                onClick={() => setResponseModalOpen(true)}
+                            />
+                            {responses.length > 0 && (
+                                <div className="space-y-1.5">
+                                    {responses.map((response, index) => (
+                                        <div key={`${response.title}-${index}`} className="flex items-center justify-between gap-3 rounded-[14px] bg-slate-50 px-3 py-2.5">
+                                            <span className="min-w-0">
+                                                <span className="block text-xs font-black text-[#0F172A]">{response.title}</span>
+                                                <span className="block truncate text-[11px] font-semibold text-[#64748B]">{response.summary}</span>
+                                            </span>
+                                            <button onClick={() => setResponses((current) => current.filter((_, itemIndex) => itemIndex !== index))} className="text-slate-400 transition hover:text-rose-500"><Trash2 className="h-4 w-4" /></button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </BuilderCard>
+
+                    {/* Launch */}
+                    <div className="rounded-[20px] border border-white bg-white p-4 shadow-[0_16px_44px_rgba(15,23,42,0.06)]">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 className="text-sm font-black text-[#0F172A]">Ready to launch?</h3>
+                                <p className="text-xs font-semibold text-[#64748B]">We will show you a plain-English summary before it goes live.</p>
+                            </div>
+                            <div className="flex gap-2">
+                                {!isComplete && <SecondaryButton onClick={saveDraft}>Save Draft</SecondaryButton>}
+                                <PrimaryButton onClick={handleLaunch}><Check className="h-4 w-4" /> Launch Automation</PrimaryButton>
+                            </div>
+                        </div>
+                    </div>
+                    </>)}
                 </div>
 
-                <InstagramPreviewPanel
-                    step={step}
-                    previewTab={previewTab}
-                    onPreviewTab={setPreviewTab}
+                <InstagramDmPreview
+                    contentSource={contentSource}
                     triggerType={triggerType}
+                    username="@dmgennie.in"
                     keyword={primaryKeyword}
                     anyKeyword={anyKeyword}
-                    selectedMedia={selectedMedia}
-                    username="@dmgennie.in"
-                    finalDm={safeFinalDm}
-                    welcomeDm={safeWelcomeDm}
+                    contextMedia={previewContextMedia}
+                    storyReplyMode={storyReplyMode}
+                    liveCommentMode={liveCommentMode}
                     welcomeEnabled={welcomeEnabled}
-                    buttonText={buttonText}
-                    linkEnabled={linkEnabled}
-                    linkUrl={linkUrl}
-                    commentReplies={commentReplies}
+                    welcomeDm={safeWelcomeDm}
                     askFollowFirst={askFollowFirst}
                     askEmailFirst={askEmailFirst}
+                    finalDm={safeFinalDm}
+                    linkEnabled={linkEnabled}
+                    buttonText={buttonText}
+                    linkUrl={linkUrl}
                     followUpEnabled={followUpEnabled}
                     followUpMessage={followUpMessage}
-                    responseCount={responses.length}
                 />
             </div>
 
-            <div className="sticky bottom-3 z-20 rounded-[20px] border border-white bg-white/95 p-3 shadow-[0_18px_46px_rgba(15,23,42,0.10)] backdrop-blur">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <p className="text-xs font-bold text-[#64748B]">Step {step}/4 · {stepLabels[step - 1]}</p>
-                        {builderError && <p className="mt-1 text-xs font-black text-rose-600">{builderError}</p>}
-                    </div>
-                    <div className="flex gap-2">
-                        <SecondaryButton onClick={step === 1 ? onCancel : () => goToStep(step - 1)}>{step === 1 ? "Back to list" : "Back"}</SecondaryButton>
-                        {step < 4 ? (
-                            <PrimaryButton onClick={goNext}>Next Step <ArrowRight className="h-4 w-4" /></PrimaryButton>
-                        ) : (
-                            <PrimaryButton onClick={openReviewLaunch}><Check className="h-4 w-4" /> Activate Automation</PrimaryButton>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {postModalOpen && <PostSelectionModal selected={selectedPost} onClose={() => setPostModalOpen(false)} onSelect={(post) => { setSelectedPost(post); setPostModalOpen(false); }} />}
-            {keywordsModalOpen && <KeywordsModal keywords={keywords} anyKeyword={anyKeyword} onAnyKeyword={setAnyKeyword} onClose={() => setKeywordsModalOpen(false)} onConfirm={(next) => { setKeywords(next.length ? next : ["link"]); setBuilderError(""); setKeywordsModalOpen(false); }} />}
+            {contentModalOpen && (
+                <ContentSelectorModal
+                    kind={contentSource === "story" ? "story" : "post"}
+                    items={contentSource === "story" ? fallbackInstagramStories : fallbackInstagramMedia}
+                    initialSelected={selectedContentTitles}
+                    isOccupied={(media) => contentSource === "story" ? storyIsOccupied(media) : mediaIsOccupied(media)}
+                    onClose={() => setContentModalOpen(false)}
+                    onConfirm={confirmContentSelection}
+                />
+            )}
             {repliesModalOpen && <CommentRepliesModal replies={commentReplies} onClose={() => setRepliesModalOpen(false)} onConfirm={(next) => { setCommentReplies(next); setRepliesModalOpen(false); }} />}
             {responseModalOpen && (
                 <AddResponseModal
-                    openingMessageEnabled={openingMessageEnabled}
+                    openingMessageEnabled={welcomeEnabled}
                     featureAccess={accountPlan.featureAccess}
                     onUpgrade={onUpgrade}
                     onClose={() => setResponseModalOpen(false)}
@@ -3460,12 +3577,49 @@ function AutomationBuilder({
                     }}
                 />
             )}
+            {duplicateWarning && (
+                <ModalShell onClose={() => setDuplicateWarning(null)}>
+                    <div className="text-center">
+                        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-[1.15rem] bg-amber-50 text-amber-600 ring-1 ring-amber-100">
+                            <AlertTriangle className="h-6 w-6" />
+                        </span>
+                        <h2 className="mt-5 text-2xl font-black text-[#0F172A]">Some content already has an automation</h2>
+                        <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[#64748B]">
+                            These already have an automation attached. You can still continue, but more than one automation may respond to the same people.
+                        </p>
+                        <div className="mx-auto mt-3 max-w-md rounded-[14px] border border-amber-100 bg-amber-50/70 px-3 py-2 text-left text-xs font-bold text-amber-800">
+                            {duplicateWarning.title}
+                        </div>
+                        <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
+                            <SecondaryButton onClick={() => (duplicateWarning.onCancel ? duplicateWarning.onCancel() : setDuplicateWarning(null))}>Cancel</SecondaryButton>
+                            <PrimaryButton onClick={duplicateWarning.onContinue}>Continue anyway</PrimaryButton>
+                        </div>
+                    </div>
+                </ModalShell>
+            )}
             {builderToast && <ReferralToast message={builderToast} />}
+            {showValidationToast && (
+                <motion.div
+                    initial={{ opacity: 0, x: 40, y: 10 }}
+                    animate={{ opacity: 1, x: 0, y: 0 }}
+                    exit={{ opacity: 0, x: 40 }}
+                    transition={{ duration: 0.22 }}
+                    className="fixed bottom-6 right-6 z-50 w-[330px] max-w-[calc(100vw-2rem)] rounded-[16px] border border-rose-200 bg-white p-4 shadow-[0_24px_60px_rgba(15,23,42,0.18)]"
+                >
+                    <div className="flex items-start gap-2.5">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600"><AlertTriangle className="h-4 w-4" /></span>
+                        <div className="min-w-0">
+                            <p className="text-sm font-black text-[#0F172A]">A few things need attention</p>
+                            <p className="mt-0.5 text-xs font-semibold leading-5 text-[#64748B]">Please complete: {Object.keys(validationErrors).map((key) => errorSectionLabels[key]).filter(Boolean).join(", ")}.</p>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
             {reviewOpen && (
                 <ReviewLaunchModal
                     saving={saving}
                     profile="@dmgennie.in"
-                    selectedMedia={selectedMedia}
+                    selectedMedia={contentSource === "story" ? selectedStoryMedia : selectedMedia}
                     triggerType={triggerType}
                     keywords={keywords}
                     anyKeyword={anyKeyword}
@@ -3481,11 +3635,405 @@ function AutomationBuilder({
                     followUpEnabled={followUpEnabled}
                     followUpDelay={followUpDelay}
                     responseCount={responses.length}
+                    contentSource={contentSource}
+                    storyExpirationEnabled={storyExpirationEnabled}
+                    reTriggerEnabled={reTriggerEnabled}
+                    failedProtocolEnabled={failedProtocolEnabled}
+                    selectedContentLabel={selectedContentCountLabel}
+                    triggerLabel={activeTrigger.title}
+                    previewProps={{
+                        contentSource,
+                        triggerType,
+                        username: "@dmgennie.in",
+                        keyword: primaryKeyword,
+                        anyKeyword,
+                        contextMedia: previewContextMedia,
+                        storyReplyMode,
+                        liveCommentMode,
+                        welcomeEnabled,
+                        welcomeDm: safeWelcomeDm,
+                        askFollowFirst,
+                        askEmailFirst,
+                        finalDm: safeFinalDm,
+                        linkEnabled,
+                        buttonText,
+                        linkUrl,
+                        followUpEnabled,
+                        followUpMessage,
+                    }}
                     onBack={() => setReviewOpen(false)}
                     onConfirm={completeSave}
                 />
             )}
         </div>
+    );
+}
+
+function SelectedContentChips({ titles, pool, visibleCount, onShowMore, onShowLess, onRemove }: { titles: string[]; pool: InstagramMedia[]; visibleCount: number; onShowMore: () => void; onShowLess: () => void; onRemove: (title: string) => void }) {
+    if (!titles.length) return <p className="mt-3 text-xs font-semibold text-[#64748B]">No content selected yet.</p>;
+    const shown = titles.slice(0, visibleCount);
+    const remaining = titles.length - shown.length;
+    return (
+        <div className="mt-3">
+            <div className="flex flex-wrap gap-2">
+                {shown.map((title) => {
+                    const media = pool.find((item) => item.title === title);
+                    return (
+                        <span key={title} className="inline-flex items-center gap-2 rounded-full bg-white px-2.5 py-1.5 text-xs font-black text-[#0F172A] ring-1 ring-slate-200">
+                            <span className={cx("h-4 w-4 rounded-[5px] bg-gradient-to-br", media?.color || "from-slate-200 to-slate-300")} />
+                            <span className="max-w-[160px] truncate">{title}</span>
+                            <button onClick={() => onRemove(title)} className="text-slate-400 transition hover:text-rose-500" aria-label={`Remove ${title}`}><X className="h-3.5 w-3.5" /></button>
+                        </span>
+                    );
+                })}
+                {remaining > 0 && (
+                    <button onClick={onShowMore} className="inline-flex items-center rounded-full bg-[#EEF0FF] px-3 py-1.5 text-xs font-black text-[#5B4DFF] transition hover:bg-indigo-100">+{remaining} more</button>
+                )}
+            </div>
+            {visibleCount > 3 && titles.length > 3 && (
+                <button onClick={onShowLess} className="mt-2 text-xs font-black text-[#5B4DFF]">Show less</button>
+            )}
+        </div>
+    );
+}
+
+function InlineReplySetup({ replies, onAdd, onRemove, suggestions = [] }: { replies: string[]; onAdd: (value: string) => void; onRemove: (value: string) => void; suggestions?: string[] }) {
+    const [draft, setDraft] = useState("");
+    const submit = () => {
+        const value = draft.trim();
+        if (!value) return;
+        onAdd(value);
+        setDraft("");
+    };
+    const availableSuggestions = suggestions.filter((item) => !replies.includes(item));
+    return (
+        <div className="space-y-3">
+            {replies.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                    {replies.map((reply) => (
+                        <button key={reply} type="button" onClick={() => onRemove(reply)} className="transition hover:-translate-y-0.5">
+                            <KeywordChip>{reply} ×</KeywordChip>
+                        </button>
+                    ))}
+                </div>
+            ) : (
+                <p className="text-xs font-semibold text-[#64748B]">No public replies yet. Tap a suggestion or type your own below.</p>
+            )}
+            {availableSuggestions.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                    {availableSuggestions.map((suggestion) => (
+                        <button key={suggestion} type="button" onClick={() => onAdd(suggestion)} className="inline-flex h-8 items-center rounded-full bg-white px-3 text-xs font-black text-[#5B4DFF] ring-1 ring-indigo-100 transition hover:-translate-y-0.5 hover:bg-[#EEF0FF]">{suggestion}</button>
+                    ))}
+                </div>
+            )}
+            <input
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10"
+                placeholder="Type a public reply and press Enter"
+                value={draft}
+                onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); submit(); } }}
+            />
+        </div>
+    );
+}
+
+function FallbackMessageEditor({ messages, onChange }: { messages: string[]; onChange: (next: string[]) => void }) {
+    const update = (index: number, value: string) => onChange(messages.map((message, itemIndex) => itemIndex === index ? value : message));
+    const remove = (index: number) => onChange(messages.filter((_, itemIndex) => itemIndex !== index));
+    const move = (index: number, direction: number) => {
+        const target = index + direction;
+        if (target < 0 || target >= messages.length) return;
+        const next = [...messages];
+        [next[index], next[target]] = [next[target], next[index]];
+        onChange(next);
+    };
+    return (
+        <div className="space-y-2.5">
+            {messages.map((message, index) => (
+                <div key={index} className="flex items-start gap-2 rounded-[16px] border border-slate-100 bg-white p-2.5">
+                    <div className="flex flex-col pt-1">
+                        <button onClick={() => move(index, -1)} disabled={index === 0} className="text-slate-300 transition hover:text-slate-500 disabled:opacity-30" aria-label="Move up"><ChevronDown className="h-3.5 w-3.5 rotate-180" /></button>
+                        <button onClick={() => move(index, 1)} disabled={index === messages.length - 1} className="text-slate-300 transition hover:text-slate-500 disabled:opacity-30" aria-label="Move down"><ChevronDown className="h-3.5 w-3.5" /></button>
+                    </div>
+                    <textarea className="min-h-[46px] flex-1 resize-none bg-transparent text-sm font-bold text-[#0F172A] outline-none" value={message} onChange={(event) => update(index, event.target.value)} placeholder="Fallback message" />
+                    <button onClick={() => remove(index)} className="pt-1 text-slate-400 transition hover:text-rose-500" aria-label="Remove"><Trash2 className="h-4 w-4" /></button>
+                </div>
+            ))}
+            <button onClick={() => onChange([...messages, ""])} className="flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border border-dashed border-slate-200 text-sm font-black text-slate-500 transition hover:border-indigo-200 hover:text-[#5B4DFF]">
+                <Plus className="h-4 w-4" /> Add fallback message
+            </button>
+        </div>
+    );
+}
+
+function ContentSelectCard({ media, kind, selected, occupied, onClick }: { media: InstagramMedia; kind: "post" | "story"; selected: boolean; occupied: boolean; onClick: () => void }) {
+    const isAll = media.id === "all";
+    return (
+        <button onClick={onClick} className={cx("group rounded-[16px] border p-2 text-left transition hover:-translate-y-0.5", selected ? "border-[#5B4DFF] bg-[#EEF0FF]" : "border-slate-100 bg-white hover:border-indigo-100")}>
+            <div className={cx("relative flex h-28 items-center justify-center overflow-hidden rounded-[12px] bg-gradient-to-br", media.color)}>
+                <div className="absolute inset-0 bg-black/10" />
+                {isAll ? <LayoutGrid className="relative h-7 w-7 text-slate-500" /> : <Instagram className="relative h-7 w-7 text-white/90" />}
+                <span className="absolute right-1.5 top-1.5 rounded-full bg-black/30 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-[0.08em] text-white">{kind === "story" ? "Story" : media.type}</span>
+                {selected && <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#5B4DFF]"><Check className="h-3 w-3 stroke-[3]" /></span>}
+            </div>
+            <p className="mt-1.5 truncate text-[11px] font-black text-[#0F172A]">{media.title}</p>
+            <p className="truncate text-[10px] font-black uppercase tracking-[0.06em] text-slate-400">{isAll ? "All content" : media.metric}{occupied ? " · In use" : ""}</p>
+        </button>
+    );
+}
+
+function ContentSelectorModal({ kind, items, initialSelected, isOccupied, onClose, onConfirm }: { kind: "post" | "story"; items: InstagramMedia[]; initialSelected: string[]; isOccupied: (media: InstagramMedia) => boolean; onClose: () => void; onConfirm: (titles: string[]) => void }) {
+    const [query, setQuery] = useState("");
+    const [filter, setFilter] = useState("All");
+    const [selected, setSelected] = useState<string[]>(initialSelected);
+    const filters = kind === "post" ? ["All", "Posts", "Reels", "Carousels"] : ["All"];
+    const visible = items.filter((media) => {
+        const matchesQuery = `${media.title} ${media.caption} ${media.metric}`.toLowerCase().includes(query.toLowerCase());
+        const matchesType = filter === "All" || media.id === "all" || (filter === "Posts" && media.type === "Post") || (filter === "Reels" && media.type === "Reel") || (filter === "Carousels" && media.type === "Carousel");
+        return matchesQuery && matchesType;
+    });
+    const toggle = (media: InstagramMedia) => {
+        if (media.id === "all") {
+            setSelected(["All posts & reels"]);
+            return;
+        }
+        setSelected((prev) => {
+            const withoutAll = prev.filter((title) => title !== "All posts & reels");
+            return withoutAll.includes(media.title) ? withoutAll.filter((title) => title !== media.title) : [...withoutAll, media.title];
+        });
+    };
+    return (
+        <ModalShell onClose={onClose} wide>
+            <div className="flex items-start justify-between gap-4">
+                <div>
+                    <h2 className="text-2xl font-black text-[#0F172A]">{kind === "story" ? "Select stories" : "Select posts or reels"}</h2>
+                    <p className="mt-1 text-sm font-semibold text-[#64748B]">Choose the content this automation should watch. You can pick more than one.</p>
+                </div>
+                <button onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50"><X className="h-4 w-4" /></button>
+            </div>
+            <div className="mt-5 space-y-4">
+                <SearchBox value={query} onChange={setQuery} placeholder={kind === "story" ? "Search stories..." : "Search posts or reels..."} />
+                {filters.length > 1 && (
+                    <div className="flex flex-wrap gap-2">
+                        {filters.map((item) => (
+                            <button key={item} onClick={() => setFilter(item)} className={cx("rounded-full px-4 py-2 text-xs font-black transition", filter === item ? "bg-[#0F172A] text-white" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>{item}</button>
+                        ))}
+                    </div>
+                )}
+                <div className="max-h-[52vh] overflow-y-auto pr-1">
+                    {visible.length ? (
+                        <div className="grid gap-3 sm:grid-cols-3">
+                            {visible.map((media) => (
+                                <ContentSelectCard key={media.id} media={media} kind={kind} selected={selected.includes(media.title)} occupied={isOccupied(media)} onClick={() => toggle(media)} />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="rounded-[18px] border border-dashed border-slate-200 bg-slate-50 p-6 text-center">
+                            <ImageIcon className="mx-auto h-8 w-8 text-slate-300" />
+                            <p className="mt-3 text-sm font-black text-[#0F172A]">Nothing found</p>
+                            <p className="mt-1 text-xs font-semibold text-[#64748B]">Try another search or filter.</p>
+                        </div>
+                    )}
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                    <span className="text-xs font-black text-[#64748B]">{selected.length} selected</span>
+                    <div className="flex gap-2">
+                        <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
+                        <PrimaryButton onClick={() => onConfirm(selected)}>Confirm selection</PrimaryButton>
+                    </div>
+                </div>
+            </div>
+        </ModalShell>
+    );
+}
+
+function TriggerOptionButton({ option, selected, onClick }: { option: { type: string; title: string; copy: string; icon: ReactNode; pro: boolean }; selected: boolean; onClick: () => void }) {
+    return (
+        <button
+            onClick={onClick}
+            className={cx(
+                "flex w-full items-center gap-3 rounded-[16px] border p-3.5 text-left transition hover:-translate-y-0.5",
+                selected
+                    ? "border-[#5B4DFF] bg-[#EEF0FF] shadow-[0_12px_28px_rgba(91,77,255,0.10)]"
+                    : option.pro
+                        ? "border-[#E8C56C]/60 bg-[#FFFDF6] hover:bg-[#FFF9E8]"
+                        : "border-slate-100 bg-white hover:border-indigo-100 hover:bg-indigo-50/30"
+            )}
+        >
+            <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem]", selected ? "bg-white text-[#5B4DFF]" : option.pro ? "bg-[#FFF7DA] text-[#8A5D17]" : "bg-slate-50 text-slate-500")}>{option.icon}</span>
+            <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2 text-sm font-black text-[#0F172A]">{option.title}{option.pro && <SmallBadge label="Pro" tone="gold" />}</span>
+                <span className="block truncate text-xs font-semibold text-[#64748B]">{option.copy}</span>
+            </span>
+            {selected ? <CheckCircle2 className="h-5 w-5 shrink-0 text-[#5B4DFF]" /> : option.pro ? <Crown className={cx("h-4 w-4 shrink-0", goldCrownCls)} /> : <ChevronDown className="h-4 w-4 -rotate-90 shrink-0 text-slate-300" />}
+        </button>
+    );
+}
+
+function StorySelectionCard({ story, selected, onClick }: { story: InstagramMedia; selected: boolean; onClick: () => void }) {
+    return (
+        <button onClick={onClick} className={cx("group rounded-[16px] border p-2 text-left transition hover:-translate-y-0.5", selected ? "border-[#5B4DFF] bg-[#EEF0FF]" : "border-slate-100 bg-white hover:border-indigo-100")}>
+            <div className={cx("relative flex h-28 items-end overflow-hidden rounded-[12px] bg-gradient-to-br p-2", story.color)}>
+                <div className="absolute inset-0 bg-black/15" />
+                <span className="absolute right-1.5 top-1.5 rounded-full bg-black/30 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-[0.08em] text-white">Story</span>
+                {selected && <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#5B4DFF]"><Check className="h-3 w-3 stroke-[3]" /></span>}
+                <p className="relative text-[10px] font-black leading-3 text-white">{story.metric}</p>
+            </div>
+            <p className="mt-1.5 truncate text-[11px] font-black text-[#0F172A]">{story.title}</p>
+        </button>
+    );
+}
+
+function ProToggleCard({ icon, title, copy, active, locked, onToggle }: { icon: ReactNode; title: string; copy: string; active: boolean; locked: boolean; onToggle: () => void }) {
+    return (
+        <button
+            onClick={onToggle}
+            className={cx(
+                "flex w-full items-center gap-3 rounded-[16px] border p-3 text-left transition",
+                locked ? "border-[#E8C56C]/70 bg-[#FFFDF6] hover:bg-[#FFF9E8]" : active ? "border-indigo-200 bg-[#EEF0FF]" : "border-slate-100 bg-slate-50 hover:bg-white"
+            )}
+        >
+            <span className={cx("flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.85rem] ring-1", locked ? "bg-[#FFF7DA] text-[#8A5D17] ring-[#E8C56C]/40" : "bg-white text-[#5B4DFF] ring-slate-100")}>{locked ? <Crown className={cx("h-4 w-4", goldCrownCls)} /> : icon}</span>
+            <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2 text-sm font-black text-[#0F172A]">{title}{locked && <SmallBadge label="Pro" tone="gold" />}</span>
+                <span className="block text-xs font-semibold text-[#64748B]">{copy}</span>
+            </span>
+            {locked ? <Lock className="h-4 w-4 shrink-0 text-[#8A5D17]" /> : (
+                <span className={cx("h-6 w-11 shrink-0 rounded-full p-0.5 transition", active ? "bg-[#5B4DFF]" : "bg-slate-200")}><span className={cx("block h-5 w-5 rounded-full bg-white shadow transition", active && "translate-x-5")} /></span>
+            )}
+        </button>
+    );
+}
+
+function ProActionButton({ icon, title, copy, locked, onClick }: { icon: ReactNode; title: string; copy: string; locked: boolean; onClick: () => void }) {
+    return (
+        <button
+            onClick={onClick}
+            className={cx(
+                "flex w-full items-center gap-3 rounded-[16px] border p-3 text-left transition",
+                locked ? "border-[#E8C56C]/70 bg-[#FFFDF6] hover:bg-[#FFF9E8]" : "border-indigo-100 bg-[#EEF0FF]/40 hover:bg-[#EEF0FF]"
+            )}
+        >
+            <span className={cx("flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.85rem] ring-1", locked ? "bg-[#FFF7DA] text-[#8A5D17] ring-[#E8C56C]/40" : "bg-white text-[#5B4DFF] ring-indigo-100")}>{locked ? <Crown className={cx("h-4 w-4", goldCrownCls)} /> : icon}</span>
+            <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2 text-sm font-black text-[#0F172A]">{title}{locked && <SmallBadge label="Pro" tone="gold" />}</span>
+                <span className="block text-xs font-semibold text-[#64748B]">{copy}</span>
+            </span>
+            {locked ? <Lock className="h-4 w-4 shrink-0 text-[#8A5D17]" /> : <Plus className="h-4 w-4 shrink-0 text-[#5B4DFF]" />}
+        </button>
+    );
+}
+
+function DmBubble({ children, side }: { children: ReactNode; side: "left" | "right" }) {
+    return <div className={cx("max-w-[80%] rounded-[20px] px-3.5 py-2 text-[13px] font-semibold leading-5", side === "right" ? "ml-auto rounded-br-md bg-[#3797F0] text-white" : "mr-auto rounded-bl-md bg-[#EFEFEF] text-slate-900")}>{children}</div>;
+}
+
+function InstagramDmPreview({
+    contentSource,
+    triggerType,
+    username,
+    keyword,
+    anyKeyword,
+    contextMedia,
+    welcomeEnabled,
+    welcomeDm,
+    askFollowFirst,
+    askEmailFirst,
+    finalDm,
+    linkEnabled,
+    buttonText,
+    linkUrl,
+    followUpEnabled,
+    followUpMessage,
+}: {
+    contentSource: string;
+    triggerType: string;
+    username: string;
+    keyword: string;
+    anyKeyword: boolean;
+    contextMedia: InstagramMedia;
+    storyReplyMode: string;
+    liveCommentMode: string;
+    welcomeEnabled: boolean;
+    welcomeDm: string;
+    askFollowFirst: boolean;
+    askEmailFirst: boolean;
+    finalDm: string;
+    linkEnabled: boolean;
+    buttonText: string;
+    linkUrl: string;
+    followUpEnabled: boolean;
+    followUpMessage: string;
+}) {
+    const previewKeyword = anyKeyword ? "any keyword" : keyword || "link";
+    const incoming = triggerType === "DM keyword"
+        ? (anyKeyword ? "Hi 👋" : previewKeyword)
+        : triggerType === "Story reply"
+            ? (anyKeyword ? "Replied to your story" : previewKeyword)
+            : triggerType === "Live comment"
+                ? (anyKeyword ? "Commented on your live" : previewKeyword)
+                : (anyKeyword ? "Commented on your post" : previewKeyword);
+    const contextLabel = contentSource === "story"
+        ? "Story reply"
+        : contentSource === "live"
+            ? "Live comment"
+            : contentSource === "dm"
+                ? "Direct message"
+                : contextMedia.id === "all"
+                    ? "Comment on any post or reel"
+                    : `Comment on ${contextMedia.title}`;
+
+    return (
+        <aside className="xl:sticky xl:top-24 xl:self-start xl:justify-self-end">
+            <div className="mb-3 flex items-center justify-between">
+                <div>
+                    <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#94A3B8]">Live preview</p>
+                    <p className="text-sm font-black text-[#0F172A]">How your DM will look</p>
+                </div>
+                <SmallBadge label="Auto-synced" tone="green" />
+            </div>
+            <div className="mx-auto w-full max-w-[330px] overflow-hidden rounded-[42px] border-[11px] border-slate-900 bg-white shadow-[0_30px_80px_rgba(15,23,42,0.22)]">
+                <div className="flex items-center justify-between bg-white px-6 pt-3 pb-1 text-[11px] font-black text-slate-900">
+                    <span>9:41</span>
+                    <span className="flex items-center gap-1"><span className="h-2.5 w-5 rounded-[3px] bg-slate-900/80" /></span>
+                </div>
+                <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-2.5">
+                    <ArrowRight className="h-5 w-5 rotate-180 text-slate-900" />
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#5B4DFF] to-[#F05A8A] text-sm font-black text-white">D</span>
+                    <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-black text-slate-900">{username.replace("@", "")}</p>
+                        <p className="text-[10px] font-bold text-slate-400">Active now</p>
+                    </div>
+                    <Radio className="h-5 w-5 text-slate-300" />
+                </div>
+                <div className="flex items-center gap-2 bg-slate-50 px-4 py-2">
+                    <span className={cx("h-7 w-7 shrink-0 rounded-[8px] bg-gradient-to-br", contextMedia.color)} />
+                    <p className="truncate text-[11px] font-bold text-slate-500">{contextLabel}</p>
+                </div>
+                <div className="flex min-h-[470px] flex-col gap-2 bg-white px-3.5 py-4">
+                    <DmBubble side="left">{incoming}</DmBubble>
+                    {welcomeEnabled && <DmBubble side="right">{welcomeDm}</DmBubble>}
+                    {askFollowFirst && <DmBubble side="right">Please follow {username} first, then I&apos;ll send it.</DmBubble>}
+                    {askEmailFirst && <DmBubble side="right">Drop your email and I&apos;ll send it right over.</DmBubble>}
+                    <DmBubble side="right">{finalDm}</DmBubble>
+                    {linkEnabled && (
+                        <div className="ml-auto w-[80%] overflow-hidden rounded-[18px] border border-slate-200">
+                            <div className={cx("h-20 bg-gradient-to-br", contextMedia.color)} />
+                            <div className="bg-white px-3 py-2">
+                                <p className="truncate text-[10px] font-bold text-slate-400">{linkUrl || "https://dmgennie.in"}</p>
+                                <p className="truncate text-xs font-black text-[#0F172A]">{buttonText || "Open Link"}</p>
+                            </div>
+                            <div className="border-t border-slate-100 bg-white py-2 text-center text-xs font-black text-[#3797F0]">{buttonText || "Open Link"}</div>
+                        </div>
+                    )}
+                    {followUpEnabled && <DmBubble side="right">{followUpMessage}</DmBubble>}
+                    <div className="mt-auto flex items-center justify-between rounded-full bg-slate-100 px-4 py-2.5">
+                        <span className="text-xs font-semibold text-slate-400">Message...</span>
+                        <span className="text-xs font-black text-[#3797F0]">Send</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
     );
 }
 
@@ -3508,6 +4056,13 @@ function ReviewLaunchModal({
     followUpEnabled,
     followUpDelay,
     responseCount,
+    contentSource,
+    storyExpirationEnabled,
+    reTriggerEnabled,
+    failedProtocolEnabled,
+    selectedContentLabel,
+    triggerLabel,
+    previewProps,
     onBack,
     onConfirm,
 }: {
@@ -3529,6 +4084,13 @@ function ReviewLaunchModal({
     followUpEnabled: boolean;
     followUpDelay: string;
     responseCount: number;
+    contentSource: string;
+    storyExpirationEnabled: boolean;
+    reTriggerEnabled: boolean;
+    failedProtocolEnabled: boolean;
+    selectedContentLabel: string;
+    triggerLabel: string;
+    previewProps: Parameters<typeof InstagramDmPreview>[0];
     onBack: () => void;
     onConfirm: () => void;
 }) {
@@ -3543,17 +4105,50 @@ function ReviewLaunchModal({
                 : selectedMedia.id === "all"
                     ? "When someone comments on any post or reel"
                     : "When someone comments on selected post/reel";
-    const timeline = [
-        { title: "Instagram profile", copy: `${profile} is connected and ready.` },
-        { title: "Selected content", copy: selectedMedia.title },
-        { title: "When someone comments...", copy: triggerLine },
-        { title: "If keyword matches...", copy: anyKeyword ? "DMGennie responds to any matched message." : `Their message includes ${keywordText || "+link"}.` },
-        { title: "DMGennie sends welcome DM", copy: welcomeEnabled ? welcomeDm : "Welcome DM is turned off." },
-        { title: "Comment replies", copy: repliesCount ? `${repliesCount} public replies saved.` : "No public replies saved." },
-        { title: "Before final DM", copy: [askFollowFirst ? "Follow confirmation" : "", askEmailFirst ? "Email capture" : ""].filter(Boolean).join(", ") || "No extra step before final DM." },
-        { title: "Then final DM is sent", copy: finalDm },
-        { title: "Optional button/link", copy: linkEnabled ? `${buttonText} · ${linkUrl}` : "No link button will be sent." },
-        { title: "Response flow", copy: `${responseCount} extra response${responseCount === 1 ? "" : "s"}${followUpEnabled ? ` and follow-up after ${followUpDelay}` : ""}.` },
+    const expirationApplicable = contentSource === "story";
+
+    const reviewGroups: Array<{ group: string; items: Array<{ label: string; value: string; muted?: boolean }> }> = [
+        {
+            group: "Trigger",
+            items: [
+                { label: "Trigger", value: triggerLine },
+                { label: "Content", value: contentSource === "live" ? "Your next Instagram Live" : contentSource === "dm" ? "Direct messages" : selectedContentLabel === "All" ? "All posts & reels" : `${selectedContentLabel} selected`, muted: selectedContentLabel === "0" },
+                { label: "Keywords", value: anyKeyword ? "Any keyword" : (keywordText || "No keywords yet"), muted: !anyKeyword && keywords.length === 0 },
+            ],
+        },
+        {
+            group: "Messages",
+            items: [
+                { label: "Welcome DM", value: welcomeEnabled ? welcomeDm : "Turned off", muted: !welcomeEnabled },
+                { label: "Public replies", value: repliesCount ? `${repliesCount} saved` : "None", muted: repliesCount === 0 },
+                { label: "Main message", value: finalDm },
+                { label: "Link", value: linkEnabled ? `“${buttonText}” → ${linkUrl}` : "No link", muted: !linkEnabled },
+                { label: "If delivery fails", value: failedProtocolEnabled ? "Fallback messages on" : "No fallback", muted: !failedProtocolEnabled },
+            ],
+        },
+        {
+            group: "Extra steps",
+            items: [
+                { label: "Before final DM", value: [askFollowFirst ? "Ask to follow" : "", askEmailFirst ? "Ask for email" : ""].filter(Boolean).join(" · ") || "None", muted: !askFollowFirst && !askEmailFirst },
+                { label: "Extra responses", value: responseCount ? `${responseCount} added` : "None", muted: responseCount === 0 },
+                { label: "Follow-up", value: followUpEnabled ? `After ${followUpDelay}` : "Off", muted: !followUpEnabled },
+                { label: "Re-trigger", value: reTriggerEnabled ? "Same person can re-trigger" : "Once per person", muted: !reTriggerEnabled },
+                ...(expirationApplicable ? [{ label: "Story expiry", value: storyExpirationEnabled ? "Auto-remove on expiry" : "Stays active after expiry", muted: false }] : []),
+            ],
+        },
+    ];
+
+    const summaryRows: Array<{ label: string; on: boolean; value: string }> = [
+        { label: "Trigger", on: true, value: triggerLabel },
+        { label: "Content", on: selectedContentLabel !== "0", value: selectedContentLabel },
+        { label: "Keywords", on: anyKeyword || keywords.length > 0, value: anyKeyword ? "Any" : String(keywords.length) },
+        { label: "Public replies", on: repliesCount > 0, value: String(repliesCount) },
+        { label: "Link", on: linkEnabled, value: linkEnabled ? "On" : "Off" },
+        { label: "Welcome DM", on: welcomeEnabled, value: welcomeEnabled ? "On" : "Off" },
+        { label: "Failed protocol", on: failedProtocolEnabled, value: failedProtocolEnabled ? "On" : "Off" },
+        { label: "Follow-ups", on: followUpEnabled, value: followUpEnabled ? "On" : "Off" },
+        { label: "Expiration", on: expirationApplicable && storyExpirationEnabled, value: expirationApplicable ? (storyExpirationEnabled ? "On" : "Off") : "N/A" },
+        { label: "Re-trigger", on: reTriggerEnabled, value: reTriggerEnabled ? "On" : "Off" },
     ];
 
     return (
@@ -3570,49 +4165,55 @@ function ReviewLaunchModal({
                     </button>
                 </div>
 
-                <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
-                    <div className="rounded-[22px] border border-slate-100 bg-slate-50 p-4">
-                        <div className="space-y-3">
-                            {timeline.map((item, index) => (
-                                <div key={item.title} className="grid grid-cols-[32px_minmax(0,1fr)] gap-3">
-                                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-xs font-black text-[#5B4DFF] ring-1 ring-indigo-100">{index + 1}</span>
-                                    <div className="rounded-[16px] border border-white bg-white p-3 shadow-[0_8px_20px_rgba(15,23,42,0.025)]">
-                                        <p className="text-xs font-black text-[#0F172A]">{item.title}</p>
-                                        <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-[#64748B]">{item.copy}</p>
-                                    </div>
+                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
+                    {/* Left: configuration review */}
+                    <div className="space-y-3">
+                        {reviewGroups.map((groupBlock) => (
+                            <div key={groupBlock.group} className="rounded-[20px] border border-slate-100 bg-white p-4">
+                                <p className="mb-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#94A3B8]">{groupBlock.group}</p>
+                                <div className="space-y-2.5">
+                                    {groupBlock.items.map((item) => (
+                                        <div key={item.label} className="grid grid-cols-[110px_minmax(0,1fr)] items-start gap-3">
+                                            <span className="pt-0.5 text-[11px] font-bold uppercase tracking-[0.06em] text-slate-400">{item.label}</span>
+                                            <span className={cx("text-sm font-black leading-5", item.muted ? "text-slate-400" : "text-[#0F172A]")}>{item.value}</span>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
                     </div>
-                    <div className="rounded-[22px] border border-indigo-100 bg-[#EEF0FF]/50 p-4">
-                        <span className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-white text-[#5B4DFF] shadow-sm ring-1 ring-indigo-100">
-                            <ShieldCheck className="h-5 w-5" />
-                        </span>
-                        <h3 className="mt-4 text-lg font-black text-[#0F172A]">Ready to go live</h3>
-                        <p className="mt-2 text-sm font-semibold leading-6 text-[#64748B]">DMGennie will respond only when the selected trigger matches your setup.</p>
-                        <div className="mt-4 space-y-2">
-                            <ReviewPill label="Status" value="Live after launch" />
-                            <ReviewPill label="Source" value={selectedMedia.type} />
-                            <ReviewPill label="Trigger" value={triggerType} />
-                        </div>
-                    </div>
-                </div>
 
-                <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                    <SecondaryButton onClick={onBack}>Back</SecondaryButton>
-                    <PrimaryButton onClick={onConfirm}><Check className="h-4 w-4" /> {saving ? "Launching..." : "Confirm & Launch"}</PrimaryButton>
+                    {/* Right: preview -> summary -> ready to go */}
+                    <div className="space-y-4">
+                        <InstagramDmPreview {...previewProps} />
+
+                        <div className="rounded-[20px] border border-slate-100 bg-white p-4">
+                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#94A3B8]">At a glance</p>
+                            <div className="space-y-1.5">
+                                {summaryRows.map((row) => (
+                                    <div key={row.label} className="flex items-center justify-between gap-3">
+                                        <span className="text-xs font-bold text-[#64748B]">{row.label}</span>
+                                        <span className={cx("inline-flex h-6 items-center rounded-full px-2.5 text-[11px] font-black ring-1", row.value === "N/A" ? "bg-slate-50 text-slate-400 ring-slate-100" : row.on ? "bg-emerald-50 text-emerald-700 ring-emerald-100" : "bg-slate-50 text-slate-500 ring-slate-200")}>{row.value}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="rounded-[20px] border border-indigo-100 bg-[#EEF0FF]/50 p-4">
+                            <span className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-white text-[#5B4DFF] shadow-sm ring-1 ring-indigo-100">
+                                <ShieldCheck className="h-5 w-5" />
+                            </span>
+                            <h3 className="mt-3 text-base font-black text-[#0F172A]">Ready to go live</h3>
+                            <p className="mt-1.5 text-sm font-semibold leading-6 text-[#64748B]">DMGennie responds only when this trigger matches. You can edit or pause anytime.</p>
+                            <div className="mt-4 flex flex-col gap-2">
+                                <PrimaryButton onClick={onConfirm}><Check className="h-4 w-4" /> {saving ? "Launching..." : "Confirm & Launch"}</PrimaryButton>
+                                <SecondaryButton onClick={onBack}>Back to editing</SecondaryButton>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </ModalShell>
-    );
-}
-
-function ReviewPill({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex items-center justify-between gap-3 rounded-[14px] bg-white px-3 py-2 ring-1 ring-indigo-100">
-            <span className="text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</span>
-            <span className="truncate text-xs font-black text-[#0F172A]">{value}</span>
-        </div>
     );
 }
 
