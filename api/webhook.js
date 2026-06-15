@@ -124,8 +124,7 @@ async function processComment(supabase, commentValue, igAccountId, signature, ra
         if (!commentText.includes(trigger.keyword.toLowerCase())) continue;
 
         console.log(`[processComment] ✅ Matched trigger "${trigger.keyword}"`);
-        const senderId = commentValue.from?.id;
-        const dmSuccess = await sendPrivateReply(settings, senderId, trigger.reply_message);
+        const dmSuccess = await sendPrivateReply(settings, commentId, trigger.reply_message);
         if (dmSuccess) {
             await supabase.from('user_settings').update({
                 total_dms_sent: (settings.total_dms_sent || 0) + 1,
@@ -162,23 +161,27 @@ async function processComment(supabase, commentValue, igAccountId, signature, ra
     }
 }
 
-async function sendPrivateReply(settings, recipientId, message) {
-    if (!settings.page_access_token || !recipientId) {
-        console.warn('[sendPrivateReply] Missing token or recipient ID');
+async function sendPrivateReply(settings, commentId, message) {
+    const token = settings.page_access_token;
+    console.log('[Token Check]', {
+        hasToken: !!token,
+        tokenStart: token?.slice(0, 10),
+        tokenLength: token?.length,
+    });
+    if (!token || !commentId) {
+        console.warn('[sendPrivateReply] Missing token or comment ID');
         return false;
     }
     try {
+        // Private replies must use the comment ID (not commenter user ID)
+        // and must hit graph.instagram.com, not graph.facebook.com
         const res = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${recipientId}/conversations`,
+            `https://graph.instagram.com/v23.0/${commentId}/private_replies`,
             {
-                recipient: { id: recipientId },
-                message: { text: message }
+                message,
+                access_token: token,
             },
-            {
-                recipient: { id: recipientId },
-                message: { text: message }
-            },
-            { headers: { 'Authorization': `Bearer ${settings.page_access_token}`, 'Content-Type': 'application/json' } }
+            { headers: { 'Content-Type': 'application/json' } }
         );
         console.log('[sendPrivateReply] ✅ DM sent:', res.data);
         return true;
@@ -190,12 +193,25 @@ async function sendPrivateReply(settings, recipientId, message) {
 }
 
 async function sendPublicReply(settings, commentId, message) {
-    if (!settings.page_access_token) return false;
+    const token = settings.page_access_token;
+    console.log('[Token Check - Public]', {
+        hasToken: !!token,
+        tokenStart: token?.slice(0, 10),
+        tokenLength: token?.length,
+    });
+    if (!token || !commentId) {
+        console.warn('[sendPublicReply] Missing token or comment ID');
+        return false;
+    }
     try {
+        // Public replies are posted as a reply to the specific comment
         const res = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${settings.instagram_account_id}/messages`,
-            { message },
-            { headers: { 'Authorization': `Bearer ${settings.page_access_token}`, 'Content-Type': 'application/json' } }
+            `https://graph.instagram.com/v23.0/${commentId}/replies`,
+            {
+                message,
+                access_token: token,
+            },
+            { headers: { 'Content-Type': 'application/json' } }
         );
         console.log('[sendPublicReply] ✅ Public reply sent');
         return true;
