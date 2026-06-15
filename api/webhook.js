@@ -163,37 +163,6 @@ async function processComment(supabase, commentValue, igAccountId, signature, ra
 
 async function sendPrivateReply(settings, commentId, message) {
     const token = settings.page_access_token;
-    console.log('[Token Check]', {
-        hasToken: !!token,
-        tokenStart: token?.slice(0, 10),
-        tokenLength: token?.length,
-    });
-    if (!token || !commentId) {
-        console.warn('[sendPrivateReply] Missing token or comment ID');
-        return false;
-    }
-    try {
-        // Private replies must use the comment ID (not commenter user ID)
-        // and must hit graph.instagram.com, not graph.facebook.com
-        const res = await axios.post(
-            `https://graph.instagram.com/v23.0/${commentId}/private_replies`,
-            {
-                message,
-                access_token: token,
-            },
-            { headers: { 'Content-Type': 'application/json' } }
-        );
-        console.log('[sendPrivateReply] ✅ DM sent:', res.data);
-        return true;
-    } catch (err) {
-        const e = err.response?.data?.error || {};
-        console.error(`[sendPrivateReply] ❌ Failed [${e.code}/${e.error_subcode}]: ${e.message || err.message}`);
-        return false;
-    }
-}
-
-async function sendPrivateReply(settings, commentId, message) {
-    const token = settings.page_access_token;
 
     console.log('[Token Check]', {
         hasToken: !!token,
