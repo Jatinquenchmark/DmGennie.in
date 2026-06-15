@@ -189,6 +189,7 @@ type InstagramMedia = {
     caption: string;
     color: string;
     metric: string;
+    thumbnailUrl?: string;
 };
 type ContactRecord = {
     id: string;
@@ -596,6 +597,9 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const [settings, setSettings] = useState<SettingsData | null>(null);
     const [botEnabled, setBotEnabled] = useState(true);
     const [connected, setConnected] = useState(false);
+    const [instagramPosts, setInstagramPosts] = useState<InstagramMedia[]>([]);
+    const [instagramStories, setInstagramStories] = useState<InstagramMedia[]>([]);
+    const [mediaLoading, setMediaLoading] = useState(false);
     const [settingsSaved, setSettingsSaved] = useState(false);
     const [addingTrigger, setAddingTrigger] = useState(false);
     const [newKeyword, setNewKeyword] = useState("");
@@ -739,6 +743,32 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     useEffect(() => {
         fetchAll();
     }, [fetchAll]);
+
+    // Load the connected account's real posts/reels and stories for the automation builder.
+    useEffect(() => {
+        if (preview) {
+            setInstagramPosts(fallbackInstagramMedia.filter((media) => media.id !== "all"));
+            setInstagramStories(fallbackInstagramStories);
+            return;
+        }
+        if (!connected) {
+            setInstagramPosts([]);
+            setInstagramStories([]);
+            return;
+        }
+        let cancelled = false;
+        setMediaLoading(true);
+        authFetch("/api/instagram/media")
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => {
+                if (cancelled || !data) return;
+                setInstagramPosts(Array.isArray(data.posts) ? data.posts : []);
+                setInstagramStories(Array.isArray(data.stories) ? data.stories : []);
+            })
+            .catch(() => { if (!cancelled) { setInstagramPosts([]); setInstagramStories([]); } })
+            .finally(() => { if (!cancelled) setMediaLoading(false); });
+        return () => { cancelled = true; };
+    }, [connected, preview, authFetch]);
 
     useEffect(() => {
         if (preview) return;
@@ -1086,6 +1116,10 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         onUpgrade={openUpgradeModal}
                                         proOffer={proOffer}
                                         accountPlan={accountPlan}
+                                        connected={connected}
+                                        instagramPosts={instagramPosts}
+                                        instagramStories={instagramStories}
+                                        mediaLoading={mediaLoading}
                                         automationCount={triggers.length}
                                     />
                                 )}
@@ -2371,6 +2405,10 @@ function AutomationsPage(props: {
     onUpgrade: () => void;
     proOffer: ProOfferData;
     accountPlan: AccountPlanState;
+    connected: boolean;
+    instagramPosts: InstagramMedia[];
+    instagramStories: InstagramMedia[];
+    mediaLoading: boolean;
     automationCount: number;
 }) {
     const [creationPhase, setCreationPhase] = useState<null | "entry" | "template">(null);
@@ -2448,6 +2486,11 @@ function AutomationsPage(props: {
                 onSave={saveBuilder}
                 accountPlan={props.accountPlan}
                 onUpgrade={props.onUpgrade}
+                connected={props.connected}
+                instagramPosts={props.instagramPosts}
+                instagramStories={props.instagramStories}
+                mediaLoading={props.mediaLoading}
+                onConnectAccount={() => props.onNavigate("settings")}
             />
         );
     }
@@ -2964,6 +3007,11 @@ function AutomationBuilder({
     onSave,
     accountPlan,
     onUpgrade,
+    connected,
+    instagramPosts,
+    instagramStories,
+    mediaLoading,
+    onConnectAccount,
 }: {
     template: AutomationTemplate | null;
     scratch?: boolean;
@@ -2972,12 +3020,17 @@ function AutomationBuilder({
     onSave: (draft: AutomationDraft) => void | Promise<void>;
     accountPlan: AccountPlanState;
     onUpgrade: () => void;
+    connected: boolean;
+    instagramPosts: InstagramMedia[];
+    instagramStories: InstagramMedia[];
+    mediaLoading: boolean;
+    onConnectAccount: () => void;
 }) {
     const [automationName, setAutomationName] = useState(template?.title || (scratch ? "My automation" : "Auto DM from comments"));
     const [triggerType, setTriggerType] = useState(template ? (template.trigger || "Post or Reel comment") : (scratch ? "" : "Post or Reel comment"));
     const [changingTrigger, setChangingTrigger] = useState(scratch && !template);
     const [selectedPosts, setSelectedPosts] = useState<string[]>(["All posts & reels"]);
-    const [selectedStories, setSelectedStories] = useState<string[]>([fallbackInstagramStories[0].title]);
+    const [selectedStories, setSelectedStories] = useState<string[]>([]);
     const [contentModalOpen, setContentModalOpen] = useState(false);
     const [contentVisibleCount, setContentVisibleCount] = useState(3);
     const [mediaQuery, setMediaQuery] = useState("");
@@ -3016,8 +3069,14 @@ function AutomationBuilder({
     const isPro = accountPlan.isPro;
     const hasTrigger = triggerType !== "";
     const primaryKeyword = keywords[0] || "link";
-    const selectedMedia = fallbackInstagramMedia.find((media) => media.title === (selectedPosts[0] || "All posts & reels")) || fallbackInstagramMedia[0];
-    const selectedStoryMedia = fallbackInstagramStories.find((story) => story.title === (selectedStories[0] || fallbackInstagramStories[0].title)) || fallbackInstagramStories[0];
+    // "All posts & reels" sentinel entry, prepended to the real fetched posts.
+    const allPostsOption = fallbackInstagramMedia[0];
+    const postPool = useMemo<InstagramMedia[]>(() => [allPostsOption, ...instagramPosts], [allPostsOption, instagramPosts]);
+    const storyPool = instagramStories;
+    const hasPosts = instagramPosts.length > 0;
+    const hasStories = instagramStories.length > 0;
+    const selectedMedia = postPool.find((media) => media.title === (selectedPosts[0] || "All posts & reels")) || allPostsOption;
+    const selectedStoryMedia = storyPool.find((story) => story.title === selectedStories[0]) || storyPool[0] || allPostsOption;
     const contentSource = triggerType === "Live comment" ? "live" : triggerType === "Story reply" ? "story" : triggerType === "DM keyword" ? "dm" : triggerType === "Post or Reel comment" ? "post" : "";
     const safeWelcomeDm = welcomeDm.trim() || "Hey @username, thanks for commenting.";
     const safeFinalDm = finalDm.trim() || "Hey @username, here is the link you asked for.";
@@ -3105,13 +3164,13 @@ function AutomationBuilder({
     };
 
     const applyContentSelection = (titles: string[]) => {
-        if (contentSource === "story") setSelectedStories(titles.length ? titles : [fallbackInstagramStories[0].title]);
+        if (contentSource === "story") setSelectedStories(titles);
         else setSelectedPosts(titles.length ? titles : ["All posts & reels"]);
         setContentVisibleCount(3);
         setValidationErrors((prev) => { const next = { ...prev }; delete next.content; return next; });
     };
     const confirmContentSelection = (titles: string[]) => {
-        const pool = contentSource === "story" ? fallbackInstagramStories : fallbackInstagramMedia;
+        const pool = contentSource === "story" ? storyPool : postPool;
         const occupied = titles
             .map((title) => pool.find((media) => media.title === title))
             .filter((media): media is InstagramMedia => Boolean(media))
@@ -3289,18 +3348,24 @@ function AutomationBuilder({
                                                 <h3 className="text-sm font-black text-[#0F172A]">Which posts or reels?</h3>
                                                 <p className="text-xs font-semibold text-[#64748B]">Pick specific content, or listen across all posts & reels.</p>
                                             </div>
-                                            <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
-                                                <ImageIcon className="h-3.5 w-3.5" /> Select posts
-                                            </button>
+                                            {connected && !mediaLoading && hasPosts && (
+                                                <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
+                                                    <ImageIcon className="h-3.5 w-3.5" /> Select posts
+                                                </button>
+                                            )}
                                         </div>
-                                        <SelectedContentChips
-                                            titles={selectedPosts}
-                                            pool={fallbackInstagramMedia}
-                                            visibleCount={contentVisibleCount}
-                                            onShowMore={() => setContentVisibleCount((current) => current + 6)}
-                                            onShowLess={() => setContentVisibleCount(3)}
-                                            onRemove={removeSelectedContent}
-                                        />
+                                        {connected && !mediaLoading && hasPosts ? (
+                                            <SelectedContentChips
+                                                titles={selectedPosts}
+                                                pool={postPool}
+                                                visibleCount={contentVisibleCount}
+                                                onShowMore={() => setContentVisibleCount((current) => current + 6)}
+                                                onShowLess={() => setContentVisibleCount(3)}
+                                                onRemove={removeSelectedContent}
+                                            />
+                                        ) : (
+                                            <MediaSelectorState connected={connected} loading={mediaLoading} isEmpty={!hasPosts} kind="post" onConnect={onConnectAccount} />
+                                        )}
                                         {validationErrors.content && <p className="mt-2 text-xs font-black text-rose-600">{validationErrors.content}</p>}
                                     </div>
                                 )}
@@ -3313,18 +3378,24 @@ function AutomationBuilder({
                                                     <h3 className="text-sm font-black text-[#0F172A]">Which stories?</h3>
                                                     <p className="text-xs font-semibold text-[#64748B]">Pick the active stories this automation should watch.</p>
                                                 </div>
-                                                <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
-                                                    <ImageIcon className="h-3.5 w-3.5" /> Select stories
-                                                </button>
+                                                {connected && !mediaLoading && hasStories && (
+                                                    <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
+                                                        <ImageIcon className="h-3.5 w-3.5" /> Select stories
+                                                    </button>
+                                                )}
                                             </div>
-                                            <SelectedContentChips
-                                                titles={selectedStories}
-                                                pool={fallbackInstagramStories}
-                                                visibleCount={contentVisibleCount}
-                                                onShowMore={() => setContentVisibleCount((current) => current + 6)}
-                                                onShowLess={() => setContentVisibleCount(3)}
-                                                onRemove={removeSelectedContent}
-                                            />
+                                            {connected && !mediaLoading && hasStories ? (
+                                                <SelectedContentChips
+                                                    titles={selectedStories}
+                                                    pool={storyPool}
+                                                    visibleCount={contentVisibleCount}
+                                                    onShowMore={() => setContentVisibleCount((current) => current + 6)}
+                                                    onShowLess={() => setContentVisibleCount(3)}
+                                                    onRemove={removeSelectedContent}
+                                                />
+                                            ) : (
+                                                <MediaSelectorState connected={connected} loading={mediaLoading} isEmpty={!hasStories} kind="story" onConnect={onConnectAccount} />
+                                            )}
                                             {validationErrors.content && <p className="mt-2 text-xs font-black text-rose-600">{validationErrors.content}</p>}
                                         </div>
                                         <div className="rounded-[18px] border border-slate-100 bg-white p-4">
@@ -3550,7 +3621,7 @@ function AutomationBuilder({
             {contentModalOpen && (
                 <ContentSelectorModal
                     kind={contentSource === "story" ? "story" : "post"}
-                    items={contentSource === "story" ? fallbackInstagramStories : fallbackInstagramMedia}
+                    items={contentSource === "story" ? storyPool : postPool}
                     initialSelected={selectedContentTitles}
                     isOccupied={(media) => contentSource === "story" ? storyIsOccupied(media) : mediaIsOccupied(media)}
                     onClose={() => setContentModalOpen(false)}
@@ -3766,13 +3837,53 @@ function FallbackMessageEditor({ messages, onChange }: { messages: string[]; onC
     );
 }
 
+// Renders the not-connected / loading / empty states for the content selectors.
+// Returns null when the account is connected and has content (caller shows the picker).
+function MediaSelectorState({ connected, loading, isEmpty, kind, onConnect }: { connected: boolean; loading: boolean; isEmpty: boolean; kind: "post" | "story"; onConnect: () => void }) {
+    const label = kind === "story" ? "stories" : "posts or reels";
+    if (!connected) {
+        return (
+            <div className="mt-3 flex flex-col items-center gap-3 rounded-[16px] border border-dashed border-indigo-200 bg-[#EEF0FF]/50 px-4 py-6 text-center">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#5B4DFF]"><Instagram className="h-5 w-5" /></span>
+                <div>
+                    <p className="text-sm font-black text-[#0F172A]">Connect your Instagram account first</p>
+                    <p className="mt-0.5 text-xs font-semibold text-[#64748B]">You need a connected account before you can pick {label}.</p>
+                </div>
+                <button onClick={onConnect} className="inline-flex h-9 items-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
+                    <Instagram className="h-3.5 w-3.5" /> Connect account
+                </button>
+            </div>
+        );
+    }
+    if (loading) {
+        return (
+            <div className="mt-3 flex items-center justify-center gap-2 rounded-[16px] border border-slate-100 bg-white px-4 py-6 text-sm font-bold text-slate-500">
+                <RefreshCw className="h-4 w-4 animate-spin" /> Loading your {label}…
+            </div>
+        );
+    }
+    if (isEmpty) {
+        return (
+            <div className="mt-3 flex flex-col items-center gap-2 rounded-[16px] border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center">
+                <ImageIcon className="h-7 w-7 text-slate-300" />
+                <p className="text-sm font-black text-[#0F172A]">No {kind === "story" ? "active stories" : "posts or reels"} yet</p>
+                <p className="text-xs font-semibold text-[#64748B]">{kind === "story" ? "Post a story on this account to use story-reply automations." : "Upload a post or reel on this account to select it here."}</p>
+            </div>
+        );
+    }
+    return null;
+}
+
 function ContentSelectCard({ media, kind, selected, occupied, onClick }: { media: InstagramMedia; kind: "post" | "story"; selected: boolean; occupied: boolean; onClick: () => void }) {
     const isAll = media.id === "all";
     return (
         <button onClick={onClick} className={cx("group rounded-[16px] border p-2 text-left transition hover:-translate-y-0.5", selected ? "border-[#5B4DFF] bg-[#EEF0FF]" : "border-slate-100 bg-white hover:border-indigo-100")}>
             <div className={cx("relative flex h-28 items-center justify-center overflow-hidden rounded-[12px] bg-gradient-to-br", media.color)}>
+                {media.thumbnailUrl && !isAll && (
+                    <img src={media.thumbnailUrl} alt={media.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                )}
                 <div className="absolute inset-0 bg-black/10" />
-                {isAll ? <LayoutGrid className="relative h-7 w-7 text-slate-500" /> : <Instagram className="relative h-7 w-7 text-white/90" />}
+                {isAll ? <LayoutGrid className="relative h-7 w-7 text-slate-500" /> : !media.thumbnailUrl && <Instagram className="relative h-7 w-7 text-white/90" />}
                 <span className="absolute right-1.5 top-1.5 rounded-full bg-black/30 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-[0.08em] text-white">{kind === "story" ? "Story" : media.type}</span>
                 {selected && <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#5B4DFF]"><Check className="h-3 w-3 stroke-[3]" /></span>}
             </div>
@@ -3874,6 +3985,9 @@ function StorySelectionCard({ story, selected, onClick }: { story: InstagramMedi
     return (
         <button onClick={onClick} className={cx("group rounded-[16px] border p-2 text-left transition hover:-translate-y-0.5", selected ? "border-[#5B4DFF] bg-[#EEF0FF]" : "border-slate-100 bg-white hover:border-indigo-100")}>
             <div className={cx("relative flex h-28 items-end overflow-hidden rounded-[12px] bg-gradient-to-br p-2", story.color)}>
+                {story.thumbnailUrl && (
+                    <img src={story.thumbnailUrl} alt={story.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
+                )}
                 <div className="absolute inset-0 bg-black/15" />
                 <span className="absolute right-1.5 top-1.5 rounded-full bg-black/30 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-[0.08em] text-white">Story</span>
                 {selected && <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#5B4DFF]"><Check className="h-3 w-3 stroke-[3]" /></span>}

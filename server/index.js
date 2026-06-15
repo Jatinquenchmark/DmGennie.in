@@ -711,6 +711,67 @@ app.get('/api/instagram/profile', async (req, res) => {
     }
 });
 
+// ── Instagram Media (posts / reels / stories) ──────────────
+const MEDIA_GRADIENTS = [
+    'from-[#5B4DFF] via-[#8A3FFC] to-[#F05A8A]',
+    'from-[#2B1635] via-[#7A2E57] to-[#F3B8D0]',
+    'from-[#111827] via-[#4C1D95] to-[#5B4DFF]',
+    'from-emerald-900 via-teal-600 to-cyan-300',
+    'from-amber-100 via-white to-[#FFF7DA]',
+];
+const igMediaTypeLabel = (type) => (type === 'VIDEO' ? 'Reel' : type === 'CAROUSEL_ALBUM' ? 'Carousel' : 'Post');
+const igTitleFromCaption = (caption, fallback) => {
+    const text = String(caption || '').trim().replace(/\s+/g, ' ');
+    if (!text) return fallback;
+    return text.length > 40 ? `${text.slice(0, 40)}…` : text;
+};
+
+app.get('/api/instagram/media', async (req, res) => {
+    const userId = await getUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const settings = await ensureSettings(userId);
+    const { page_access_token, instagram_account_id } = settings;
+    if (!page_access_token || !instagram_account_id) {
+        return res.status(200).json({ connected: false, posts: [], stories: [] });
+    }
+
+    const base = `https://graph.facebook.com/${API_VERSION}/${instagram_account_id}`;
+    const fetchEdge = async (edge, fields) => {
+        try {
+            const r = await axios.get(`${base}/${edge}`, { params: { fields, access_token: page_access_token, limit: 25 } });
+            return Array.isArray(r.data?.data) ? r.data.data : [];
+        } catch (error) {
+            console.error(`[media] ${edge} fetch failed:`, error.response?.data?.error?.message || error.message);
+            return [];
+        }
+    };
+
+    const [posts, stories] = await Promise.all([
+        fetchEdge('media', 'id,caption,media_type,media_url,thumbnail_url,permalink,like_count,comments_count,timestamp'),
+        fetchEdge('stories', 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp'),
+    ]);
+
+    const mapItem = (item, index, isStory) => ({
+        id: item.id,
+        title: igTitleFromCaption(item.caption, isStory ? 'Story' : igMediaTypeLabel(item.media_type)),
+        type: isStory ? 'Post' : igMediaTypeLabel(item.media_type),
+        caption: item.caption || '',
+        color: MEDIA_GRADIENTS[index % MEDIA_GRADIENTS.length],
+        metric: isStory
+            ? 'Active story'
+            : (typeof item.like_count === 'number' ? `${item.like_count.toLocaleString()} likes`
+                : typeof item.comments_count === 'number' ? `${item.comments_count.toLocaleString()} comments` : 'Recent'),
+        thumbnailUrl: item.thumbnail_url || item.media_url || '',
+    });
+
+    res.json({
+        connected: true,
+        posts: posts.map((item, i) => mapItem(item, i, false)),
+        stories: stories.map((item, i) => mapItem(item, i, true)),
+    });
+});
+
 // ── Triggers ───────────────────────────────────────────────
 app.get('/api/triggers', async (req, res) => {
     const userId = await getUserId(req);

@@ -8,6 +8,7 @@
     { "source": "/api/settings", "destination": "/api/me?action=settings" },
     { "source": "/api/triggers/:id", "destination": "/api/triggers?id=:id" },
     { "source": "/api/instagram/profile", "destination": "/api/auth?action=profile" },
+    { "source": "/api/instagram/media", "destination": "/api/auth?action=media" },
     { "source": "/auth/instagram/callback", "destination": "/api/auth?action=callback" },
     { "source": "/auth/instagram/disconnect", "destination": "/api/auth?action=disconnect" },
     { "source": "/auth/instagram", "destination": "/api/auth?action=instagram" },

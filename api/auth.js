@@ -178,6 +178,94 @@ async function disconnectHandler(req, res) {
     return res.json({ success: true });
 }
 
+const MEDIA_GRADIENTS = [
+    'from-[#5B4DFF] via-[#8A3FFC] to-[#F05A8A]',
+    'from-[#2B1635] via-[#7A2E57] to-[#F3B8D0]',
+    'from-[#111827] via-[#4C1D95] to-[#5B4DFF]',
+    'from-emerald-900 via-teal-600 to-cyan-300',
+    'from-amber-100 via-white to-[#FFF7DA]',
+];
+
+function mediaTypeLabel(type) {
+    if (type === 'VIDEO') return 'Reel';
+    if (type === 'CAROUSEL_ALBUM') return 'Carousel';
+    return 'Post';
+}
+
+function titleFromCaption(caption, fallback) {
+    const text = String(caption || '').trim().replace(/\s+/g, ' ');
+    if (!text) return fallback;
+    return text.length > 40 ? `${text.slice(0, 40)}…` : text;
+}
+
+function mapPost(item, index) {
+    const likes = item.like_count;
+    const comments = item.comments_count;
+    let metric = 'Recent';
+    if (typeof likes === 'number') metric = `${likes.toLocaleString()} likes`;
+    else if (typeof comments === 'number') metric = `${comments.toLocaleString()} comments`;
+    return {
+        id: item.id,
+        title: titleFromCaption(item.caption, mediaTypeLabel(item.media_type)),
+        type: mediaTypeLabel(item.media_type),
+        caption: item.caption || '',
+        color: MEDIA_GRADIENTS[index % MEDIA_GRADIENTS.length],
+        metric,
+        thumbnailUrl: item.thumbnail_url || item.media_url || '',
+    };
+}
+
+function mapStory(item, index) {
+    return {
+        id: item.id,
+        title: titleFromCaption(item.caption, 'Story'),
+        type: 'Post',
+        caption: item.caption || '',
+        color: MEDIA_GRADIENTS[index % MEDIA_GRADIENTS.length],
+        metric: 'Active story',
+        thumbnailUrl: item.thumbnail_url || item.media_url || '',
+    };
+}
+
+async function mediaHandler(req, res) {
+    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+    const userId = await getUserId(req);
+    if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+
+    const settings = await ensureSettings(userId);
+    const { page_access_token, instagram_account_id } = settings;
+    // Not connected: respond 200 so the client can render the "connect your account" state.
+    if (!page_access_token || !instagram_account_id) {
+        return res.status(200).json({ connected: false, posts: [], stories: [] });
+    }
+
+    const base = `https://graph.facebook.com/${API_VERSION}/${instagram_account_id}`;
+    const fetchEdge = async (edge, fields) => {
+        try {
+            const response = await axios.get(`${base}/${edge}`, {
+                params: { fields, access_token: page_access_token, limit: 25 },
+            });
+            return Array.isArray(response.data?.data) ? response.data.data : [];
+        } catch (error) {
+            // Stories in particular require extra permissions and may not be available; treat as empty.
+            console.error(`[media] ${edge} fetch failed:`, error.response?.data?.error?.message || error.message);
+            return [];
+        }
+    };
+
+    const [posts, stories] = await Promise.all([
+        fetchEdge('media', 'id,caption,media_type,media_url,thumbnail_url,permalink,like_count,comments_count,timestamp'),
+        fetchEdge('stories', 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp'),
+    ]);
+
+    return res.json({
+        connected: true,
+        posts: posts.map(mapPost),
+        stories: stories.map(mapStory),
+    });
+}
+
 async function profileHandler(req, res) {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -220,5 +308,6 @@ export default async function handler(req, res) {
     if (action === 'callback') return instagramCallbackHandler(req, res);
     if (action === 'disconnect') return disconnectHandler(req, res);
     if (action === 'profile') return profileHandler(req, res);
+    if (action === 'media') return mediaHandler(req, res);
     return res.status(400).json({ error: 'Unsupported auth action.' });
 }
