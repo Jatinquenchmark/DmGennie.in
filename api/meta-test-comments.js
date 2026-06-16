@@ -19,6 +19,7 @@ export default async function handler(req, res) {
             .from('user_settings')
             .select('*')
             .eq('instagram_account_id', '17841429173707253')
+            .eq('user_id', '37251c49-e364-4829-beb5-accb1391841a')
             .not('page_access_token', 'is', null)
             .limit(1);
 
