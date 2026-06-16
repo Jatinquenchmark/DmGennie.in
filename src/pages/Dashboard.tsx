@@ -1420,7 +1420,7 @@ function Sidebar({
                     {profilePanelOpen && (
                         <>
                             <button type="button" aria-hidden className="fixed inset-0 z-40 cursor-default" onClick={() => setProfilePanelOpen(false)} />
-                            <div className="absolute bottom-full left-0 right-0 z-50 mb-2 overflow-hidden rounded-[16px] border border-slate-100 bg-white p-1.5 shadow-[0_18px_50px_rgba(15,23,42,0.18)]">
+                            <div className="absolute left-full top-0 z-50 ml-2 w-60 overflow-hidden rounded-[16px] border border-slate-100 bg-white p-1.5 shadow-[0_18px_50px_rgba(15,23,42,0.18)]">
                                 <button
                                     type="button"
                                     onClick={() => { setProfilePanelOpen(false); onNavigate("settings"); }}

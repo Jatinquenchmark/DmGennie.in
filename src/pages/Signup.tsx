@@ -78,23 +78,6 @@ function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
 }
 
-// Dev-only master access gate.
-// On the dev deployment (dev.dmgennie.in) sign-in is locked to a single master
-// account; every other email is rejected as unauthorised access.
-// Credentials are supplied via Vite env vars (VITE_MASTER_EMAIL / VITE_MASTER_PASSWORD)
-// so they are not hardcoded in source.
-const MASTER_EMAIL = (import.meta.env.VITE_MASTER_EMAIL ?? '').toLowerCase()
-const MASTER_PASSWORD = import.meta.env.VITE_MASTER_PASSWORD ?? ''
-
-function isDevEnvironment() {
-  if (typeof window === 'undefined') return false
-  return window.location.hostname === 'dev.dmgennie.in'
-}
-
-function isMasterCredentials(email: string, password: string) {
-  if (!MASTER_EMAIL || !MASTER_PASSWORD) return false
-  return email.trim().toLowerCase() === MASTER_EMAIL && password === MASTER_PASSWORD
-}
 
 function SignupTrustBadges() {
   const badges = [
@@ -354,12 +337,6 @@ export default function Signup() {
     e.preventDefault()
     setSignUpError('')
 
-    // Dev deployment is locked to the master account only — no new signups.
-    if (isDevEnvironment()) {
-      setSignUpError('Unauthorised access.')
-      return
-    }
-
     if (!email.trim()) {
       setSignUpError('Email is required.')
       return
@@ -429,12 +406,6 @@ export default function Signup() {
       return
     }
 
-    // Dev deployment is locked to the master account only.
-    if (isDevEnvironment() && !isMasterCredentials(signInEmail, signInPassword)) {
-      setSignInError('Unauthorised access.')
-      return
-    }
-
     setSignInLoading(true)
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -499,14 +470,6 @@ export default function Signup() {
     setSignUpError('')
     setSignInError('')
     setSignInNotice('')
-
-    // Dev deployment is locked to the master account — Google access is disabled.
-    if (isDevEnvironment()) {
-      const message = 'Unauthorised access.'
-      if (authMode === 'signin') setSignInError(message)
-      else setSignUpError(message)
-      return
-    }
 
     setGoogleLoading(true)
     // Capture the session preference before redirecting out to Google.
