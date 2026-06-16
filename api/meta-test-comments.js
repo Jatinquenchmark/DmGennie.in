@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const API_VERSION = 'v25.0';
 const IG_ACCOUNT_ID = '17841429173707253';
+const WORKING_USER_ID = '37251c49-e364-4829-beb5-accb1391841a';
 
 function getSupabase() {
     return createClient(
@@ -16,33 +17,45 @@ export default async function handler(req, res) {
     try {
         const supabase = getSupabase();
 
-        // 1. Get token from Supabase
+        // 1. Get the exact working DMGennie account token from Supabase
         const { data: settingsRows, error } = await supabase
             .from('user_settings')
             .select('*')
             .eq('instagram_account_id', IG_ACCOUNT_ID)
-            .eq('user_id', '37251c49-e364-4829-beb5-accb1391841a')
+            .eq('user_id', WORKING_USER_ID)
             .not('page_access_token', 'is', null)
             .limit(1);
 
         if (error) {
             console.error('[meta-test-comments] Supabase error:', error);
-            return res.status(500).json({ success: false, error });
+            return res.status(500).json({
+                success: false,
+                stage: 'supabase_query',
+                error
+            });
         }
 
         if (!settingsRows || settingsRows.length === 0) {
             return res.status(404).json({
                 success: false,
-                error: 'No connected Instagram account found'
+                stage: 'supabase_query',
+                error: 'No connected Instagram account found for the selected user_id and instagram_account_id'
             });
         }
 
-        const token = settingsRows[0].page_access_token;
-        console.log('[meta-test-comments] Token fetched, starting media scan...');
+        const settings = settingsRows[0];
+        const token = settings.page_access_token;
 
-        // 2. Fetch all media for the account
+        console.log('[meta-test-comments] Token fetched, starting media scan...', {
+            instagram_account_id: settings.instagram_account_id,
+            instagram_handle: settings.instagram_handle,
+            user_id: settings.user_id,
+            tokenStart: token?.slice(0, 10)
+        });
+
+        // 2. Fetch media using Facebook Graph API
         const mediaRes = await axios.get(
-            `https://graph.instagram.com/${API_VERSION}/${IG_ACCOUNT_ID}/media`,
+            `https://graph.facebook.com/${API_VERSION}/${IG_ACCOUNT_ID}/media`,
             {
                 params: {
                     fields: 'id,caption,media_type,permalink',
@@ -57,12 +70,16 @@ export default async function handler(req, res) {
         if (mediaList.length === 0) {
             return res.status(200).json({
                 success: false,
-                error: 'No media found for this account',
-                app: 'DMGENNIE-LIVE'
+                app: 'DMGENNIE-LIVE',
+                permission_tested: 'instagram_business_manage_comments',
+                message: 'No media found for this Instagram account.',
+                selected_user_id: settings.user_id,
+                instagram_account_id: settings.instagram_account_id,
+                instagram_handle: settings.instagram_handle
             });
         }
 
-        // 3. Loop through each media and check for comments
+        // 3. Loop through media and check comments
         const testedMedia = [];
         let matchedResult = null;
 
@@ -71,7 +88,7 @@ export default async function handler(req, res) {
 
             try {
                 const commentsRes = await axios.get(
-                    `https://graph.instagram.com/${API_VERSION}/${media.id}/comments`,
+                    `https://graph.facebook.com/${API_VERSION}/${media.id}/comments`,
                     {
                         params: {
                             fields: 'id,text,username,timestamp',
@@ -81,65 +98,78 @@ export default async function handler(req, res) {
                 );
 
                 const comments = commentsRes.data?.data || [];
-                console.log(`[meta-test-comments] Media ${media.id} → ${comments.length} comment(s)`);
+
+                console.log(`[meta-test-comments] Media ${media.id} -> ${comments.length} comment(s)`);
 
                 testedMedia.push({
                     media_id: media.id,
                     permalink: media.permalink,
                     media_type: media.media_type,
-                    caption: media.caption?.slice(0, 60) || '',
+                    caption: media.caption?.slice(0, 80) || '',
                     comments_found: comments.length
                 });
 
-                // First media with comments wins
                 if (comments.length > 0 && !matchedResult) {
                     matchedResult = {
                         matched_media_id: media.id,
                         permalink: media.permalink,
                         media_type: media.media_type,
+                        caption: media.caption || '',
                         comments_found: comments.length,
-                        comments: comments
+                        comments
                     };
                 }
             } catch (commentErr) {
                 const errDetail = commentErr.response?.data?.error || commentErr.message;
+
                 console.error(`[meta-test-comments] Error fetching comments for ${media.id}:`, errDetail);
+
                 testedMedia.push({
                     media_id: media.id,
                     permalink: media.permalink,
                     media_type: media.media_type,
+                    caption: media.caption?.slice(0, 80) || '',
                     comments_found: 0,
                     error: errDetail
                 });
             }
         }
 
-        // 4. Return result
+        // 4. Return first media with comments
         if (matchedResult) {
             return res.status(200).json({
                 success: true,
                 app: 'DMGENNIE-LIVE',
                 permission_tested: 'instagram_business_manage_comments',
+                selected_user_id: settings.user_id,
+                instagram_account_id: settings.instagram_account_id,
+                instagram_handle: settings.instagram_handle,
                 ...matchedResult,
                 all_tested_media: testedMedia
             });
         }
 
-        // No comments found on any post
+        // 5. No comments found, but API calls were still made
         return res.status(200).json({
             success: false,
             app: 'DMGENNIE-LIVE',
             permission_tested: 'instagram_business_manage_comments',
-            message: 'API calls made successfully but no comments found on any post. Meta should still register the API calls.',
+            selected_user_id: settings.user_id,
+            instagram_account_id: settings.instagram_account_id,
+            instagram_handle: settings.instagram_handle,
+            message: 'API calls made successfully but no comments were returned for any scanned media.',
             total_media_tested: testedMedia.length,
             all_tested_media: testedMedia
         });
 
     } catch (err) {
         const error = err.response?.data?.error || err.message;
+
         console.error('[meta-test-comments] Failed:', error);
+
         return res.status(500).json({
             success: false,
+            stage: 'main_catch',
             error
         });
     }
