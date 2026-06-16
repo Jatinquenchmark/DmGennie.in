@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     try {
         const supabase = getSupabase();
 
-        // 1. Get the exact working DMGennie account token from Supabase
+        // 1. Get exact working DMGennie account row/token from Supabase
         const { data: settingsRows, error } = await supabase
             .from('user_settings')
             .select('*')
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
             return res.status(404).json({
                 success: false,
                 stage: 'supabase_query',
-                error: 'No connected Instagram account found for the selected user_id and instagram_account_id'
+                error: 'No connected Instagram account found for this user_id and instagram_account_id'
             });
         }
 
@@ -53,9 +53,12 @@ export default async function handler(req, res) {
             tokenStart: token?.slice(0, 10)
         });
 
-        // 2. Fetch media using Facebook Graph API
+        // IMPORTANT:
+        // Supabase token starts with IGAAS..., so use graph.instagram.com, not graph.facebook.com.
+
+        // 2. Fetch media from Instagram Graph API
         const mediaRes = await axios.get(
-            `https://graph.facebook.com/${API_VERSION}/${IG_ACCOUNT_ID}/media`,
+            `https://graph.instagram.com/${API_VERSION}/${IG_ACCOUNT_ID}/media`,
             {
                 params: {
                     fields: 'id,caption,media_type,permalink',
@@ -72,14 +75,14 @@ export default async function handler(req, res) {
                 success: false,
                 app: 'DMGENNIE-LIVE',
                 permission_tested: 'instagram_business_manage_comments',
-                message: 'No media found for this Instagram account.',
                 selected_user_id: settings.user_id,
                 instagram_account_id: settings.instagram_account_id,
-                instagram_handle: settings.instagram_handle
+                instagram_handle: settings.instagram_handle,
+                message: 'No media found for this Instagram account.'
             });
         }
 
-        // 3. Loop through media and check comments
+        // 3. Loop through media and fetch comments for each post/reel
         const testedMedia = [];
         let matchedResult = null;
 
@@ -88,7 +91,7 @@ export default async function handler(req, res) {
 
             try {
                 const commentsRes = await axios.get(
-                    `https://graph.facebook.com/${API_VERSION}/${media.id}/comments`,
+                    `https://graph.instagram.com/${API_VERSION}/${media.id}/comments`,
                     {
                         params: {
                             fields: 'id,text,username,timestamp',
@@ -105,7 +108,7 @@ export default async function handler(req, res) {
                     media_id: media.id,
                     permalink: media.permalink,
                     media_type: media.media_type,
-                    caption: media.caption?.slice(0, 80) || '',
+                    caption: media.caption?.slice(0, 100) || '',
                     comments_found: comments.length
                 });
 
@@ -128,14 +131,14 @@ export default async function handler(req, res) {
                     media_id: media.id,
                     permalink: media.permalink,
                     media_type: media.media_type,
-                    caption: media.caption?.slice(0, 80) || '',
+                    caption: media.caption?.slice(0, 100) || '',
                     comments_found: 0,
                     error: errDetail
                 });
             }
         }
 
-        // 4. Return first media with comments
+        // 4. If any media has comments, return that as matched result
         if (matchedResult) {
             return res.status(200).json({
                 success: true,
@@ -149,7 +152,7 @@ export default async function handler(req, res) {
             });
         }
 
-        // 5. No comments found, but API calls were still made
+        // 5. No comments found, but API calls were successful
         return res.status(200).json({
             success: false,
             app: 'DMGENNIE-LIVE',
@@ -157,7 +160,7 @@ export default async function handler(req, res) {
             selected_user_id: settings.user_id,
             instagram_account_id: settings.instagram_account_id,
             instagram_handle: settings.instagram_handle,
-            message: 'API calls made successfully but no comments were returned for any scanned media.',
+            message: 'API calls made successfully, but no comments were returned for any scanned media.',
             total_media_tested: testedMedia.length,
             all_tested_media: testedMedia
         });
