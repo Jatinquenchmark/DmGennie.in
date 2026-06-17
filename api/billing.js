@@ -7,6 +7,45 @@ export const config = {
     api: { bodyParser: false },
 };
 
+function fallbackSettings(userId) {
+    return {
+        user_id: userId,
+        bot_enabled: false,
+        instagram_account_id: null,
+        instagram_handle: null,
+        page_access_token: null,
+
+        // Billing-safe defaults
+        subscription_plan: 'starter',
+        subscription_status: 'inactive',
+        current_period_start: null,
+        current_period_end: null,
+        razorpay_customer_id: null,
+        razorpay_subscription_id: null,
+        has_used_pro_intro_offer: false,
+        pro_intro_started_at: null,
+    };
+}
+
+async function getSafeSettings(userId) {
+    try {
+        const settings = await ensureSettings(userId);
+
+        if (!settings) {
+            console.warn('[api/billing] user_settings missing. Using fallback defaults for user:', userId);
+            return fallbackSettings(userId);
+        }
+
+        return {
+            ...fallbackSettings(userId),
+            ...settings,
+        };
+    } catch (error) {
+        console.warn('[api/billing] ensureSettings failed. Using fallback defaults:', error?.message || error);
+        return fallbackSettings(userId);
+    }
+}
+
 async function getRawBody(req) {
     if (Buffer.isBuffer(req.body)) return req.body;
     if (typeof req.body === 'string') return Buffer.from(req.body);
@@ -42,17 +81,20 @@ async function updateCheckoutReference(userId, subscriptionId) {
         subscription_status: 'payment_pending',
         updated_at: new Date().toISOString(),
     };
+
     const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
+
     if (error) {
-        // TODO: ensure billing migration is applied before enabling live checkout.
         console.warn('[billing] Unable to store checkout reference:', error.message);
     }
 }
 
 async function markPaymentSuccess(userId, entity = {}, { introApplied = false } = {}) {
     if (!userId) return;
+
     const now = new Date().toISOString();
     const currentPeriodEnd = entity.current_end ? new Date(Number(entity.current_end) * 1000).toISOString() : null;
+
     const updates = {
         subscription_plan: 'pro',
         subscription_status: 'active',
@@ -62,18 +104,20 @@ async function markPaymentSuccess(userId, entity = {}, { introApplied = false } 
         razorpay_subscription_id: entity.subscription_id || entity.id || null,
         updated_at: now,
     };
+
     if (introApplied) {
         updates.has_used_pro_intro_offer = true;
         updates.pro_intro_started_at = now;
     }
 
     const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
+
     if (error) {
-        // TODO: ensure billing migration is applied before enabling Razorpay webhooks.
         console.warn('[billing] Unable to mark intro offer used:', error.message);
     }
 
     const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+
     if (user) {
         await supabase.auth.admin.updateUserById(userId, {
             app_metadata: {
@@ -90,16 +134,21 @@ async function markPaymentSuccess(userId, entity = {}, { introApplied = false } 
 
 async function markPaymentNotCompleted(userId, status = 'payment_failed') {
     if (!userId) return;
+
     const safeStatus = ['payment_failed', 'cancelled', 'expired', 'inactive'].includes(status) ? status : 'payment_failed';
+
     const updates = {
         subscription_plan: 'starter',
         subscription_status: safeStatus,
         updated_at: new Date().toISOString(),
     };
+
     const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
+
     if (error) console.warn('[billing] Unable to mark payment incomplete:', error.message);
 
     const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+
     if (user) {
         await supabase.auth.admin.updateUserById(userId, {
             app_metadata: {
@@ -116,10 +165,20 @@ async function pricingHandler(req, res) {
 
     const configData = getBillingConfig();
     const user = await getUser(req);
-    let eligibility = { eligible: false, reason: 'Sign in to start Pro for ₹1', isPro: false, hasUsedIntroOffer: false };
+
+    let eligibility = {
+        eligible: false,
+        reason: 'Sign in to start Pro for ₹1',
+        isPro: false,
+        hasUsedIntroOffer: false,
+        status: 'inactive',
+        isPaymentPending: false,
+        currentPeriodEnd: null,
+        proIntroStartedAt: null,
+    };
 
     if (user) {
-        const settings = await ensureSettings(user.id);
+        const settings = await getSafeSettings(user.id);
         eligibility = getProIntroEligibility(user, settings);
     }
 
@@ -144,11 +203,12 @@ async function checkoutHandler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
     await getJsonBody(req).catch(() => ({}));
+
     const user = await getUser(req);
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
     const configData = getBillingConfig();
-    const settings = await ensureSettings(user.id);
+    const settings = await getSafeSettings(user.id);
     const eligibility = getProIntroEligibility(user, settings);
     const applyIntroOffer = !eligibility.isPro && !eligibility.hasUsedIntroOffer;
 
@@ -204,6 +264,7 @@ async function checkoutHandler(req, res) {
         });
     } catch (error) {
         console.error('[billing] Checkout failed:', error?.error || error);
+
         return res.status(500).json({
             error: 'Unable to create checkout',
             message: 'Something went wrong while creating the Pro checkout. Please try again.',
@@ -223,6 +284,7 @@ async function webhookHandler(req, res) {
     }
 
     let event;
+
     try {
         event = JSON.parse(rawBody.toString());
     } catch {
@@ -235,9 +297,11 @@ async function webhookHandler(req, res) {
     const notes = entity.notes || payment?.notes || subscription?.notes || {};
     const userId = notes.user_id;
     const introApplied = notes.intro_offer === 'true';
-    const isProPayment = String(notes.plan || '').toLowerCase() === 'pro'
-        || entity.plan_id === billing.razorpay.proMonthlyPlanId
-        || subscription?.plan_id === billing.razorpay.proMonthlyPlanId;
+
+    const isProPayment =
+        String(notes.plan || '').toLowerCase() === 'pro' ||
+        entity.plan_id === billing.razorpay.proMonthlyPlanId ||
+        subscription?.plan_id === billing.razorpay.proMonthlyPlanId;
 
     if ((event.event === 'subscription.charged' || event.event === 'payment.captured') && userId && isProPayment) {
         await markPaymentSuccess(userId, entity, { introApplied });
@@ -260,11 +324,13 @@ async function webhookHandler(req, res) {
 
 export default async function handler(req, res) {
     const action = String(req.query.action || 'pricing');
+
     if (action !== 'webhook') cors(req, res);
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     if (action === 'pricing') return pricingHandler(req, res);
     if (action === 'checkout') return checkoutHandler(req, res);
     if (action === 'webhook') return webhookHandler(req, res);
+
     return res.status(400).json({ error: 'Unsupported billing action.' });
 }
