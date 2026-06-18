@@ -22,6 +22,8 @@ function fallbackSettings(userId) {
         current_period_end: null,
         razorpay_customer_id: null,
         razorpay_subscription_id: null,
+        razorpay_payment_id: null,
+        dm_limit: 1000,
         has_used_pro_intro_offer: false,
         pro_intro_started_at: null,
     };
@@ -84,12 +86,10 @@ async function updateCheckoutReference(userId, subscriptionId) {
 
     const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
 
-    if (error) {
-        console.warn('[billing] Unable to store checkout reference:', error.message);
-    }
+    if (error) throw new Error(`Unable to store checkout reference: ${error.message}`);
 }
 
-async function markPaymentSuccess(userId, entity = {}, { introApplied = false } = {}) {
+async function markPaymentSuccess(userId, entity = {}, { introApplied = false, subscriptionId = null, paymentId = null } = {}) {
     if (!userId) return;
 
     const now = new Date().toISOString();
@@ -101,7 +101,9 @@ async function markPaymentSuccess(userId, entity = {}, { introApplied = false } 
         current_period_start: now,
         current_period_end: currentPeriodEnd,
         razorpay_customer_id: entity.customer_id || entity.customer || null,
-        razorpay_subscription_id: entity.subscription_id || entity.id || null,
+        razorpay_subscription_id: subscriptionId || entity.subscription_id || entity.id || null,
+        razorpay_payment_id: paymentId || entity.payment_id || null,
+        dm_limit: 20000,
         updated_at: now,
     };
 
@@ -112,23 +114,25 @@ async function markPaymentSuccess(userId, entity = {}, { introApplied = false } 
 
     const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
 
-    if (error) {
-        console.warn('[billing] Unable to mark intro offer used:', error.message);
-    }
+    if (error) throw new Error(`Unable to activate Pro settings: ${error.message}`);
 
     const { data: { user } } = await supabase.auth.admin.getUserById(userId);
 
     if (user) {
-        await supabase.auth.admin.updateUserById(userId, {
+        const { error: authError } = await supabase.auth.admin.updateUserById(userId, {
             app_metadata: {
                 ...(user.app_metadata || {}),
                 plan: 'pro',
                 subscription_status: 'active',
+                dm_limit: 20000,
+                razorpay_subscription_id: updates.razorpay_subscription_id,
+                razorpay_payment_id: updates.razorpay_payment_id,
                 ...(introApplied ? { has_used_pro_intro_offer: true, pro_intro_started_at: now } : {}),
                 current_period_start: now,
                 current_period_end: currentPeriodEnd,
             },
         });
+        if (authError) throw new Error(`Unable to activate Pro user metadata: ${authError.message}`);
     }
 }
 
@@ -187,8 +191,11 @@ async function pricingHandler(req, res) {
         plans: configData.plans,
         proIntroOffer: {
             ...configData.plans.pro.introOffer,
-            eligible: eligibility.eligible,
-            reason: eligibility.reason,
+            configured: Boolean(configData.razorpay.proFirstMonthOfferId),
+            eligible: eligibility.eligible && Boolean(configData.razorpay.proFirstMonthOfferId),
+            reason: !configData.razorpay.proFirstMonthOfferId && eligibility.eligible
+                ? 'First-month offer is not configured; standard monthly pricing applies.'
+                : eligibility.reason,
             hasUsedIntroOffer: eligibility.hasUsedIntroOffer,
             isPro: eligibility.isPro,
             subscriptionStatus: eligibility.status,
@@ -221,15 +228,6 @@ async function checkoutHandler(req, res) {
         });
     }
 
-    if (applyIntroOffer && !configData.razorpay.proIntroOfferId) {
-        return res.status(501).json({
-            error: 'Intro offer setup required',
-            message: 'Razorpay intro offer/coupon is not configured yet. Add RAZORPAY_PRO_INTRO_OFFER_ID before charging ₹1.',
-            setupRequired: true,
-            pricing: configData.plans.pro,
-        });
-    }
-
     const razorpay = new Razorpay({
         key_id: configData.razorpay.keyId,
         key_secret: configData.razorpay.keySecret,
@@ -238,7 +236,7 @@ async function checkoutHandler(req, res) {
     try {
         const subscriptionPayload = {
             plan_id: configData.razorpay.proMonthlyPlanId,
-            total_count: Number(process.env.RAZORPAY_PRO_SUBSCRIPTION_MONTHS || 120),
+            total_count: 120,
             quantity: 1,
             customer_notify: 1,
             notes: {
@@ -251,7 +249,13 @@ async function checkoutHandler(req, res) {
             },
         };
 
-        if (applyIntroOffer) subscriptionPayload.offer_id = configData.razorpay.proIntroOfferId;
+        const offerApplied = applyIntroOffer && Boolean(configData.razorpay.proFirstMonthOfferId);
+        if (offerApplied) {
+            subscriptionPayload.offer_id = configData.razorpay.proFirstMonthOfferId;
+        } else if (applyIntroOffer) {
+            console.info('[billing] RAZORPAY_PRO_FIRST_MONTH_OFFER_ID is not configured; continuing without an offer.');
+            subscriptionPayload.notes.intro_offer = 'false';
+        }
 
         const subscription = await razorpay.subscriptions.create(subscriptionPayload);
         await updateCheckoutReference(user.id, subscription.id);
@@ -259,7 +263,7 @@ async function checkoutHandler(req, res) {
         return res.json({
             checkoutUrl: subscription.short_url,
             subscriptionId: subscription.id,
-            introOfferApplied: applyIntroOffer,
+            introOfferApplied: offerApplied,
             pricing: configData.plans.pro,
         });
     } catch (error) {
@@ -269,6 +273,63 @@ async function checkoutHandler(req, res) {
             error: 'Unable to create checkout',
             message: 'Something went wrong while creating the Pro checkout. Please try again.',
         });
+    }
+}
+
+async function verifyCheckoutHandler(req, res) {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+    const user = await getUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    let body;
+    try {
+        body = await getJsonBody(req);
+    } catch {
+        return res.status(400).json({ error: 'Invalid payload' });
+    }
+
+    const paymentId = String(body.razorpay_payment_id || '');
+    const subscriptionId = String(body.razorpay_subscription_id || '');
+    const signature = String(body.razorpay_signature || '');
+    if (!paymentId || !subscriptionId || !signature) {
+        return res.status(400).json({ error: 'Missing Razorpay payment verification fields' });
+    }
+
+    const billing = getBillingConfig();
+    if (!billing.razorpay.keyId || !billing.razorpay.keySecret || !billing.razorpay.proMonthlyPlanId) {
+        return res.status(501).json({ error: 'Checkout setup required' });
+    }
+
+    const settings = await getSafeSettings(user.id);
+    if (settings.razorpay_subscription_id !== subscriptionId) {
+        return res.status(403).json({ error: 'Subscription does not belong to this user' });
+    }
+
+    const expected = crypto
+        .createHmac('sha256', billing.razorpay.keySecret)
+        .update(`${paymentId}|${subscriptionId}`)
+        .digest('hex');
+    const valid = Buffer.byteLength(expected) === Buffer.byteLength(signature)
+        && crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+    if (!valid) return res.status(401).json({ error: 'Invalid payment signature' });
+
+    try {
+        const razorpay = new Razorpay({ key_id: billing.razorpay.keyId, key_secret: billing.razorpay.keySecret });
+        const subscription = await razorpay.subscriptions.fetch(subscriptionId);
+        if (subscription.plan_id !== billing.razorpay.proMonthlyPlanId) {
+            return res.status(400).json({ error: 'Unexpected Razorpay plan' });
+        }
+
+        await markPaymentSuccess(user.id, subscription, {
+            introApplied: subscription.offer_id === billing.razorpay.proFirstMonthOfferId,
+            subscriptionId,
+            paymentId,
+        });
+        return res.json({ verified: true, plan: 'pro', dmLimit: 20000 });
+    } catch (error) {
+        console.error('[billing] Payment verification failed:', error?.error || error);
+        return res.status(502).json({ error: 'Unable to verify subscription with Razorpay' });
     }
 }
 
@@ -304,7 +365,11 @@ async function webhookHandler(req, res) {
         subscription?.plan_id === billing.razorpay.proMonthlyPlanId;
 
     if ((event.event === 'subscription.charged' || event.event === 'payment.captured') && userId && isProPayment) {
-        await markPaymentSuccess(userId, entity, { introApplied });
+        await markPaymentSuccess(userId, subscription || entity, {
+            introApplied,
+            subscriptionId: subscription?.id || payment?.subscription_id || null,
+            paymentId: payment?.id || null,
+        });
     }
 
     if ((event.event === 'payment.failed' || event.event === 'subscription.payment_failed') && userId && isProPayment) {
@@ -323,13 +388,14 @@ async function webhookHandler(req, res) {
 }
 
 export default async function handler(req, res) {
-    const action = String(req.query.action || 'pricing');
+    const action = String(req.query.action || req.params?.action || 'pricing');
 
     if (action !== 'webhook') cors(req, res);
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     if (action === 'pricing') return pricingHandler(req, res);
     if (action === 'checkout') return checkoutHandler(req, res);
+    if (action === 'verify') return verifyCheckoutHandler(req, res);
     if (action === 'webhook') return webhookHandler(req, res);
 
     return res.status(400).json({ error: 'Unsupported billing action.' });

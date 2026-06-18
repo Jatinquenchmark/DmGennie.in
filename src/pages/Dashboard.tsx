@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { ErrorState, LoadingCard, SkeletonCard } from "@/components/Loading";
 import { supabase } from "@/lib/supabase";
+import { openProSubscriptionCheckout } from "@/lib/razorpayCheckout";
 import { AnimatePresence, motion } from "framer-motion";
 import {
     Activity,
@@ -781,15 +782,33 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                 body: JSON.stringify({ plan: "pro", billingCycle: "monthly" }),
             });
             const data = await res.json();
-            if (res.ok && data.checkoutUrl) {
-                window.location.href = data.checkoutUrl;
+            if (res.ok && data.subscriptionId) {
+                await openProSubscriptionCheckout({
+                    subscriptionId: data.subscriptionId,
+                    customerName: session?.user?.user_metadata?.full_name,
+                    customerEmail: session?.user?.email,
+                    onSuccess: async (payment) => {
+                        try {
+                            const verifyRes = await authFetch("/api/billing?action=verify", {
+                                method: "POST",
+                                body: JSON.stringify(payment),
+                            });
+                            const verification = await verifyRes.json();
+                            if (!verifyRes.ok) throw new Error(verification.error || "Payment verification failed");
+                            showDashboardToast("Pro subscription activated.");
+                            await fetchAll();
+                        } catch (error) {
+                            showDashboardToast(error instanceof Error ? error.message : "Payment verification failed. Please contact support.");
+                        }
+                    },
+                });
                 return;
             }
             showDashboardToast(data.message || "Checkout is not ready yet. Please contact support.");
         } catch {
             showDashboardToast("Unable to start checkout. Please try again.");
         }
-    }, [authFetch, navigate, preview, showDashboardToast]);
+    }, [authFetch, fetchAll, navigate, preview, session?.user, showDashboardToast]);
 
     const openUpgradeModal = useCallback(() => setUpgradeModalOpen(true), []);
 

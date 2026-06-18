@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Check, X } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { openProSubscriptionCheckout } from '@/lib/razorpayCheckout'
 
 type PricingConfig = {
   currency: 'INR'
@@ -194,8 +195,29 @@ export function Pricing() {
         body: JSON.stringify({ plan: 'pro', billingCycle: 'monthly' }),
       })
       const data = await response.json()
-      if (response.ok && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl
+      if (response.ok && data.subscriptionId) {
+        await openProSubscriptionCheckout({
+          subscriptionId: data.subscriptionId,
+          customerName: session.user.user_metadata?.full_name,
+          customerEmail: session.user.email,
+          onSuccess: async (payment) => {
+            try {
+              const verifyResponse = await fetch('/api/billing?action=verify', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify(payment),
+              })
+              const verification = await verifyResponse.json()
+              if (!verifyResponse.ok) throw new Error(verification.error || 'Payment verification failed')
+              setNotice('Pro subscription activated.')
+            } catch (error) {
+              setNotice(error instanceof Error ? error.message : 'Payment verification failed. Please contact support.')
+            }
+          },
+        })
         return
       }
       setNotice(data.message || 'Checkout is not ready yet. Please contact support.')

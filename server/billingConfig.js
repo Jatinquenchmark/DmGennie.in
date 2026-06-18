@@ -118,7 +118,7 @@ export function getBillingConfig() {
             keyId: process.env.RAZORPAY_KEY_ID || '',
             keySecret: process.env.RAZORPAY_KEY_SECRET || '',
             proMonthlyPlanId: process.env.RAZORPAY_PRO_MONTHLY_PLAN_ID || '',
-            proIntroOfferId: process.env.RAZORPAY_PRO_INTRO_OFFER_ID || '',
+            proFirstMonthOfferId: process.env.RAZORPAY_PRO_FIRST_MONTH_OFFER_ID || '',
             webhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || '',
         },
     };

@@ -247,6 +247,7 @@ app.put('/api/me', async (req, res) => {
 app.all('/api/admin', adminApiHandler);
 app.all('/api/auth', authApiHandler);
 app.all('/api/billing', billingApiHandler);
+app.all('/api/billing/:action', billingApiHandler);
 
 app.get('/api/admin/overview', async (req, res) => {
     const admin = await requireAdmin(req, res);
@@ -519,15 +520,6 @@ app.post('/api/billing/checkout', async (req, res) => {
         });
     }
 
-    if (applyIntroOffer && !config.razorpay.proIntroOfferId) {
-        return res.status(501).json({
-            error: 'Intro offer setup required',
-            message: 'Razorpay intro offer/coupon is not configured yet. Add RAZORPAY_PRO_INTRO_OFFER_ID before charging ₹1.',
-            setupRequired: true,
-            pricing: config.plans.pro,
-        });
-    }
-
     try {
         const razorpay = new Razorpay({
             key_id: config.razorpay.keyId,
@@ -536,7 +528,7 @@ app.post('/api/billing/checkout', async (req, res) => {
 
         const subscriptionPayload = {
             plan_id: config.razorpay.proMonthlyPlanId,
-            total_count: Number(process.env.RAZORPAY_PRO_SUBSCRIPTION_MONTHS || 120),
+            total_count: 120,
             quantity: 1,
             customer_notify: 1,
             notes: {
@@ -549,7 +541,13 @@ app.post('/api/billing/checkout', async (req, res) => {
             },
         };
 
-        if (applyIntroOffer) subscriptionPayload.offer_id = config.razorpay.proIntroOfferId;
+        const offerApplied = applyIntroOffer && Boolean(config.razorpay.proFirstMonthOfferId);
+        if (offerApplied) {
+            subscriptionPayload.offer_id = config.razorpay.proFirstMonthOfferId;
+        } else if (applyIntroOffer) {
+            console.info('[billing] RAZORPAY_PRO_FIRST_MONTH_OFFER_ID is not configured; continuing without an offer.');
+            subscriptionPayload.notes.intro_offer = 'false';
+        }
 
         const subscription = await razorpay.subscriptions.create(subscriptionPayload);
         const { error } = await supabase.from('user_settings').update({
@@ -563,7 +561,7 @@ app.post('/api/billing/checkout', async (req, res) => {
         res.json({
             checkoutUrl: subscription.short_url,
             subscriptionId: subscription.id,
-            introOfferApplied: applyIntroOffer,
+            introOfferApplied: offerApplied,
             pricing: config.plans.pro,
         });
     } catch (error) {
