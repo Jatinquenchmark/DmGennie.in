@@ -412,7 +412,7 @@ const fallbackInstagramMedia: InstagramMedia[] = [
         title: "All posts & reels",
         type: "Carousel",
         caption: "Listen for keywords across every connected post and reel.",
-        color: "from-slate-100 via-white to-[#EEF0FF]",
+        color: "from-slate-100 via-white to-[#FBEAF3]",
         metric: "All content",
     },
     {
@@ -420,7 +420,7 @@ const fallbackInstagramMedia: InstagramMedia[] = [
         title: "Creator growth reel",
         type: "Reel",
         caption: "Comment GUIDE and I will send the free resource.",
-        color: "from-[#5B4DFF] via-[#8A3FFC] to-[#F05A8A]",
+        color: "from-[#C13584] via-[#8A3FFC] to-[#F05A8A]",
         metric: "12.4K plays",
     },
     {
@@ -436,7 +436,7 @@ const fallbackInstagramMedia: InstagramMedia[] = [
         title: "Launch announcement",
         type: "Post",
         caption: "DM automation is live. Comment LINK for early access.",
-        color: "from-[#111827] via-[#4C1D95] to-[#5B4DFF]",
+        color: "from-[#111827] via-[#4C1D95] to-[#C13584]",
         metric: "3.2K likes",
     },
     {
@@ -463,7 +463,7 @@ const fallbackInstagramStories: InstagramMedia[] = [
         title: "Launch countdown",
         type: "Post",
         caption: "Reply GO and I will send early access.",
-        color: "from-[#5B4DFF] via-[#8A3FFC] to-[#F05A8A]",
+        color: "from-[#C13584] via-[#8A3FFC] to-[#F05A8A]",
         metric: "Expires in 18h",
     },
     {
@@ -1058,7 +1058,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     }
 
     return (
-        <div className="min-h-screen overflow-x-hidden bg-[#F7F7FB] text-slate-950">
+        <div className="min-h-screen overflow-x-hidden bg-[#F7F5FF] text-slate-950">
             <div className="mx-auto w-full max-w-[1440px] p-3 sm:p-4 xl:p-5">
                 <Sidebar
                     activeTab={tab}
@@ -1225,7 +1225,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
 
 function DashboardLoadingState() {
     return (
-        <div className="min-h-screen overflow-x-hidden bg-[#F7F7FB] p-3 text-slate-950 sm:p-4 xl:p-5">
+        <div className="min-h-screen overflow-x-hidden bg-[#F7F5FF] p-3 text-slate-950 sm:p-4 xl:p-5">
             <div className="mx-auto flex w-full max-w-[1440px] gap-4">
                 <aside className="hidden h-[calc(100vh-2rem)] w-[264px] shrink-0 rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.06)] lg:block">
                     <div className="flex items-center gap-3">
@@ -1333,7 +1333,7 @@ function ConnectInstagramModal({ connected, handle, onConnect, onDisconnect, onC
                     </div>
                 ) : (
                     <div className="flex flex-col items-center gap-4 text-center">
-                        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#5B4DFF] ring-1 ring-indigo-100"><Instagram className="h-6 w-6" /></span>
+                        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#C13584] ring-1 ring-indigo-100"><Instagram className="h-6 w-6" /></span>
                         <div>
                             <p className="text-sm font-black text-[#0F172A]">No account connected yet</p>
                             <p className="mt-1 text-xs font-semibold text-[#64748B]">Connect your Instagram business account through Meta to start automating DMs.</p>
@@ -1383,7 +1383,7 @@ function Sidebar({
         <aside className="shrink-0 rounded-[26px] border border-white bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)] lg:fixed lg:left-0 lg:top-0 lg:h-screen lg:w-[272px] lg:max-w-[272px] lg:rounded-none lg:border-r lg:border-slate-200">
             <div className="flex h-full min-h-0 flex-col p-3.5">
                 <Link to="/" className="mb-3 flex items-center gap-2.5 rounded-2xl px-1 py-0.5">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#5B4DFF] text-white shadow-[0_12px_26px_rgba(91,77,255,0.22)]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-white shadow-[0_12px_26px_rgba(193,53,132,0.22)]">
                         <svg width="19" height="19" viewBox="0 0 40 40" fill="none" aria-hidden="true">
                             <path d="M10 27 L19 13" stroke="white" strokeWidth="4" strokeLinecap="round" />
                             <path d="M17 27 L26 13" stroke="white" strokeWidth="4" strokeLinecap="round" />
@@ -1451,7 +1451,7 @@ function Sidebar({
                                         onClick={() => { setProfilePanelOpen(false); onConnect(); }}
                                         className="flex w-full items-center gap-2.5 rounded-[12px] px-2.5 py-2 text-left text-[13px] font-bold text-[#0F172A] transition hover:bg-slate-50"
                                     >
-                                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#EEF0FF] text-[#5B4DFF]"><Instagram className="h-4 w-4" /></span>
+                                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FBEAF3] text-[#C13584]"><Instagram className="h-4 w-4" /></span>
                                         Add Instagram account
                                     </button>
                                 )}
@@ -1573,13 +1573,13 @@ function CompactUsageLine({ icon, label, value, progress }: { icon: ReactNode; l
         <div>
             <div className="mb-1 flex items-center justify-between gap-2 text-[11px] font-bold text-[#64748B]">
                 <span className="inline-flex items-center gap-1.5">
-                    <span className="text-[#5B4DFF]">{icon}</span>
+                    <span className="text-[#C13584]">{icon}</span>
                     {label}
                 </span>
                 <span className="font-black text-[#0F172A]">{value}</span>
             </div>
             <div className="h-1 rounded-full bg-white">
-                <div className="h-full rounded-full bg-[#5B4DFF]" style={{ width: `${progress}%` }} />
+                <div className="h-full rounded-full bg-[#C13584]" style={{ width: `${progress}%` }} />
             </div>
         </div>
     );
@@ -1629,13 +1629,13 @@ function UsageLine({ icon, label, value, progress }: { icon: ReactNode; label: s
         <div className="mb-2.5 last:mb-0">
             <div className="mb-1.5 flex items-center justify-between gap-2 text-[12px] font-bold text-slate-700">
                 <span className="inline-flex min-w-0 items-center gap-2.5">
-                    <span className="text-[#5B4DFF]">{icon}</span>
+                    <span className="text-[#C13584]">{icon}</span>
                     <span className="font-black text-[#0F172A]">{value}</span>
                     <span className="text-[#64748B]">{label}</span>
                 </span>
             </div>
             <div className="h-1.5 rounded-full bg-[#F1F5F9]">
-                <div className="h-full rounded-full bg-[#5B4DFF]" style={{ width: `${progress}%` }} />
+                <div className="h-full rounded-full bg-[#C13584]" style={{ width: `${progress}%` }} />
             </div>
         </div>
     );
@@ -1686,7 +1686,7 @@ function HomePage({
     return (
         <div className="space-y-4">
             <section className="relative overflow-hidden rounded-[22px] border border-white bg-white p-4 shadow-[0_18px_48px_rgba(15,23,42,0.055)]">
-                <div className="pointer-events-none absolute -right-20 -top-28 h-64 w-64 rounded-full bg-[#5B4DFF]/10 blur-3xl" />
+                <div className="pointer-events-none absolute -right-20 -top-28 h-64 w-64 rounded-full bg-[#C13584]/10 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-32 left-1/3 h-56 w-56 rounded-full bg-fuchsia-300/10 blur-3xl" />
                 <div className="relative space-y-4">
                     <div>
@@ -1779,7 +1779,7 @@ function HomeStartHereChecklist({ connected, activeTriggers, leadsCollected, onN
     return (
         <div className="rounded-[18px] border border-slate-100 bg-white/80 px-3.5 py-2.5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] backdrop-blur">
             <div className="flex flex-wrap items-center gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.75rem] bg-[#EEF0FF] text-[#5B4DFF]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.75rem] bg-[#FBEAF3] text-[#C13584]">
                     <CheckCircle2 className="h-4 w-4" />
                 </span>
                 <div className="min-w-0 shrink-0">
@@ -1787,7 +1787,7 @@ function HomeStartHereChecklist({ connected, activeTriggers, leadsCollected, onN
                     <p className="text-xs font-black text-[#0F172A]">{complete} of {steps.length} completed</p>
                 </div>
                 <div className="hidden h-1.5 w-24 shrink-0 overflow-hidden rounded-full bg-slate-100 sm:block">
-                    <div className="h-full rounded-full bg-[#5B4DFF] transition-all duration-300" style={{ width: `${progress}%` }} />
+                    <div className="h-full rounded-full bg-[#C13584] transition-all duration-300" style={{ width: `${progress}%` }} />
                 </div>
 
                 <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
@@ -1825,7 +1825,7 @@ function HomeStartHereChecklist({ connected, activeTriggers, leadsCollected, onN
 
 function HomeHeroStat({ label, value, tone }: { label: string; value: string; tone: "purple" | "green" | "blue" }) {
     const tones: Record<typeof tone, string> = {
-        purple: "bg-[#EEF0FF] text-[#5B4DFF] ring-indigo-100",
+        purple: "bg-[#FBEAF3] text-[#C13584] ring-indigo-100",
         green: "bg-emerald-50 text-emerald-700 ring-emerald-100",
         blue: "bg-sky-50 text-sky-700 ring-sky-100",
     };
@@ -1908,15 +1908,15 @@ function QuickActionGrid({
                             "group relative flex min-h-[132px] flex-col overflow-hidden rounded-[18px] bg-white p-4 text-left transition duration-200 hover:-translate-y-0.5",
                             action.featured
                                 ? "border border-[#E8C56C]/70 bg-[linear-gradient(180deg,#FFFFFF_0%,#FFFDF7_100%)] shadow-[0_10px_24px_rgba(120,83,20,0.045)] hover:border-[#E8C56C]/80 hover:shadow-[0_15px_30px_rgba(120,83,20,0.09)]"
-                                : "border border-[#E5E7EB] shadow-[0_10px_24px_rgba(15,23,42,0.035)] hover:border-indigo-100 hover:shadow-[0_15px_30px_rgba(79,70,229,0.08)]",
+                                : "border border-[#E5E7EB] shadow-[0_10px_24px_rgba(15,23,42,0.035)] hover:border-indigo-100 hover:shadow-[0_15px_30px_rgba(193,53,132,0.08)]",
                             locked && "border-[#FDE68A] bg-[#FFFDF6]"
                         )}
                     >
-                        <span className={cx("pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full blur-2xl transition group-hover:opacity-100", action.featured ? "bg-amber-200/20 opacity-50" : "bg-[#5B4DFF]/10 opacity-40")} />
+                        <span className={cx("pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full blur-2xl transition group-hover:opacity-100", action.featured ? "bg-amber-200/20 opacity-50" : "bg-[#C13584]/10 opacity-40")} />
                         <div className="mb-3 flex items-start justify-between gap-3">
                             <span className={cx(
                                 "flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] transition",
-                                action.featured ? "bg-[#FFF7DA] text-[#9A6A1E] ring-1 ring-[#FDE68A]/70" : "bg-[#EEF0FF] text-[#5B4DFF] group-hover:bg-[#5B4DFF] group-hover:text-white"
+                                action.featured ? "bg-[#FFF7DA] text-[#9A6A1E] ring-1 ring-[#FDE68A]/70" : "bg-[#FBEAF3] text-[#C13584] group-hover:bg-[#C13584] group-hover:text-white"
                             )}>
                                 {action.icon}
                             </span>
@@ -1944,9 +1944,9 @@ function QuickActionGrid({
                         <div className="mt-3 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
                             <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                                 <span className="inline-flex h-6 items-center rounded-full bg-slate-50 px-2 text-[10px] font-black text-slate-500 ring-1 ring-slate-100">{action.intent}</span>
-                                <span className={cx("inline-flex h-6 items-center rounded-full px-2 text-[10px] font-black ring-1", action.featured ? "bg-amber-50 text-amber-700 ring-amber-100" : "bg-indigo-50 text-[#5B4DFF] ring-indigo-100")}>{action.setup}</span>
+                                <span className={cx("inline-flex h-6 items-center rounded-full px-2 text-[10px] font-black ring-1", action.featured ? "bg-amber-50 text-amber-700 ring-amber-100" : "bg-indigo-50 text-[#C13584] ring-indigo-100")}>{action.setup}</span>
                             </div>
-                            <span className="inline-flex shrink-0 items-center gap-1.5 text-[12px] font-black text-[#5B4DFF]">
+                            <span className="inline-flex shrink-0 items-center gap-1.5 text-[12px] font-black text-[#C13584]">
                                 {locked ? "Upgrade to Pro" : action.cta}
                                 {locked ? <Lock className="h-3.5 w-3.5" /> : <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />}
                             </span>
@@ -1976,7 +1976,7 @@ const METRIC_RANGES = [
 type MetricRangeKey = (typeof METRIC_RANGES)[number]["key"];
 
 const tonePalette: Record<string, { bg: string; text: string; stroke: string }> = {
-    indigo: { bg: "bg-indigo-50", text: "text-[#5B4DFF]", stroke: "#5B4DFF" },
+    indigo: { bg: "bg-indigo-50", text: "text-[#C13584]", stroke: "#C13584" },
     purple: { bg: "bg-purple-50", text: "text-purple-600", stroke: "#A855F7" },
     green: { bg: "bg-emerald-50", text: "text-emerald-600", stroke: "#10B981" },
     blue: { bg: "bg-sky-50", text: "text-sky-600", stroke: "#0EA5E9" },
@@ -2043,7 +2043,7 @@ function MetricGrid({ stats, leadsCollected, activity = [], accountCreatedAt }: 
                                                     disabled
                                                         ? "cursor-not-allowed text-slate-300"
                                                         : range === option.key
-                                                            ? "bg-indigo-50 text-[#5B4DFF]"
+                                                            ? "bg-indigo-50 text-[#C13584]"
                                                             : "text-slate-700 hover:bg-slate-50"
                                                 )}
                                                 title={disabled ? "Range exceeds account age" : undefined}
@@ -2178,7 +2178,7 @@ function MetricCell({
 
 function MetricCard({ label, value, icon, tone, muted, tooltip, large }: { label: string; value: string; icon: ReactNode; tone: string; muted?: boolean; tooltip?: string; large?: boolean }) {
     const tones: Record<string, string> = {
-        indigo: "bg-indigo-50 text-[#5B4DFF]",
+        indigo: "bg-indigo-50 text-[#C13584]",
         purple: "bg-purple-50 text-purple-600",
         green: "bg-emerald-50 text-emerald-600",
         blue: "bg-sky-50 text-sky-600",
@@ -2203,7 +2203,7 @@ function HomeAutomationPanel({ triggers, onNavigate }: { triggers: Trigger[]; on
     return (
         <Panel
             title="Automations"
-            action={<button onClick={() => onNavigate("automations")} className="inline-flex items-center gap-1 text-[11px] font-black text-[#5B4DFF]/90 transition hover:text-[#4738E8]">View all <ArrowRight className="h-3.5 w-3.5" /></button>}
+            action={<button onClick={() => onNavigate("automations")} className="inline-flex items-center gap-1 text-[11px] font-black text-[#C13584]/90 transition hover:text-[#ad2a75]">View all <ArrowRight className="h-3.5 w-3.5" /></button>}
         >
             {rows.length ? (
                 <>
@@ -2219,9 +2219,9 @@ function HomeAutomationPanel({ triggers, onNavigate }: { triggers: Trigger[]; on
                         <button
                             key={trigger.id}
                             onClick={() => onNavigate("automations")}
-                            className="group flex rounded-[16px] border border-slate-100 bg-white p-3 text-left shadow-[0_8px_22px_rgba(15,23,42,0.025)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_14px_30px_rgba(79,70,229,0.08)]"
+                            className="group flex rounded-[16px] border border-slate-100 bg-white p-3 text-left shadow-[0_8px_22px_rgba(15,23,42,0.025)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_14px_30px_rgba(193,53,132,0.08)]"
                         >
-                            <span className="mr-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.85rem] bg-[#EEF0FF] text-[#5B4DFF]">
+                            <span className="mr-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.85rem] bg-[#FBEAF3] text-[#C13584]">
                                     <MessageCircle className="h-4 w-4" />
                             </span>
                             <div className="min-w-0 flex-1">
@@ -2266,7 +2266,7 @@ function OnboardingCard({ connected, activeTriggers, onNavigate }: { connected: 
     const progress = (complete / steps.length) * 100;
 
     return (
-        <Panel title="Next best steps" action={<button onClick={() => onNavigate("automations")} className="text-xs font-black text-[#5B4DFF]/90 transition hover:text-[#4738E8]">Continue</button>}>
+        <Panel title="Next best steps" action={<button onClick={() => onNavigate("automations")} className="text-xs font-black text-[#C13584]/90 transition hover:text-[#ad2a75]">Continue</button>}>
             <div className="mb-4">
                 <div className="mb-2 flex justify-between text-sm font-bold text-slate-500">
                     <span>{complete} of {steps.length} completed</span>
@@ -2294,10 +2294,10 @@ function RecentActivity({ activity, onNavigate }: { activity: LogEntry[]; onNavi
     const rows = activity;
 
     return (
-        <Panel title="Recent activity" action={<button onClick={() => onNavigate("inbox")} className="text-xs font-black text-[#5B4DFF]/90 transition hover:text-[#4738E8]">View inbox</button>}>
+        <Panel title="Recent activity" action={<button onClick={() => onNavigate("inbox")} className="text-xs font-black text-[#C13584]/90 transition hover:text-[#ad2a75]">View inbox</button>}>
             {rows.length ? (
                 <div className="space-y-2.5">
-                    <div className="rounded-[16px] bg-[linear-gradient(135deg,#F8FAFC_0%,#EEF0FF_100%)] px-3.5 py-3 ring-1 ring-indigo-100/70">
+                    <div className="rounded-[16px] bg-[linear-gradient(135deg,#F8FAFC_0%,#FBEAF3_100%)] px-3.5 py-3 ring-1 ring-indigo-100/70">
                         <p className="text-[12px] font-black text-[#0F172A]">Latest automation events</p>
                         <p className="mt-0.5 text-[11px] font-semibold text-[#64748B]">Recent DMs, leads, and failed sends in one place.</p>
                     </div>
@@ -2412,7 +2412,7 @@ function ActivityLauncher({ activity, onNavigate }: { activity: LogEntry[]; onNa
             >
                 <div className="flex items-center justify-between gap-2 border-b border-slate-100 bg-white px-3.5 py-2.5">
                     <div className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#EEF0FF] text-[#5B4DFF]">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FBEAF3] text-[#C13584]">
                             <Activity className="h-4 w-4" />
                         </span>
                         <div>
@@ -2423,7 +2423,7 @@ function ActivityLauncher({ activity, onNavigate }: { activity: LogEntry[]; onNa
                     <button
                         type="button"
                         onClick={() => onNavigate("inbox")}
-                        className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-[#5B4DFF] ring-1 ring-slate-100 transition hover:bg-slate-100"
+                        className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-[#C13584] ring-1 ring-slate-100 transition hover:bg-slate-100"
                     >
                         View inbox
                     </button>
@@ -2636,7 +2636,7 @@ function AutomationsPage(props: {
                 </div>
             </section>
 
-            <Panel title="Workflows" action={<button onClick={startCreation} className="inline-flex items-center gap-1.5 text-xs font-black text-[#5B4DFF] transition hover:text-[#4738E8]"><Plus className="h-3.5 w-3.5" /> New flow</button>}>
+            <Panel title="Workflows" action={<button onClick={startCreation} className="inline-flex items-center gap-1.5 text-xs font-black text-[#C13584] transition hover:text-[#ad2a75]"><Plus className="h-3.5 w-3.5" /> New flow</button>}>
                 {!hasAutomations ? (
                     <EmptyState icon={<Bot className="h-6 w-6" />} title="Create your first automation" copy="Turn Instagram comments, story replies, and DMs into automatic conversations. Pick a template or start from scratch." action="Create your first automation" onAction={startCreation} />
                 ) : visibleTriggers.length ? (
@@ -2706,28 +2706,28 @@ function AutomationCreationEntry({ onBack, onTemplate, onScratch }: { onBack: ()
             <div className="grid gap-4 sm:grid-cols-2">
                 <button
                     onClick={onTemplate}
-                    className="group flex flex-col items-start rounded-[24px] border border-slate-100 bg-white p-6 text-left shadow-[0_14px_40px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_22px_50px_rgba(79,70,229,0.12)]"
+                    className="group flex flex-col items-start rounded-[24px] border border-slate-100 bg-white p-6 text-left shadow-[0_14px_40px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_22px_50px_rgba(193,53,132,0.12)]"
                 >
-                    <span className="flex h-14 w-14 items-center justify-center rounded-[1.1rem] bg-[#EEF0FF] text-[#5B4DFF]">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-[1.1rem] bg-[#FBEAF3] text-[#C13584]">
                         <Sparkles className="h-7 w-7" />
                     </span>
                     <h2 className="mt-5 text-xl font-black text-[#0F172A]">Use a template</h2>
                     <p className="mt-2 text-sm font-semibold leading-6 text-[#64748B]">Pick a ready-made setup and we will fill in the details for you. Best if you are just getting started.</p>
-                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-black text-[#5B4DFF]">
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-black text-[#C13584]">
                         Browse templates <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                     </span>
                 </button>
 
                 <button
                     onClick={onScratch}
-                    className="group flex flex-col items-start rounded-[24px] border border-slate-100 bg-white p-6 text-left shadow-[0_14px_40px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_22px_50px_rgba(79,70,229,0.12)]"
+                    className="group flex flex-col items-start rounded-[24px] border border-slate-100 bg-white p-6 text-left shadow-[0_14px_40px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_22px_50px_rgba(193,53,132,0.12)]"
                 >
                     <span className="flex h-14 w-14 items-center justify-center rounded-[1.1rem] bg-slate-100 text-[#0F172A]">
                         <Wand2 className="h-7 w-7" />
                     </span>
                     <h2 className="mt-5 text-xl font-black text-[#0F172A]">Start from scratch</h2>
                     <p className="mt-2 text-sm font-semibold leading-6 text-[#64748B]">Build your automation step by step with a blank setup. Best if you know exactly what you want.</p>
-                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-black text-[#5B4DFF]">
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-black text-[#C13584]">
                         Start building <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                     </span>
                 </button>
@@ -2937,9 +2937,9 @@ function AutomationListRow({
     const modifiedLabel = trigger.modifiedAt ? new Date(trigger.modifiedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : "Unknown";
 
     return (
-        <div className="grid gap-3 rounded-[18px] border border-slate-100 bg-white p-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.025)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_16px_34px_rgba(79,70,229,0.07)] xl:grid-cols-[minmax(280px,1.4fr)_140px_120px_78px_78px_68px_84px_92px_auto] xl:items-center">
+        <div className="grid gap-3 rounded-[18px] border border-slate-100 bg-white p-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.025)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_16px_34px_rgba(193,53,132,0.07)] xl:grid-cols-[minmax(280px,1.4fr)_140px_120px_78px_78px_68px_84px_92px_auto] xl:items-center">
             <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] bg-gradient-to-br from-[#EEF0FF] via-white to-[#F8EEFF] text-[#5B4DFF] ring-1 ring-indigo-100">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] bg-gradient-to-br from-[#FBEAF3] via-white to-[#F8EEFF] text-[#C13584] ring-1 ring-indigo-100">
                     <MessageCircle className="h-5 w-5" />
                 </span>
                 <div className="min-w-0">
@@ -2951,7 +2951,7 @@ function AutomationListRow({
             <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">Keywords</p>
                 <div className="mt-1 flex min-w-0 flex-wrap gap-1.5">
-                    <span className="rounded-full bg-[#EEF0FF] px-2 py-1 text-[10px] font-black text-[#5B4DFF] ring-1 ring-indigo-100">+{trigger.keyword}</span>
+                    <span className="rounded-full bg-[#FBEAF3] px-2 py-1 text-[10px] font-black text-[#C13584] ring-1 ring-indigo-100">+{trigger.keyword}</span>
                 </div>
             </div>
             <AutomationDataPill label="DMs" value={dms.toLocaleString()} />
@@ -2996,10 +2996,10 @@ function AutomationGridCard({
             tabIndex={0}
             onClick={onEdit}
             onKeyDown={(event) => event.key === "Enter" && onEdit()}
-            className="group flex min-h-[178px] flex-col rounded-[18px] border border-slate-100 bg-white p-4 text-left shadow-[0_10px_26px_rgba(15,23,42,0.035)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_16px_34px_rgba(79,70,229,0.08)]"
+            className="group flex min-h-[178px] flex-col rounded-[18px] border border-slate-100 bg-white p-4 text-left shadow-[0_10px_26px_rgba(15,23,42,0.035)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_16px_34px_rgba(193,53,132,0.08)]"
         >
             <div className="mb-3 flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-[0.95rem] bg-[#EEF0FF] text-[#5B4DFF]">
+                <span className="flex h-10 w-10 items-center justify-center rounded-[0.95rem] bg-[#FBEAF3] text-[#C13584]">
                     <MessageCircle className="h-5 w-5" />
                 </span>
                 <StatusBadge status={trigger.enabled ? "Live" : "Paused"} />
@@ -3007,7 +3007,7 @@ function AutomationGridCard({
             <h3 className="text-sm font-black text-[#0F172A]">Auto DM for "{trigger.keyword}"</h3>
             <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-5 text-[#64748B]">{trigger.replyMessage}</p>
             <div className="mt-3 flex flex-wrap gap-1.5">
-                <span className="rounded-full bg-[#EEF0FF] px-2 py-1 text-[10px] font-black text-[#5B4DFF] ring-1 ring-indigo-100">+{trigger.keyword}</span>
+                <span className="rounded-full bg-[#FBEAF3] px-2 py-1 text-[10px] font-black text-[#C13584] ring-1 ring-indigo-100">+{trigger.keyword}</span>
                 <span className="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-black text-slate-500 ring-1 ring-slate-100">{trigger.triggerType || "Comment keyword"}</span>
             </div>
             <div className="mt-auto grid grid-cols-3 gap-2 border-t border-slate-100 pt-3">
@@ -3016,7 +3016,7 @@ function AutomationGridCard({
                 <AutomationDataPill label="CTR" value={`${ctr}%`} muted />
             </div>
             <div className="mt-3 flex items-center justify-between">
-                <span className="text-xs font-black text-[#5B4DFF]">Edit flow</span>
+                <span className="text-xs font-black text-[#C13584]">Edit flow</span>
                 <div className="flex gap-1">
                     <button onClick={(event) => { event.stopPropagation(); onAnalytics(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600 transition hover:bg-slate-100">Analytics</button>
                     <button onClick={(event) => { event.stopPropagation(); onDuplicate(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600 transition hover:bg-slate-100">Duplicate</button>
@@ -3048,12 +3048,12 @@ function TemplateCard({ template, accountPlan, onSelect, onUpgrade }: { template
             key={template.title}
             onClick={() => locked ? onUpgrade() : onSelect(template)}
             className={cx(
-                "group relative rounded-[18px] border bg-white p-4 text-left shadow-[0_8px_24px_rgba(15,23,42,0.025)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_16px_34px_rgba(79,70,229,0.08)]",
+                "group relative rounded-[18px] border bg-white p-4 text-left shadow-[0_8px_24px_rgba(15,23,42,0.025)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_16px_34px_rgba(193,53,132,0.08)]",
                 isAdvanced ? "border-[#FDE68A] bg-[#FFFDF6]" : "border-slate-100"
             )}
         >
             <div className="mb-3 flex items-start justify-between gap-3">
-                <span className={cx("flex h-10 w-10 items-center justify-center rounded-[0.9rem]", isAdvanced ? "bg-[#FFF7DA] text-[#8A5D17]" : "bg-[#EEF0FF] text-[#5B4DFF]")}>{template.icon}</span>
+                <span className={cx("flex h-10 w-10 items-center justify-center rounded-[0.9rem]", isAdvanced ? "bg-[#FFF7DA] text-[#8A5D17]" : "bg-[#FBEAF3] text-[#C13584]")}>{template.icon}</span>
                 <div className="flex gap-1.5">
                     {template.badge && <SmallBadge label={isAdvanced ? "Advanced" : template.badge} tone={isAdvanced ? "gold" : "purple"} />}
                     {locked && <SmallBadge label="Pro" tone="gold" />}
@@ -3064,7 +3064,7 @@ function TemplateCard({ template, accountPlan, onSelect, onUpgrade }: { template
             {locked && <p className="mt-2 text-[11px] font-bold text-[#8A5D17]">Upgrade to Pro to use this template.</p>}
             <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
                 <span className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-500">{template.trigger}</span>
-                {locked ? <Lock className="h-4 w-4 text-[#8A5D17]" /> : <ArrowRight className="h-4 w-4 text-[#5B4DFF] transition group-hover:translate-x-0.5" />}
+                {locked ? <Lock className="h-4 w-4 text-[#8A5D17]" /> : <ArrowRight className="h-4 w-4 text-[#C13584] transition group-hover:translate-x-0.5" />}
             </div>
         </button>
     );
@@ -3381,7 +3381,7 @@ function AutomationBuilder({
                                 onClick={toggleReTrigger}
                                 className={cx(
                                     "inline-flex items-center gap-2 rounded-[1rem] border px-4 py-2.5 text-sm font-black transition hover:-translate-y-0.5",
-                                    reTriggerEnabled ? "border-indigo-200 bg-[#EEF0FF] text-[#5B4DFF]" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                                    reTriggerEnabled ? "border-indigo-200 bg-[#FBEAF3] text-[#C13584]" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                                 )}
                             >
                                 <RefreshCw className="h-4 w-4" /> Re-trigger{reTriggerEnabled ? " on" : ""}
@@ -3407,15 +3407,15 @@ function AutomationBuilder({
                             </div>
                         ) : (
                             <>
-                                <div className="flex items-center justify-between gap-3 rounded-[16px] border border-indigo-200 bg-[#EEF0FF] p-3.5">
+                                <div className="flex items-center justify-between gap-3 rounded-[16px] border border-indigo-200 bg-[#FBEAF3] p-3.5">
                                     <span className="flex min-w-0 items-center gap-3">
-                                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem] bg-white text-[#5B4DFF]">{activeTrigger.icon}</span>
+                                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem] bg-white text-[#C13584]">{activeTrigger.icon}</span>
                                         <span className="min-w-0">
                                             <span className="block text-sm font-black text-[#0F172A]">{activeTrigger.title}</span>
                                             <span className="block truncate text-xs font-semibold text-[#64748B]">{activeTrigger.copy}</span>
                                         </span>
                                     </span>
-                                    <button onClick={() => setChangingTrigger(true)} className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-black text-[#5B4DFF] ring-1 ring-indigo-100 transition hover:bg-indigo-50">Change</button>
+                                    <button onClick={() => setChangingTrigger(true)} className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-black text-[#C13584] ring-1 ring-indigo-100 transition hover:bg-indigo-50">Change</button>
                                 </div>
 
                                 {contentSource === "post" && (
@@ -3426,7 +3426,7 @@ function AutomationBuilder({
                                                 <p className="text-xs font-semibold text-[#64748B]">Pick specific content, or listen across all posts & reels.</p>
                                             </div>
                                             {connected && !mediaLoading && hasPosts && (
-                                                <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
+                                                <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#C13584] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#ad2a75]">
                                                     <ImageIcon className="h-3.5 w-3.5" /> Select posts
                                                 </button>
                                             )}
@@ -3456,7 +3456,7 @@ function AutomationBuilder({
                                                     <p className="text-xs font-semibold text-[#64748B]">Pick the active stories this automation should watch.</p>
                                                 </div>
                                                 {connected && !mediaLoading && hasStories && (
-                                                    <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
+                                                    <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#C13584] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#ad2a75]">
                                                         <ImageIcon className="h-3.5 w-3.5" /> Select stories
                                                     </button>
                                                 )}
@@ -3527,7 +3527,7 @@ function AutomationBuilder({
 
                     {!hasTrigger && (
                         <div className="rounded-[20px] border border-dashed border-slate-200 bg-slate-50/60 p-8 text-center">
-                            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[1rem] bg-white text-[#5B4DFF] shadow-sm"><Sparkles className="h-6 w-6" /></span>
+                            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[1rem] bg-white text-[#C13584] shadow-sm"><Sparkles className="h-6 w-6" /></span>
                             <h3 className="mt-4 text-base font-black text-[#0F172A]">Pick a trigger to get started</h3>
                             <p className="mx-auto mt-1.5 max-w-sm text-sm font-semibold leading-6 text-[#64748B]">Choose what starts your automation above. The rest of the setup appears once you select a trigger.</p>
                         </div>
@@ -3567,8 +3567,8 @@ function AutomationBuilder({
                     <BuilderCard title="Main DM message" subtitle="The message that delivers your link or answer.">
                         <textarea ref={finalDmRef} className={`${inputCls} min-h-[130px] resize-none`} placeholder="Hey @username, here is the link you asked for." value={finalDm} onChange={(event) => { setFinalDm(event.target.value); setValidationErrors((prev) => { const next = { ...prev }; delete next.message; return next; }); }} />
                         <div className="mt-3 flex flex-wrap gap-2">
-                            <button onClick={() => insertFinalToken("@username")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-indigo-50 hover:text-[#5B4DFF]">@username</button>
-                            <button onClick={() => insertFinalToken("first name")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-indigo-50 hover:text-[#5B4DFF]">first name</button>
+                            <button onClick={() => insertFinalToken("@username")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-indigo-50 hover:text-[#C13584]">@username</button>
+                            <button onClick={() => insertFinalToken("first name")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-indigo-50 hover:text-[#C13584]">first name</button>
                         </div>
                         {validationErrors.message && <p className="mt-2 text-xs font-black text-rose-600">{validationErrors.message}</p>}
 
@@ -3839,11 +3839,11 @@ function SelectedContentChips({ titles, pool, visibleCount, onShowMore, onShowLe
                     );
                 })}
                 {remaining > 0 && (
-                    <button onClick={onShowMore} className="inline-flex items-center rounded-full bg-[#EEF0FF] px-3 py-1.5 text-xs font-black text-[#5B4DFF] transition hover:bg-indigo-100">+{remaining} more</button>
+                    <button onClick={onShowMore} className="inline-flex items-center rounded-full bg-[#FBEAF3] px-3 py-1.5 text-xs font-black text-[#C13584] transition hover:bg-indigo-100">+{remaining} more</button>
                 )}
             </div>
             {visibleCount > 3 && titles.length > 3 && (
-                <button onClick={onShowLess} className="mt-2 text-xs font-black text-[#5B4DFF]">Show less</button>
+                <button onClick={onShowLess} className="mt-2 text-xs font-black text-[#C13584]">Show less</button>
             )}
         </div>
     );
@@ -3874,7 +3874,7 @@ function InlineReplySetup({ replies, onAdd, onRemove, suggestions = [] }: { repl
             {availableSuggestions.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                     {availableSuggestions.map((suggestion) => (
-                        <button key={suggestion} type="button" onClick={() => onAdd(suggestion)} className="inline-flex h-8 items-center rounded-full bg-white px-3 text-xs font-black text-[#5B4DFF] ring-1 ring-indigo-100 transition hover:-translate-y-0.5 hover:bg-[#EEF0FF]">{suggestion}</button>
+                        <button key={suggestion} type="button" onClick={() => onAdd(suggestion)} className="inline-flex h-8 items-center rounded-full bg-white px-3 text-xs font-black text-[#C13584] ring-1 ring-indigo-100 transition hover:-translate-y-0.5 hover:bg-[#FBEAF3]">{suggestion}</button>
                     ))}
                 </div>
             )}
@@ -3911,7 +3911,7 @@ function FallbackMessageEditor({ messages, onChange }: { messages: string[]; onC
                     <button onClick={() => remove(index)} className="pt-1 text-slate-400 transition hover:text-rose-500" aria-label="Remove"><Trash2 className="h-4 w-4" /></button>
                 </div>
             ))}
-            <button onClick={() => onChange([...messages, ""])} className="flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border border-dashed border-slate-200 text-sm font-black text-slate-500 transition hover:border-indigo-200 hover:text-[#5B4DFF]">
+            <button onClick={() => onChange([...messages, ""])} className="flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border border-dashed border-slate-200 text-sm font-black text-slate-500 transition hover:border-indigo-200 hover:text-[#C13584]">
                 <Plus className="h-4 w-4" /> Add fallback message
             </button>
         </div>
@@ -3924,13 +3924,13 @@ function MediaSelectorState({ connected, loading, isEmpty, kind, onConnect }: { 
     const label = kind === "story" ? "stories" : "posts or reels";
     if (!connected) {
         return (
-            <div className="mt-3 flex flex-col items-center gap-3 rounded-[16px] border border-dashed border-indigo-200 bg-[#EEF0FF]/50 px-4 py-6 text-center">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#5B4DFF]"><Instagram className="h-5 w-5" /></span>
+            <div className="mt-3 flex flex-col items-center gap-3 rounded-[16px] border border-dashed border-indigo-200 bg-[#FBEAF3]/50 px-4 py-6 text-center">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#C13584]"><Instagram className="h-5 w-5" /></span>
                 <div>
                     <p className="text-sm font-black text-[#0F172A]">Connect your Instagram account first</p>
                     <p className="mt-0.5 text-xs font-semibold text-[#64748B]">You need a connected account before you can pick {label}.</p>
                 </div>
-                <button onClick={onConnect} className="inline-flex h-9 items-center gap-2 rounded-full bg-[#5B4DFF] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
+                <button onClick={onConnect} className="inline-flex h-9 items-center gap-2 rounded-full bg-[#C13584] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#ad2a75]">
                     <Instagram className="h-3.5 w-3.5" /> Connect account
                 </button>
             </div>
@@ -3958,7 +3958,7 @@ function MediaSelectorState({ connected, loading, isEmpty, kind, onConnect }: { 
 function ContentSelectCard({ media, kind, selected, occupied, onClick }: { media: InstagramMedia; kind: "post" | "story"; selected: boolean; occupied: boolean; onClick: () => void }) {
     const isAll = media.id === "all";
     return (
-        <button onClick={onClick} className={cx("group rounded-[16px] border p-2 text-left transition hover:-translate-y-0.5", selected ? "border-[#5B4DFF] bg-[#EEF0FF]" : "border-slate-100 bg-white hover:border-indigo-100")}>
+        <button onClick={onClick} className={cx("group rounded-[16px] border p-2 text-left transition hover:-translate-y-0.5", selected ? "border-[#C13584] bg-[#FBEAF3]" : "border-slate-100 bg-white hover:border-indigo-100")}>
             <div className={cx("relative flex h-28 items-center justify-center overflow-hidden rounded-[12px] bg-gradient-to-br", media.color)}>
                 {media.thumbnailUrl && !isAll && (
                     <img src={media.thumbnailUrl} alt={media.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
@@ -3966,7 +3966,7 @@ function ContentSelectCard({ media, kind, selected, occupied, onClick }: { media
                 <div className="absolute inset-0 bg-black/10" />
                 {isAll ? <LayoutGrid className="relative h-7 w-7 text-slate-500" /> : !media.thumbnailUrl && <Instagram className="relative h-7 w-7 text-white/90" />}
                 <span className="absolute right-1.5 top-1.5 rounded-full bg-black/30 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-[0.08em] text-white">{kind === "story" ? "Story" : media.type}</span>
-                {selected && <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#5B4DFF]"><Check className="h-3 w-3 stroke-[3]" /></span>}
+                {selected && <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#C13584]"><Check className="h-3 w-3 stroke-[3]" /></span>}
             </div>
             <p className="mt-1.5 truncate text-[11px] font-black text-[#0F172A]">{media.title}</p>
             <p className="truncate text-[10px] font-black uppercase tracking-[0.06em] text-slate-400">{isAll ? "All content" : media.metric}{occupied ? " · In use" : ""}</p>
@@ -4046,32 +4046,32 @@ function TriggerOptionButton({ option, selected, onClick }: { option: { type: st
             className={cx(
                 "flex w-full items-center gap-3 rounded-[16px] border p-3.5 text-left transition hover:-translate-y-0.5",
                 selected
-                    ? "border-[#5B4DFF] bg-[#EEF0FF] shadow-[0_12px_28px_rgba(91,77,255,0.10)]"
+                    ? "border-[#C13584] bg-[#FBEAF3] shadow-[0_12px_28px_rgba(193,53,132,0.10)]"
                     : option.pro
                         ? "border-[#E8C56C]/60 bg-[#FFFDF6] hover:bg-[#FFF9E8]"
                         : "border-slate-100 bg-white hover:border-indigo-100 hover:bg-indigo-50/30"
             )}
         >
-            <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem]", selected ? "bg-white text-[#5B4DFF]" : option.pro ? "bg-[#FFF7DA] text-[#8A5D17]" : "bg-slate-50 text-slate-500")}>{option.icon}</span>
+            <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem]", selected ? "bg-white text-[#C13584]" : option.pro ? "bg-[#FFF7DA] text-[#8A5D17]" : "bg-slate-50 text-slate-500")}>{option.icon}</span>
             <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2 text-sm font-black text-[#0F172A]">{option.title}{option.pro && <SmallBadge label="Pro" tone="gold" />}</span>
                 <span className="block truncate text-xs font-semibold text-[#64748B]">{option.copy}</span>
             </span>
-            {selected ? <CheckCircle2 className="h-5 w-5 shrink-0 text-[#5B4DFF]" /> : option.pro ? <Crown className={cx("h-4 w-4 shrink-0", goldCrownCls)} /> : <ChevronDown className="h-4 w-4 -rotate-90 shrink-0 text-slate-300" />}
+            {selected ? <CheckCircle2 className="h-5 w-5 shrink-0 text-[#C13584]" /> : option.pro ? <Crown className={cx("h-4 w-4 shrink-0", goldCrownCls)} /> : <ChevronDown className="h-4 w-4 -rotate-90 shrink-0 text-slate-300" />}
         </button>
     );
 }
 
 function StorySelectionCard({ story, selected, onClick }: { story: InstagramMedia; selected: boolean; onClick: () => void }) {
     return (
-        <button onClick={onClick} className={cx("group rounded-[16px] border p-2 text-left transition hover:-translate-y-0.5", selected ? "border-[#5B4DFF] bg-[#EEF0FF]" : "border-slate-100 bg-white hover:border-indigo-100")}>
+        <button onClick={onClick} className={cx("group rounded-[16px] border p-2 text-left transition hover:-translate-y-0.5", selected ? "border-[#C13584] bg-[#FBEAF3]" : "border-slate-100 bg-white hover:border-indigo-100")}>
             <div className={cx("relative flex h-28 items-end overflow-hidden rounded-[12px] bg-gradient-to-br p-2", story.color)}>
                 {story.thumbnailUrl && (
                     <img src={story.thumbnailUrl} alt={story.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
                 )}
                 <div className="absolute inset-0 bg-black/15" />
                 <span className="absolute right-1.5 top-1.5 rounded-full bg-black/30 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-[0.08em] text-white">Story</span>
-                {selected && <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#5B4DFF]"><Check className="h-3 w-3 stroke-[3]" /></span>}
+                {selected && <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#C13584]"><Check className="h-3 w-3 stroke-[3]" /></span>}
                 <p className="relative text-[10px] font-black leading-3 text-white">{story.metric}</p>
             </div>
             <p className="mt-1.5 truncate text-[11px] font-black text-[#0F172A]">{story.title}</p>
@@ -4085,16 +4085,16 @@ function ProToggleCard({ icon, title, copy, active, locked, onToggle }: { icon: 
             onClick={onToggle}
             className={cx(
                 "flex w-full items-center gap-3 rounded-[16px] border p-3 text-left transition",
-                locked ? "border-[#E8C56C]/70 bg-[#FFFDF6] hover:bg-[#FFF9E8]" : active ? "border-indigo-200 bg-[#EEF0FF]" : "border-slate-100 bg-slate-50 hover:bg-white"
+                locked ? "border-[#E8C56C]/70 bg-[#FFFDF6] hover:bg-[#FFF9E8]" : active ? "border-indigo-200 bg-[#FBEAF3]" : "border-slate-100 bg-slate-50 hover:bg-white"
             )}
         >
-            <span className={cx("flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.85rem] ring-1", locked ? "bg-[#FFF7DA] text-[#8A5D17] ring-[#E8C56C]/40" : "bg-white text-[#5B4DFF] ring-slate-100")}>{locked ? <Crown className={cx("h-4 w-4", goldCrownCls)} /> : icon}</span>
+            <span className={cx("flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.85rem] ring-1", locked ? "bg-[#FFF7DA] text-[#8A5D17] ring-[#E8C56C]/40" : "bg-white text-[#C13584] ring-slate-100")}>{locked ? <Crown className={cx("h-4 w-4", goldCrownCls)} /> : icon}</span>
             <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2 text-sm font-black text-[#0F172A]">{title}{locked && <SmallBadge label="Pro" tone="gold" />}</span>
                 <span className="block text-xs font-semibold text-[#64748B]">{copy}</span>
             </span>
             {locked ? <Lock className="h-4 w-4 shrink-0 text-[#8A5D17]" /> : (
-                <span className={cx("h-6 w-11 shrink-0 rounded-full p-0.5 transition", active ? "bg-[#5B4DFF]" : "bg-slate-200")}><span className={cx("block h-5 w-5 rounded-full bg-white shadow transition", active && "translate-x-5")} /></span>
+                <span className={cx("h-6 w-11 shrink-0 rounded-full p-0.5 transition", active ? "bg-[#C13584]" : "bg-slate-200")}><span className={cx("block h-5 w-5 rounded-full bg-white shadow transition", active && "translate-x-5")} /></span>
             )}
         </button>
     );
@@ -4106,15 +4106,15 @@ function ProActionButton({ icon, title, copy, locked, onClick }: { icon: ReactNo
             onClick={onClick}
             className={cx(
                 "flex w-full items-center gap-3 rounded-[16px] border p-3 text-left transition",
-                locked ? "border-[#E8C56C]/70 bg-[#FFFDF6] hover:bg-[#FFF9E8]" : "border-indigo-100 bg-[#EEF0FF]/40 hover:bg-[#EEF0FF]"
+                locked ? "border-[#E8C56C]/70 bg-[#FFFDF6] hover:bg-[#FFF9E8]" : "border-indigo-100 bg-[#FBEAF3]/40 hover:bg-[#FBEAF3]"
             )}
         >
-            <span className={cx("flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.85rem] ring-1", locked ? "bg-[#FFF7DA] text-[#8A5D17] ring-[#E8C56C]/40" : "bg-white text-[#5B4DFF] ring-indigo-100")}>{locked ? <Crown className={cx("h-4 w-4", goldCrownCls)} /> : icon}</span>
+            <span className={cx("flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.85rem] ring-1", locked ? "bg-[#FFF7DA] text-[#8A5D17] ring-[#E8C56C]/40" : "bg-white text-[#C13584] ring-indigo-100")}>{locked ? <Crown className={cx("h-4 w-4", goldCrownCls)} /> : icon}</span>
             <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-2 text-sm font-black text-[#0F172A]">{title}{locked && <SmallBadge label="Pro" tone="gold" />}</span>
                 <span className="block text-xs font-semibold text-[#64748B]">{copy}</span>
             </span>
-            {locked ? <Lock className="h-4 w-4 shrink-0 text-[#8A5D17]" /> : <Plus className="h-4 w-4 shrink-0 text-[#5B4DFF]" />}
+            {locked ? <Lock className="h-4 w-4 shrink-0 text-[#8A5D17]" /> : <Plus className="h-4 w-4 shrink-0 text-[#C13584]" />}
         </button>
     );
 }
@@ -4194,7 +4194,7 @@ function InstagramDmPreview({
                 </div>
                 <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-2.5">
                     <ArrowRight className="h-5 w-5 rotate-180 text-slate-900" />
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#5B4DFF] to-[#F05A8A] text-sm font-black text-white">D</span>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#C13584] to-[#F05A8A] text-sm font-black text-white">D</span>
                     <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-black text-slate-900">{username.replace("@", "")}</p>
                         <p className="text-[10px] font-bold text-slate-400">Active now</p>
@@ -4349,7 +4349,7 @@ function ReviewLaunchModal({
             <div className="flex flex-col gap-5">
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#5B4DFF]">Final check</p>
+                        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#C13584]">Final check</p>
                         <h2 className="mt-1 text-2xl font-black tracking-tight text-[#0F172A]">Review & launch automation</h2>
                         <p className="mt-1 text-sm font-semibold text-[#64748B]">Confirm your setup before turning this automation live.</p>
                     </div>
@@ -4392,8 +4392,8 @@ function ReviewLaunchModal({
                             </div>
                         </div>
 
-                        <div className="rounded-[20px] border border-indigo-100 bg-[#EEF0FF]/50 p-4">
-                            <span className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-white text-[#5B4DFF] shadow-sm ring-1 ring-indigo-100">
+                        <div className="rounded-[20px] border border-indigo-100 bg-[#FBEAF3]/50 p-4">
+                            <span className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-white text-[#C13584] shadow-sm ring-1 ring-indigo-100">
                                 <ShieldCheck className="h-5 w-5" />
                             </span>
                             <h3 className="mt-3 text-base font-black text-[#0F172A]">Ready to go live</h3>
@@ -4438,7 +4438,7 @@ function BuilderStepIndicator({ step, onStep }: { step: number; onStep: (step: n
                         const active = step === number;
                         const done = step > number;
                         return (
-                            <button key={item} onClick={() => onStep(number)} className={cx("inline-flex h-10 items-center gap-2 rounded-full px-3 text-xs font-black transition", active ? "bg-[#5B4DFF] text-white shadow-[0_10px_22px_rgba(91,77,255,0.18)]" : done ? "bg-emerald-50 text-emerald-700" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>
+                            <button key={item} onClick={() => onStep(number)} className={cx("inline-flex h-10 items-center gap-2 rounded-full px-3 text-xs font-black transition", active ? "bg-[#C13584] text-white shadow-[0_10px_22px_rgba(193,53,132,0.18)]" : done ? "bg-emerald-50 text-emerald-700" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>
                                 <span className={cx("flex h-5 w-5 items-center justify-center rounded-full", active ? "bg-white/20" : done ? "bg-emerald-100" : "bg-white")}>{done ? <Check className="h-3.5 w-3.5" /> : number}</span>
                                 {item}
                             </button>
@@ -4470,13 +4470,13 @@ function TriggerChoiceCard({ title, value, copy, icon, selected, disabled, onCli
             disabled={disabled}
             className={cx(
                 "rounded-[18px] border p-4 text-left transition",
-                selected ? "border-[#5B4DFF] bg-[#EEF0FF] shadow-[0_12px_28px_rgba(91,77,255,0.10)]" : "border-slate-100 bg-white hover:border-indigo-100 hover:bg-indigo-50/30",
+                selected ? "border-[#C13584] bg-[#FBEAF3] shadow-[0_12px_28px_rgba(193,53,132,0.10)]" : "border-slate-100 bg-white hover:border-indigo-100 hover:bg-indigo-50/30",
                 disabled && "cursor-not-allowed opacity-55"
             )}
         >
             <div className="mb-3 flex items-center justify-between">
-                <span className={cx("flex h-10 w-10 items-center justify-center rounded-[0.9rem]", selected ? "bg-white text-[#5B4DFF]" : "bg-slate-50 text-slate-500")}>{icon}</span>
-                {disabled ? <SmallBadge label="Coming Soon" tone="gray" /> : selected && <CheckCircle2 className="h-5 w-5 text-[#5B4DFF]" />}
+                <span className={cx("flex h-10 w-10 items-center justify-center rounded-[0.9rem]", selected ? "bg-white text-[#C13584]" : "bg-slate-50 text-slate-500")}>{icon}</span>
+                {disabled ? <SmallBadge label="Coming Soon" tone="gray" /> : selected && <CheckCircle2 className="h-5 w-5 text-[#C13584]" />}
             </div>
             <h3 className="text-sm font-black text-[#0F172A]">{title}</h3>
             <p className="mt-1 text-xs font-semibold leading-5 text-[#64748B]">{copy}</p>
@@ -4491,19 +4491,19 @@ function ContentSourceCard({ title, copy, icon, selected, action, onClick }: { t
             className={cx(
                 "group flex min-h-[156px] flex-col rounded-[18px] border p-4 text-left transition hover:-translate-y-0.5",
                 selected
-                    ? "border-[#5B4DFF] bg-[#EEF0FF] shadow-[0_14px_30px_rgba(91,77,255,0.12)]"
-                    : "border-slate-100 bg-white shadow-[0_8px_22px_rgba(15,23,42,0.025)] hover:border-indigo-100 hover:shadow-[0_14px_30px_rgba(79,70,229,0.07)]"
+                    ? "border-[#C13584] bg-[#FBEAF3] shadow-[0_14px_30px_rgba(193,53,132,0.12)]"
+                    : "border-slate-100 bg-white shadow-[0_8px_22px_rgba(15,23,42,0.025)] hover:border-indigo-100 hover:shadow-[0_14px_30px_rgba(193,53,132,0.07)]"
             )}
         >
             <div className="mb-3 flex items-center justify-between gap-3">
-                <span className={cx("flex h-10 w-10 items-center justify-center rounded-[0.9rem] transition", selected ? "bg-white text-[#5B4DFF]" : "bg-slate-50 text-slate-500 group-hover:bg-[#EEF0FF] group-hover:text-[#5B4DFF]")}>
+                <span className={cx("flex h-10 w-10 items-center justify-center rounded-[0.9rem] transition", selected ? "bg-white text-[#C13584]" : "bg-slate-50 text-slate-500 group-hover:bg-[#FBEAF3] group-hover:text-[#C13584]")}>
                     {icon}
                 </span>
-                {selected && <CheckCircle2 className="h-5 w-5 text-[#5B4DFF]" />}
+                {selected && <CheckCircle2 className="h-5 w-5 text-[#C13584]" />}
             </div>
             <h3 className="text-sm font-black leading-5 text-[#0F172A]">{title}</h3>
             <p className="mt-1.5 line-clamp-3 text-xs font-semibold leading-5 text-[#64748B]">{copy}</p>
-            <span className="mt-auto inline-flex items-center gap-1.5 pt-3 text-xs font-black text-[#5B4DFF]">
+            <span className="mt-auto inline-flex items-center gap-1.5 pt-3 text-xs font-black text-[#C13584]">
                 {action}
                 <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
             </span>
@@ -4513,7 +4513,7 @@ function ContentSourceCard({ title, copy, icon, selected, action, onClick }: { t
 
 function TriggerSetupPanel({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
     return (
-        <div className="mt-6 rounded-[20px] border border-indigo-100 bg-[#EEF0FF]/45 p-4">
+        <div className="mt-6 rounded-[20px] border border-indigo-100 bg-[#FBEAF3]/45 p-4">
             <div className="mb-4">
                 <h3 className="text-lg font-black text-[#0F172A]">{title}</h3>
                 <p className="mt-1 text-sm font-semibold text-[#64748B]">{subtitle}</p>
@@ -4530,12 +4530,12 @@ function TriggerSetupOption({ label, selected, disabled, onClick }: { label: str
             onClick={onClick}
             className={cx(
                 "flex h-12 items-center justify-between rounded-[16px] border px-3 text-left text-xs font-black transition",
-                selected ? "border-[#5B4DFF] bg-white text-[#0F172A] shadow-[0_10px_22px_rgba(91,77,255,0.08)]" : "border-slate-100 bg-white/70 text-[#64748B] hover:border-indigo-100 hover:bg-white",
+                selected ? "border-[#C13584] bg-white text-[#0F172A] shadow-[0_10px_22px_rgba(193,53,132,0.08)]" : "border-slate-100 bg-white/70 text-[#64748B] hover:border-indigo-100 hover:bg-white",
                 disabled && "cursor-not-allowed opacity-50"
             )}
         >
             <span>{label}</span>
-            {disabled ? <SmallBadge label="Coming soon" tone="gray" /> : selected && <CheckCircle2 className="h-4 w-4 text-[#5B4DFF]" />}
+            {disabled ? <SmallBadge label="Coming soon" tone="gray" /> : selected && <CheckCircle2 className="h-4 w-4 text-[#C13584]" />}
         </button>
     );
 }
@@ -4594,7 +4594,7 @@ function InlineKeywordSetup({
                 }}
             />
             <ToggleMini label="Any keyword" active={anyKeyword} onClick={() => onAnyKeyword(!anyKeyword)} />
-            {anyKeyword && <p className="rounded-[14px] bg-indigo-50 px-3 py-2 text-xs font-bold text-[#5B4DFF]">{helper}</p>}
+            {anyKeyword && <p className="rounded-[14px] bg-indigo-50 px-3 py-2 text-xs font-bold text-[#C13584]">{helper}</p>}
         </div>
     );
 }
@@ -4603,7 +4603,7 @@ function PostSelectionCard({ media, selected, onClick }: { media: InstagramMedia
     const isAll = media.id === "all";
 
     return (
-        <button onClick={onClick} className={cx("group rounded-[18px] border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(79,70,229,0.07)]", selected ? "border-[#5B4DFF] bg-[#EEF0FF] shadow-[0_12px_26px_rgba(91,77,255,0.10)]" : "border-slate-100 bg-white hover:border-indigo-100")}>
+        <button onClick={onClick} className={cx("group rounded-[18px] border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(193,53,132,0.07)]", selected ? "border-[#C13584] bg-[#FBEAF3] shadow-[0_12px_26px_rgba(193,53,132,0.10)]" : "border-slate-100 bg-white hover:border-indigo-100")}>
             <div className={cx("relative mb-3 flex h-28 items-center justify-center overflow-hidden rounded-[14px] bg-gradient-to-br text-slate-400", media.color)}>
                 <div className={cx("absolute inset-0", isAll ? "bg-white/40" : "bg-black/10")} />
                 {isAll ? <LayoutGrid className="relative h-8 w-8" /> : <Instagram className="relative h-8 w-8 text-white/90" />}
@@ -4611,7 +4611,7 @@ function PostSelectionCard({ media, selected, onClick }: { media: InstagramMedia
                     {media.type}
                 </span>
                 {selected && (
-                    <span className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white text-[#5B4DFF] shadow-sm">
+                    <span className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white text-[#C13584] shadow-sm">
                         <Check className="h-4 w-4 stroke-[3]" />
                     </span>
                 )}
@@ -4619,7 +4619,7 @@ function PostSelectionCard({ media, selected, onClick }: { media: InstagramMedia
             <div className="min-w-0">
                 <div className="flex items-center justify-between gap-2">
                     <span className="truncate text-xs font-black text-[#0F172A]">{media.title}</span>
-                    {selected && <CheckCircle2 className="h-4 w-4 shrink-0 text-[#5B4DFF]" />}
+                    {selected && <CheckCircle2 className="h-4 w-4 shrink-0 text-[#C13584]" />}
                 </div>
                 <p className="mt-1 line-clamp-2 text-[11px] font-semibold leading-4 text-[#64748B]">{media.caption}</p>
                 <p className="mt-2 text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">{media.metric}</p>
@@ -4695,7 +4695,7 @@ function InstagramPreviewPanel({
                     <div className="min-h-[520px] overflow-hidden rounded-[25px] bg-[#0B1020] text-white">
                         <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
                             <span className="flex min-w-0 items-center gap-2 text-xs font-black">
-                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#5B4DFF] to-[#F05A8A] text-[11px] text-white">D</span>
+                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#C13584] to-[#F05A8A] text-[11px] text-white">D</span>
                                 <span className="truncate">{username}</span>
                             </span>
                             <span className="rounded-full bg-emerald-500/15 px-2 py-1 text-[10px] font-black text-emerald-300">Active</span>
@@ -4770,7 +4770,7 @@ function InstagramPreviewPanel({
                                     )}
                                     {previewTab === "Live" && (
                                         <>
-                                            <div className="relative h-64 overflow-hidden rounded-[22px] bg-gradient-to-br from-slate-950 via-[#251033] to-[#5B4DFF] p-4">
+                                            <div className="relative h-64 overflow-hidden rounded-[22px] bg-gradient-to-br from-slate-950 via-[#251033] to-[#C13584] p-4">
                                                 <div className="absolute inset-0 bg-black/20" />
                                                 <div className="relative flex items-center justify-between">
                                                     <span className="flex items-center gap-2 text-[11px] font-black">
@@ -4801,7 +4801,7 @@ function InstagramPreviewPanel({
                                             {askEmailFirst && <ChatBubble side="right" text="Share your email and I will send the resource instantly." />}
                                             <ChatBubble side="right" text={finalDm || "Here is the link you asked for."} />
                                             {linkEnabled && (
-                                                <button className="w-full rounded-2xl bg-[#5B4DFF] py-3 text-sm font-black text-white shadow-[0_12px_26px_rgba(91,77,255,0.22)]">
+                                                <button className="w-full rounded-2xl bg-[#C13584] py-3 text-sm font-black text-white shadow-[0_12px_26px_rgba(193,53,132,0.22)]">
                                                     {buttonText || "Open Link"}
                                                 </button>
                                             )}
@@ -4816,7 +4816,7 @@ function InstagramPreviewPanel({
                 </div>
                 <div className="mt-4 grid grid-cols-5 gap-2">
                     {(["Post", "Comments", "Story", "Live", "DM"] as PreviewTab[]).map((tab) => (
-                        <button key={tab} onClick={() => onPreviewTab(tab)} className={cx("h-9 rounded-full text-[11px] font-black transition", previewTab === tab ? "bg-[#5B4DFF] text-white" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>{tab}</button>
+                        <button key={tab} onClick={() => onPreviewTab(tab)} className={cx("h-9 rounded-full text-[11px] font-black transition", previewTab === tab ? "bg-[#C13584] text-white" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>{tab}</button>
                     ))}
                 </div>
             </section>
@@ -4825,7 +4825,7 @@ function InstagramPreviewPanel({
 }
 
 function ChatBubble({ text, side }: { text: string; side: "left" | "right" }) {
-    return <div className={cx("max-w-[88%] rounded-2xl px-3 py-2 text-xs font-semibold leading-5", side === "right" ? "ml-auto bg-[#5B4DFF] text-white" : "bg-white/10 text-white/85")}>{text}</div>;
+    return <div className={cx("max-w-[88%] rounded-2xl px-3 py-2 text-xs font-semibold leading-5", side === "right" ? "ml-auto bg-[#C13584] text-white" : "bg-white/10 text-white/85")}>{text}</div>;
 }
 
 function PreviewStat({ label, value }: { label: string; value: string }) {
@@ -4939,7 +4939,7 @@ function KeywordsModal({ keywords, anyKeyword, onAnyKeyword, onClose, onConfirm 
                     ))}
                 </div>
                 <ToggleMini label="Any keyword" active={nextAnyKeyword} onClick={() => setNextAnyKeyword(!nextAnyKeyword)} />
-                {nextAnyKeyword && <p className="mt-2 text-xs font-bold text-[#5B4DFF]">Automation will trigger on any comment.</p>}
+                {nextAnyKeyword && <p className="mt-2 text-xs font-bold text-[#C13584]">Automation will trigger on any comment.</p>}
             </div>
             <div className="mt-5 flex justify-end gap-2">
                 <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
@@ -4963,7 +4963,7 @@ function CommentRepliesModal({ replies, onClose, onConfirm }: { replies: string[
                         <button onClick={() => setNextReplies((prev) => prev.filter((_, itemIndex) => itemIndex !== index))} className="text-slate-400 hover:text-rose-500"><Trash2 className="h-4 w-4" /></button>
                     </div>
                 ))}
-                <button onClick={() => setNextReplies((prev) => [...prev, ""])} className="flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border border-dashed border-slate-200 text-sm font-black text-slate-500 transition hover:border-indigo-200 hover:text-[#5B4DFF]">
+                <button onClick={() => setNextReplies((prev) => [...prev, ""])} className="flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border border-dashed border-slate-200 text-sm font-black text-slate-500 transition hover:border-indigo-200 hover:text-[#C13584]">
                     <Plus className="h-4 w-4" /> Add New Reply
                 </button>
             </div>
@@ -5036,7 +5036,7 @@ function AddResponseModal({
                 </div>
             )}
             {openingMessageEnabled && (
-                <div className="mt-4 rounded-[16px] border border-indigo-100 bg-indigo-50 p-3 text-xs font-bold leading-5 text-[#5B4DFF]">
+                <div className="mt-4 rounded-[16px] border border-indigo-100 bg-indigo-50 p-3 text-xs font-bold leading-5 text-[#C13584]">
                     Add one response at a time to keep your flow easy to understand.
                 </div>
             )}
@@ -5046,7 +5046,7 @@ function AddResponseModal({
                         const locked = !featureAccess[option.feature];
                         return (
                         <button key={option.title} onClick={() => locked ? onUpgrade() : setSelectedType(option.id)} className={cx("flex w-full items-center gap-3 rounded-[16px] border bg-white p-3 text-left transition hover:border-indigo-100 hover:bg-indigo-50/30", locked ? "border-[#FDE68A] bg-[#FFFDF6]" : "border-slate-100")}>
-                            <span className="flex h-9 w-9 items-center justify-center rounded-[0.85rem] bg-slate-50 text-[#5B4DFF]">{option.icon}</span>
+                            <span className="flex h-9 w-9 items-center justify-center rounded-[0.85rem] bg-slate-50 text-[#C13584]">{option.icon}</span>
                             <span className="min-w-0 flex-1">
                                 <span className="flex items-center gap-2 text-sm font-black text-[#0F172A]">{option.title}<SmallBadge label={locked ? "Pro" : "Included"} tone={locked ? "gold" : "green"} /></span>
                                 <span className="block text-xs font-semibold text-[#64748B]">{option.copy}</span>
@@ -5100,7 +5100,7 @@ function AddResponseModal({
                                 <Label>Lead fields</Label>
                                 <div className="flex flex-wrap gap-2">
                                     {["Name", "Email", "Phone", "Custom question"].map((field) => (
-                                        <button key={field} onClick={() => toggleLeadField(field)} className={cx("rounded-full px-3 py-2 text-xs font-black ring-1 transition", leadFields.includes(field) ? "bg-[#5B4DFF] text-white ring-[#5B4DFF]" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50")}>{field}</button>
+                                        <button key={field} onClick={() => toggleLeadField(field)} className={cx("rounded-full px-3 py-2 text-xs font-black ring-1 transition", leadFields.includes(field) ? "bg-[#C13584] text-white ring-[#C13584]" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50")}>{field}</button>
                                     ))}
                                 </div>
                             </div>
@@ -5121,8 +5121,8 @@ function AddResponseModal({
 function BuilderOptionRow({ title, copy, active, onClick, badge }: { title: string; copy: string; active: boolean; onClick: () => void; badge?: string }) {
     const badgeTone: "green" | "gold" | "gray" = active ? "green" : badge === "Pro" ? "gold" : "gray";
     return (
-        <button onClick={onClick} className={cx("flex w-full items-center gap-3 rounded-[16px] border p-3 text-left transition hover:bg-white", active ? "border-indigo-200 bg-[#EEF0FF]" : "border-slate-100 bg-slate-50")}>
-            <span className={cx("flex h-8 w-8 items-center justify-center rounded-[0.75rem] ring-1", active ? "bg-white text-[#5B4DFF] ring-indigo-100" : "bg-white text-[#5B4DFF] ring-slate-100")}>
+        <button onClick={onClick} className={cx("flex w-full items-center gap-3 rounded-[16px] border p-3 text-left transition hover:bg-white", active ? "border-indigo-200 bg-[#FBEAF3]" : "border-slate-100 bg-slate-50")}>
+            <span className={cx("flex h-8 w-8 items-center justify-center rounded-[0.75rem] ring-1", active ? "bg-white text-[#C13584] ring-indigo-100" : "bg-white text-[#C13584] ring-slate-100")}>
                 {active ? <Check className="h-4 w-4" /> : <MousePointerClick className="h-4 w-4" />}
             </span>
             <span className="min-w-0 flex-1">
@@ -5134,7 +5134,7 @@ function BuilderOptionRow({ title, copy, active, onClick, badge }: { title: stri
 }
 
 function KeywordChip({ children }: { children: ReactNode }) {
-    return <span className="inline-flex h-8 items-center rounded-full bg-[#EEF0FF] px-3 text-xs font-black text-[#5B4DFF] ring-1 ring-indigo-100">{children}</span>;
+    return <span className="inline-flex h-8 items-center rounded-full bg-[#FBEAF3] px-3 text-xs font-black text-[#C13584] ring-1 ring-indigo-100">{children}</span>;
 }
 
 function SuggestedKeywordButton({ keyword, selected, onClick }: { keyword: string; selected: boolean; onClick: () => void }) {
@@ -5143,7 +5143,7 @@ function SuggestedKeywordButton({ keyword, selected, onClick }: { keyword: strin
             onClick={onClick}
             className={cx(
                 "inline-flex h-8 items-center rounded-full px-3 text-xs font-black ring-1 transition hover:-translate-y-0.5",
-                selected ? "bg-[#5B4DFF] text-white ring-[#5B4DFF]" : "bg-white text-[#5B4DFF] ring-indigo-100 hover:bg-[#EEF0FF]"
+                selected ? "bg-[#C13584] text-white ring-[#C13584]" : "bg-white text-[#C13584] ring-indigo-100 hover:bg-[#FBEAF3]"
             )}
         >
             +{keyword}
@@ -5155,7 +5155,7 @@ function ToggleMini({ label, active, onClick }: { label: string; active: boolean
     return (
         <button type="button" onClick={onClick} className="mt-3 flex w-full items-center justify-between rounded-[14px] bg-slate-50 px-3 py-2 text-left transition hover:bg-slate-100">
             <span className="text-xs font-black text-slate-600">{label}</span>
-            <span className={cx("h-5 w-9 rounded-full p-0.5 transition", active ? "bg-[#5B4DFF]" : "bg-slate-200")}>
+            <span className={cx("h-5 w-9 rounded-full p-0.5 transition", active ? "bg-[#C13584]" : "bg-slate-200")}>
                 <span className={cx("block h-4 w-4 rounded-full bg-white transition", active && "translate-x-4")} />
             </span>
         </button>
@@ -5164,7 +5164,7 @@ function ToggleMini({ label, active, onClick }: { label: string; active: boolean
 
 function ToggleSwitch({ active, onClick, label = "Toggle setting" }: { active: boolean; onClick: () => void; label?: string }) {
     return (
-        <button type="button" aria-label={label} onClick={onClick} className={cx("h-6 w-11 rounded-full p-0.5 transition", active ? "bg-[#5B4DFF]" : "bg-slate-200")}>
+        <button type="button" aria-label={label} onClick={onClick} className={cx("h-6 w-11 rounded-full p-0.5 transition", active ? "bg-[#C13584]" : "bg-slate-200")}>
             <span className={cx("block h-5 w-5 rounded-full bg-white shadow transition", active && "translate-x-5")} />
         </button>
     );
@@ -5172,7 +5172,7 @@ function ToggleSwitch({ active, onClick, label = "Toggle setting" }: { active: b
 
 function SmallBadge({ label, tone }: { label: string; tone: "purple" | "gold" | "green" | "gray" }) {
     const tones = {
-        purple: "bg-[#EEF0FF] text-[#5B4DFF] ring-indigo-100",
+        purple: "bg-[#FBEAF3] text-[#C13584] ring-indigo-100",
         gold: "bg-[#FFF7DA] text-[#8A5D17] ring-[#E8C56C]/50",
         green: "bg-emerald-50 text-emerald-700 ring-emerald-100",
         gray: "bg-slate-100 text-slate-500 ring-slate-200",
@@ -5447,10 +5447,10 @@ function ContactsPage({
                 </div>
 
                 {selectedCount > 0 && (
-                    <div className="flex flex-col gap-2 rounded-[1rem] border border-indigo-100 bg-[#EEF0FF] p-3 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-sm font-black text-[#5B4DFF]">{selectedCount} contact{selectedCount === 1 ? "" : "s"} selected</p>
+                    <div className="flex flex-col gap-2 rounded-[1rem] border border-indigo-100 bg-[#FBEAF3] p-3 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-sm font-black text-[#C13584]">{selectedCount} contact{selectedCount === 1 ? "" : "s"} selected</p>
                         <div className="flex flex-wrap gap-2">
-                            <button onClick={() => exportContacts("selected")} className="inline-flex h-9 items-center justify-center gap-2 rounded-[0.9rem] bg-[#5B4DFF] px-3 text-xs font-black text-white transition hover:bg-[#4738E8]">
+                            <button onClick={() => exportContacts("selected")} className="inline-flex h-9 items-center justify-center gap-2 rounded-[0.9rem] bg-[#C13584] px-3 text-xs font-black text-white transition hover:bg-[#ad2a75]">
                                 {accountPlan.featureAccess.exportCsv ? <Download className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
                                 {accountPlan.featureAccess.exportCsv ? "Export selected" : "Upgrade to export"}
                             </button>
@@ -5511,7 +5511,7 @@ function ContactsPage({
                                                 type="checkbox"
                                                 checked={pageSelected}
                                                 onChange={toggleVisibleSelection}
-                                                className="h-4 w-4 rounded border-slate-300 text-[#5B4DFF] focus:ring-[#5B4DFF]"
+                                                className="h-4 w-4 rounded border-slate-300 text-[#C13584] focus:ring-[#C13584]"
                                             />
                                         </th>
                                         {["Contact", "Email", "Source", "Relationship", "Last Interaction", "Joined", "Actions"].map((head) => <th key={head} className="px-3 py-3">{head}</th>)}
@@ -5608,7 +5608,7 @@ function ContactsPage({
 
 function ContactStatCard({ label, value, helper, icon, tone }: { label: string; value: string; helper: string; icon: ReactNode; tone: string }) {
     const tones: Record<string, string> = {
-        purple: "bg-[#EEF0FF] text-[#5B4DFF]",
+        purple: "bg-[#FBEAF3] text-[#C13584]",
         green: "bg-emerald-50 text-emerald-600",
         blue: "bg-sky-50 text-sky-600",
         indigo: "bg-violet-50 text-violet-600",
@@ -5660,7 +5660,7 @@ function ContactTableRow({
                     type="checkbox"
                     checked={selected}
                     onChange={onSelect}
-                    className="h-4 w-4 rounded border-slate-300 text-[#5B4DFF] focus:ring-[#5B4DFF]"
+                    className="h-4 w-4 rounded border-slate-300 text-[#C13584] focus:ring-[#C13584]"
                 />
             </td>
             <td className="px-3 py-4">
@@ -5710,7 +5710,7 @@ function ContactMobileCard({
                     type="checkbox"
                     checked={selected}
                     onChange={onSelect}
-                    className="mt-1 h-4 w-4 rounded border-slate-300 text-[#5B4DFF] focus:ring-[#5B4DFF]"
+                    className="mt-1 h-4 w-4 rounded border-slate-300 text-[#C13584] focus:ring-[#C13584]"
                 />
             </div>
             <div className="mt-4 grid gap-3 text-sm">
@@ -5723,7 +5723,7 @@ function ContactMobileCard({
                 <RelationshipPill relationship={contact.relationship} />
             </div>
             <div className="mt-4 flex gap-2">
-                <button onClick={onOpen} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-[0.9rem] bg-[#5B4DFF] text-sm font-black text-white transition hover:bg-[#4738E8]">
+                <button onClick={onOpen} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-[0.9rem] bg-[#C13584] text-sm font-black text-white transition hover:bg-[#ad2a75]">
                     <Eye className="h-4 w-4" />
                     View details
                 </button>
@@ -5739,7 +5739,7 @@ function ContactIdentity({ contact }: { contact: ContactRecord }) {
     const initial = safeText(contact.name, contact.username).replace("@", "").charAt(0).toUpperCase() || "U";
     return (
         <div className="flex min-w-0 items-center gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1rem] bg-gradient-to-br from-[#5B4DFF] to-[#B84C88] text-sm font-black text-white shadow-[0_10px_18px_rgba(91,77,255,0.18)]">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1rem] bg-gradient-to-br from-[#C13584] to-[#B84C88] text-sm font-black text-white shadow-[0_10px_18px_rgba(193,53,132,0.18)]">
                 {contact.avatar ? <img src={contact.avatar} alt="" className="h-full w-full rounded-[1rem] object-cover" /> : initial}
             </span>
             <div className="min-w-0">
@@ -5768,7 +5768,7 @@ function SourcePill({ source }: { source: ContactRecord["sourceType"] }) {
                 ? "bg-rose-50 text-rose-700 ring-rose-100"
                 : source === "Unknown source"
                     ? "bg-slate-100 text-slate-500 ring-slate-200"
-                    : "bg-[#EEF0FF] text-[#5B4DFF] ring-indigo-100";
+                    : "bg-[#FBEAF3] text-[#C13584] ring-indigo-100";
     return <span className={cx("inline-flex h-6 items-center rounded-full px-2.5 text-[10px] font-black uppercase tracking-[0.06em] ring-1", tone)}>{source}</span>;
 }
 
@@ -5816,7 +5816,7 @@ function ContactDetailDrawer({
                 <div className="sticky top-0 z-10 border-b border-slate-100 bg-white/90 p-5 backdrop-blur">
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#5B4DFF]">Contact details</p>
+                            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#C13584]">Contact details</p>
                             <h2 className="mt-1 text-2xl font-black tracking-tight text-[#0F172A]">{safeText(contact.name, contact.username)}</h2>
                         </div>
                         <button onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-950">
@@ -5878,7 +5878,7 @@ function ContactDetailDrawer({
                             <Mail className="h-4 w-4" />
                             Copy email
                         </button>
-                        <button onClick={onExport} className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] bg-[#5B4DFF] text-sm font-black text-white transition hover:bg-[#4738E8]">
+                        <button onClick={onExport} className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] bg-[#C13584] text-sm font-black text-white transition hover:bg-[#ad2a75]">
                             <Download className="h-4 w-4" />
                             Export contact
                         </button>
@@ -5944,7 +5944,7 @@ function csvEscape(value: string) {
 
 function contactTimelineTone(tone: "purple" | "green" | "amber" | "slate") {
     const tones = {
-        purple: "bg-[#5B4DFF]",
+        purple: "bg-[#C13584]",
         green: "bg-emerald-500",
         amber: "bg-amber-500",
         slate: "bg-slate-400",
@@ -5956,10 +5956,10 @@ function InboxPage({ activity }: { activity: LogEntry[] }) {
     return (
         <PageShell title="Inbox" subtitle="A unified conversation inbox for Instagram DMs is coming soon.">
             <section className="relative overflow-hidden rounded-[24px] border border-white bg-white p-6 shadow-[0_18px_54px_rgba(15,23,42,0.06)] sm:p-8">
-                <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#5B4DFF]/10 blur-3xl" />
+                <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#C13584]/10 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-24 left-10 h-52 w-52 rounded-full bg-fuchsia-200/20 blur-3xl" />
                 <div className="relative mx-auto flex max-w-2xl flex-col items-center text-center">
-                    <span className="inline-flex h-8 items-center rounded-full bg-[#EEF0FF] px-3 text-[11px] font-black uppercase tracking-[0.12em] text-[#5B4DFF] ring-1 ring-indigo-100">
+                    <span className="inline-flex h-8 items-center rounded-full bg-[#FBEAF3] px-3 text-[11px] font-black uppercase tracking-[0.12em] text-[#C13584] ring-1 ring-indigo-100">
                         Coming soon
                     </span>
                     <span className="mt-6 flex h-16 w-16 items-center justify-center rounded-[22px] bg-slate-950 text-white shadow-[0_18px_38px_rgba(15,23,42,0.18)]">
@@ -5977,7 +5977,7 @@ function InboxPage({ activity }: { activity: LogEntry[] }) {
                             { label: "Lead follow-ups", icon: <UserPlus className="h-4 w-4" /> },
                         ].map((item) => (
                             <div key={item.label} className="rounded-[18px] border border-slate-100 bg-slate-50/70 p-3 text-left">
-                                <span className="flex h-9 w-9 items-center justify-center rounded-[0.9rem] bg-white text-[#5B4DFF] shadow-sm ring-1 ring-slate-100">
+                                <span className="flex h-9 w-9 items-center justify-center rounded-[0.9rem] bg-white text-[#C13584] shadow-sm ring-1 ring-slate-100">
                                     {item.icon}
                                 </span>
                                 <p className="mt-3 text-sm font-black text-[#0F172A]">{item.label}</p>
@@ -5986,7 +5986,7 @@ function InboxPage({ activity }: { activity: LogEntry[] }) {
                     </div>
 
                     <div className="mt-7 flex flex-col gap-2 sm:flex-row">
-                        <Link to="/pricing" className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] bg-[#5B4DFF] px-4 text-sm font-black text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
+                        <Link to="/pricing" className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] bg-[#C13584] px-4 text-sm font-black text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:bg-[#ad2a75]">
                             <Crown className="h-4 w-4" />
                             Get ready with Pro
                         </Link>
@@ -6253,7 +6253,7 @@ function AnalyticsPage({
                     ) : (
                         <>
                             <div className="grid gap-4 xl:grid-cols-2">
-                                <AnalyticsChartCard title="DMs sent over time" range={rangeLabel} data={trendData} primaryKey="dms" primaryColor="#5B4DFF" secondaryKey="clicks" secondaryColor="#38BDF8" emptyText="No DMs sent data for this period" />
+                                <AnalyticsChartCard title="DMs sent over time" range={rangeLabel} data={trendData} primaryKey="dms" primaryColor="#C13584" secondaryKey="clicks" secondaryColor="#38BDF8" emptyText="No DMs sent data for this period" />
                                 <AnalyticsChartCard title="Leads and failed DMs" range={rangeLabel} data={trendData} primaryKey="leads" primaryColor="#10B981" secondaryKey="failed" secondaryColor="#EF4444" emptyText="No lead data for this period" />
                             </div>
 
@@ -6290,7 +6290,7 @@ function AnalyticsPage({
                                                 <tr key={row.id} onClick={() => setSelectedAutomation(row)} className="cursor-pointer transition hover:bg-[#F8FAFC]">
                                                     <td className="px-3 py-4">
                                                         <div className="flex items-center gap-3">
-                                                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1rem] bg-[#EEF0FF] text-[#5B4DFF]"><Bot className="h-5 w-5" /></span>
+                                                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1rem] bg-[#FBEAF3] text-[#C13584]"><Bot className="h-5 w-5" /></span>
                                                             <span className="min-w-0">
                                                                 <span className="block truncate text-sm font-black text-slate-950">{row.name}</span>
                                                                 <span className="block max-w-[260px] truncate text-xs font-semibold text-slate-500">{row.description}</span>
@@ -6410,7 +6410,7 @@ function AnalyticsPage({
                         <AnalyticsMetricCard icon={<BarChart3 className="h-5 w-5" />} label="Engagement Rate" value={typeof stats.followers === "number" && stats.followers > 0 ? `${Math.max(0, Math.min(100, Math.round((stats.totalPublicReplies / stats.followers) * 1000) / 10))}%` : "—"} change="Based on available activity" tone="green" />
                     </div>
                     <div className="grid gap-4 xl:grid-cols-2">
-                        <AnalyticsChartCard title="Follower growth" range={rangeLabel} data={trendData} primaryKey="followers" primaryColor="#5B4DFF" secondaryKey="leads" secondaryColor="#10B981" emptyText="Follower data is unavailable for this period" />
+                        <AnalyticsChartCard title="Follower growth" range={rangeLabel} data={trendData} primaryKey="followers" primaryColor="#C13584" secondaryKey="leads" secondaryColor="#10B981" emptyText="Follower data is unavailable for this period" />
                         <Panel title="Account insights availability">
                             <div className="rounded-[18px] border border-amber-100 bg-amber-50/70 p-4">
                                 <div className="flex gap-3">
@@ -6516,7 +6516,7 @@ function AnalyticsPage({
 
 function AnalyticsMetricCard({ icon, label, value, change, tone }: { icon: ReactNode; label: string; value: string; change: string; tone: "purple" | "green" | "blue" | "amber" }) {
     const tones = {
-        purple: "bg-[#EEF0FF] text-[#5B4DFF]",
+        purple: "bg-[#FBEAF3] text-[#C13584]",
         green: "bg-emerald-50 text-emerald-600",
         blue: "bg-sky-50 text-sky-600",
         amber: "bg-amber-50 text-amber-600",
@@ -6662,7 +6662,7 @@ function GeographicDistributionCard() {
 function InsightRow({ icon, title, value, copy }: { icon: ReactNode; title: string; value: string; copy: string }) {
     return (
         <div className="flex items-center gap-3 rounded-[18px] border border-slate-100 bg-slate-50/70 p-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] bg-white text-[#5B4DFF] shadow-sm">{icon}</span>
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] bg-white text-[#C13584] shadow-sm">{icon}</span>
             <div className="min-w-0 flex-1">
                 <p className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{title}</p>
                 <p className="mt-1 truncate text-sm font-black text-slate-950">{value}</p>
@@ -6757,7 +6757,7 @@ function AudienceRow({ row }: { row: AudienceUserRow }) {
 function FallbackAvatar({ value }: { value: string }) {
     const initial = safeText(value, "D").replace("@", "").charAt(0).toUpperCase() || "D";
     return (
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#5B4DFF] to-[#B83280] text-sm font-black text-white shadow-sm">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#C13584] to-[#B83280] text-sm font-black text-white shadow-sm">
             {initial}
         </span>
     );
@@ -6849,7 +6849,7 @@ function AnalyticsDetailRow({ label, value }: { label: string; value: string }) 
 
 function TimelineMini({ label, value, tone }: { label: string; value: string; tone: "purple" | "blue" | "green" | "red" }) {
     const tones = {
-        purple: "bg-[#5B4DFF]",
+        purple: "bg-[#C13584]",
         blue: "bg-sky-500",
         green: "bg-emerald-500",
         red: "bg-rose-500",
@@ -6867,7 +6867,7 @@ function activityConfig(type: AnalyticsActivityEvent["type"]) {
     if (type === "Link clicked") return { icon: <MousePointerClick className="h-5 w-5" />, className: "bg-sky-50 text-sky-600" };
     if (type === "Lead captured") return { icon: <UserPlus className="h-5 w-5" />, className: "bg-emerald-50 text-emerald-600" };
     if (type === "Failed DM") return { icon: <AlertTriangle className="h-5 w-5" />, className: "bg-rose-50 text-rose-600" };
-    return { icon: <Send className="h-5 w-5" />, className: "bg-[#EEF0FF] text-[#5B4DFF]" };
+    return { icon: <Send className="h-5 w-5" />, className: "bg-[#FBEAF3] text-[#C13584]" };
 }
 
 function buildAutomationAnalyticsRows(triggers: Trigger[], stats: Stats, leadsCollected: number, deliveryRate: number | null): AnalyticsAutomationRow[] {
@@ -7380,9 +7380,9 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
             if (!filled) return "";
             const x = 24 + (index % 7) * 18;
             const y = 24 + Math.floor(index / 7) * 18;
-            return `<rect x="${x}" y="${y}" width="14" height="14" rx="3" fill="#5B4DFF"/>`;
+            return `<rect x="${x}" y="${y}" width="14" height="14" rx="3" fill="#C13584"/>`;
         }).join("");
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><rect width="180" height="180" rx="28" fill="white"/><rect x="10" y="10" width="160" height="160" rx="24" fill="#F7F7FB" stroke="#E5E7EB"/>${squares}<text x="90" y="164" text-anchor="middle" font-family="Arial" font-size="11" font-weight="700" fill="#0F172A">DMGennie</text></svg>`;
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><rect width="180" height="180" rx="28" fill="white"/><rect x="10" y="10" width="160" height="160" rx="24" fill="#F7F5FF" stroke="#E5E7EB"/>${squares}<text x="90" y="164" text-anchor="middle" font-family="Arial" font-size="11" font-weight="700" fill="#0F172A">DMGennie</text></svg>`;
         const blob = new Blob([svg], { type: "image/svg+xml" });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
@@ -7514,7 +7514,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                                         key={filter}
                                         type="button"
                                         onClick={() => setUserFilter(filter)}
-                                        className={cx("rounded-full px-3 py-2 text-xs font-black transition", userFilter === filter ? "bg-[#5B4DFF] text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200")}
+                                        className={cx("rounded-full px-3 py-2 text-xs font-black transition", userFilter === filter ? "bg-[#C13584] text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200")}
                                     >
                                         {filter}
                                     </button>
@@ -7558,7 +7558,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                         <IconButton title="Close" onClick={() => setPublicPreviewOpen(false)}><X className="h-5 w-5" /></IconButton>
                     </div>
                     <div className="mt-5 rounded-[22px] border border-slate-200 bg-gradient-to-br from-indigo-50 to-rose-50 p-5">
-                        <p className="text-xs font-black uppercase tracking-[0.12em] text-[#5B4DFF]">DMGennie referral</p>
+                        <p className="text-xs font-black uppercase tracking-[0.12em] text-[#C13584]">DMGennie referral</p>
                         <h4 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Automate Instagram DMs from comments</h4>
                         <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-600">You were invited with referral code <span className="font-black text-slate-950">{referralCode}</span>. Start free, then upgrade when you are ready.</p>
                         <div className="mt-4 rounded-2xl bg-white p-3 text-sm font-black text-slate-700">{referralLink}</div>
@@ -7652,7 +7652,7 @@ function ReferralHeroCard({
 }) {
     return (
         <section className="overflow-hidden rounded-[22px] border border-white bg-white shadow-[0_18px_55px_rgba(15,23,42,0.06)]">
-            <div className="bg-gradient-to-br from-slate-950 via-[#302047] to-[#6d2948] p-5 text-white sm:p-6">
+            <div className="bg-gradient-to-br from-slate-950 via-[#405DE6] to-[#C13584] p-5 text-white sm:p-6">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-white/75">Partner program</span>
@@ -7701,7 +7701,7 @@ function HowReferralWorks() {
             <div className="space-y-3">
                 {steps.map(([title, copy], index) => (
                     <div key={title} className="flex gap-3 rounded-[18px] border border-slate-100 bg-slate-50/70 p-3">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-[#5B4DFF] shadow-sm">{index + 1}</span>
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-[#C13584] shadow-sm">{index + 1}</span>
                         <div>
                             <h3 className="text-sm font-black text-slate-950">{title}</h3>
                             <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">{copy}</p>
@@ -7715,7 +7715,7 @@ function HowReferralWorks() {
 
 function ReferralMetricCard({ icon, label, value, helper, tone }: { icon: ReactNode; label: string; value: string; helper: string; tone: "purple" | "gold" | "green" | "gray" }) {
     const tones = {
-        purple: "bg-indigo-50 text-[#5B4DFF]",
+        purple: "bg-indigo-50 text-[#C13584]",
         gold: "bg-amber-50 text-amber-700",
         green: "bg-emerald-50 text-emerald-700",
         gray: "bg-slate-100 text-slate-600",
@@ -7782,7 +7782,7 @@ function RequestPayoutPanel({
                 <button
                     type="button"
                     onClick={onRequest}
-                    className={cx("mt-5 inline-flex w-full items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition", canRequest ? "bg-[#5B4DFF] text-white shadow-lg shadow-indigo-500/20 hover:bg-[#4738E8]" : "bg-slate-200 text-slate-500 hover:bg-slate-300")}
+                    className={cx("mt-5 inline-flex w-full items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition", canRequest ? "bg-[#C13584] text-white shadow-lg shadow-indigo-500/20 hover:bg-[#ad2a75]" : "bg-slate-200 text-slate-500 hover:bg-slate-300")}
                 >
                     <CreditCard className="h-4 w-4" />
                     Request Payout
@@ -7952,7 +7952,7 @@ function ReferralFaq({ openIndex, onOpen }: { openIndex: number; onOpen: (index:
 
 function ReferralShareButton({ icon, label, onClick }: { icon: ReactNode; label: string; onClick: () => void }) {
     return (
-        <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-[14px] border border-slate-200 bg-white px-3 py-2.5 text-xs font-black text-slate-700 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-indigo-50 hover:text-[#5B4DFF]">
+        <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-[14px] border border-slate-200 bg-white px-3 py-2.5 text-xs font-black text-slate-700 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-indigo-50 hover:text-[#C13584]">
             {icon}
             {label}
         </button>
@@ -8230,7 +8230,7 @@ function SettingsPage(props: {
                             {!editingProfile ? (
                                 <div className="rounded-[1.25rem] border border-slate-100 bg-slate-50/70 p-4">
                                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.1rem] bg-gradient-to-br from-[#5B4DFF] to-[#D9468B] text-lg font-black text-white">
+                                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.1rem] bg-gradient-to-br from-[#C13584] to-[#D9468B] text-lg font-black text-white">
                                             {(profileSaved.fullName || "Creator").charAt(0).toUpperCase()}
                                         </span>
                                         <div className="min-w-0 flex-1">
@@ -8278,14 +8278,14 @@ function SettingsPage(props: {
                                 <div className="rounded-[1.35rem] border border-slate-100 bg-white p-4 shadow-sm">
                                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                         <div className="flex min-w-0 items-center gap-4">
-                                            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.1rem] bg-gradient-to-br from-[#5B4DFF] to-[#D9468B] text-lg font-black text-white shadow-sm">
+                                            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.1rem] bg-gradient-to-br from-[#C13584] to-[#D9468B] text-lg font-black text-white shadow-sm">
                                                 {cleanHandle.charAt(0).toUpperCase() || "D"}
                                             </span>
                                             <div className="min-w-0">
                                                 <div className="flex flex-wrap items-center gap-2">
                                                     <h3 className="truncate font-black text-slate-950">{handle}</h3>
                                                     <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-emerald-50 px-2 text-[11px] font-black text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Connected</span>
-                                                    <span className="inline-flex h-6 items-center rounded-full bg-indigo-50 px-2 text-[11px] font-black text-[#5B4DFF]">Meta API Active</span>
+                                                    <span className="inline-flex h-6 items-center rounded-full bg-indigo-50 px-2 text-[11px] font-black text-[#C13584]">Meta API Active</span>
                                                 </div>
                                                 <p className="mt-1 text-sm font-semibold text-slate-500">{typeof props.stats.followers === "number" ? `${formatMetric(props.stats.followers)} followers` : "Followers unavailable"} · Refresh to sync latest data</p>
                                                 <p className="mt-1 text-xs font-semibold text-slate-400">Connected through secure Meta OAuth. No Instagram password stored.</p>
@@ -8776,7 +8776,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                             >
                                 Cancel
                             </button>
-                            <button type="submit" className="px-28 py-5 rounded-2xl bg-[#5B4DFF] text-white font-black uppercase tracking-widest text-[11px] shadow-xl shadow-indigo-500/20 hover:translate-y-[-2px] hover:brightness-105 transition-all active:scale-95 flex items-center gap-3">
+                            <button type="submit" className="px-28 py-5 rounded-2xl bg-[#C13584] text-white font-black uppercase tracking-widest text-[11px] shadow-xl shadow-indigo-500/20 hover:translate-y-[-2px] hover:brightness-105 transition-all active:scale-95 flex items-center gap-3">
                                 Submit Message
                                 <Send className="h-5 w-5 opacity-80" />
                             </button>
@@ -8789,13 +8789,13 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                         <div className={`rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.01)] flex-1 flex flex-col transition-all duration-300 ${showAllFaqs ? 'blur-sm opacity-50 pointer-events-none' : ''}`}>
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-lg font-black text-slate-950 flex items-center gap-3">
-                                    <CircleHelp className="h-5 w-5 text-[#5B4DFF]" />
+                                    <CircleHelp className="h-5 w-5 text-[#C13584]" />
                                     Quick FAQ
                                 </h3>
                                 <button 
                                     type="button"
                                     onClick={() => setShowAllFaqs(true)}
-                                    className="text-[12px] font-black uppercase tracking-widest text-[#5B4DFF] hover:text-[#4A3FD5] hover:bg-indigo-50 px-4 py-2 rounded-full transition-all"
+                                    className="text-[12px] font-black uppercase tracking-widest text-[#C13584] hover:text-[#4A3FD5] hover:bg-indigo-50 px-4 py-2 rounded-full transition-all"
                                 >
                                     See More
                                 </button>
@@ -8803,7 +8803,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                             <div className="space-y-6 flex-1 overflow-y-auto">
                                 {faqs.slice(0, 2).map(([question, answer], index) => (
                                     <div key={index} className="group cursor-default pb-4 border-b border-slate-100 last:border-0">
-                                        <h4 className="text-[14px] font-black text-slate-950 mb-1.5 group-hover:text-[#5B4DFF] transition-colors leading-tight">{question}</h4>
+                                        <h4 className="text-[14px] font-black text-slate-950 mb-1.5 group-hover:text-[#C13584] transition-colors leading-tight">{question}</h4>
                                         <p className="text-[12px] font-bold leading-relaxed text-slate-400 group-hover:text-slate-600 transition-colors">{answer}</p>
                                     </div>
                                 ))}
@@ -8814,7 +8814,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                         <div className={`rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.01)] flex-1 flex flex-col justify-between transition-all duration-300 ${showAllFaqs ? 'blur-sm opacity-50 pointer-events-none' : ''}`}>
                             <div>
                                 <h3 className="text-lg font-black text-slate-950 mb-8 flex items-center gap-3 text-center justify-center">
-                                    <span className="text-[#5B4DFF]">Support Journey</span>
+                                    <span className="text-[#C13584]">Support Journey</span>
                                 </h3>
                                 <div className="flex flex-col items-center gap-6 relative flex-1 justify-center">
                                     <div className="absolute top-0 bottom-0 w-[2px] bg-gradient-to-b from-indigo-200 via-indigo-300 to-indigo-200"></div>
@@ -8843,9 +8843,9 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                             </div>
                             
                             <div className="mt-6 pt-6 border-t border-slate-100 flex justify-center gap-6">
-                                <Mail className="h-5 w-5 text-slate-300 hover:text-[#5B4DFF] cursor-pointer transition-all hover:scale-125" />
-                                <MessageCircle className="h-5 w-5 text-slate-300 hover:text-[#5B4DFF] cursor-pointer transition-all hover:scale-125" />
-                                <Instagram className="h-5 w-5 text-slate-300 hover:text-[#5B4DFF] cursor-pointer transition-all hover:scale-125" />
+                                <Mail className="h-5 w-5 text-slate-300 hover:text-[#C13584] cursor-pointer transition-all hover:scale-125" />
+                                <MessageCircle className="h-5 w-5 text-slate-300 hover:text-[#C13584] cursor-pointer transition-all hover:scale-125" />
+                                <Instagram className="h-5 w-5 text-slate-300 hover:text-[#C13584] cursor-pointer transition-all hover:scale-125" />
                             </div>
                         </div>
 
@@ -8854,7 +8854,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                             <div className="absolute inset-0 rounded-[2.5rem] bg-white/95 backdrop-blur-md p-8 shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col z-50 animate-in fade-in duration-300">
                                 <div className="flex items-center justify-between mb-6">
                                     <h3 className="text-lg font-black text-slate-950 flex items-center gap-3">
-                                        <CircleHelp className="h-5 w-5 text-[#5B4DFF]" />
+                                        <CircleHelp className="h-5 w-5 text-[#C13584]" />
                                         All FAQs
                                     </h3>
                                     <button
@@ -8868,7 +8868,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                 <div className="space-y-6 overflow-y-auto flex-1 pr-2">
                                     {faqs.map(([question, answer], index) => (
                                         <div key={index} className="group cursor-default pb-4 border-b border-slate-100 last:border-0">
-                                            <h4 className="text-[14px] font-black text-slate-950 mb-1.5 group-hover:text-[#5B4DFF] transition-colors leading-tight">{question}</h4>
+                                            <h4 className="text-[14px] font-black text-slate-950 mb-1.5 group-hover:text-[#C13584] transition-colors leading-tight">{question}</h4>
                                             <p className="text-[12px] font-bold leading-relaxed text-slate-400 group-hover:text-slate-600 transition-colors">{answer}</p>
                                         </div>
                                     ))}
@@ -8919,7 +8919,7 @@ function PrimaryButton({ children, onClick, compact, disabled }: { children: Rea
             onClick={onClick}
             disabled={disabled}
             className={cx(
-                "inline-flex items-center justify-center gap-2 rounded-[1rem] bg-[#5B4DFF] text-sm font-black text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:bg-[#4738E8] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0",
+                "inline-flex items-center justify-center gap-2 rounded-[1rem] bg-[#C13584] text-sm font-black text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:bg-[#ad2a75] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0",
                 compact ? "px-3.5 py-2" : "px-4 py-2.5"
             )}
         >
@@ -8957,7 +8957,7 @@ function StatusPill({ icon, label, tone, title }: { icon: ReactNode; label: stri
     const tones = {
         green: "bg-emerald-50 text-emerald-700 ring-emerald-100",
         red: "bg-rose-50 text-rose-700 ring-rose-100",
-        indigo: "bg-indigo-50 text-[#5B4DFF] ring-indigo-100",
+        indigo: "bg-indigo-50 text-[#C13584] ring-indigo-100",
     };
     return <span title={title} className={cx("inline-flex h-7 items-center gap-2 rounded-full px-3 text-xs font-black ring-1", title && "cursor-help", tones[tone])}>{icon}{label}</span>;
 }
@@ -9039,7 +9039,7 @@ function UsageMiniCard({ title, value, progress }: { title: string; value: strin
                 <span className="text-sm font-black text-slate-950">{value}</span>
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
-                <div className="h-full rounded-full bg-[#5B4DFF]" style={{ width: `${Math.min(100, Math.max(0, progress))}%` }} />
+                <div className="h-full rounded-full bg-[#C13584]" style={{ width: `${Math.min(100, Math.max(0, progress))}%` }} />
             </div>
         </div>
     );
