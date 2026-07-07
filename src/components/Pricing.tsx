@@ -5,22 +5,24 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Check, X } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
+import { detectCurrency, formatPrice, type Currency } from '@/lib/utils'
 
 type PricingConfig = {
-  currency: 'INR'
+  currency: Currency
+  symbol: string
   plans: {
     pro: {
-      monthlyPriceInr: number
-      annualMonthlyPriceInr: number
+      monthlyPrice: number
+      annualMonthlyPrice: number
       introOffer: {
-        amountInr: number
+        amount: number
         label: string
         disclaimer: string
       }
     }
   }
   proIntroOffer: {
-    amountInr: number
+    amount: number
     label: string
     disclaimer: string
     eligible: boolean
@@ -35,23 +37,24 @@ type PricingConfig = {
 
 const defaultPricing: PricingConfig = {
   currency: 'INR',
+  symbol: '₹',
   plans: {
     pro: {
-      monthlyPriceInr: 499,
-      annualMonthlyPriceInr: 399,
+      monthlyPrice: 499,
+      annualMonthlyPrice: 399,
       introOffer: {
-        amountInr: 1,
+        amount: 1,
         label: '₹1 first month',
         disclaimer: '₹1 for the first month. Renews at ₹499/month unless cancelled.',
       },
     },
   },
   proIntroOffer: {
-    amountInr: 1,
+    amount: 1,
     label: '₹1 first month',
     disclaimer: '₹1 for the first month. Renews at ₹499/month unless cancelled.',
     eligible: false,
-    reason: 'Sign in to start Pro for ₹1',
+    reason: 'Sign in to start Pro',
     hasUsedIntroOffer: false,
     isPro: false,
     subscriptionStatus: 'inactive',
@@ -98,9 +101,12 @@ export function Pricing() {
   const { session } = useAuth()
   const navigate = useNavigate()
 
+  const currency: Currency = pricing.currency
+  const fmt = (amount: number) => formatPrice(currency, amount)
+
   useEffect(() => {
     let cancelled = false
-    fetch('/api/billing?action=pricing', {
+    fetch(`/api/billing?action=pricing&currency=${detectCurrency()}`, {
       headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
     })
       .then((response) => response.ok ? response.json() : null)
@@ -115,9 +121,9 @@ export function Pricing() {
     }
   }, [session?.access_token])
 
-  const proMonthly = pricing.plans.pro.monthlyPriceInr
-  const proAnnual = pricing.plans.pro.annualMonthlyPriceInr
-  const introAmount = pricing.proIntroOffer.amountInr
+  const proMonthly = pricing.plans.pro.monthlyPrice
+  const proAnnual = pricing.plans.pro.annualMonthlyPrice
+  const introAmount = pricing.proIntroOffer.amount
 
   const handlePlanCta = async (planName: string) => {
     setNotice('')
@@ -146,7 +152,7 @@ export function Pricing() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ plan: 'pro', billingCycle: 'monthly' }),
+        body: JSON.stringify({ plan: 'pro', billingCycle: 'monthly', currency: detectCurrency() }),
       })
       const data = await response.json()
       if (response.ok && data.checkoutUrl) {
@@ -216,21 +222,21 @@ export function Pricing() {
               const showIntroOffer = isPro && billing === 'monthly' && !proActive && !paymentPending && (!session?.access_token || pricing.proIntroOffer.eligible)
               const price = isPro
                 ? proActive
-                  ? `₹${proMonthly}`
+                  ? fmt(proMonthly)
                   : billing === 'monthly'
-                  ? showIntroOffer ? `₹${introAmount}` : `₹${proMonthly}`
-                  : `₹${proAnnual}`
+                  ? showIntroOffer ? fmt(introAmount) : fmt(proMonthly)
+                  : fmt(proAnnual)
                 : plan.name === 'Free'
-                  ? '₹0'
+                  ? fmt(0)
                   : 'Custom'
               const helper = isPro
                 ? proActive
-                  ? pricing.proIntroOffer.currentPeriodEnd ? `Pro active. Renews on ${new Date(pricing.proIntroOffer.currentPeriodEnd).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}.` : 'Pro active.'
+                  ? pricing.proIntroOffer.currentPeriodEnd ? `Pro active. Renews on ${new Date(pricing.proIntroOffer.currentPeriodEnd).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}.` : 'Pro active.'
                   : paymentPending
                     ? 'Payment pending. Complete payment to unlock Pro.'
                     : billing === 'monthly'
-                  ? showIntroOffer ? `Then ₹${proMonthly}/month after the first month.` : pricing.proIntroOffer.reason || `₹${proMonthly}/month.`
-                  : `Billed annually at the equivalent of ₹${proAnnual}/month.`
+                  ? showIntroOffer ? `Then ${fmt(proMonthly)}/month after the first month.` : pricing.proIntroOffer.reason || `${fmt(proMonthly)}/month.`
+                  : `Billed annually at the equivalent of ${fmt(proAnnual)}/month.`
                 : undefined
               const cta = isPro
                 ? proActive
@@ -238,7 +244,7 @@ export function Pricing() {
                   : paymentPending
                     ? 'Complete payment'
                     : billing === 'monthly'
-                  ? showIntroOffer ? 'Start Pro for ₹1' : 'Upgrade to Pro'
+                  ? showIntroOffer ? `Start Pro for ${fmt(introAmount)}` : 'Upgrade to Pro'
                   : 'Get Pro'
                 : plan.name === 'Free'
                   ? 'Create a Free Account'
@@ -263,7 +269,7 @@ export function Pricing() {
 
               {plan.highlight && (
                 <div className="relative mx-auto mb-7 inline-flex items-center rounded-full border border-white/20 bg-white/14 px-5 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#f9dfb5] shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur">
-                  {proActive ? 'Pro active' : paymentPending ? 'Payment pending' : (!session?.access_token || pricing.proIntroOffer.eligible) ? 'Limited offer · ₹1 first month' : 'Most Popular'}
+                  {proActive ? 'Pro active' : paymentPending ? 'Payment pending' : (!session?.access_token || pricing.proIntroOffer.eligible) ? `Limited offer · ${fmt(introAmount)} first month` : 'Most Popular'}
                 </div>
               )}
               {!plan.highlight && <div className="mb-7 h-8" />}
@@ -287,7 +293,7 @@ export function Pricing() {
                 {showIntroOffer && (
                   <div className="mt-3 inline-flex flex-wrap justify-center gap-2">
                     <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-black text-[#f9dfb5] ring-1 ring-white/18">Limited offer</span>
-                    <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-black text-white ring-1 ring-white/18">₹1 first month</span>
+                    <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-black text-white ring-1 ring-white/18">{fmt(introAmount)} first month</span>
                   </div>
                 )}
                 {plan.highlight && billing === 'yearly' && (

@@ -68,39 +68,66 @@ function isCurrentPeriodValid(value, now = new Date()) {
     return end.getTime() > now.getTime();
 }
 
-export function getBillingConfig() {
-    const proMonthlyPriceInr = Number(process.env.PRO_MONTHLY_PRICE_INR || process.env.VITE_PRO_MONTHLY_PRICE_INR || 499);
-    const proAnnualMonthlyPriceInr = Number(process.env.PRO_ANNUAL_MONTHLY_PRICE_INR || process.env.VITE_PRO_ANNUAL_MONTHLY_PRICE_INR || 399);
-    const introFirstMonthInr = Number(process.env.PRO_INTRO_FIRST_MONTH_INR || 1);
+const CURRENCY_PRICING = {
+    INR: {
+        symbol: '₹',
+        monthly: () => Number(process.env.PRO_MONTHLY_PRICE_INR || process.env.VITE_PRO_MONTHLY_PRICE_INR || 499),
+        annualMonthly: () => Number(process.env.PRO_ANNUAL_MONTHLY_PRICE_INR || process.env.VITE_PRO_ANNUAL_MONTHLY_PRICE_INR || 399),
+        intro: () => Number(process.env.PRO_INTRO_FIRST_MONTH_INR || 1),
+        planId: () => process.env.RAZORPAY_PRO_MONTHLY_PLAN_ID || '',
+        introOfferId: () => process.env.RAZORPAY_PRO_INTRO_OFFER_ID || '',
+    },
+    USD: {
+        symbol: '$',
+        monthly: () => Number(process.env.PRO_MONTHLY_PRICE_USD || 15),
+        annualMonthly: () => Number(process.env.PRO_ANNUAL_MONTHLY_PRICE_USD || 12),
+        intro: () => Number(process.env.PRO_INTRO_FIRST_MONTH_USD || 1),
+        planId: () => process.env.RAZORPAY_PRO_MONTHLY_PLAN_ID_USD || '',
+        introOfferId: () => process.env.RAZORPAY_PRO_INTRO_OFFER_ID_USD || '',
+    },
+};
+
+export function normalizeCurrency(value) {
+    return String(value || 'INR').trim().toUpperCase() === 'USD' ? 'USD' : 'INR';
+}
+
+export function getBillingConfig(currency = 'INR') {
+    const cur = normalizeCurrency(currency);
+    const p = CURRENCY_PRICING[cur];
+    const symbol = p.symbol;
+    const monthly = p.monthly();
+    const annualMonthly = p.annualMonthly();
+    const intro = p.intro();
 
     return {
-        currency: 'INR',
+        currency: cur,
+        symbol,
         plans: {
             free: {
                 id: 'starter',
                 name: 'Starter',
-                monthlyPriceInr: 0,
-                annualMonthlyPriceInr: 0,
+                monthlyPrice: 0,
+                annualMonthlyPrice: 0,
                 limits: PLAN_FEATURES.starter,
             },
             pro: {
                 id: 'pro',
                 name: 'Pro',
-                monthlyPriceInr: proMonthlyPriceInr,
-                annualMonthlyPriceInr: proAnnualMonthlyPriceInr,
+                monthlyPrice: monthly,
+                annualMonthlyPrice: annualMonthly,
                 limits: PLAN_FEATURES.pro,
                 introOffer: {
-                    amountInr: introFirstMonthInr,
-                    label: '₹1 first month',
-                    disclaimer: `₹${introFirstMonthInr} for the first month. Renews at ₹${proMonthlyPriceInr}/month unless cancelled.`,
+                    amount: intro,
+                    label: `${symbol}${intro} first month`,
+                    disclaimer: `${symbol}${intro} for the first month. Renews at ${symbol}${monthly}/month unless cancelled.`,
                 },
             },
         },
         razorpay: {
             keyId: process.env.RAZORPAY_KEY_ID || '',
             keySecret: process.env.RAZORPAY_KEY_SECRET || '',
-            proMonthlyPlanId: process.env.RAZORPAY_PRO_MONTHLY_PLAN_ID || '',
-            proIntroOfferId: process.env.RAZORPAY_PRO_INTRO_OFFER_ID || '',
+            proMonthlyPlanId: p.planId(),
+            proIntroOfferId: p.introOfferId(),
             webhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || '',
         },
     };

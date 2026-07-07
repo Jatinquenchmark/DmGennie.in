@@ -114,9 +114,9 @@ async function markPaymentNotCompleted(userId, status = 'payment_failed') {
 async function pricingHandler(req, res) {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-    const configData = getBillingConfig();
+    const configData = getBillingConfig(req.query.currency);
     const user = await getUser(req);
-    let eligibility = { eligible: false, reason: 'Sign in to start Pro for ₹1', isPro: false, hasUsedIntroOffer: false };
+    let eligibility = { eligible: false, reason: `Sign in to start Pro for ${configData.symbol}${configData.plans.pro.introOffer.amount}`, isPro: false, hasUsedIntroOffer: false };
 
     if (user) {
         const settings = await ensureSettings(user.id);
@@ -125,6 +125,7 @@ async function pricingHandler(req, res) {
 
     return res.json({
         currency: configData.currency,
+        symbol: configData.symbol,
         plans: configData.plans,
         proIntroOffer: {
             ...configData.plans.pro.introOffer,
@@ -143,11 +144,11 @@ async function pricingHandler(req, res) {
 async function checkoutHandler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    await getJsonBody(req).catch(() => ({}));
+    const body = await getJsonBody(req).catch(() => ({}));
     const user = await getUser(req);
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
-    const configData = getBillingConfig();
+    const configData = getBillingConfig(body.currency || req.query.currency);
     const settings = await ensureSettings(user.id);
     const eligibility = getProIntroEligibility(user, settings);
     const applyIntroOffer = !eligibility.isPro && !eligibility.hasUsedIntroOffer;
@@ -164,7 +165,7 @@ async function checkoutHandler(req, res) {
     if (applyIntroOffer && !configData.razorpay.proIntroOfferId) {
         return res.status(501).json({
             error: 'Intro offer setup required',
-            message: 'Razorpay intro offer/coupon is not configured yet. Add RAZORPAY_PRO_INTRO_OFFER_ID before charging ₹1.',
+            message: `Razorpay intro offer/coupon is not configured yet for ${configData.currency}. Add the intro offer id before charging ${configData.symbol}${configData.plans.pro.introOffer.amount}.`,
             setupRequired: true,
             pricing: configData.plans.pro,
         });
@@ -185,9 +186,10 @@ async function checkoutHandler(req, res) {
                 user_id: user.id,
                 email: user.email || '',
                 plan: 'pro',
+                currency: configData.currency,
                 intro_offer: applyIntroOffer ? 'true' : 'false',
-                intro_amount_inr: String(configData.plans.pro.introOffer.amountInr),
-                renewal_amount_inr: String(configData.plans.pro.monthlyPriceInr),
+                intro_amount: String(configData.plans.pro.introOffer.amount),
+                renewal_amount: String(configData.plans.pro.monthlyPrice),
             },
         };
 

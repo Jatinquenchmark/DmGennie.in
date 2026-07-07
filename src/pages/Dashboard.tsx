@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { ErrorState, LoadingCard, SkeletonCard } from "@/components/Loading";
 import { supabase } from "@/lib/supabase";
+import { detectCurrency, formatPrice, type Currency } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
     Activity,
@@ -168,8 +169,9 @@ type AccountPlanState = {
 };
 
 interface ProOfferData {
-    amountInr: number;
-    renewalMonthlyPriceInr: number;
+    currency: Currency;
+    amount: number;
+    renewalMonthly: number;
     eligible: boolean;
     disclaimer: string;
     reason: string;
@@ -318,10 +320,11 @@ const zeroContactMetrics: ContactMetrics = {
 };
 
 const defaultProOffer: ProOfferData = {
-    amountInr: 1,
-    renewalMonthlyPriceInr: 499,
+    currency: "INR",
+    amount: 1,
+    renewalMonthly: 499,
     eligible: false,
-    disclaimer: "₹1 for the first month. Renews at the regular Pro price unless cancelled.",
+    disclaimer: "Renews at the regular Pro price unless cancelled.",
     reason: "Checking offer eligibility",
 };
 
@@ -693,7 +696,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             const [dashRes, settingsRes, pricingRes] = await Promise.all([
                 authFetch("/api/dashboard"),
                 authFetch("/api/me?action=settings"),
-                authFetch("/api/billing?action=pricing").catch(() => null),
+                authFetch(`/api/billing?action=pricing&currency=${detectCurrency()}`).catch(() => null),
             ]);
             if (!dashRes.ok || !settingsRes.ok) throw new Error("Dashboard data request failed");
 
@@ -720,11 +723,13 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             });
             setDashboardDeliveryRate(typeof dashData.deliveryRate === "number" ? dashData.deliveryRate : null);
             if (pricingData?.plans?.pro) {
+                const cur: Currency = pricingData.currency === "USD" ? "USD" : "INR";
                 setProOffer({
-                    amountInr: safeNumber(pricingData.proIntroOffer?.amountInr || pricingData.plans.pro.introOffer?.amountInr || 1),
-                    renewalMonthlyPriceInr: safeNumber(pricingData.plans.pro.monthlyPriceInr || 499),
+                    currency: cur,
+                    amount: safeNumber(pricingData.proIntroOffer?.amount || pricingData.plans.pro.introOffer?.amount || 1),
+                    renewalMonthly: safeNumber(pricingData.plans.pro.monthlyPrice || 499),
                     eligible: Boolean(pricingData.proIntroOffer?.eligible),
-                    disclaimer: pricingData.proIntroOffer?.disclaimer || `₹1 for the first month. Renews at ₹${pricingData.plans.pro.monthlyPriceInr}/month unless cancelled.`,
+                    disclaimer: pricingData.proIntroOffer?.disclaimer || `Renews at ${formatPrice(cur, safeNumber(pricingData.plans.pro.monthlyPrice || 499))}/month unless cancelled.`,
                     reason: pricingData.proIntroOffer?.reason || "",
                 });
             }
@@ -1486,7 +1491,7 @@ function Sidebar({
                             {accountPlan.subscriptionStatus === "payment_pending"
                                 ? "Complete payment"
                                 : proOffer.eligible
-                                    ? `Start Pro for ₹${proOffer.amountInr}`
+                                    ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}`
                                     : "Upgrade to Pro"}
                         </button>
                     )}
@@ -1545,7 +1550,7 @@ function SidebarPlanCompact({ usage, accountPlan, proOffer, onUpgrade }: { usage
                     ) : (
                         <>
                             <p className="mt-2 text-[10.5px] font-bold leading-4 text-[#64748B]">
-                                <span className="font-black text-[#0F172A]">{isPaymentPending ? "Payment pending." : "Unlock Pro."}</span> {isPaymentPending ? "Complete payment to unlock Pro." : `${proOffer.eligible ? `First month ₹${proOffer.amountInr}. ` : ""}More DMs, unlimited contacts & Pro tools.`}
+                                <span className="font-black text-[#0F172A]">{isPaymentPending ? "Payment pending." : "Unlock Pro."}</span> {isPaymentPending ? "Complete payment to unlock Pro." : `${proOffer.eligible ? `First month ${formatPrice(proOffer.currency, proOffer.amount)}. ` : ""}More DMs, unlimited contacts & Pro tools.`}
                             </p>
 
                             <button
@@ -1553,7 +1558,7 @@ function SidebarPlanCompact({ usage, accountPlan, proOffer, onUpgrade }: { usage
                                 className={cx("mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-full px-3 text-[12px] font-black", goldCtaCls)}
                             >
                                 <Crown className={cx("h-3.5 w-3.5", goldCrownCls)} />
-                                {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade now"}
+                                {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade now"}
                             </button>
                         </>
                     )}
@@ -1604,7 +1609,7 @@ function PlanUsageCard({ usage = zeroUsage, proOffer = defaultProOffer, onUpgrad
                     </span>
                     <p className="text-[11px] font-bold leading-4 text-[#64748B]">
                         <span className="block text-[13px] font-black leading-4 text-[#0F172A]">Unlock Pro</span>
-                        {proOffer.eligible ? `Get your first month for ₹${proOffer.amountInr}. ` : ""}Unlock 20,000 DMs, unlimited contacts & Pro tools.
+                        {proOffer.eligible ? `Get your first month for ${formatPrice(proOffer.currency, proOffer.amount)}. ` : ""}Unlock 20,000 DMs, unlimited contacts & Pro tools.
                     </p>
                 </div>
                 <button
@@ -1612,7 +1617,7 @@ function PlanUsageCard({ usage = zeroUsage, proOffer = defaultProOffer, onUpgrad
                     className={cx("flex h-9 w-full items-center justify-center gap-2 rounded-full px-3 text-[13px] font-black", goldCtaCls)}
                 >
                     <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                    {proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade now"}
+                    {proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade now"}
                 </button>
             </div>
         </div>
@@ -1701,7 +1706,7 @@ function HomePage({
                             className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-[0.9rem] px-5 text-sm font-black", goldCtaCls)}
                         >
                             <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                            {accountPlan.subscriptionStatus === "payment_pending" ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
+                            {accountPlan.subscriptionStatus === "payment_pending" ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}
                         </button>
                     )}
                 </div>
@@ -1857,7 +1862,7 @@ function HomeUpgradeBanner({ accountPlan, proOffer, onUpgrade }: { accountPlan: 
                     <div>
                         <h2 className="text-base font-black tracking-tight text-[#0F172A]">Unlock Pro Power</h2>
                         <p className="mt-0.5 text-sm font-semibold leading-5 text-[#8A5D17]">
-                        {isPaymentPending ? "Payment pending. Complete payment to unlock Pro." : proOffer.eligible ? `First month only. Then ₹${proOffer.renewalMonthlyPriceInr}/month.` : "Get 20,000 DMs, exports & advanced analytics."}
+                        {isPaymentPending ? "Payment pending. Complete payment to unlock Pro." : proOffer.eligible ? `First month only. Then ${formatPrice(proOffer.currency, proOffer.renewalMonthly)}/month.` : "Get 20,000 DMs, exports & advanced analytics."}
                         </p>
                     </div>
                 </div>
@@ -1866,7 +1871,7 @@ function HomeUpgradeBanner({ accountPlan, proOffer, onUpgrade }: { accountPlan: 
                     className={cx("inline-flex items-center justify-center gap-2 rounded-[0.9rem] px-4 py-2.5 text-sm font-black", goldCtaCls)}
                 >
                     <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                    {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
+                    {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}
                 </button>
             </div>
         </section>
@@ -2866,9 +2871,9 @@ function UpgradeModal({ proOffer, onClose, onUpgrade }: { proOffer: ProOfferData
                     Get 20,000 DMs, unlimited contacts, exports, and advanced analytics.
                 </p>
                 <div className="mx-auto mt-5 max-w-md rounded-[18px] border border-amber-100 bg-amber-50/70 p-3 text-left">
-                    <p className="text-sm font-black text-[#0F172A]">{isPaymentPending ? "Payment pending" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}</p>
+                    <p className="text-sm font-black text-[#0F172A]">{isPaymentPending ? "Payment pending" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}</p>
                     <p className="mt-1 text-xs font-bold leading-5 text-[#64748B]">
-                        {isPaymentPending ? "Complete payment to unlock Pro features." : proOffer.eligible ? `First month only. Then ₹${proOffer.renewalMonthlyPriceInr}/month.` : "Unlock higher DM limits and Pro-only workflows."}
+                        {isPaymentPending ? "Complete payment to unlock Pro features." : proOffer.eligible ? `First month only. Then ${formatPrice(proOffer.currency, proOffer.renewalMonthly)}/month.` : "Unlock higher DM limits and Pro-only workflows."}
                     </p>
                 </div>
                 <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
@@ -2878,7 +2883,7 @@ function UpgradeModal({ proOffer, onClose, onUpgrade }: { proOffer: ProOfferData
                         className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-[0.9rem] px-5 text-sm font-black", goldCtaCls)}
                     >
                         <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                        {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
+                        {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}
                     </button>
                 </div>
             </div>
@@ -2897,12 +2902,12 @@ function AutomationMiniUpgradeStrip({ onUpgrade, proOffer }: { onUpgrade: () => 
                     </span>
                     <div>
                         <h2 className="text-sm font-black text-[#0F172A]">Unlock Pro Power</h2>
-                        <p className="text-xs font-semibold text-[#8A5D17]">{isPaymentPending ? "Payment pending. Complete payment to unlock Pro." : proOffer.eligible ? `First month only. Then ₹${proOffer.renewalMonthlyPriceInr}/month.` : "Get 20,000 DMs, exports, and advanced analytics."}</p>
+                        <p className="text-xs font-semibold text-[#8A5D17]">{isPaymentPending ? "Payment pending. Complete payment to unlock Pro." : proOffer.eligible ? `First month only. Then ${formatPrice(proOffer.currency, proOffer.renewalMonthly)}/month.` : "Get 20,000 DMs, exports, and advanced analytics."}</p>
                     </div>
                 </div>
                 <button onClick={onUpgrade} className={cx("inline-flex h-9 items-center justify-center gap-2 rounded-full px-4 text-xs font-black", goldCtaCls)}>
                     <Crown className={cx("h-3.5 w-3.5", goldCrownCls)} />
-                    {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ₹${proOffer.amountInr}` : "Upgrade to Pro"}
+                    {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}
                 </button>
             </div>
         </section>
@@ -6242,7 +6247,7 @@ function AnalyticsPage({
                         <ProLockPanel
                             title="Advanced analytics are available on Pro."
                             copy="Upgrade to unlock charts, automation performance, content performance, audience insights, and CSV exports."
-                            cta="Start Pro for ₹1"
+                            cta="Upgrade to Pro"
                             onUpgrade={onUpgrade}
                         />
                     ) : (
