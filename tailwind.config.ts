@@ -49,6 +49,16 @@ export default {
           emerald: "var(--accent-emerald)",
           purple: "var(--accent-purple)",
         },
+        brand: {
+          magenta: "var(--brand-magenta)",
+          blue: "var(--brand-blue)",
+          purple: "var(--brand-purple)",
+          soft: "var(--brand-soft)",
+        },
+        ink: {
+          DEFAULT: "var(--ink)",
+          muted: "var(--ink-muted)",
+        },
         popover: {
           DEFAULT: "var(--popover)",
           foreground: "var(--popover-foreground)",

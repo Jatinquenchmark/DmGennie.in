@@ -6,13 +6,13 @@ function FooterLogo() {
   return (
     <Link to="/" onClick={() => window.scrollTo(0, 0)} className="inline-flex items-center gap-2.5 group">
       <svg width="30" height="30" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="40" height="40" rx="10" fill="#6d2948" fillOpacity="0.12" />
-        <path d="M10 27 L19 13" stroke="#6d2948" strokeWidth="3.8" strokeLinecap="round" />
+        <rect width="40" height="40" rx="10" fill="#C13584" fillOpacity="0.12" />
+        <path d="M10 27 L19 13" stroke="#C13584" strokeWidth="3.8" strokeLinecap="round" />
         <path d="M17 27 L26 13" stroke="#a85d72" strokeWidth="3.8" strokeLinecap="round" />
-        <circle cx="29" cy="27" r="3" fill="#c89a6f" />
+        <circle cx="29" cy="27" r="3" fill="#833AB4" />
       </svg>
-      <span className="text-lg font-extrabold tracking-tight text-[#151119] transition-colors group-hover:text-[#6d2948]">
-        DM<span className="text-[#6d2948]">Gennie</span>
+      <span className="text-lg font-extrabold tracking-tight text-[#151119] transition-colors group-hover:text-[#C13584]">
+        DM<span className="text-[#C13584]">Gennie</span>
       </span>
     </Link>
   )
@@ -51,11 +51,11 @@ export function Footer() {
 
   return (
     <footer className="relative overflow-hidden border-t border-[#eadde2] bg-[#f8f1f3] text-[#151119]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_8%,rgba(109,41,72,0.12),transparent_32%),radial-gradient(circle_at_86%_24%,rgba(200,154,111,0.12),transparent_28%),linear-gradient(135deg,rgba(255,255,255,0.82),rgba(255,255,255,0.18)_48%,rgba(109,41,72,0.05))]" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:linear-gradient(rgba(109,41,72,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(109,41,72,0.08)_1px,transparent_1px)] [background-size:42px_42px]" />
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#6d2948]/25 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_8%,rgba(193,53,132,0.12),transparent_32%),radial-gradient(circle_at_86%_24%,rgba(64,93,230,0.12),transparent_28%),linear-gradient(135deg,rgba(255,255,255,0.82),rgba(255,255,255,0.18)_48%,rgba(193,53,132,0.05))]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:linear-gradient(rgba(193,53,132,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(193,53,132,0.08)_1px,transparent_1px)] [background-size:42px_42px]" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C13584]/25 to-transparent" />
       <div
-        className="pointer-events-none absolute bottom-2 left-1/2 w-full -translate-x-1/2 select-none text-center text-[17vw] font-black leading-none tracking-tight text-[#6d2948]/[0.06] sm:-bottom-1 sm:text-[16vw] lg:-bottom-4 lg:text-[14vw]"
+        className="pointer-events-none absolute bottom-2 left-1/2 w-full -translate-x-1/2 select-none text-center text-[17vw] font-black leading-none tracking-tight text-[#C13584]/[0.06] sm:-bottom-1 sm:text-[16vw] lg:-bottom-4 lg:text-[14vw]"
         aria-hidden="true"
       >
         DMGennie
@@ -69,7 +69,7 @@ export function Footer() {
               Automate your Instagram DMs and grow with clean, compliant, 24/7 engagement.
             </p>
             <address className="mt-5 flex max-w-sm items-start gap-3 not-italic text-sm font-medium leading-relaxed text-[#665d66]">
-              <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/80 bg-white/55 text-[#6d2948] shadow-sm backdrop-blur">
+              <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/80 bg-white/55 text-[#C13584] shadow-sm backdrop-blur">
                 <MapPin className="h-4 w-4" />
               </span>
               <span>
@@ -82,14 +82,14 @@ export function Footer() {
                 href="https://www.instagram.com/dmgennie.in/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/80 bg-white/55 text-[#6d2948] shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white hover:text-[#151119]"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/80 bg-white/55 text-[#C13584] shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white hover:text-[#151119]"
                 aria-label="DMGennie on Instagram"
               >
                 <Instagram className="h-4 w-4" />
               </a>
               <a
                 href="mailto:support@dmgennie.in"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/80 bg-white/55 text-[#6d2948] shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white hover:text-[#151119]"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/80 bg-white/55 text-[#C13584] shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white hover:text-[#151119]"
                 aria-label="Email support"
               >
                 <Mail className="h-4 w-4" />
@@ -99,7 +99,7 @@ export function Footer() {
               href="https://www.parameterx.org/"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-8 inline-flex items-center gap-3 rounded-2xl border border-white/80 bg-white/58 px-4 py-3 text-sm font-bold text-[#151119] shadow-[0_18px_55px_rgba(109,41,72,0.12)] backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white"
+              className="mt-8 inline-flex items-center gap-3 rounded-2xl border border-white/80 bg-white/58 px-4 py-3 text-sm font-bold text-[#151119] shadow-[0_18px_55px_rgba(193,53,132,0.12)] backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white"
               aria-label="ParameterX security partner"
             >
               <span className="inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-black p-1.5">
@@ -118,7 +118,7 @@ export function Footer() {
           </div>
 
           <div className="lg:col-span-2">
-            <h3 className="mb-5 text-sm font-black uppercase tracking-[0.16em] text-[#6d2948]">Product</h3>
+            <h3 className="mb-5 text-sm font-black uppercase tracking-[0.16em] text-[#C13584]">Product</h3>
             <ul className="space-y-3">
               {productLinks.map((l) => (
                 <li key={l.label}>
@@ -144,7 +144,7 @@ export function Footer() {
           </div>
 
           <div className="lg:col-span-2">
-            <h3 className="mb-5 text-sm font-black uppercase tracking-[0.16em] text-[#6d2948]">Compare</h3>
+            <h3 className="mb-5 text-sm font-black uppercase tracking-[0.16em] text-[#C13584]">Compare</h3>
             <ul className="space-y-3">
               {compareLinks.map((l) => (
                 <li key={l.label}>
@@ -161,7 +161,7 @@ export function Footer() {
           </div>
 
           <div className="lg:col-span-3">
-            <h3 className="mb-5 text-sm font-black uppercase tracking-[0.16em] text-[#6d2948]">Support</h3>
+            <h3 className="mb-5 text-sm font-black uppercase tracking-[0.16em] text-[#C13584]">Support</h3>
             <ul className="space-y-3">
               {supportLinks.map((l) => (
                 <li key={l.label}>

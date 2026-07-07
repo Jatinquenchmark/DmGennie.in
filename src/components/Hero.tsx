@@ -30,24 +30,24 @@ export function Hero() {
   return (
     <div className="premium-gradient relative isolate min-h-screen w-full overflow-hidden">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-white/50" />
-      <div className="pointer-events-none absolute left-[-8%] top-[18%] h-72 w-72 rounded-full bg-[#6d2948]/10 blur-3xl sm:h-96 sm:w-96" />
-      <div className="pointer-events-none absolute right-[-10%] top-[24%] h-80 w-80 rounded-full bg-[#d7a2ad]/18 blur-3xl sm:h-[30rem] sm:w-[30rem]" />
-      <div className="pointer-events-none absolute bottom-[-18%] left-[30%] h-72 w-72 rounded-full bg-[#6d2948]/8 blur-3xl" />
+      <div className="pointer-events-none absolute left-[-8%] top-[18%] h-72 w-72 rounded-full bg-[#C13584]/10 blur-3xl sm:h-96 sm:w-96" />
+      <div className="pointer-events-none absolute right-[-10%] top-[24%] h-80 w-80 rounded-full bg-[#f5a9c4]/18 blur-3xl sm:h-[30rem] sm:w-[30rem]" />
+      <div className="pointer-events-none absolute bottom-[-18%] left-[30%] h-72 w-72 rounded-full bg-[#C13584]/8 blur-3xl" />
 
       {/* Navbar */}
       <motion.nav initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="fixed left-0 right-0 top-0 z-[110] w-full">
         <div className="w-full px-4 py-4 transition-all duration-300 ease-out sm:px-6 lg:px-8">
           <div className={`mx-auto flex max-w-7xl items-center justify-between rounded-[1.35rem] border px-4 py-3 transition-all duration-300 ${
             isScrolled
-              ? 'border-white/80 bg-white/78 shadow-[0_18px_55px_rgba(109,41,72,0.10)] backdrop-blur-xl'
-              : 'border-white/60 bg-white/42 shadow-[0_14px_42px_rgba(109,41,72,0.07)] backdrop-blur-md'
+              ? 'border-white/80 bg-white/78 shadow-[0_18px_55px_rgba(193,53,132,0.10)] backdrop-blur-xl'
+              : 'border-white/60 bg-white/42 shadow-[0_14px_42px_rgba(193,53,132,0.07)] backdrop-blur-md'
           }`}>
             <motion.div whileHover={{ scale: 1.03 }} className="flex cursor-pointer items-center gap-2.5" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-                <rect width="40" height="40" rx="10" fill="#6d2948"/>
+                <rect width="40" height="40" rx="10" fill="#C13584"/>
                 <path d="M10 27 L19 13" stroke="white" strokeWidth="3.8" strokeLinecap="round"/>
                 <path d="M17 27 L26 13" stroke="white" strokeWidth="3.8" strokeLinecap="round"/>
-                <circle cx="29" cy="27" r="3" fill="#d7a2ad"/>
+                <circle cx="29" cy="27" r="3" fill="#f5a9c4"/>
               </svg>
               <span className="font-black text-xl tracking-tight text-foreground">DMGennie</span>
             </motion.div>
@@ -58,7 +58,7 @@ export function Hero() {
                   <Link
                     key={item.label}
                     to={item.href}
-                    className="text-sm font-black text-[#625963] transition-colors hover:text-[#6d2948]"
+                    className="text-sm font-black text-[#625963] transition-colors hover:text-[#C13584]"
                   >
                     {item.label}
                   </Link>
@@ -66,7 +66,7 @@ export function Hero() {
                   <a
                     key={item.label}
                     href={item.href}
-                    className="text-sm font-black text-[#625963] transition-colors hover:text-[#6d2948]"
+                    className="text-sm font-black text-[#625963] transition-colors hover:text-[#C13584]"
                   >
                     {item.label}
                   </a>
@@ -76,7 +76,7 @@ export function Hero() {
 
             <div className="flex items-center space-x-3">
               <Link to="/signup">
-                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="hidden rounded-xl bg-[#6d2948] px-5 py-2.5 text-sm font-black text-white shadow-[0_12px_28px_rgba(109,41,72,0.20)] transition-all hover:bg-[#551f38] sm:block">
+                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="hidden rounded-xl bg-[#C13584] px-5 py-2.5 text-sm font-black text-white shadow-[0_12px_28px_rgba(193,53,132,0.20)] transition-all hover:bg-[#ad2a75] sm:block">
                   Get Started Free
                 </motion.button>
               </Link>
@@ -159,13 +159,13 @@ export function Hero() {
                 <div className="border-b border-slate-200/70 bg-white px-5 pb-4 pt-12 sm:pt-14">
                   <div className="flex items-center gap-3">
                     <ArrowLeft className="h-5 w-5 shrink-0 text-gray-900" />
-                    <div className="relative h-11 w-11 shrink-0 rounded-full bg-gradient-to-br from-[#4a1930] via-[#6d2948] to-[#d7a2ad] p-[3px] sm:h-12 sm:w-12">
+                    <div className="relative h-11 w-11 shrink-0 rounded-full bg-gradient-to-br from-[#833AB4] via-[#C13584] to-[#f5a9c4] p-[3px] sm:h-12 sm:w-12">
                       <div className="flex h-full w-full items-center justify-center rounded-full bg-white p-1">
                         <div className="flex h-full w-full items-center justify-center rounded-full bg-accent-blue">
                           <svg width="24" height="24" viewBox="0 0 40 40" fill="none" aria-hidden="true" className="drop-shadow-sm">
                             <path d="M10 27 L19 13" stroke="white" strokeWidth="4" strokeLinecap="round" />
                             <path d="M17 27 L26 13" stroke="white" strokeWidth="4" strokeLinecap="round" />
-                            <circle cx="29" cy="27" r="3.2" fill="#d7a2ad" />
+                            <circle cx="29" cy="27" r="3.2" fill="#f5a9c4" />
                           </svg>
                         </div>
                       </div>
@@ -183,7 +183,7 @@ export function Hero() {
 
                 <div className="min-h-[420px] bg-gradient-to-b from-white via-slate-50 to-slate-100 px-5 py-6 sm:min-h-[500px] xl:min-h-[540px]">
                   <div className="flex items-end gap-2">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#4a1930] via-[#6d2948] to-[#d7a2ad] p-[2px] shadow-sm">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#833AB4] via-[#C13584] to-[#f5a9c4] p-[2px] shadow-sm">
                       <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-[11px] font-black text-accent-blue">
                         IG
                       </div>
@@ -227,7 +227,7 @@ export function Hero() {
                   </motion.div>
 
                   <div className="mt-5 flex items-end gap-2 sm:mt-7">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#4a1930] via-[#6d2948] to-[#d7a2ad] p-[2px] shadow-sm">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#833AB4] via-[#C13584] to-[#f5a9c4] p-[2px] shadow-sm">
                       <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-[11px] font-black text-accent-blue">
                         IG
                       </div>

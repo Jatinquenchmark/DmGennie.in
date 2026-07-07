@@ -168,11 +168,11 @@ export function Pricing() {
   }
 
   return (
-    <section id="pricing" className="relative overflow-hidden bg-[#fbf7f8] py-24 sm:py-28">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_16%,rgba(109,41,72,0.10),transparent_30%),radial-gradient(circle_at_80%_72%,rgba(200,154,111,0.10),transparent_30%),linear-gradient(180deg,#fff,rgba(248,241,243,0.82)_100%)]" />
+    <section id="pricing" className="relative overflow-hidden bg-[#ffffff] py-24 sm:py-28">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_16%,rgba(193,53,132,0.10),transparent_30%),radial-gradient(circle_at_80%_72%,rgba(64,93,230,0.10),transparent_30%),linear-gradient(180deg,#fff,rgba(248,241,243,0.82)_100%)]" />
       <div className="container relative mx-auto px-6 sm:px-8 lg:px-12">
         <div className="mx-auto mb-10 max-w-3xl text-center">
-          <div className="mb-4 text-sm font-black uppercase tracking-[0.18em] text-[#6d2948]">Pricing</div>
+          <div className="mb-4 text-sm font-black uppercase tracking-[0.18em] text-[#C13584]">Pricing</div>
           <h2 className="text-4xl font-black leading-tight text-[#151119] sm:text-5xl">
             Simple pricing for serious growth
           </h2>
@@ -181,7 +181,7 @@ export function Pricing() {
           </p>
         </div>
 
-        <div className="mx-auto mb-16 flex w-fit items-center gap-4 rounded-2xl border border-white/80 bg-white/75 px-5 py-3 shadow-[0_16px_44px_rgba(109,41,72,0.10)] backdrop-blur">
+        <div className="mx-auto mb-16 flex w-fit items-center gap-4 rounded-2xl border border-white/80 bg-white/75 px-5 py-3 shadow-[0_16px_44px_rgba(193,53,132,0.10)] backdrop-blur">
           <button
             type="button"
             onClick={() => setBilling('monthly')}
@@ -193,7 +193,7 @@ export function Pricing() {
             type="button"
             onClick={() => setBilling(billing === 'monthly' ? 'yearly' : 'monthly')}
             className={`relative h-9 w-16 rounded-full border-2 p-1 transition-all ${
-              billing === 'yearly' ? 'border-[#6d2948] bg-[#6d2948]' : 'border-[#6d2948] bg-[#f3edf0]'
+              billing === 'yearly' ? 'border-[#C13584] bg-[#C13584]' : 'border-[#C13584] bg-[#f5f3ff]'
             }`}
             aria-label="Toggle annual pricing"
           >
@@ -210,7 +210,7 @@ export function Pricing() {
           >
             Annual
           </button>
-          <span className="rounded-lg bg-[#f4edf1] px-3 py-1 text-sm font-black text-[#6d2948]">20% Off</span>
+          <span className="rounded-lg bg-[#f3eefe] px-3 py-1 text-sm font-black text-[#C13584]">20% Off</span>
         </div>
 
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-stretch gap-7 lg:grid-cols-3">
@@ -256,8 +256,8 @@ export function Pricing() {
               whileHover={{ y: -6 }}
               className={`relative flex min-h-[580px] flex-col overflow-hidden rounded-[2rem] border p-8 shadow-[0_18px_55px_rgba(21,17,25,0.08)] sm:p-10 ${
                 plan.highlight
-                  ? 'border-white/20 bg-[linear-gradient(155deg,#351326_0%,#6d2948_52%,#93536a_100%)] text-white shadow-[0_34px_100px_rgba(109,41,72,0.32)] lg:-mt-5 lg:min-h-[640px]'
-                  : 'border-white/80 bg-white/86 text-[#151119] shadow-[0_20px_60px_rgba(109,41,72,0.08)] backdrop-blur'
+                  ? 'border-white/20 bg-[linear-gradient(155deg,#405DE6_0%,#833AB4_52%,#C13584_100%)] text-white shadow-[0_34px_100px_rgba(193,53,132,0.32)] lg:-mt-5 lg:min-h-[640px]'
+                  : 'border-white/80 bg-white/86 text-[#151119] shadow-[0_20px_60px_rgba(193,53,132,0.08)] backdrop-blur'
               }`}
             >
               {plan.highlight && (
@@ -307,8 +307,8 @@ export function Pricing() {
                   disabled={(checkoutLoading && isPro) || proActive}
                   className={`mt-12 w-full rounded-full px-6 py-4 text-base font-black transition-all disabled:cursor-not-allowed disabled:opacity-70 ${
                   plan.highlight
-                    ? 'bg-white text-[#6d2948] shadow-[0_18px_42px_rgba(0,0,0,0.18)] hover:bg-[#fbf7f8]'
-                    : 'bg-[#6d2948] text-white shadow-[0_14px_34px_rgba(109,41,72,0.22)] hover:bg-[#551f38]'
+                    ? 'bg-white text-[#C13584] shadow-[0_18px_42px_rgba(0,0,0,0.18)] hover:bg-[#ffffff]'
+                    : 'bg-[#C13584] text-white shadow-[0_14px_34px_rgba(193,53,132,0.22)] hover:bg-[#ad2a75]'
                 }`}>
                   {checkoutLoading && isPro ? 'Starting checkout...' : cta}
                 </button>
@@ -328,7 +328,7 @@ export function Pricing() {
                 {plan.included.map((feature) => (
                   <div key={feature} className={`flex items-start gap-4 text-base font-bold ${plan.highlight ? 'text-white' : 'text-[#42404a]'}`}>
                     <span className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
-                      plan.highlight ? 'bg-white/15 text-white' : 'bg-[#f4edf1] text-[#6d2948]'
+                      plan.highlight ? 'bg-white/15 text-white' : 'bg-[#f3eefe] text-[#C13584]'
                     }`}>
                       <Check className="h-3.5 w-3.5" />
                     </span>

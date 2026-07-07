@@ -129,12 +129,12 @@ export default function Compare() {
       <div className="premium-gradient min-h-screen text-[#151119]">
         <PageHeader />
         <main className="mx-auto max-w-4xl px-6 pb-20 pt-36 text-center">
-          <p className="text-sm font-black uppercase tracking-[0.2em] text-[#6d2948]">Compare</p>
+          <p className="text-sm font-black uppercase tracking-[0.2em] text-[#C13584]">Compare</p>
           <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">Comparison not found</h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-[#665d66]">Choose one of the available DMGennie comparisons below.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {compareLinks.map((item) => (
-              <Link key={item.slug} to={`/compare/${item.slug}`} className="rounded-full border border-white/80 bg-white/70 px-4 py-2 text-sm font-bold text-[#665d66] shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:text-[#6d2948]">
+              <Link key={item.slug} to={`/compare/${item.slug}`} className="rounded-full border border-white/80 bg-white/70 px-4 py-2 text-sm font-bold text-[#665d66] shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:text-[#C13584]">
                 {item.name}
               </Link>
             ))}
@@ -150,12 +150,12 @@ export default function Compare() {
       <PageHeader />
 
       <main className="relative overflow-hidden pb-20 pt-36">
-        <div className="pointer-events-none absolute left-[-10%] top-24 h-80 w-80 rounded-full bg-[#6d2948]/10 blur-3xl" />
-        <div className="pointer-events-none absolute right-[-10%] top-40 h-96 w-96 rounded-full bg-[#d7a2ad]/18 blur-3xl" />
+        <div className="pointer-events-none absolute left-[-10%] top-24 h-80 w-80 rounded-full bg-[#C13584]/10 blur-3xl" />
+        <div className="pointer-events-none absolute right-[-10%] top-40 h-96 w-96 rounded-full bg-[#f5a9c4]/18 blur-3xl" />
 
         <section className="relative mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
           <div className="mb-10 flex flex-wrap items-center justify-center gap-2 text-sm font-bold text-[#756b73]">
-            <Link to="/" className="inline-flex items-center gap-1 rounded-full border border-white/80 bg-white/62 px-3 py-1.5 backdrop-blur transition-colors hover:text-[#6d2948]">
+            <Link to="/" className="inline-flex items-center gap-1 rounded-full border border-white/80 bg-white/62 px-3 py-1.5 backdrop-blur transition-colors hover:text-[#C13584]">
               <Home className="h-4 w-4" />
               Home
             </Link>
@@ -166,7 +166,7 @@ export default function Compare() {
           </div>
 
           <div className="mx-auto max-w-5xl text-center">
-            <p className="text-sm font-black uppercase tracking-[0.22em] text-[#6d2948]">Platform Comparison</p>
+            <p className="text-sm font-black uppercase tracking-[0.22em] text-[#C13584]">Platform Comparison</p>
             <h1 className="mt-7 text-4xl font-black leading-tight tracking-tight text-[#151119] sm:text-6xl">
               DMGennie vs {page.name}
             </h1>
@@ -185,8 +185,8 @@ export default function Compare() {
                   to={`/compare/${item.slug}`}
                   className={`rounded-full border px-4 py-2 text-sm font-black transition-all ${
                     active
-                      ? 'border-[#6d2948] bg-[#6d2948] text-white shadow-[0_14px_30px_rgba(109,41,72,0.22)]'
-                      : 'border-white/80 bg-white/66 text-[#756b73] shadow-sm backdrop-blur hover:-translate-y-0.5 hover:text-[#6d2948]'
+                      ? 'border-[#C13584] bg-[#C13584] text-white shadow-[0_14px_30px_rgba(193,53,132,0.22)]'
+                      : 'border-white/80 bg-white/66 text-[#756b73] shadow-sm backdrop-blur hover:-translate-y-0.5 hover:text-[#C13584]'
                   }`}
                 >
                   {item.name}
@@ -195,16 +195,16 @@ export default function Compare() {
             })}
           </div>
 
-          <div className="mx-auto mt-16 max-w-6xl overflow-x-auto rounded-[2rem] border border-white/80 bg-white/74 shadow-[0_28px_90px_rgba(109,41,72,0.10)] backdrop-blur-xl">
+          <div className="mx-auto mt-16 max-w-6xl overflow-x-auto rounded-[2rem] border border-white/80 bg-white/74 shadow-[0_28px_90px_rgba(193,53,132,0.10)] backdrop-blur-xl">
             <div className="min-w-[760px]">
-              <div className="grid grid-cols-[1.2fr_1fr_1fr] bg-[#fbf7f8]/80">
+              <div className="grid grid-cols-[1.2fr_1fr_1fr] bg-[#ffffff]/80">
                 <div className="px-7 py-7 text-2xl font-black text-[#151119]">Features</div>
                 <div className="border-x border-[#eadde2] bg-white/72 px-7 py-7 text-center">
                   <div className="inline-flex items-center gap-2 text-2xl font-black">
                     DMGennie
-                    <Medal className="h-5 w-5 text-[#6d2948]" />
+                    <Medal className="h-5 w-5 text-[#C13584]" />
                   </div>
-                  <div className="mt-2 text-xs font-black uppercase tracking-wider text-[#6d2948]">Best for creators</div>
+                  <div className="mt-2 text-xs font-black uppercase tracking-wider text-[#C13584]">Best for creators</div>
                 </div>
                 <div className="px-7 py-7 text-center text-2xl font-black text-[#151119]">{page.name}</div>
               </div>
@@ -212,7 +212,7 @@ export default function Compare() {
               <div className="divide-y divide-[#eadde2]">
                 <div className="grid grid-cols-[1.2fr_1fr_1fr] items-center">
                   <div className="px-7 py-5 text-lg font-bold">Cost to send 25,000 DMs</div>
-                  <div className="border-x border-[#eadde2] px-7 py-5 text-center text-xl font-black text-[#6d2948]">$0+</div>
+                  <div className="border-x border-[#eadde2] px-7 py-5 text-center text-xl font-black text-[#C13584]">$0+</div>
                   <div className="px-7 py-5 text-center text-xl font-bold text-[#756b73]">{page.price}</div>
                 </div>
 
@@ -237,8 +237,8 @@ export default function Compare() {
               { icon: <ShieldCheck className="h-5 w-5" />, title: 'API-safe flow', text: 'Built around official Instagram connection patterns.' },
               { icon: <Medal className="h-5 w-5" />, title: 'Creator-first', text: 'Simple campaign controls for links, offers, and replies.' },
             ].map((item) => (
-              <div key={item.title} className="rounded-2xl border border-white/80 bg-white/62 p-6 shadow-[0_18px_46px_rgba(109,41,72,0.08)] backdrop-blur">
-                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#6d2948]/10 text-[#6d2948]">
+              <div key={item.title} className="rounded-2xl border border-white/80 bg-white/62 p-6 shadow-[0_18px_46px_rgba(193,53,132,0.08)] backdrop-blur">
+                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#C13584]/10 text-[#C13584]">
                   {item.icon}
                 </div>
                 <h3 className="text-lg font-black">{item.title}</h3>
@@ -247,7 +247,7 @@ export default function Compare() {
             ))}
           </div>
 
-          <div className="mx-auto mt-16 max-w-4xl rounded-[2rem] border border-white/80 bg-white/68 p-8 text-center shadow-[0_26px_80px_rgba(109,41,72,0.10)] backdrop-blur-xl sm:p-10">
+          <div className="mx-auto mt-16 max-w-4xl rounded-[2rem] border border-white/80 bg-white/68 p-8 text-center shadow-[0_26px_80px_rgba(193,53,132,0.10)] backdrop-blur-xl sm:p-10">
             <h2 className="text-3xl font-black tracking-tight text-[#151119] sm:text-4xl">Get started with DMGennie for free</h2>
             <p className="mx-auto mt-3 max-w-2xl text-lg font-medium text-[#665d66]">Create your account and launch your first automation in minutes.</p>
             <Link to="/signup" className="premium-button mt-8 inline-flex rounded-xl px-9 py-4 text-lg font-bold text-white transition-all hover:-translate-y-0.5">

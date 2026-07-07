@@ -13,6 +13,7 @@ import {
   Shield,
 } from 'lucide-react'
 import { LoadingScreen } from '@/components/Loading'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { useAuth, beginSession } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 
@@ -20,13 +21,13 @@ function DMGennieLogo() {
   return (
     <Link to="/" className="inline-flex items-center gap-2.5 group">
       <svg width="38" height="38" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="40" height="40" rx="10" fill="#6d2948" />
+        <rect width="40" height="40" rx="10" fill="#C13584" />
         <path d="M10 27 L19 13" stroke="white" strokeWidth="3.8" strokeLinecap="round" />
         <path d="M17 27 L26 13" stroke="white" strokeWidth="3.8" strokeLinecap="round" />
-        <circle cx="29" cy="27" r="3" fill="#d7a2ad" />
+        <circle cx="29" cy="27" r="3" fill="#f5a9c4" />
       </svg>
-      <span className="text-2xl font-black tracking-tight text-[#151119] transition-colors group-hover:text-[#6d2948]">
-        DM<span className="text-[#6d2948]">Gennie</span>
+      <span className="text-2xl font-black tracking-tight text-[#151119] transition-colors group-hover:text-[#C13584]">
+        DM<span className="text-[#C13584]">Gennie</span>
       </span>
     </Link>
   )
@@ -41,10 +42,10 @@ function DMGennieMark({ className = '' }: { className?: string }) {
       aria-hidden="true"
       className={className}
     >
-      <rect width="40" height="40" rx="10" fill="#6d2948" />
+      <rect width="40" height="40" rx="10" fill="#C13584" />
       <path d="M10 27 L19 13" stroke="white" strokeWidth="3.8" strokeLinecap="round" />
       <path d="M17 27 L26 13" stroke="white" strokeWidth="3.8" strokeLinecap="round" />
-      <circle cx="29" cy="27" r="3" fill="#d7a2ad" />
+      <circle cx="29" cy="27" r="3" fill="#f5a9c4" />
     </svg>
   )
 }
@@ -98,10 +99,10 @@ function SignupTrustBadges() {
       {badges.map((badge) => (
         <div
           key={badge.title}
-          className="flex min-h-[3.65rem] items-start gap-2 rounded-xl border border-[#eadde2] bg-white/[0.66] px-2.5 py-2.5 shadow-[0_8px_20px_rgba(76,45,59,0.045)]"
+          className="flex min-h-[3.65rem] items-start gap-2 rounded-xl border border-[#ece7f9] bg-white/[0.66] px-2.5 py-2.5 shadow-[0_8px_20px_rgba(131,58,180,0.045)]"
         >
           {badge.logo ? (
-            <span className="flex h-8 w-14 shrink-0 items-center justify-center rounded-lg border border-[#eadde2] bg-white px-1">
+            <span className="flex h-8 w-14 shrink-0 items-center justify-center rounded-lg border border-[#ece7f9] bg-white px-1">
               <img
                 src="/brand-assets/meta-business-partner.png"
                 alt="Meta Business Partner"
@@ -115,7 +116,7 @@ function SignupTrustBadges() {
             </span>
           )}
           <span className="min-w-0">
-            <span className="block text-[10px] font-black leading-tight text-[#6d2948]">{badge.title}</span>
+            <span className="block text-[10px] font-black leading-tight text-[#C13584]">{badge.title}</span>
             <span className="mt-0.5 block text-[9px] font-bold leading-tight text-[#7b7078]">{badge.subtitle}</span>
           </span>
         </div>
@@ -131,7 +132,7 @@ function CreatorProof() {
         {['A', 'M', 'R', 'S', 'K'].map((initial, index) => (
           <span
             key={initial}
-            className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-[#6d2948] to-[#d7a2ad] text-[11px] font-black text-white shadow-[0_6px_14px_rgba(76,45,59,0.12)]"
+            className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-[#C13584] to-[#f5a9c4] text-[11px] font-black text-white shadow-[0_6px_14px_rgba(131,58,180,0.12)]"
             style={{ opacity: 1 - index * 0.045 }}
           >
             {initial}
@@ -146,17 +147,17 @@ function CreatorProof() {
 function AuthShowcase() {
   return (
     <div className="relative flex flex-col items-center justify-center overflow-hidden px-2 py-8 sm:py-10 lg:px-4 lg:py-0">
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[27rem] w-[27rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(109,41,72,0.13),rgba(139,72,116,0.08)_38%,rgba(215,162,173,0.045)_58%,transparent_74%)] blur-3xl" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[27rem] w-[27rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(193,53,132,0.13),rgba(131,58,180,0.08)_38%,rgba(245,169,196,0.045)_58%,transparent_74%)] blur-3xl" />
       <motion.div
         initial={{ opacity: 0, y: 18, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.55, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-10 w-[min(76vw,18.5rem)] sm:w-[min(50vw,18.75rem)] lg:w-[min(27vw,17.25rem)] xl:w-[18rem]"
       >
-        <div className="pointer-events-none absolute -inset-6 rounded-[3.3rem] bg-[radial-gradient(circle,rgba(109,41,72,0.14),rgba(126,63,112,0.07)_48%,transparent_72%)] blur-2xl" />
-        <div className="relative aspect-[390/812] rounded-[2.75rem] border border-white/30 bg-[#17131a] p-[7px] shadow-[0_20px_48px_rgba(21,17,25,0.16),0_7px_16px_rgba(109,41,72,0.055)]">
-          <div className="absolute -right-5 top-24 z-30 rounded-2xl border border-white/70 bg-white/90 px-3 py-2 text-center shadow-[0_12px_28px_rgba(76,45,59,0.12)] backdrop-blur-xl">
-            <p className="text-sm font-black leading-none text-[#6d2948]">+2.3K</p>
+        <div className="pointer-events-none absolute -inset-6 rounded-[3.3rem] bg-[radial-gradient(circle,rgba(193,53,132,0.14),rgba(131,58,180,0.07)_48%,transparent_72%)] blur-2xl" />
+        <div className="relative aspect-[390/812] rounded-[2.75rem] border border-white/30 bg-[#17131a] p-[7px] shadow-[0_20px_48px_rgba(21,17,25,0.16),0_7px_16px_rgba(193,53,132,0.055)]">
+          <div className="absolute -right-5 top-24 z-30 rounded-2xl border border-white/70 bg-white/90 px-3 py-2 text-center shadow-[0_12px_28px_rgba(131,58,180,0.12)] backdrop-blur-xl">
+            <p className="text-sm font-black leading-none text-[#C13584]">+2.3K</p>
             <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.08em] text-[#7b7078]">followers</p>
           </div>
           <div className="pointer-events-none absolute inset-x-14 top-1.5 h-px bg-gradient-to-r from-transparent via-white/22 to-transparent" />
@@ -180,7 +181,7 @@ function AuthShowcase() {
               <div className="mt-3 rounded-[1.35rem] border border-white/[0.06] bg-white/[0.04] p-2.5">
                 <div className="flex items-center justify-between gap-2.5">
                   <div className="flex min-w-0 items-center gap-2.5">
-                    <DMGennieMark className="h-8 w-8 shrink-0 rounded-xl shadow-[0_6px_16px_rgba(109,41,72,0.24)]" />
+                    <DMGennieMark className="h-8 w-8 shrink-0 rounded-xl shadow-[0_6px_16px_rgba(193,53,132,0.24)]" />
                     <div className="min-w-0">
                       <p className="text-[13px] font-bold leading-tight">DMGennie</p>
                       <p className="mt-0.5 text-[10px] font-medium text-white/[0.44]">Instagram Connected</p>
@@ -218,7 +219,7 @@ function AuthShowcase() {
                 </p>
               </div>
 
-              <div className="mt-2.5 rounded-[1.3rem] bg-[#6d2948] p-3 shadow-[0_10px_20px_rgba(109,41,72,0.12)]">
+              <div className="mt-2.5 rounded-[1.3rem] bg-[#C13584] p-3 shadow-[0_10px_20px_rgba(193,53,132,0.12)]">
                 <div className="flex items-center gap-2">
                   <Send className="h-3.5 w-3.5 text-white/[0.72]" />
                   <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-white/[0.62]">AI Auto Reply</span>
@@ -226,7 +227,7 @@ function AuthShowcase() {
                 <p className="mt-2 text-[13px] font-medium leading-snug text-white/[0.94]">
                   Here's your guide. Tap below to open it.
                 </p>
-                <button type="button" className="mt-2.5 flex w-full items-center justify-center rounded-xl bg-white px-3 py-1.5 text-xs font-black text-[#5a203a]">
+                <button type="button" className="mt-2.5 flex w-full items-center justify-center rounded-xl bg-white px-3 py-1.5 text-xs font-black text-[#ad2a75]">
                   Open Guide
                 </button>
               </div>
@@ -247,7 +248,7 @@ function AuthShowcase() {
                 <div className="rounded-[1.15rem] border border-white/[0.06] bg-white/[0.035] p-2.5">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-2">
-                      <Shield className="h-3.5 w-3.5 shrink-0 text-[#d7a2ad]" />
+                      <Shield className="h-3.5 w-3.5 shrink-0 text-[#f5a9c4]" />
                       <span className="truncate text-[11px] font-bold text-white/[0.76]">Meta API Connected</span>
                     </div>
                     <span className="rounded-full border border-emerald-400/[0.12] bg-emerald-400/[0.07] px-2 py-0.5 text-[8px] font-bold text-emerald-300">Verified</span>
@@ -374,7 +375,15 @@ export default function Signup() {
     setSignUpLoading(false)
 
     if (error) {
-      setSignUpError(error.message)
+      const code = error.code || ''
+      const message = (error.message || '').toLowerCase()
+      if (code === 'user_already_exists' || message.includes('already registered') || message.includes('already exists')) {
+        setSignUpError('An account with this email already exists. Try signing in instead.')
+      } else if (message.includes('rate limit')) {
+        setSignUpError('Too many attempts. Please wait a minute and try again.')
+      } else {
+        setSignUpError(error.message)
+      }
       return
     }
 
@@ -416,7 +425,15 @@ export default function Signup() {
     setSignInLoading(false)
 
     if (error) {
-      setSignInError('Invalid email or password. Please try again.')
+      const code = error.code || ''
+      const message = (error.message || '').toLowerCase()
+      if (code === 'email_not_confirmed' || message.includes('not confirmed')) {
+        setSignInError('Please confirm your email first — check your inbox for the verification link.')
+      } else if (code === 'over_request_rate_limit' || message.includes('rate limit')) {
+        setSignInError('Too many attempts. Please wait a minute and try again.')
+      } else {
+        setSignInError('Invalid email or password. Please try again.')
+      }
       return
     }
 
@@ -493,7 +510,7 @@ export default function Signup() {
     }
   }
 
-  const inputCls = 'h-11 w-full rounded-xl border border-[#eadde2] bg-white/[0.82] px-3.5 text-sm font-medium text-[#151119] outline-none transition-all placeholder:text-[#a89ba4] focus:border-[#6d2948]/35 focus:bg-white focus:ring-4 focus:ring-[#6d2948]/[0.08]'
+  const inputCls = 'h-11 w-full rounded-xl border border-[#ece7f9] bg-white/[0.82] px-3.5 text-sm font-medium text-[#151119] outline-none transition-all placeholder:text-[#a89ba4] focus:border-[#C13584]/35 focus:bg-white focus:ring-4 focus:ring-[#C13584]/[0.08]'
 
   if (authLoading || sessionRedirecting) {
     return (
@@ -506,11 +523,15 @@ export default function Signup() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#fffafb] text-[#151119]">
-      <div className="pointer-events-none absolute left-[-10%] top-[-18%] h-[30rem] w-[30rem] rounded-full bg-[#6d2948]/[0.07] blur-3xl" />
-      <div className="pointer-events-none absolute bottom-[-22%] right-[-12%] h-[34rem] w-[34rem] rounded-full bg-[#d7a2ad]/10 blur-3xl" />
+    <div className="relative min-h-screen overflow-hidden bg-[#ffffff] text-[#151119]">
+      <div className="pointer-events-none absolute left-[-10%] top-[-18%] h-[30rem] w-[30rem] rounded-full bg-[#C13584]/[0.07] blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-22%] right-[-12%] h-[34rem] w-[34rem] rounded-full bg-[#f5a9c4]/10 blur-3xl" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.65),rgba(251,247,248,0.9))]" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.13] [background-image:linear-gradient(rgba(109,41,72,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(109,41,72,0.08)_1px,transparent_1px)] [background-size:56px_56px]" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.13] [background-image:linear-gradient(rgba(193,53,132,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(193,53,132,0.08)_1px,transparent_1px)] [background-size:56px_56px]" />
+
+      <div className="absolute right-4 top-4 z-20 sm:right-6 sm:top-6">
+        <ThemeToggle />
+      </div>
 
       <div className="relative z-10 mx-auto grid min-h-screen max-w-6xl grid-cols-1 items-center gap-10 px-5 py-8 sm:px-8 lg:grid-cols-[0.92fr_1fr] lg:gap-12 lg:px-10 lg:py-10">
         <div className="flex items-center justify-center lg:justify-start">
@@ -522,8 +543,8 @@ export default function Signup() {
           >
             <DMGennieLogo />
 
-            <div className="mt-7 rounded-[1.65rem] border border-white/80 bg-white/[0.78] p-5 shadow-[0_18px_55px_rgba(76,45,59,0.075)] backdrop-blur-xl sm:p-6">
-              <div className="mb-5 grid grid-cols-2 rounded-2xl border border-[#eadde2] bg-white/[0.62] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
+            <div className="mt-7 rounded-[1.65rem] border border-white/80 bg-white/[0.78] p-5 shadow-[0_18px_55px_rgba(131,58,180,0.075)] backdrop-blur-xl sm:p-6">
+              <div className="mb-5 grid grid-cols-2 rounded-2xl border border-[#ece7f9] bg-white/[0.62] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
                 {(['signup', 'signin'] as const).map((mode) => (
                   <button
                     key={mode}
@@ -540,7 +561,7 @@ export default function Signup() {
                 ))}
               </div>
 
-              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#eadde2] bg-white/[0.74] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#6d2948]">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#ece7f9] bg-white/[0.74] px-3 py-1.5 text-[11px] font-black uppercase tracking-[0.14em] text-[#C13584]">
                 {authMode === 'signin' ? <Shield className="h-3.5 w-3.5 text-emerald-600" /> : <Check className="h-3.5 w-3.5 stroke-[3] text-emerald-600" />}
                 {authMode === 'signin' ? 'Secure sign in' : 'Secure signup'}
               </div>
@@ -575,7 +596,7 @@ export default function Signup() {
                         <button
                           type="button"
                           onClick={() => switchAuthMode('signin')}
-                          className="mt-5 inline-flex items-center gap-1 text-sm font-black text-[#6d2948] hover:underline"
+                          className="mt-5 inline-flex items-center gap-1 text-sm font-black text-[#C13584] hover:underline"
                         >
                           Already confirmed? Sign in <ArrowRight className="h-4 w-4" />
                         </button>
@@ -586,16 +607,16 @@ export default function Signup() {
                           type="button"
                           onClick={handleGoogleSignIn}
                           disabled={googleLoading || signUpLoading}
-                          className="mt-6 flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-[#eadde2] bg-white/[0.82] px-4 text-sm font-black text-[#151119] transition-all duration-200 hover:-translate-y-px hover:bg-white hover:shadow-[0_10px_24px_rgba(76,45,59,0.07)] disabled:cursor-not-allowed disabled:opacity-60"
+                          className="mt-6 flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-[#ece7f9] bg-white/[0.82] px-4 text-sm font-black text-[#151119] transition-all duration-200 hover:-translate-y-px hover:bg-white hover:shadow-[0_10px_24px_rgba(131,58,180,0.07)] disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
                           {googleLoading ? 'Connecting...' : 'Continue with Google'}
                         </button>
 
                         <div className="my-5 flex items-center gap-4">
-                          <div className="h-px flex-1 bg-[#eadde2]" />
+                          <div className="h-px flex-1 bg-[#ece7f9]" />
                           <span className="text-[11px] font-black uppercase tracking-[0.14em] text-[#a89ba4]">or</span>
-                          <div className="h-px flex-1 bg-[#eadde2]" />
+                          <div className="h-px flex-1 bg-[#ece7f9]" />
                         </div>
 
                         {signUpError && (
@@ -612,7 +633,7 @@ export default function Signup() {
                               type="button"
                               onClick={() => setShowSignUpPassword((v) => !v)}
                               aria-label={showSignUpPassword ? 'Hide password' : 'Show password'}
-                              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-[#a89ba4] transition-colors hover:text-[#6d2948]"
+                              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-[#a89ba4] transition-colors hover:text-[#C13584]"
                             >
                               {showSignUpPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                             </button>
@@ -620,15 +641,15 @@ export default function Signup() {
 
                           <p className="text-center text-[11px] leading-relaxed text-[#817782]">
                             By joining you agree to our{' '}
-                            <Link to="/terms" className="font-bold text-[#6d2948] hover:underline">Terms</Link>
+                            <Link to="/terms" className="font-bold text-[#C13584] hover:underline">Terms</Link>
                             {' '}&amp;{' '}
-                            <Link to="/privacy" className="font-bold text-[#6d2948] hover:underline">Privacy Policy</Link>
+                            <Link to="/privacy" className="font-bold text-[#C13584] hover:underline">Privacy Policy</Link>
                           </p>
 
                           <button
                             type="submit"
                             disabled={signUpLoading || googleLoading}
-                            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#73304f] to-[#5a203b] text-sm font-black text-white shadow-[0_12px_28px_rgba(109,41,72,0.18),inset_0_1px_0_rgba(255,255,255,0.18)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_16px_34px_rgba(109,41,72,0.22),inset_0_1px_0_rgba(255,255,255,0.2)] disabled:cursor-not-allowed disabled:opacity-60"
+                            className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-gradient text-sm font-black text-white shadow-[0_12px_28px_rgba(193,53,132,0.18),inset_0_1px_0_rgba(255,255,255,0.18)] transition-all duration-200 hover:-translate-y-px hover:shadow-[0_16px_34px_rgba(193,53,132,0.22),inset_0_1px_0_rgba(255,255,255,0.2)] disabled:cursor-not-allowed disabled:opacity-60"
                           >
                             {signUpLoading ? (
                               <><Loader2 className="h-5 w-5 animate-spin" /> Creating account...</>
@@ -642,7 +663,7 @@ export default function Signup() {
 
                         <p className="mt-5 text-center text-sm font-medium text-[#756b73]">
                           Already have an account?{' '}
-                          <button type="button" onClick={() => switchAuthMode('signin')} className="border-none bg-transparent font-black text-[#6d2948] hover:underline">
+                          <button type="button" onClick={() => switchAuthMode('signin')} className="border-none bg-transparent font-black text-[#C13584] hover:underline">
                             Sign in
                           </button>
                         </p>
@@ -667,16 +688,16 @@ export default function Signup() {
                       type="button"
                       onClick={handleGoogleSignIn}
                       disabled={googleLoading || signInLoading || passwordResetLoading}
-                      className="mt-6 flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-[#eadde2] bg-white/[0.82] px-4 text-sm font-black text-[#151119] transition-all duration-200 hover:-translate-y-px hover:bg-white hover:shadow-[0_10px_24px_rgba(76,45,59,0.07)] disabled:cursor-not-allowed disabled:opacity-60"
+                      className="mt-6 flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-[#ece7f9] bg-white/[0.82] px-4 text-sm font-black text-[#151119] transition-all duration-200 hover:-translate-y-px hover:bg-white hover:shadow-[0_10px_24px_rgba(131,58,180,0.07)] disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
                       {googleLoading ? 'Connecting...' : 'Continue with Google'}
                     </button>
 
                     <div className="my-5 flex items-center gap-4">
-                      <div className="h-px flex-1 bg-[#eadde2]" />
+                      <div className="h-px flex-1 bg-[#ece7f9]" />
                       <span className="text-[11px] font-black uppercase tracking-[0.14em] text-[#a89ba4]">or</span>
-                      <div className="h-px flex-1 bg-[#eadde2]" />
+                      <div className="h-px flex-1 bg-[#ece7f9]" />
                     </div>
 
                     {signInError && (
@@ -694,7 +715,7 @@ export default function Signup() {
                           type="button"
                           onClick={() => setShowSignInPassword((v) => !v)}
                           aria-label={showSignInPassword ? 'Hide password' : 'Show password'}
-                          className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-[#a89ba4] transition-colors hover:text-[#6d2948]"
+                          className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-[#a89ba4] transition-colors hover:text-[#C13584]"
                         >
                           {showSignInPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
@@ -705,7 +726,7 @@ export default function Signup() {
                             type="checkbox"
                             checked={rememberMe}
                             onChange={(e) => setRememberMe(e.target.checked)}
-                            className="h-4 w-4 rounded border-[#d8c7d0] text-[#6d2948] accent-[#6d2948] focus:ring-[#6d2948]"
+                            className="h-4 w-4 rounded border-[#d8c7d0] text-[#C13584] accent-[#C13584] focus:ring-[#C13584]"
                           />
                           Remember me on this device
                         </label>
@@ -713,7 +734,7 @@ export default function Signup() {
                           type="button"
                           onClick={handlePasswordReset}
                           disabled={signInLoading || googleLoading || passwordResetLoading}
-                          className="text-sm font-bold text-[#6d2948] transition-colors hover:text-[#4f1c34] hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                          className="text-sm font-bold text-[#C13584] transition-colors hover:text-[#4f1c34] hover:underline disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {passwordResetLoading ? 'Sending reset link...' : 'Forgot password?'}
                         </button>
@@ -721,7 +742,7 @@ export default function Signup() {
                       <button
                         type="submit"
                         disabled={signInLoading || googleLoading || passwordResetLoading}
-                        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#73304f] to-[#5a203b] text-sm font-black text-white shadow-[0_12px_28px_rgba(109,41,72,0.18),inset_0_1px_0_rgba(255,255,255,0.18)] transition-all duration-200 hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
+                        className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-gradient text-sm font-black text-white shadow-[0_12px_28px_rgba(193,53,132,0.18),inset_0_1px_0_rgba(255,255,255,0.18)] transition-all duration-200 hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {signInLoading ? <><Loader2 className="h-5 w-5 animate-spin" /> Signing in...</> : 'Sign In'}
                       </button>
@@ -729,7 +750,7 @@ export default function Signup() {
 
                     <p className="mt-5 text-center text-sm font-medium text-[#756b73]">
                       Don&apos;t have an account?{' '}
-                      <button type="button" onClick={() => switchAuthMode('signup')} className="border-none bg-transparent font-black text-[#6d2948] hover:underline">
+                      <button type="button" onClick={() => switchAuthMode('signup')} className="border-none bg-transparent font-black text-[#C13584] hover:underline">
                         Create account
                       </button>
                     </p>
