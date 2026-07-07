@@ -585,6 +585,16 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const { signOut, session } = useAuth();
 
     const [tab, setTab] = useState<Tab>("home");
+    const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+        try { return localStorage.getItem("dmgennie_sidebar_collapsed") === "1"; } catch { return false; }
+    });
+    const toggleSidebarCollapsed = useCallback(() => {
+        setSidebarCollapsed((prev) => {
+            const next = !prev;
+            try { localStorage.setItem("dmgennie_sidebar_collapsed", next ? "1" : "0"); } catch { /* ignore */ }
+            return next;
+        });
+    }, []);
     const [settingsTab, setSettingsTab] = useState<SettingsTab>("profile");
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState(false);
@@ -1069,6 +1079,8 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                     proOffer={proOffer}
                     settings={settings}
                     botEnabled={botEnabled}
+                    collapsed={sidebarCollapsed}
+                    onToggleCollapse={toggleSidebarCollapsed}
                     onToggleBot={toggleBot}
                     onConnect={() => setConnectModalOpen(true)}
                     onNavigate={setTab}
@@ -1076,7 +1088,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                     onUpgrade={openUpgradeModal}
                 />
 
-                <main className="mt-3 min-w-0 overflow-x-hidden lg:ml-[276px] lg:mt-0 xl:ml-[280px]">
+                <main className={cx("mt-3 min-w-0 overflow-x-hidden lg:mt-0 transition-[margin] duration-300", sidebarCollapsed ? "lg:ml-[88px]" : "lg:ml-[276px] xl:ml-[280px]")}>
                     <div className="mx-auto w-full max-w-[1180px] space-y-4">
                         <AnimatePresence mode="wait">
                             <motion.div
@@ -1355,6 +1367,8 @@ function Sidebar({
     proOffer,
     settings,
     botEnabled,
+    collapsed,
+    onToggleCollapse,
     onToggleBot,
     onConnect,
     onNavigate,
@@ -1369,6 +1383,8 @@ function Sidebar({
     proOffer: ProOfferData;
     settings: SettingsData | null;
     botEnabled: boolean;
+    collapsed: boolean;
+    onToggleCollapse: () => void;
     onToggleBot: () => void;
     onConnect: () => void;
     onNavigate: (tab: Tab) => void;
@@ -1378,11 +1394,25 @@ function Sidebar({
     const handle = settings?.instagramHandle || "@dmgennie.in";
     const { session } = useAuth();
     const [profilePanelOpen, setProfilePanelOpen] = useState(false);
+    // Collapse only applies at lg+ (mobile always renders the full stacked card).
+    const hideOnCollapse = collapsed ? "lg:hidden" : "";
 
     return (
-        <aside className="shrink-0 rounded-[26px] border border-white bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)] lg:fixed lg:left-0 lg:top-0 lg:h-screen lg:w-[272px] lg:max-w-[272px] lg:rounded-none lg:border-r lg:border-slate-200">
+        <aside className={cx(
+            "shrink-0 rounded-[26px] border border-white bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)] lg:fixed lg:left-0 lg:top-0 lg:h-screen lg:rounded-none lg:border-r lg:border-slate-200 lg:transition-[width] lg:duration-300",
+            collapsed ? "lg:w-[76px] lg:max-w-[76px]" : "lg:w-[272px] lg:max-w-[272px]"
+        )}>
+            <button
+                type="button"
+                onClick={onToggleCollapse}
+                aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                className="absolute right-0 top-7 z-50 hidden h-6 w-6 translate-x-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-[0_4px_12px_rgba(15,23,42,0.12)] transition hover:text-[#C13584] lg:flex"
+            >
+                {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
+            </button>
             <div className="flex h-full min-h-0 flex-col p-3.5">
-                <Link to="/" className="mb-3 flex items-center gap-2.5 rounded-2xl px-1 py-0.5">
+                <Link to="/" className={cx("mb-3 flex items-center gap-2.5 rounded-2xl px-1 py-0.5", collapsed && "lg:justify-center lg:px-0")}>
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-white shadow-[0_12px_26px_rgba(193,53,132,0.22)]">
                         <svg width="19" height="19" viewBox="0 0 40 40" fill="none" aria-hidden="true">
                             <path d="M10 27 L19 13" stroke="white" strokeWidth="4" strokeLinecap="round" />
@@ -1390,7 +1420,7 @@ function Sidebar({
                             <circle cx="29" cy="27" r="3" fill="#cfd1ff" />
                         </svg>
                     </span>
-                    <span>
+                    <span className={hideOnCollapse}>
                         <span className="block text-[18px] font-black leading-5 tracking-tight text-[#0F172A]">DMGennie</span>
                         <span className="mt-0.5 block text-[9px] font-black uppercase tracking-[0.18em] text-[#94A3B8]">Creator Dashboard</span>
                     </span>
@@ -1400,13 +1430,14 @@ function Sidebar({
                     <button
                         type="button"
                         onClick={() => setProfilePanelOpen((open) => !open)}
-                        className="w-full rounded-[16px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2 text-left shadow-[0_1px_2px_rgba(15,23,42,0.025)] transition hover:border-indigo-200 hover:bg-white"
+                        title={collapsed ? (session?.user?.user_metadata?.full_name || session?.user?.email || handle) : undefined}
+                        className={cx("w-full rounded-[16px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2 text-left shadow-[0_1px_2px_rgba(15,23,42,0.025)] transition hover:border-indigo-200 hover:bg-white", collapsed && "lg:px-1.5")}
                     >
-                        <div className="flex items-center gap-2.5">
+                        <div className={cx("flex items-center gap-2.5", collapsed && "lg:justify-center lg:gap-0")}>
                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-500 to-orange-400 text-sm font-black text-white shadow-[0_8px_18px_rgba(217,70,239,0.12)]">
                                 {handle.replace("@", "").charAt(0).toUpperCase() || "D"}
                             </div>
-                            <div className="min-w-0 flex-1">
+                            <div className={cx("min-w-0 flex-1", hideOnCollapse)}>
                                 <div className="flex min-w-0 items-center gap-1.5 leading-4">
                                     <span className="truncate text-[13px] font-black leading-4 text-[#0F172A]">{session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || handle}</span>
                                     <span
@@ -1421,7 +1452,7 @@ function Sidebar({
                                 </div>
                                 <div className="truncate text-[11px] font-bold leading-4 text-[#64748B]">{session?.user?.email}</div>
                             </div>
-                            <ChevronDown className={cx("h-4 w-4 shrink-0 text-slate-400 transition", profilePanelOpen && "rotate-180")} />
+                            <ChevronDown className={cx("h-4 w-4 shrink-0 text-slate-400 transition", profilePanelOpen && "rotate-180", hideOnCollapse)} />
                         </div>
                     </button>
 
@@ -1465,8 +1496,10 @@ function Sidebar({
                         <button
                             key={item.key}
                             onClick={() => onNavigate(item.key)}
+                            title={collapsed ? item.label : undefined}
                             className={cx(
                                 "flex min-h-[38px] w-full items-center gap-2.5 rounded-full px-3 text-left text-[14px] font-black transition-all",
+                                collapsed && "lg:justify-center lg:px-0",
                                 activeTab === item.key
                                     ? "bg-[#0F172A] text-white shadow-[0_14px_30px_rgba(15,23,42,0.14)]"
                                     : "text-[#475569] hover:bg-slate-50 hover:text-[#0F172A]"
@@ -1475,28 +1508,33 @@ function Sidebar({
                             <span className={cx("flex h-7 w-7 shrink-0 items-center justify-center rounded-full", activeTab === item.key ? "bg-white/10 text-white" : "bg-[#F1F5F9] text-[#475569]")}>
                                 {item.icon}
                             </span>
-                            {item.label}
+                            <span className={hideOnCollapse}>{item.label}</span>
                         </button>
                     ))}
                 </nav>
 
                 <div className="mt-2 space-y-1.5">
-                    <SidebarPlanCompact usage={usage} accountPlan={accountPlan} proOffer={proOffer} onUpgrade={onUpgrade} />
+                    <div className={hideOnCollapse}>
+                        <SidebarPlanCompact usage={usage} accountPlan={accountPlan} proOffer={proOffer} onUpgrade={onUpgrade} />
+                    </div>
                     {!accountPlan.isPro && (
                         <button
                             onClick={onUpgrade}
-                            className={cx("flex h-10 w-full items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-black", goldCtaCls)}
+                            title={collapsed ? "Upgrade to Pro" : undefined}
+                            className={cx("flex h-10 w-full items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-black", collapsed && "lg:px-0", goldCtaCls)}
                         >
                             <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                            {accountPlan.subscriptionStatus === "payment_pending"
-                                ? "Complete payment"
-                                : proOffer.eligible
-                                    ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}`
-                                    : "Upgrade to Pro"}
+                            <span className={hideOnCollapse}>
+                                {accountPlan.subscriptionStatus === "payment_pending"
+                                    ? "Complete payment"
+                                    : proOffer.eligible
+                                        ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}`
+                                        : "Upgrade to Pro"}
+                            </span>
                         </button>
                     )}
-                    <button onClick={onLogout} className="flex h-9 w-full items-center justify-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-4 text-[13px] font-black text-[#475569] transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600">
-                        <LogOut className="h-4 w-4" /> Logout
+                    <button onClick={onLogout} title={collapsed ? "Logout" : undefined} className={cx("flex h-9 w-full items-center justify-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-4 text-[13px] font-black text-[#475569] transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600", collapsed && "lg:px-0")}>
+                        <LogOut className="h-4 w-4" /> <span className={hideOnCollapse}>Logout</span>
                     </button>
                 </div>
             </div>
