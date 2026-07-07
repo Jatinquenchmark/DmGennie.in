@@ -5,6 +5,11 @@ import { getPlanLimitsForState, getSubscriptionState } from '../server/billingCo
 
 const API_VERSION = 'v25.0';
 const SUCCESS_STATUSES = ['sent', 'success', 'delivered'];
+// Meta allows 750 private replies/hour per IG professional account for post/reel comments.
+// We stop at 700 to stay safely under the ceiling.
+const HOURLY_PRIVATE_REPLY_LIMIT = 700;
+// Meta Graph API rate-limit error codes.
+const RATE_LIMIT_ERROR_CODES = [4, 17, 32, 613];
 
 // Validates Meta's X-Hub-Signature-256 header against the raw request bytes,
 // using the app secret. Fails closed: any missing input returns false.
@@ -162,9 +167,9 @@ async function processComment(supabase, commentValue, igAccountId) {
             return;
         }
 
-        const dmSuccess = await sendPrivateReply(settings, commentId, trigger.reply_message);
+        const dmResult = await sendPrivateReply(settings, commentId, trigger.reply_message);
 
-        if (dmSuccess) {
+        if (dmResult.ok) {
             await supabase.from('user_settings').update({
                 total_dms_sent: (settings.total_dms_sent || 0) + 1,
                 total_links_sent: (settings.total_links_sent || 0) + 1,
@@ -189,7 +194,8 @@ async function processComment(supabase, commentValue, igAccountId) {
 
             await supabase.from('activity_log').insert({
                 user_id: settings.user_id, username: `@${username}`,
-                keyword: trigger.keyword, trigger_keyword: trigger.keyword, status: 'failed_dms_closed',
+                keyword: trigger.keyword, trigger_keyword: trigger.keyword,
+                status: dmResult.rateLimited ? 'rate_limited' : 'failed_dms_closed',
             });
 
             if (settings.fallback_public_reply) {
@@ -218,6 +224,19 @@ async function getAutomationLimitStatus(supabase, settings) {
         return { blocked: true, reason: 'blocked_due_to_dm_limit' };
     }
 
+    // Meta caps private replies at 750/hour per account; back off before we hit it.
+    const startHour = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { count: dmsThisHour } = await supabase
+        .from('activity_log')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', settings.user_id)
+        .in('status', SUCCESS_STATUSES)
+        .gte('created_at', startHour);
+
+    if ((dmsThisHour || 0) >= HOURLY_PRIVATE_REPLY_LIMIT) {
+        return { blocked: true, reason: 'blocked_due_to_rate_limit' };
+    }
+
     const { count: contactsThisMonth } = await supabase
         .from('activity_log')
         .select('id', { count: 'exact', head: true })
@@ -235,7 +254,7 @@ async function getAutomationLimitStatus(supabase, settings) {
 async function sendPrivateReply(settings, commentId, message) {
     if (!settings.page_access_token || !settings.instagram_account_id) {
         console.warn('[sendPrivateReply] Missing token or account ID');
-        return false;
+        return { ok: false, rateLimited: false };
     }
     try {
         const res = await axios.post(
@@ -244,11 +263,12 @@ async function sendPrivateReply(settings, commentId, message) {
             { headers: { 'Authorization': `Bearer ${settings.page_access_token}`, 'Content-Type': 'application/json' } }
         );
         console.log('[sendPrivateReply] ✅ DM sent:', res.data.message_id);
-        return true;
+        return { ok: true, rateLimited: false };
     } catch (err) {
         const e = err.response?.data?.error || {};
-        console.error(`[sendPrivateReply] ❌ Failed [${e.code}/${e.error_subcode}]: ${e.message || err.message}`);
-        return false;
+        const rateLimited = RATE_LIMIT_ERROR_CODES.includes(e.code);
+        console.error(`[sendPrivateReply] ❌ Failed [${e.code}/${e.error_subcode}]${rateLimited ? ' (rate limited)' : ''}: ${e.message || err.message}`);
+        return { ok: false, rateLimited };
     }
 }
 
