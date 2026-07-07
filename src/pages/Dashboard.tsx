@@ -22,6 +22,7 @@ import {
     ChevronDown,
     CircleHelp,
     ClipboardList,
+    Clock,
     Copy,
     CreditCard,
     Crown,
@@ -1094,6 +1095,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         accountPlan={accountPlan}
                                         accountCreatedAt={preview ? "2024-12-01T00:00:00Z" : session?.user?.created_at ?? null}
                                         onNavigate={setTab}
+                                        onConnect={() => setConnectModalOpen(true)}
                                         onToggleBot={toggleBot}
                                         botEnabled={botEnabled}
                                         onUpgrade={openUpgradeModal}
@@ -1318,10 +1320,11 @@ function ConnectInstagramModal({ connected, handle, onConnect, onDisconnect, onC
                             <p className="text-sm font-black text-[#0F172A]">{handle} is connected</p>
                             <p className="mt-1 text-xs font-semibold text-[#64748B]">Connected through secure Meta OAuth. No Instagram password is stored.</p>
                         </div>
-                        <div className="flex flex-wrap items-center justify-center gap-2">
-                            <PrimaryButton compact onClick={onConnect}><Instagram className="h-4 w-4" /> Connect another</PrimaryButton>
-                            {onDisconnect && <SecondaryButton onClick={onDisconnect}>Disconnect</SecondaryButton>}
-                        </div>
+                        {onDisconnect && (
+                            <div className="flex flex-wrap items-center justify-center gap-2">
+                                <SecondaryButton onClick={onDisconnect}>Disconnect</SecondaryButton>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="flex flex-col items-center gap-4 text-center">
@@ -1647,6 +1650,7 @@ function HomePage({
     accountCreatedAt,
     botEnabled,
     onNavigate,
+    onConnect,
     onToggleBot,
     onUpgrade,
 }: {
@@ -1663,6 +1667,7 @@ function HomePage({
     accountCreatedAt?: string | null;
     botEnabled: boolean;
     onNavigate: (tab: Tab) => void;
+    onConnect: () => void;
     onToggleBot: () => void;
     onUpgrade: () => void;
 }) {
@@ -1686,7 +1691,7 @@ function HomePage({
                         </p>
                     </div>
 
-                    <HomeStartHereChecklist connected={connected} activeTriggers={activeTriggers} onNavigate={onNavigate} />
+                    <HomeStartHereChecklist connected={connected} activeTriggers={activeTriggers} leadsCollected={leadsCollected} onNavigate={onNavigate} onConnect={onConnect} />
 
                     {accountPlan.isPro ? (
                         <ProFeaturesShowcase onNavigate={onNavigate} />
@@ -1752,16 +1757,17 @@ function ProFeaturesShowcase({ onNavigate }: { onNavigate: (tab: Tab) => void })
     );
 }
 
-function HomeStartHereChecklist({ connected, activeTriggers, onNavigate }: { connected: boolean; activeTriggers: number; onNavigate: (tab: Tab) => void }) {
+function HomeStartHereChecklist({ connected, activeTriggers, leadsCollected, onNavigate, onConnect }: { connected: boolean; activeTriggers: number; leadsCollected: number; onNavigate: (tab: Tab) => void; onConnect: () => void }) {
     const steps = [
-        { label: "Connect Instagram", done: connected },
-        { label: "Create automation", done: activeTriggers > 0 },
-        { label: "Send test DM", done: activeTriggers > 0 },
-        { label: "Collect first lead", done: false },
+        { label: "Connect Instagram", done: connected, go: onConnect },
+        { label: "Create automation", done: activeTriggers > 0, go: () => onNavigate("automations") },
+        { label: "Send test DM", done: activeTriggers > 0, go: () => onNavigate("automations") },
+        { label: "Collect first lead", done: leadsCollected > 0, go: () => onNavigate("contacts") },
     ];
     const complete = steps.filter((step) => step.done).length;
     const allDone = complete === steps.length;
     const progress = (complete / steps.length) * 100;
+    const nextStep = steps.find((step) => !step.done);
 
     if (allDone) return null;
 
@@ -1781,24 +1787,28 @@ function HomeStartHereChecklist({ connected, activeTriggers, onNavigate }: { con
 
                 <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
                     {steps.map((step) => (
-                        <li
-                            key={step.label}
-                            className={cx(
-                                "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-black",
-                                step.done ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100" : "bg-slate-50 text-slate-600 ring-1 ring-slate-100"
-                            )}
-                        >
-                            <span className={cx("flex h-4 w-4 items-center justify-center rounded-full", step.done ? "bg-emerald-100 text-emerald-600" : "bg-white text-slate-400 ring-1 ring-slate-200")}>
-                                {step.done ? <Check className="h-3 w-3 stroke-[3]" /> : <span className="h-1 w-1 rounded-full bg-current" />}
-                            </span>
-                            <span className="truncate">{step.label}</span>
+                        <li key={step.label}>
+                            <button
+                                type="button"
+                                onClick={step.go}
+                                disabled={step.done}
+                                className={cx(
+                                    "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-black transition",
+                                    step.done ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100" : "bg-slate-50 text-slate-600 ring-1 ring-slate-100 hover:bg-slate-100"
+                                )}
+                            >
+                                <span className={cx("flex h-4 w-4 items-center justify-center rounded-full", step.done ? "bg-emerald-100 text-emerald-600" : "bg-white text-slate-400 ring-1 ring-slate-200")}>
+                                    {step.done ? <Check className="h-3 w-3 stroke-[3]" /> : <span className="h-1 w-1 rounded-full bg-current" />}
+                                </span>
+                                <span className="truncate">{step.label}</span>
+                            </button>
                         </li>
                     ))}
                 </ul>
 
                 <button
                     type="button"
-                    onClick={() => onNavigate("automations")}
+                    onClick={() => (nextStep ?? steps[0]).go()}
                     className="inline-flex shrink-0 items-center gap-1 rounded-full bg-slate-950 px-3 py-1.5 text-[11px] font-black text-white transition hover:bg-slate-800"
                 >
                     Continue <ArrowRight className="h-3 w-3" />
@@ -1944,50 +1954,10 @@ function QuickActionGrid({
     );
 }
 
-function StartHereStrip({ connected, activeTriggers, onNavigate }: { connected: boolean; activeTriggers: number; onNavigate: (tab: Tab) => void }) {
-    const steps = [
-        { label: "Connect Instagram", done: connected },
-        { label: "Create automation", done: activeTriggers > 0 },
-        { label: "Send test DM", done: activeTriggers > 0 },
-        { label: "Collect first lead", done: false },
-    ];
-    const complete = steps.filter((step) => step.done).length;
-    const progress = (complete / steps.length) * 100;
-
-    return (
-        <section className="rounded-[20px] border border-white bg-white p-3.5 shadow-[0_12px_34px_rgba(15,23,42,0.04)]">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div className="min-w-[210px]">
-                    <div className="flex items-center gap-2">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-[0.9rem] bg-indigo-50 text-[#5B4DFF]">
-                            <CheckCircle2 className="h-4 w-4" />
-                        </span>
-                        <div>
-                            <h2 className="text-sm font-black text-slate-950">Start Here</h2>
-                            <p className="text-xs font-bold text-slate-500">{complete} of {steps.length} completed · {Math.round(progress)}%</p>
-                        </div>
-                    </div>
-                    <div className="mt-2 h-1.5 rounded-full bg-slate-100">
-                        <div className="h-full rounded-full bg-[#5B4DFF]" style={{ width: `${progress}%` }} />
-                    </div>
-                </div>
-                <div className="grid flex-1 grid-cols-[repeat(auto-fit,minmax(135px,1fr))] gap-2">
-                    {steps.map((step) => (
-                        <div key={step.label} className="flex items-center gap-2 rounded-[0.85rem] bg-slate-50 px-2.5 py-2">
-                            <span className={cx("flex h-5 w-5 shrink-0 items-center justify-center rounded-full", step.done ? "bg-emerald-100 text-emerald-600" : "bg-white text-slate-400 ring-1 ring-slate-200")}>
-                                {step.done ? <Check className="h-3.5 w-3.5 stroke-[3]" /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
-                            </span>
-                            <span className="truncate text-xs font-black text-slate-700">{step.label}</span>
-                        </div>
-                    ))}
-                </div>
-                <button onClick={() => onNavigate("automations")} className="inline-flex items-center justify-center gap-1 rounded-[0.85rem] bg-slate-950 px-3 py-2 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-slate-800">
-                    Continue <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-            </div>
-        </section>
-    );
-}
+// Meta only allows replying to a user within 24h of their last message. We fire the
+// follow-up at 23h50m to stay safely inside that window; the delay is fixed, not user-editable.
+const FOLLOW_UP_WINDOW_LABEL = "24 hours";
+const FOLLOW_UP_POLICY_NOTE = "Meta policy allows replies only within 24 hours of the user's last message. To stay safely inside the window, follow-ups are sent at 23 hours 50 minutes.";
 
 const METRIC_RANGES = [
     { key: "7d", label: "7 days", days: 7 },
@@ -3163,7 +3133,6 @@ function AutomationBuilder({
     const [askFollowFirst, setAskFollowFirst] = useState(false);
     const [askEmailFirst, setAskEmailFirst] = useState(scratch ? false : template?.category === "Collect leads");
     const [followUpEnabled, setFollowUpEnabled] = useState(false);
-    const [followUpDelay, setFollowUpDelay] = useState("1 day");
     const [followUpMessage, setFollowUpMessage] = useState("Just checking in. Did you get the guide?");
     const [responses, setResponses] = useState<ResponseConfig[]>([]);
     const [builderToast, setBuilderToast] = useState("");
@@ -3655,9 +3624,14 @@ function AutomationBuilder({
                                 onToggle={toggleFollowUp}
                             />
                             {followUpEnabled && accountPlan.featureAccess.autoReply && (
-                                <div className="grid gap-3 rounded-[14px] bg-slate-50 p-3 sm:grid-cols-[120px_minmax(0,1fr)]">
-                                    <input className={inputCls} value={followUpDelay} onChange={(event) => setFollowUpDelay(event.target.value)} placeholder="1 day" />
+                                <div className="space-y-2 rounded-[14px] bg-slate-50 p-3">
+                                    <div className="flex items-center gap-2">
+                                        <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-white px-2.5 text-[11px] font-black text-[#475569] ring-1 ring-slate-200">
+                                            <Clock className="h-3 w-3" /> Sent after {FOLLOW_UP_WINDOW_LABEL}
+                                        </span>
+                                    </div>
                                     <input className={inputCls} value={followUpMessage} onChange={(event) => setFollowUpMessage(event.target.value)} placeholder="Follow-up message" />
+                                    <p className="text-[10px] font-semibold leading-4 text-[#94A3B8]">{FOLLOW_UP_POLICY_NOTE}</p>
                                 </div>
                             )}
                             <ProActionButton
@@ -3807,7 +3781,6 @@ function AutomationBuilder({
                     askFollowFirst={askFollowFirst}
                     askEmailFirst={askEmailFirst}
                     followUpEnabled={followUpEnabled}
-                    followUpDelay={followUpDelay}
                     responseCount={responses.length}
                     contentSource={contentSource}
                     storyExpirationEnabled={storyExpirationEnabled}
@@ -4271,7 +4244,6 @@ function ReviewLaunchModal({
     askFollowFirst,
     askEmailFirst,
     followUpEnabled,
-    followUpDelay,
     responseCount,
     contentSource,
     storyExpirationEnabled,
@@ -4299,7 +4271,6 @@ function ReviewLaunchModal({
     askFollowFirst: boolean;
     askEmailFirst: boolean;
     followUpEnabled: boolean;
-    followUpDelay: string;
     responseCount: number;
     contentSource: string;
     storyExpirationEnabled: boolean;
@@ -4348,7 +4319,7 @@ function ReviewLaunchModal({
             items: [
                 { label: "Before final DM", value: [askFollowFirst ? "Ask to follow" : "", askEmailFirst ? "Ask for email" : ""].filter(Boolean).join(" · ") || "None", muted: !askFollowFirst && !askEmailFirst },
                 { label: "Extra responses", value: responseCount ? `${responseCount} added` : "None", muted: responseCount === 0 },
-                { label: "Follow-up", value: followUpEnabled ? `After ${followUpDelay}` : "Off", muted: !followUpEnabled },
+                { label: "Follow-up", value: followUpEnabled ? `After ${FOLLOW_UP_WINDOW_LABEL}` : "Off", muted: !followUpEnabled },
                 { label: "Re-trigger", value: reTriggerEnabled ? "Same person can re-trigger" : "Once per person", muted: !reTriggerEnabled },
                 ...(expirationApplicable ? [{ label: "Story expiry", value: storyExpirationEnabled ? "Auto-remove on expiry" : "Stays active after expiry", muted: false }] : []),
             ],
@@ -5139,61 +5110,6 @@ function AddResponseModal({
                 {selectedOption && <PrimaryButton onClick={saveResponse}><Check className="h-4 w-4" /> Add response</PrimaryButton>}
             </div>
         </ModalShell>
-    );
-}
-
-function ResponseFlowBlock({
-    active,
-    onToggle,
-    onAdd,
-    followUpEnabled,
-    followUpDelay,
-    followUpMessage,
-    onToggleFollowUp,
-    onFollowUpDelay,
-    onFollowUpMessage,
-}: {
-    active: boolean;
-    onToggle: () => void;
-    onAdd: () => void;
-    followUpEnabled: boolean;
-    followUpDelay: string;
-    followUpMessage: string;
-    onToggleFollowUp: () => void;
-    onFollowUpDelay: (value: string) => void;
-    onFollowUpMessage: (value: string) => void;
-}) {
-    return (
-        <div className="mt-4 rounded-[18px] border border-slate-100 bg-slate-50 p-4">
-            <h3 className="text-sm font-black text-[#0F172A]">Response Flow</h3>
-            <div className="mt-3 space-y-2.5">
-                <div className="flex items-center justify-between rounded-[16px] bg-white px-3 py-3 ring-1 ring-slate-100">
-                    <span>
-                        <span className="block text-sm font-black text-[#0F172A]">Opening Message</span>
-                        <span className="text-xs font-semibold text-[#64748B]">Send the welcome DM before the final response.</span>
-                    </span>
-                    <ToggleSwitch active={active} onClick={onToggle} />
-                </div>
-                <button onClick={onAdd} className="flex h-11 w-full items-center justify-center gap-2 rounded-[16px] bg-[#5B4DFF] text-sm font-black text-white shadow-[0_12px_26px_rgba(91,77,255,0.16)] transition hover:-translate-y-0.5 hover:bg-[#4738E8]">
-                    <Plus className="h-4 w-4" /> Add Response
-                </button>
-                <div className="rounded-[16px] bg-white px-3 py-3 ring-1 ring-slate-100">
-                    <div className="flex items-center justify-between gap-3">
-                        <span>
-                            <span className="block text-sm font-black text-[#0F172A]">Follow-up Message</span>
-                            <span className="text-xs font-semibold text-[#64748B]">Send one more message after a delay.</span>
-                        </span>
-                        <ToggleSwitch active={followUpEnabled} onClick={onToggleFollowUp} />
-                    </div>
-                    {followUpEnabled && (
-                        <div className="mt-3 grid gap-3 sm:grid-cols-[120px_minmax(0,1fr)]">
-                            <input className={inputCls} value={followUpDelay} onChange={(event) => onFollowUpDelay(event.target.value)} placeholder="1 day" />
-                            <input className={inputCls} value={followUpMessage} onChange={(event) => onFollowUpMessage(event.target.value)} placeholder="Follow-up message" />
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
     );
 }
 
@@ -8117,10 +8033,11 @@ function SettingsPage(props: {
     onPasswordUpdate: (password: string) => Promise<void>;
     onToast: (message: string) => void;
 }) {
+    const { session } = useAuth();
     const [profileDraft, setProfileDraft] = useState({
         fullName: props.ownerName || "Creator",
         email: props.ownerEmail || "No email available",
-        phone: "",
+        phone: String(session?.user?.user_metadata?.phone || ""),
     });
     const [profileSaved, setProfileSaved] = useState(profileDraft);
     const [editingProfile, setEditingProfile] = useState(false);
@@ -8146,14 +8063,12 @@ function SettingsPage(props: {
         const nextProfile = {
             fullName: props.ownerName || "Creator",
             email: props.ownerEmail || "No email available",
-            phone: profileDraft.phone,
+            phone: String(session?.user?.user_metadata?.phone || ""),
         };
         setProfileDraft(nextProfile);
         setProfileSaved(nextProfile);
-        // Keep local phone as frontend-only until a profile API supports it.
-        // TODO: persist full name, phone, and notification preferences with backend settings APIs.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.ownerEmail, props.ownerName]);
+    }, [props.ownerEmail, props.ownerName, session?.user?.user_metadata?.phone]);
 
     const profileDirty = JSON.stringify(profileDraft) !== JSON.stringify(profileSaved);
     const notificationsDirty = JSON.stringify(notifications) !== JSON.stringify(notificationsSaved);
@@ -8187,11 +8102,19 @@ function SettingsPage(props: {
     const saveProfile = async () => {
         if (!validatePhone()) return;
         setSavingProfile(true);
-        await new Promise((resolve) => window.setTimeout(resolve, 450));
-        setProfileSaved(profileDraft);
-        setEditingProfile(false);
-        setSavingProfile(false);
-        props.onToast("Profile updated successfully.");
+        try {
+            const { error } = await supabase.auth.updateUser({
+                data: { full_name: profileDraft.fullName.trim(), phone: profileDraft.phone.trim() },
+            });
+            if (error) throw error;
+            setProfileSaved(profileDraft);
+            setEditingProfile(false);
+            props.onToast("Profile updated successfully.");
+        } catch {
+            props.onToast("Unable to save profile. Please try again.");
+        } finally {
+            setSavingProfile(false);
+        }
     };
 
     const saveNotifications = () => {
@@ -8378,20 +8301,7 @@ function SettingsPage(props: {
                                     onAction={props.onConnect}
                                 />
                             )}
-                            <div className="rounded-[1.25rem] border border-slate-100 bg-slate-50/70 p-4">
-                                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <span className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-white text-[#5B4DFF] ring-1 ring-slate-100">
-                                            <Plus className="h-5 w-5" />
-                                        </span>
-                                        <div>
-                                            <h3 className="font-black text-slate-950">Add new Instagram</h3>
-                                            <p className="mt-1 text-sm font-semibold text-slate-500">Connect another business profile through Meta OAuth.</p>
-                                        </div>
-                                    </div>
-                                    <PrimaryButton compact onClick={props.onConnect}><Instagram className="h-4 w-4" /> Connect New</PrimaryButton>
-                                </div>
-                            </div>
+                            <p className="px-1 text-xs font-semibold text-slate-400">Need to manage multiple Instagram accounts? That's available on Enterprise — <a href="mailto:support@dmgennie.in?subject=DMGennie%20Enterprise%20Plan" className="font-black text-slate-600 underline">contact us</a>.</p>
                         </div>
                     )}
                     {props.settingsTab === "billing" && (
@@ -8411,7 +8321,7 @@ function SettingsPage(props: {
                                 <div className="mt-5 grid gap-3 md:grid-cols-3">
                                     <UsageMiniCard title="Monthly DMs" value={formatUsage(dmsUsed, dmsLimit)} progress={dmsProgress} />
                                     <UsageMiniCard title="Contacts" value={formatUsage(contactsUsed, contactsLimit)} progress={contactsProgress} />
-                                    <UsageMiniCard title="IG Accounts" value={`${props.connected ? 1 : 0} / 3`} progress={props.connected ? 34 : 1} />
+                                    <UsageMiniCard title="IG Accounts" value={`${props.connected ? 1 : 0} / 1`} progress={props.connected ? 100 : 1} />
                                 </div>
                                 <div className="mt-5 rounded-[1rem] border border-emerald-100 bg-emerald-50/60 p-4">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
