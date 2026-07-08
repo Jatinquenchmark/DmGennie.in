@@ -9,6 +9,7 @@ import { detectCurrency, formatPrice, type Currency } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 import {
     Activity,
+    AlertCircle,
     AlertTriangle,
     ArrowRight,
     AtSign,
@@ -6911,7 +6912,7 @@ function activityConfig(type: AnalyticsActivityEvent["type"]) {
 function buildAutomationAnalyticsRows(triggers: Trigger[], stats: Stats, leadsCollected: number, deliveryRate: number | null): AnalyticsAutomationRow[] {
     if (!triggers.length) return [];
     const triggerTypes = ["Post or Reel comment", "DM keyword", "Story reply", "Live comment"];
-    return triggers.map((trigger, index) => {
+    return triggers.map((trigger, index): AnalyticsAutomationRow => {
         const dms = safeNumber(trigger.dmsSent);
         const clicks = 0;
         const leads = 0;
@@ -7688,6 +7689,7 @@ function ReferralHeroCard({
     onShare: (channel: "whatsapp" | "x" | "linkedin" | "email") => void;
     onDownloadQr: () => void;
 }) {
+    const { session } = useAuth();
     return (
         <section className="overflow-hidden rounded-[22px] border border-white bg-white shadow-[0_18px_55px_rgba(15,23,42,0.06)]">
             <div className="bg-gradient-to-br from-slate-950 via-[#405DE6] to-[#C13584] p-5 text-white sm:p-6">
