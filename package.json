@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "seed:admin": "node scripts/seed-admin.mjs"
+    "seed:admin": "node scripts/seed-admin.mjs",
+    "seed:pro": "node scripts/seed-pro-user.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
