@@ -8078,7 +8078,8 @@ function SettingsPage(props: {
     onPasswordUpdate: (password: string) => Promise<void>;
     onToast: (message: string) => void;
 }) {
-    const { session } = useAuth();
+    const { session, signOut } = useAuth();
+    const deleteHasPassword = ((session?.user?.app_metadata?.providers as string[] | undefined) || []).includes("email");
     const [profileDraft, setProfileDraft] = useState({
         fullName: props.ownerName || "Creator",
         email: props.ownerEmail || "No email available",
@@ -8100,8 +8101,8 @@ function SettingsPage(props: {
     const [savingPassword, setSavingPassword] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [deletePassword, setDeletePassword] = useState("");
-    const [deleteOtp, setDeleteOtp] = useState("");
-    const [deleteOtpSent, setDeleteOtpSent] = useState(false);
+    const [deleteConfirm, setDeleteConfirm] = useState("");
+    const [deletingAccount, setDeletingAccount] = useState(false);
     const [deleteError, setDeleteError] = useState("");
 
     useEffect(() => {
@@ -8200,35 +8201,43 @@ function SettingsPage(props: {
     const resetDeleteAccountFlow = () => {
         setDeleteOpen(false);
         setDeletePassword("");
-        setDeleteOtp("");
-        setDeleteOtpSent(false);
+        setDeleteConfirm("");
         setDeleteError("");
     };
 
-    const sendDeleteOtp = () => {
+    const requestAccountDeletion = async () => {
         setDeleteError("");
-        if (!deletePassword.trim()) {
-            setDeleteError("Enter your account password before requesting the OTP.");
-            return;
-        }
-        // TODO: request deletion OTP from backend and send it to the registered email.
-        setDeleteOtpSent(true);
-        props.onToast("OTP sent to registered email.");
-    };
-
-    const requestAccountDeletion = () => {
-        setDeleteError("");
-        if (!deletePassword.trim()) {
+        if (deleteHasPassword && !deletePassword.trim()) {
             setDeleteError("Password is required to delete your account.");
             return;
         }
-        if (!/^\d{6}$/.test(deleteOtp.trim())) {
-            setDeleteError("Enter the 6-digit OTP sent to your registered email.");
+        if (!deleteHasPassword && deleteConfirm.trim().toLowerCase() !== (props.ownerEmail || "").toLowerCase()) {
+            setDeleteError("Type your account email exactly to confirm deletion.");
             return;
         }
-        // TODO: verify password + OTP server-side and schedule account deletion with 7-day recovery.
-        props.onToast("Account deletion scheduled. You can recover it within 7 days.");
-        resetDeleteAccountFlow();
+        setDeletingAccount(true);
+        try {
+            const response = await fetch("/api/me", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${session?.access_token}`,
+                },
+                body: JSON.stringify(deleteHasPassword ? { password: deletePassword } : { confirm: deleteConfirm }),
+            });
+            if (!response.ok) {
+                const data = await response.json().catch(() => ({}));
+                setDeleteError(data.error || "Unable to delete account. Please try again.");
+                setDeletingAccount(false);
+                return;
+            }
+            // Account gone — end the session and leave the app.
+            await signOut();
+            window.location.href = "/";
+        } catch {
+            setDeleteError("Unable to delete account. Please try again.");
+            setDeletingAccount(false);
+        }
     };
 
     return (
@@ -8415,7 +8424,7 @@ function SettingsPage(props: {
                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                     <div>
                                         <h3 className="font-black text-rose-700">Danger Zone</h3>
-                                        <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Delete your DMGennie account after password and email OTP verification. Recovery is available for 7 days.</p>
+                                        <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Permanently delete your DMGennie account and all its data after re-confirming your identity. This cannot be undone.</p>
                                     </div>
                                     <DangerButton onClick={() => setDeleteOpen(true)}><Trash2 className="h-4 w-4" /> Delete DMGennie Account</DangerButton>
                                 </div>
@@ -8447,37 +8456,29 @@ function SettingsPage(props: {
                             </span>
                             <h2 className="mt-5 text-2xl font-black text-slate-950">Delete DMGennie Account?</h2>
                             <p className="mx-auto mt-2 max-w-lg text-sm font-semibold leading-6 text-slate-500">
-                                We will send an OTP to <span className="font-black text-slate-700">{profileSaved.email || "your registered email"}</span>. Once confirmed, your account is scheduled for deletion and can be recovered within 7 days.
+                                This permanently deletes <span className="font-black text-slate-700">{profileSaved.email || "your account"}</span> and all its automations, contacts, and activity. This cannot be undone.
                             </p>
                         </div>
                         <div className="mx-auto mt-6 max-w-md space-y-4">
-                            <Field label="Account password" type="password" value={deletePassword} onChange={(value) => { setDeletePassword(value); setDeleteError(""); }} helper="Required before we send the deletion OTP." />
-                            <div className="rounded-[1rem] border border-slate-100 bg-slate-50 p-3">
-                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                    <div>
-                                        <p className="text-sm font-black text-slate-950">Email OTP</p>
-                                        <p className="mt-1 text-xs font-semibold text-slate-500">{deleteOtpSent ? "OTP sent to registered email." : "Request an OTP to continue deletion."}</p>
-                                    </div>
-                                    <SecondaryButton onClick={sendDeleteOtp}>
-                                        <Mail className="h-4 w-4" /> {deleteOtpSent ? "Resend OTP" : "Send OTP"}
-                                    </SecondaryButton>
-                                </div>
-                            </div>
-                            <Field label="6-digit OTP" value={deleteOtp} onChange={(value) => { setDeleteOtp(value.replace(/\D/g, "").slice(0, 6)); setDeleteError(""); }} placeholder="123456" helper="Enter the OTP sent to your registered email." />
+                            {deleteHasPassword ? (
+                                <Field label="Account password" type="password" value={deletePassword} onChange={(value) => { setDeletePassword(value); setDeleteError(""); }} helper="Re-enter your password to confirm." />
+                            ) : (
+                                <Field label="Confirm your email" value={deleteConfirm} onChange={(value) => { setDeleteConfirm(value); setDeleteError(""); }} placeholder={props.ownerEmail || "you@example.com"} helper="Type your account email exactly to confirm." />
+                            )}
                             {deleteError && <p className="rounded-[1rem] border border-rose-100 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-700">{deleteError}</p>}
                             <div className="rounded-[1rem] border border-amber-100 bg-amber-50 px-3 py-2 text-xs font-semibold leading-5 text-amber-800">
-                                Account deletion is scheduled, not instant. You can recover your DMGennie account within 7 days by contacting support before permanent removal.
+                                Deletion is permanent and immediate. Make sure you have exported anything you need first.
                             </div>
                         </div>
                         <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
                             <SecondaryButton onClick={resetDeleteAccountFlow}>Cancel</SecondaryButton>
                             <button
                                 type="button"
-                                disabled={!deletePassword.trim() || !deleteOtpSent || deleteOtp.length !== 6}
+                                disabled={deletingAccount || (deleteHasPassword ? !deletePassword.trim() : !deleteConfirm.trim())}
                                 onClick={requestAccountDeletion}
                                 className="inline-flex h-11 items-center justify-center gap-2 rounded-[0.95rem] bg-rose-600 px-5 text-sm font-black text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
-                                <Trash2 className="h-4 w-4" /> Delete account
+                                {deletingAccount ? <><RefreshCw className="h-4 w-4 animate-spin" /> Deleting...</> : <><Trash2 className="h-4 w-4" /> Delete account</>}
                             </button>
                         </div>
                     </div>
