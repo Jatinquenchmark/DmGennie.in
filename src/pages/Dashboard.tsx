@@ -48,6 +48,7 @@ import {
     Lock,
     LogOut,
     Mail,
+    Menu,
     MessageCircle,
     MessageSquare,
     MoreHorizontal,
@@ -596,6 +597,12 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             return next;
         });
     }, []);
+    const [mobileNavOpen, setMobileNavOpen] = useState(false);
+    // Navigating from the mobile drawer should also close it.
+    const handleNavigate = useCallback((next: Tab) => {
+        setTab(next);
+        setMobileNavOpen(false);
+    }, []);
     const [settingsTab, setSettingsTab] = useState<SettingsTab>("profile");
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState(false);
@@ -1069,8 +1076,30 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     }
 
     return (
-        <div className="min-h-screen overflow-x-hidden bg-[#F7F5FF] text-slate-950">
-            <div className="mx-auto w-full max-w-[1440px] p-3 sm:p-4 xl:p-5">
+        <div className="dmg-dash min-h-screen overflow-x-hidden bg-[#F7F5FF] text-slate-950">
+            {/* Mobile top bar — the sidebar is an off-canvas drawer below lg */}
+            <header className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/90 px-4 py-2.5 backdrop-blur lg:hidden">
+                <Link to="/" className="flex items-center gap-2">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-gradient text-white">
+                        <svg width="17" height="17" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                            <path d="M10 27 L19 13" stroke="white" strokeWidth="4" strokeLinecap="round" />
+                            <path d="M17 27 L26 13" stroke="white" strokeWidth="4" strokeLinecap="round" />
+                            <circle cx="29" cy="27" r="3" fill="#cfd1ff" />
+                        </svg>
+                    </span>
+                    <span className="text-[16px] font-black tracking-tight text-[#0F172A]">DMGennie</span>
+                </Link>
+                <button
+                    type="button"
+                    onClick={() => setMobileNavOpen(true)}
+                    aria-label="Open menu"
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:text-[#C13584]"
+                >
+                    <Menu className="h-5 w-5" />
+                </button>
+            </header>
+
+            <div className="mx-auto w-full max-w-[1720px] p-3 sm:p-4 xl:p-5 lg:flex lg:gap-5">
                 <Sidebar
                     activeTab={tab}
                     connected={connected}
@@ -1081,16 +1110,18 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                     settings={settings}
                     botEnabled={botEnabled}
                     collapsed={sidebarCollapsed}
+                    mobileOpen={mobileNavOpen}
+                    onCloseMobile={() => setMobileNavOpen(false)}
                     onToggleCollapse={toggleSidebarCollapsed}
                     onToggleBot={toggleBot}
                     onConnect={() => setConnectModalOpen(true)}
-                    onNavigate={setTab}
+                    onNavigate={handleNavigate}
                     onLogout={handleLogout}
                     onUpgrade={openUpgradeModal}
                 />
 
-                <main className={cx("mt-3 min-w-0 overflow-x-hidden lg:mt-0 transition-[margin] duration-300", sidebarCollapsed ? "lg:ml-[88px]" : "lg:ml-[276px] xl:ml-[280px]")}>
-                    <div className="mx-auto w-full max-w-[1180px] space-y-4">
+                <main className="mt-3 min-w-0 flex-1 overflow-x-hidden lg:mt-0">
+                    <div className="mx-auto w-full max-w-[1400px] space-y-4">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={tab}
@@ -1238,9 +1269,9 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
 
 function DashboardLoadingState() {
     return (
-        <div className="min-h-screen overflow-x-hidden bg-[#F7F5FF] p-3 text-slate-950 sm:p-4 xl:p-5">
-            <div className="mx-auto flex w-full max-w-[1440px] gap-4">
-                <aside className="hidden h-[calc(100vh-2rem)] w-[264px] shrink-0 rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.06)] lg:block">
+        <div className="dmg-dash min-h-screen overflow-x-hidden bg-[#F7F5FF] p-3 text-slate-950 sm:p-4 xl:p-5">
+            <div className="mx-auto flex w-full max-w-[1720px] gap-5">
+                <aside className="hidden h-[calc(100vh-2rem)] w-[272px] shrink-0 rounded-[26px] border border-[#E5E7EB] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.06)] lg:block">
                     <div className="flex items-center gap-3">
                         <div className="dmgenie-shimmer h-11 w-11 rounded-2xl" />
                         <div className="space-y-2">
@@ -1273,7 +1304,7 @@ function DashboardLoadingState() {
                 </aside>
 
                 <main className="min-w-0 flex-1 lg:ml-0">
-                    <div className="mx-auto w-full max-w-[1180px] space-y-4">
+                    <div className="mx-auto w-full max-w-[1400px] space-y-4">
                         <div className="grid gap-4 lg:grid-cols-[420px_1fr]">
                             <LoadingCard
                                 title="Loading DMGennie"
@@ -1369,6 +1400,8 @@ function Sidebar({
     settings,
     botEnabled,
     collapsed,
+    mobileOpen,
+    onCloseMobile,
     onToggleCollapse,
     onToggleBot,
     onConnect,
@@ -1385,6 +1418,8 @@ function Sidebar({
     settings: SettingsData | null;
     botEnabled: boolean;
     collapsed: boolean;
+    mobileOpen: boolean;
+    onCloseMobile: () => void;
     onToggleCollapse: () => void;
     onToggleBot: () => void;
     onConnect: () => void;
@@ -1399,10 +1434,22 @@ function Sidebar({
     const hideOnCollapse = collapsed ? "lg:hidden" : "";
 
     return (
-        <aside className={cx(
-            "shrink-0 rounded-[26px] border border-white bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)] lg:fixed lg:left-0 lg:top-0 lg:h-screen lg:rounded-none lg:border-r lg:border-slate-200 lg:transition-[width] lg:duration-300",
-            collapsed ? "lg:w-[76px] lg:max-w-[76px]" : "lg:w-[272px] lg:max-w-[272px]"
-        )}>
+        <>
+            {/* Mobile drawer backdrop */}
+            {mobileOpen && (
+                <button
+                    type="button"
+                    aria-label="Close menu"
+                    onClick={onCloseMobile}
+                    className="fixed inset-0 z-[55] cursor-default bg-slate-900/40 backdrop-blur-sm lg:hidden"
+                />
+            )}
+            <aside className={cx(
+                // Mobile: off-canvas drawer. Desktop (lg+): sticky in-flow rail, width toggles on collapse.
+                "fixed inset-y-0 left-0 z-[60] w-[288px] max-w-[85vw] overflow-y-auto rounded-r-[24px] border-r border-slate-200 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.18)] transition-transform duration-300 lg:sticky lg:inset-y-auto lg:left-auto lg:top-4 lg:z-auto lg:h-[calc(100vh-2rem)] lg:max-w-none lg:shrink-0 lg:translate-x-0 lg:rounded-[26px] lg:border lg:border-white lg:shadow-[0_24px_70px_rgba(15,23,42,0.08)] lg:transition-[width] lg:duration-300",
+                mobileOpen ? "translate-x-0" : "-translate-x-full",
+                collapsed ? "lg:w-[76px] lg:max-w-[76px]" : "lg:w-[272px] lg:max-w-[272px]"
+            )}>
             <button
                 type="button"
                 onClick={onToggleCollapse}
@@ -1411,6 +1458,14 @@ function Sidebar({
                 className="absolute right-0 top-7 z-50 hidden h-6 w-6 translate-x-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-[0_4px_12px_rgba(15,23,42,0.12)] transition hover:text-[#C13584] lg:flex"
             >
                 {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
+            </button>
+            <button
+                type="button"
+                onClick={onCloseMobile}
+                aria-label="Close menu"
+                className="absolute right-3 top-3 z-50 flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:text-[#C13584] lg:hidden"
+            >
+                <X className="h-4 w-4" />
             </button>
             <div className="flex h-full min-h-0 flex-col p-3.5">
                 <Link to="/" className={cx("mb-3 flex items-center gap-2.5 rounded-2xl px-1 py-0.5", collapsed && "lg:justify-center lg:px-0")}>
@@ -1539,7 +1594,8 @@ function Sidebar({
                     </button>
                 </div>
             </div>
-        </aside>
+            </aside>
+        </>
     );
 }
 
