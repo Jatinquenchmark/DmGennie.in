@@ -29,3 +29,10 @@ dist-ssr
 server/.env
 .env*
 !.env.example
+
+# Local runtime data / secrets — never commit (holds live tokens)
+server/data.json
+
+# Local scratch notes
+prompt.txt
+prompts.txt
