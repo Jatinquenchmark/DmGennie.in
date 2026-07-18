@@ -168,8 +168,8 @@ export function Pricing() {
   }
 
   return (
-    <section id="pricing" className="relative overflow-hidden bg-[#ffffff] py-24 sm:py-28">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_16%,rgba(193,53,132,0.10),transparent_30%),radial-gradient(circle_at_80%_72%,rgba(64,93,230,0.10),transparent_30%),linear-gradient(180deg,#fff,rgba(248,241,243,0.82)_100%)]" />
+    <section id="pricing" className="relative overflow-hidden bg-background py-16 sm:py-20 lg:py-24">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_16%,rgba(193,53,132,0.10),transparent_30%),radial-gradient(circle_at_80%_72%,rgba(64,93,230,0.10),transparent_30%),linear-gradient(180deg,#fff,rgba(248,241,243,0.82)_100%)] dark:opacity-0" />
       <div className="container relative mx-auto px-6 sm:px-8 lg:px-12">
         <div className="mx-auto mb-10 max-w-3xl text-center">
           <div className="mb-4 text-sm font-black uppercase tracking-[0.18em] text-[#C13584]">Pricing</div>

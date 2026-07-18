@@ -37,7 +37,7 @@ export function Testimonials() {
   ]
 
   return (
-    <section id="testimonials" className="relative py-24 bg-card/30">
+    <section id="testimonials" className="relative py-16 sm:py-20 lg:py-24 bg-card/30">
       <div className="container mx-auto px-6 sm:px-8 lg:px-12">
         <div className="text-center mb-16">
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6 text-foreground">

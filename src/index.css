@@ -708,3 +708,57 @@ html {
 
 /* Keep brand magenta, white text, colored status chips, and gradients as authored —
    they read fine on the dark surfaces above. */
+
+/*
+ * Marketing footer dark mode — scoped to the one <footer>. Same rationale as the
+ * dashboard block: the footer hardcodes many light hex link/text/chip colors.
+ * ponytail: token swap per element is the proper fix; this is ~6 rules instead of ~30 edits.
+ */
+.dark footer [class*="text-[#665d66]"],
+.dark footer [class*="text-[#756b73]"],
+.dark footer [class*="text-[#5e5660]"],
+.dark footer [class*="text-[#8d7f87]"] { color: #97a1b5; }
+.dark footer [class*="text-[#151119]"] { color: #e2e8f0; }
+.dark footer [class*="bg-white/"] { background-color: rgba(255, 255, 255, 0.06); }
+.dark footer [class*="border-white/"] { border-color: rgba(255, 255, 255, 0.12); }
+.dark footer [class*="border-[#e2d2d8]"] { border-color: rgba(255, 255, 255, 0.1); }
+
+/*
+ * Pricing dark mode — scoped to #pricing. Target the NON-highlight card's specific
+ * classes only; the Pro (highlight) card is a gradient with intentional white-on-color
+ * (bg-white/14, text-white, border-white/20) that must stay as authored.
+ */
+.dark #pricing [class*="bg-white/86"],
+.dark #pricing [class*="bg-white/75"] { background-color: #161d2e; }
+.dark #pricing [class*="text-[#151119]"] { color: #e8ecf5; }
+.dark #pricing [class*="text-[#6a6168]"],
+.dark #pricing [class*="text-[#7a7279]"],
+.dark #pricing [class*="text-[#7b727a]"] { color: #97a1b5; }
+.dark #pricing [class*="border-white/80"] { border-color: rgba(255, 255, 255, 0.12); }
+.dark #pricing [class*="bg-[#f3eefe]"],
+.dark #pricing [class*="bg-[#f5f3ff]"] { background-color: rgba(193, 53, 132, 0.16); }
+
+/* Shared surface helpers — dark variants so every consumer (Hero, auth, cards) adapts. */
+.dark .premium-gradient {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(193, 53, 132, 0.16), transparent 34%),
+    radial-gradient(circle at 84% 24%, rgba(64, 93, 230, 0.16), transparent 32%),
+    linear-gradient(180deg, #0b0f19 0%, #0b0f19 54%, #070a12 100%);
+}
+.dark .glass-light {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/*
+ * Auth (Signup/Login) form column dark mode — scoped to .dmg-auth (the form column only,
+ * so the decorative phone showcase in the other column keeps its bright device graphics).
+ */
+.dark .dmg-auth [class*="bg-white/"],
+.dark .dmg-auth [class*="bg-white"] { background-color: #131b2e; }
+.dark .dmg-auth [class*="border-white/"],
+.dark .dmg-auth [class*="border-[#ece7f9]"] { border-color: rgba(255, 255, 255, 0.12); }
+.dark .dmg-auth [class*="text-[#151119]"] { color: #e8ecf5; }
+.dark .dmg-auth [class*="text-[#6f6570]"],
+.dark .dmg-auth [class*="text-[#756b73]"],
+.dark .dmg-auth [class*="text-[#6b6570]"] { color: #97a1b5; }

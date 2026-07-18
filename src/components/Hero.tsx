@@ -29,7 +29,7 @@ export function Hero() {
 
   return (
     <div className="premium-gradient relative isolate min-h-screen w-full overflow-hidden">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-white/50" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-white/50 dark:bg-transparent" />
       <div className="pointer-events-none absolute left-[-8%] top-[18%] h-72 w-72 rounded-full bg-[#C13584]/10 blur-3xl sm:h-96 sm:w-96" />
       <div className="pointer-events-none absolute right-[-10%] top-[24%] h-80 w-80 rounded-full bg-[#f5a9c4]/18 blur-3xl sm:h-[30rem] sm:w-[30rem]" />
       <div className="pointer-events-none absolute bottom-[-18%] left-[30%] h-72 w-72 rounded-full bg-[#C13584]/8 blur-3xl" />
@@ -39,8 +39,8 @@ export function Hero() {
         <div className="w-full px-4 py-4 transition-all duration-300 ease-out sm:px-6 lg:px-8">
           <div className={`mx-auto flex max-w-7xl items-center justify-between rounded-[1.35rem] border px-4 py-3 transition-all duration-300 ${
             isScrolled
-              ? 'border-white/80 bg-white/78 shadow-[0_18px_55px_rgba(193,53,132,0.10)] backdrop-blur-xl'
-              : 'border-white/60 bg-white/42 shadow-[0_14px_42px_rgba(193,53,132,0.07)] backdrop-blur-md'
+              ? 'border-white/80 bg-white/78 shadow-[0_18px_55px_rgba(193,53,132,0.10)] backdrop-blur-xl dark:border-white/10 dark:bg-[#131b2e]/85'
+              : 'border-white/60 bg-white/42 shadow-[0_14px_42px_rgba(193,53,132,0.07)] backdrop-blur-md dark:border-white/10 dark:bg-[#131b2e]/55'
           }`}>
             <motion.div whileHover={{ scale: 1.03 }} className="flex cursor-pointer items-center gap-2.5" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
@@ -58,7 +58,7 @@ export function Hero() {
                   <Link
                     key={item.label}
                     to={item.href}
-                    className="text-sm font-black text-[#625963] transition-colors hover:text-[#C13584]"
+                    className="text-sm font-black text-[#625963] transition-colors hover:text-[#C13584] dark:text-slate-300 dark:hover:text-brand-magenta"
                   >
                     {item.label}
                   </Link>
@@ -66,7 +66,7 @@ export function Hero() {
                   <a
                     key={item.label}
                     href={item.href}
-                    className="text-sm font-black text-[#625963] transition-colors hover:text-[#C13584]"
+                    className="text-sm font-black text-[#625963] transition-colors hover:text-[#C13584] dark:text-slate-300 dark:hover:text-brand-magenta"
                   >
                     {item.label}
                   </a>
@@ -80,7 +80,7 @@ export function Hero() {
                   Get Started Free
                 </motion.button>
               </Link>
-              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="relative z-[120] cursor-pointer rounded-full p-3 text-foreground hover:bg-white md:hidden">
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="relative z-[120] cursor-pointer rounded-full p-3 text-foreground hover:bg-white dark:hover:bg-white/10 md:hidden">
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
             </div>
@@ -89,7 +89,7 @@ export function Hero() {
       </motion.nav>
 
       {isMobileMenuOpen && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-md z-[80]" onClick={() => setIsMobileMenuOpen(false)} />}
-      <motion.div initial={{ x: '100%' }} animate={{ x: isMobileMenuOpen ? '0%' : '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="md:hidden fixed top-0 right-0 h-full w-72 max-w-[85vw] bg-white z-[90] shadow-2xl">
+      <motion.div initial={{ x: '100%' }} animate={{ x: isMobileMenuOpen ? '0%' : '100%' }} transition={{ type: 'spring', damping: 25, stiffness: 200 }} className="md:hidden fixed top-0 right-0 h-full w-72 max-w-[85vw] bg-white dark:bg-[#0f1626] z-[90] shadow-2xl">
         <div className="flex flex-col p-6 pt-20 space-y-4">
           {navItems.map((item) => (
             item.href.startsWith('/') ? (
@@ -117,13 +117,13 @@ export function Hero() {
       </motion.div>
 
       {/* Hero Content */}
-      <div className="relative z-10 mx-auto grid min-h-[calc(100vh-2rem)] max-w-7xl grid-cols-1 items-center gap-12 px-6 pb-16 pt-32 sm:px-8 sm:pb-20 sm:pt-36 lg:grid-cols-[minmax(0,1.02fr)_minmax(340px,0.88fr)] lg:gap-10 lg:px-12 xl:gap-16">
+      <div className="relative z-10 mx-auto grid min-h-[calc(100vh-2rem)] max-w-[1440px] grid-cols-1 items-center gap-12 px-6 pb-16 pt-32 sm:px-8 sm:pb-20 sm:pt-36 lg:grid-cols-[minmax(0,1.02fr)_minmax(340px,0.88fr)] lg:gap-10 lg:px-12 xl:gap-16">
         <motion.div initial={{ opacity: 0, x: -42 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.9, delay: 0.45 }} className="mx-auto w-full max-w-[660px] text-center text-foreground lg:mx-0 lg:text-left">
-          <h1 className="mx-auto mb-6 max-w-[760px] text-4xl font-black leading-[0.98] tracking-tight text-[#101018] sm:text-5xl md:text-6xl lg:mx-0 lg:max-w-[680px] xl:text-[4.55rem]">
+          <h1 className="mx-auto mb-6 max-w-[760px] text-4xl font-black leading-[0.98] tracking-tight text-[#101018] dark:text-slate-50 sm:text-5xl md:text-6xl lg:mx-0 lg:max-w-[680px] xl:text-[4.55rem]">
             Automate Instagram DMs from Comments
           </h1>
 
-          <p className="mx-auto mb-8 max-w-[620px] text-lg font-medium leading-relaxed text-[#675d65] sm:text-xl lg:mx-0">
+          <p className="mx-auto mb-8 max-w-[620px] text-lg font-medium leading-relaxed text-[#675d65] dark:text-slate-300 sm:text-xl lg:mx-0">
             Automatically send Instagram direct messages when users comment keywords on your posts and reels — using official Meta APIs, fully compliant.
           </p>
 

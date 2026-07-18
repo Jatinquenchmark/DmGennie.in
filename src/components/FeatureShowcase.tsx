@@ -37,7 +37,7 @@ export function FeatureShowcase() {
   ]
 
   return (
-    <section className="relative overflow-hidden bg-background py-24">
+    <section className="relative overflow-hidden bg-background py-16 sm:py-20 lg:py-24">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_8%_20%,rgba(53,92,255,0.08),transparent_28%),radial-gradient(circle_at_92%_55%,rgba(109,93,252,0.08),transparent_28%)]" />
       <div className="container relative mx-auto space-y-24 px-6 sm:px-8 lg:px-12">
         {showcases.map((item, index) => {

@@ -50,18 +50,18 @@ export function Footer() {
   const filteredLegalLinks = session ? legalLinks : legalLinks.filter(l => l.href !== '/delete-data');
 
   return (
-    <footer className="relative overflow-hidden border-t border-[#eadde2] bg-[#f8f1f3] text-[#151119]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_8%,rgba(193,53,132,0.12),transparent_32%),radial-gradient(circle_at_86%_24%,rgba(64,93,230,0.12),transparent_28%),linear-gradient(135deg,rgba(255,255,255,0.82),rgba(255,255,255,0.18)_48%,rgba(193,53,132,0.05))]" />
+    <footer className="relative overflow-hidden border-t border-[#eadde2] bg-[#f8f1f3] text-[#151119] dark:border-white/10 dark:bg-[#0b0f19] dark:text-slate-200">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_8%,rgba(193,53,132,0.12),transparent_32%),radial-gradient(circle_at_86%_24%,rgba(64,93,230,0.12),transparent_28%),linear-gradient(135deg,rgba(255,255,255,0.82),rgba(255,255,255,0.18)_48%,rgba(193,53,132,0.05))] dark:opacity-0" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:linear-gradient(rgba(193,53,132,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(193,53,132,0.08)_1px,transparent_1px)] [background-size:42px_42px]" />
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#C13584]/25 to-transparent" />
       <div
-        className="pointer-events-none absolute bottom-2 left-1/2 w-full -translate-x-1/2 select-none text-center text-[17vw] font-black leading-none tracking-tight text-[#C13584]/[0.06] sm:-bottom-1 sm:text-[16vw] lg:-bottom-4 lg:text-[14vw]"
+        className="pointer-events-none absolute bottom-2 left-1/2 w-full -translate-x-1/2 select-none text-center text-[12vw] font-black leading-none tracking-tight text-[#C13584]/[0.06] dark:text-white/[0.05] sm:-bottom-1 sm:text-[11vw] lg:-bottom-3 lg:text-[9vw]"
         aria-hidden="true"
       >
         DMGennie
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-6 pb-24 pt-14 sm:pb-32 sm:pt-16 lg:pb-36">
+      <div className="relative mx-auto max-w-[1320px] px-6 pb-16 pt-12 sm:pb-20 sm:pt-14 lg:pb-24">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <FooterLogo />

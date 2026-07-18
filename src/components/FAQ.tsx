@@ -32,7 +32,7 @@ export function FAQ() {
   ]
 
   return (
-    <section id="faq" className="relative py-24 bg-background">
+    <section id="faq" className="relative py-16 sm:py-20 lg:py-24 bg-background">
       <div className="container mx-auto px-6 sm:px-8 lg:px-12">
         <div className="text-center mb-16">
           <span className="text-sm font-semibold text-muted-foreground mb-4 block">FAQs</span>

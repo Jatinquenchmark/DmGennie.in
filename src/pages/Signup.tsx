@@ -523,10 +523,10 @@ export default function Signup() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#ffffff] text-[#151119]">
+    <div className="relative min-h-screen overflow-hidden bg-[#ffffff] text-[#151119] dark:bg-[#0a0e18] dark:text-slate-200">
       <div className="pointer-events-none absolute left-[-10%] top-[-18%] h-[30rem] w-[30rem] rounded-full bg-[#C13584]/[0.07] blur-3xl" />
       <div className="pointer-events-none absolute bottom-[-22%] right-[-12%] h-[34rem] w-[34rem] rounded-full bg-[#f5a9c4]/10 blur-3xl" />
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.65),rgba(251,247,248,0.9))]" />
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.65),rgba(251,247,248,0.9))] dark:opacity-0" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.13] [background-image:linear-gradient(rgba(193,53,132,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(193,53,132,0.08)_1px,transparent_1px)] [background-size:56px_56px]" />
 
       <div className="absolute right-4 top-4 z-20 sm:right-6 sm:top-6">
@@ -534,7 +534,7 @@ export default function Signup() {
       </div>
 
       <div className="relative z-10 mx-auto grid min-h-screen max-w-6xl grid-cols-1 items-center gap-10 px-5 py-8 sm:px-8 lg:grid-cols-[0.92fr_1fr] lg:gap-12 lg:px-10 lg:py-10">
-        <div className="flex items-center justify-center lg:justify-start">
+        <div className="dmg-auth flex items-center justify-center lg:justify-start">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}

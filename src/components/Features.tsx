@@ -58,7 +58,7 @@ export function Features() {
   ]
 
   return (
-    <section id="features" className="relative overflow-hidden bg-[#050406] py-24 text-white sm:py-28 lg:py-32">
+    <section id="features" className="relative overflow-hidden bg-[#050406] py-16 text-white sm:py-20 lg:py-24">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(193,53,132,0.36),transparent_30%),radial-gradient(circle_at_18%_22%,rgba(245,169,196,0.16),transparent_25%),radial-gradient(circle_at_86%_66%,rgba(64,93,230,0.14),transparent_26%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.065] [background-image:linear-gradient(rgba(255,255,255,0.9)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.9)_1px,transparent_1px)] [background-size:46px_46px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_76%)]" />
       <div className="container relative mx-auto px-6 sm:px-8 lg:px-12">

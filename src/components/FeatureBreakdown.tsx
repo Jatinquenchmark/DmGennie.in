@@ -101,7 +101,7 @@ export function FeatureBreakdown() {
   ]
 
   return (
-    <section className="bg-white py-24">
+    <section className="bg-background py-16 sm:py-20 lg:py-24">
       <div className="container mx-auto px-6 sm:px-8 lg:px-12">
         <div className="mx-auto mb-16 max-w-4xl text-center">
           <div className="mb-5 text-sm font-black uppercase tracking-[0.18em] text-accent-blue">Feature Focus</div>
