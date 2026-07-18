@@ -148,11 +148,12 @@ async function instagramCallbackHandler(req, res) {
             return res.redirect(`${frontendUrl}/dashboard?instagram=error&reason=no_ig_account`);
         }
 
+        // Note: the Meta app secret is NOT persisted per-user. It lives only in
+        // process.env.META_APP_SECRET (used for webhook signature validation).
         await supabase.from('user_settings').update({
             page_access_token: pageAccessToken,
             instagram_account_id: igAccountId,
             instagram_handle: igHandle || '',
-            app_secret: appSecret,
             updated_at: new Date().toISOString(),
         }).eq('user_id', userId);
 
