@@ -134,7 +134,7 @@ async function processComment(supabase, commentValue, igAccountId) {
     const { data: triggers } = await supabase.from('triggers').select('*')
         .eq('user_id', settings.user_id).eq('enabled', true);
 
-    console.log('[processComment] Active triggers:', (triggers || []).map(t => `"${t.keyword}"`).join(', ') || 'NONE');
+    console.log(`[processComment] Active triggers: ${(triggers || []).length}`);
 
     for (const trigger of triggers || []) {
         if (!commentText.includes(trigger.keyword.toLowerCase())) continue;

@@ -3,7 +3,12 @@ import { buildContactsPayload } from '../server/contactsData.js';
 import { isProUser, proRequiredPayload } from '../server/billingConfig.js';
 
 function csvEscape(value) {
-    const text = String(value ?? '');
+    let text = String(value ?? '');
+    // Prevent CSV formula/DDE injection: a leading =, +, -, @, tab or CR makes
+    // spreadsheets execute the cell. Prefix a single quote to neutralize it.
+    if (/^[=+\-@\t\r]/.test(text)) {
+        text = `'${text}`;
+    }
     return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 

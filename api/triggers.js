@@ -51,7 +51,10 @@ export default async function handler(req, res) {
                 trigger_type: req.body.triggerType || req.body.automationType || null,
             })
             .select().single();
-        if (error) return res.status(500).json({ error: error.message });
+        if (error) {
+            console.error('[triggers] insert failed:', error.message);
+            return res.status(500).json({ error: 'Unable to create automation.' });
+        }
         return res.json({ id: data.id, keyword: data.keyword, replyMessage: data.reply_message, enabled: data.enabled });
     }
 
@@ -63,7 +66,10 @@ export default async function handler(req, res) {
         if (req.body.replyMessage !== undefined) updates.reply_message = req.body.replyMessage;
         if (req.body.enabled !== undefined) updates.enabled = req.body.enabled;
         const { data, error } = await supabase.from('triggers').update(updates).eq('id', id).eq('user_id', userId).select().single();
-        if (error) return res.status(500).json({ error: error.message });
+        if (error) {
+            console.error('[triggers] update failed:', error.message);
+            return res.status(500).json({ error: 'Unable to update automation.' });
+        }
         return res.json({ id: data.id, keyword: data.keyword, replyMessage: data.reply_message, enabled: data.enabled });
     }
 
