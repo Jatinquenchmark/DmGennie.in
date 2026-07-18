@@ -36,3 +36,9 @@ server/data.json
 # Local scratch notes
 prompt.txt
 prompts.txt
+
+# Claude Code local dir (settings, worktrees — worktree copies hold live tokens)
+.claude/
+
+# Extracted secrets — local reference only, never commit
+SECRETS.local.txt
