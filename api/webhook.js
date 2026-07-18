@@ -103,34 +103,20 @@ export default async function handler(req, res) {
 }
 
 async function processComment(supabase, commentValue, igAccountId) {
-    console.log('[processComment] entry.id (igAccountId param):', igAccountId);
-
-    // BUG FIX: entry.id in Meta webhooks is the commenter's user ID, NOT your business account ID.
-    // First try to match by stored instagram_account_id, then fall back to any connected account.
-    let { data: settingsRows } = await supabase
+    // entry.id on Instagram comment webhooks is the business (professional) account id
+    // the media belongs to. Match strictly on it — never fall back to "any connected
+    // account", which would fire one tenant's triggers/token for another tenant's comments.
+    const { data: settingsRows } = await supabase
         .from('user_settings')
         .select('*')
         .eq('instagram_account_id', igAccountId)
         .not('page_access_token', 'is', null);
 
-    console.log('[processComment] rows by account ID match:', settingsRows?.length ?? 0);
-
-    if (!settingsRows || settingsRows.length === 0) {
-        // Fallback: grab any account that has a token (works for single-user setup)
-        const { data: fallbackRows } = await supabase
-            .from('user_settings')
-            .select('*')
-            .not('page_access_token', 'is', null)
-            .not('instagram_account_id', 'is', null);
-        settingsRows = fallbackRows;
-        console.log('[processComment] fallback rows (any connected):', settingsRows?.length ?? 0);
-    }
-    const settings = settingsRows[0];
+    const settings = settingsRows?.[0];
     if (!settings) {
-        console.warn('[processComment] No connected Instagram settings found');
+        console.warn('[processComment] No connected account for this Instagram id; ignoring.');
         return;
     }
-    console.log('[processComment] Using account:', settings.instagram_account_id);
 
     if (!settings.bot_enabled) {
         console.log('[processComment] Bot is disabled');

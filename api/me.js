@@ -30,11 +30,12 @@ export default async function handler(req, res) {
         }
 
         if (req.method === 'PUT') {
+            // Only user-editable preferences are settable here. instagram_account_id and
+            // verify_token are owned by the OAuth callback — letting a user set them would
+            // let them bind another account's id to their row and hijack webhook routing.
             const map = {
                 botEnabled: 'bot_enabled',
-                instagramAccountId: 'instagram_account_id',
                 instagramHandle: 'instagram_handle',
-                verifyToken: 'verify_token',
                 successPublicReply: 'success_public_reply',
                 fallbackPublicReply: 'fallback_public_reply',
                 replyDelay: 'reply_delay',
