@@ -1446,7 +1446,9 @@ function Sidebar({
             )}
             <aside className={cx(
                 // Mobile: off-canvas drawer. Desktop (lg+): sticky in-flow rail, width toggles on collapse.
-                "fixed inset-y-0 left-0 z-[60] w-[288px] max-w-[85vw] overflow-y-auto rounded-r-[24px] border-r border-slate-200 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.18)] transition-transform duration-300 lg:sticky lg:inset-y-auto lg:left-auto lg:top-4 lg:z-auto lg:h-[calc(100vh-2rem)] lg:max-w-none lg:shrink-0 lg:translate-x-0 lg:rounded-[26px] lg:border lg:border-white lg:shadow-[0_24px_70px_rgba(15,23,42,0.08)] lg:transition-[width] lg:duration-300",
+                // overflow-y-auto scrolls the mobile drawer; lg:overflow-visible on desktop so the
+                // profile flyout (opens left-full, outside the rail) isn't clipped.
+                "fixed inset-y-0 left-0 z-[60] w-[288px] max-w-[85vw] overflow-y-auto rounded-r-[24px] border-r border-slate-200 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.18)] transition-transform duration-300 lg:sticky lg:inset-y-auto lg:left-auto lg:top-4 lg:z-30 lg:h-[calc(100vh-2rem)] lg:max-w-none lg:shrink-0 lg:translate-x-0 lg:overflow-visible lg:rounded-[26px] lg:border lg:border-white lg:shadow-[0_24px_70px_rgba(15,23,42,0.08)] lg:transition-[width] lg:duration-300",
                 mobileOpen ? "translate-x-0" : "-translate-x-full",
                 collapsed ? "lg:w-[76px] lg:max-w-[76px]" : "lg:w-[272px] lg:max-w-[272px]"
             )}>

@@ -5,13 +5,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Apply theme before paint to avoid a flash: explicit choice wins, else follow the OS. -->
+  <!-- Apply theme before paint to avoid a flash: light by default, dark only if the user chose it. -->
   <script>
     (function () {
       try {
-        var stored = localStorage.getItem('theme');
-        var dark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.classList.toggle('dark', dark);
+        document.documentElement.classList.toggle('dark', localStorage.getItem('theme') === 'dark');
       } catch (e) {}
     })();
   </script>
