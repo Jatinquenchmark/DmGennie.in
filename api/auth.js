@@ -5,6 +5,9 @@ import { supabase, getUserId, ensureSettings, cors } from '../server/supabaseApi
 const API_VERSION = 'v25.0';
 const INSTAGRAM_AUTH_LIMIT = 10;
 const INSTAGRAM_AUTH_WINDOW_MS = 60 * 1000;
+// ponytail: per-instance in-memory limiter — resets on cold start and isn't shared
+// across serverless instances, so it throttles bursts but isn't a hard global cap.
+// Move to a Supabase/Redis-backed counter if real abuse is observed.
 const instagramAuthHits = new Map();
 
 function getClientIp(req) {
@@ -37,7 +40,9 @@ function timingSafeEqualText(left, right) {
 }
 
 function getOAuthStateSecret() {
-    return process.env.META_APP_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    // Prefer a dedicated secret; fall back to META_APP_SECRET for zero-config. Avoid
+    // the service-role key so a leak of one secret doesn't compromise the other purpose.
+    return process.env.OAUTH_STATE_SECRET || process.env.META_APP_SECRET;
 }
 
 function createOAuthState(userId) {

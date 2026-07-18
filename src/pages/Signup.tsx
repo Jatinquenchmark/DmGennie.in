@@ -353,8 +353,8 @@ export default function Signup() {
       return
     }
 
-    if (password.length < 6) {
-      setSignUpError('Password must be at least 6 characters.')
+    if (password.length < 8) {
+      setSignUpError('Password must be at least 8 characters.')
       return
     }
 
