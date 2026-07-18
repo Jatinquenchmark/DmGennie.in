@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, BadgeIndianRupee, Calculator, Check, Copy, Gift, Handshake, Mail, Share2, Sparkles, Users } from 'lucide-react'
 import { Footer } from '@/components/Footer'
+import { ThemeToggle } from '@/components/ThemeToggle'
 
 const earnings = [
   { creators: '10', value: '₹998', label: 'monthly commission' },
@@ -75,9 +76,12 @@ export default function Referral() {
             <a href="#how-referrals-work" className="transition-colors hover:text-[#C13584]">How it Works</a>
             <Link to="/referral" className="text-[#C13584]">Affiliate</Link>
           </nav>
-          <Link to="/signup" className="rounded-xl bg-[#C13584] px-5 py-2.5 text-sm font-black text-white shadow-[0_12px_28px_rgba(193,53,132,0.22)] transition-colors hover:bg-[#ad2a75]">
-            Join Program
-          </Link>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Link to="/signup" className="rounded-xl bg-[#C13584] px-5 py-2.5 text-sm font-black text-white shadow-[0_12px_28px_rgba(193,53,132,0.22)] transition-colors hover:bg-[#ad2a75]">
+              Join Program
+            </Link>
+          </div>
         </div>
       </header>
 

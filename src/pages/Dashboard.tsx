@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { ErrorState, LoadingCard, SkeletonCard } from "@/components/Loading";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/lib/supabase";
 import { detectCurrency, formatPrice, type Currency } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
@@ -1089,14 +1090,17 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                     </span>
                     <span className="text-[16px] font-black tracking-tight text-[#0F172A]">DMGennie</span>
                 </Link>
-                <button
-                    type="button"
-                    onClick={() => setMobileNavOpen(true)}
-                    aria-label="Open menu"
-                    className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:text-[#C13584]"
-                >
-                    <Menu className="h-5 w-5" />
-                </button>
+                <div className="flex items-center gap-2">
+                    <ThemeToggle className="h-10 w-10" />
+                    <button
+                        type="button"
+                        onClick={() => setMobileNavOpen(true)}
+                        aria-label="Open menu"
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:text-[#C13584]"
+                    >
+                        <Menu className="h-5 w-5" />
+                    </button>
+                </div>
             </header>
 
             <div className="mx-auto w-full max-w-[1720px] p-3 sm:p-4 xl:p-5 lg:flex lg:gap-5">
@@ -1591,9 +1595,12 @@ function Sidebar({
                             </span>
                         </button>
                     )}
-                    <button onClick={onLogout} title={collapsed ? "Logout" : undefined} className={cx("flex h-9 w-full items-center justify-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-4 text-[13px] font-black text-[#475569] transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600", collapsed && "lg:px-0")}>
-                        <LogOut className="h-4 w-4" /> <span className={hideOnCollapse}>Logout</span>
-                    </button>
+                    <div className={cx("flex gap-1.5", collapsed && "lg:flex-col lg:items-center")}>
+                        <button onClick={onLogout} title={collapsed ? "Logout" : undefined} className={cx("flex h-9 flex-1 items-center justify-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-4 text-[13px] font-black text-[#475569] transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600", collapsed && "lg:px-0")}>
+                            <LogOut className="h-4 w-4" /> <span className={hideOnCollapse}>Logout</span>
+                        </button>
+                        <ThemeToggle className="h-9 w-9 shrink-0" />
+                    </div>
                 </div>
             </div>
             </aside>

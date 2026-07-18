@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, CheckCircle2, Link2, Menu, Send, Sparkles, X, Zap } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { TrustChips } from './TrustChips'
+import { ThemeToggle } from './ThemeToggle'
 
 const navItems = [
   { label: 'Pricing', href: '/pricing' },
@@ -75,6 +76,7 @@ export function Hero() {
             </div>
 
             <div className="flex items-center space-x-3">
+              <ThemeToggle />
               <Link to="/signup">
                 <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="hidden rounded-xl bg-[#C13584] px-5 py-2.5 text-sm font-black text-white shadow-[0_12px_28px_rgba(193,53,132,0.20)] transition-all hover:bg-[#ad2a75] sm:block">
                   Get Started Free
