@@ -7,7 +7,7 @@ import { ErrorState, LoadingCard, SkeletonCard } from "@/components/Loading";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/lib/supabase";
 import { detectCurrency, formatPrice, type Currency } from "@/lib/utils";
-import { usePageTour, resetAllTours, startTour } from "@/lib/usePageTour";
+import { usePageTour, startTour } from "@/lib/usePageTour";
 import { AnimatePresence, motion } from "framer-motion";
 import {
     Activity,
@@ -1855,7 +1855,10 @@ function HomePage({
                 <div className="pointer-events-none absolute -bottom-32 left-1/3 h-56 w-56 rounded-full bg-fuchsia-300/10 blur-3xl" />
                 <div className="relative space-y-4">
                     <div>
-                        <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[30px]">Welcome back, {ownerName} 👋</h1>
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[30px]">Welcome back, {ownerName} 👋</h1>
+                            <TourReplayButton tourKey="home" />
+                        </div>
                         <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-[#64748B]">
                             Launch flows, monitor delivery, and turn Instagram comments into leads from one calm workspace.
                         </p>
@@ -2777,6 +2780,7 @@ function AutomationsPage(props: {
             <PageShell
                 title="Automations"
                 subtitle="Create, manage, and track your Instagram automation flows."
+                tourKey="automations"
             action={<PrimaryButton onClick={startCreation}><Plus className="h-4 w-4" /> {automationLimitReached ? "Upgrade to Pro" : "New Automation"}</PrimaryButton>}
         >
             {!props.accountPlan.isPro && <AutomationMiniUpgradeStrip onUpgrade={props.onUpgrade} proOffer={props.proOffer} />}
@@ -5752,6 +5756,7 @@ function ContactsPage({
         <PageShell
             title="Contacts"
             subtitle="Manage leads captured from your Instagram automations."
+            tourKey="contacts"
             action={
                 <div className="flex flex-col gap-2 sm:flex-row">
                     <SecondaryButton onClick={refreshContacts}>
@@ -5765,11 +5770,11 @@ function ContactsPage({
                 </div>
             }
         >
-            <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
+            <div data-tour="contacts-stats" className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-3">
                 {stats.map((stat) => <ContactStatCard key={stat.label} {...stat} />)}
             </div>
 
-            <section className="space-y-3 rounded-[18px] border border-white bg-white p-4 shadow-[0_16px_48px_rgba(15,23,42,0.05)]">
+            <section data-tour="contacts-filters" className="space-y-3 rounded-[18px] border border-white bg-white p-4 shadow-[0_16px_48px_rgba(15,23,42,0.05)]">
                 <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <SearchBox value={search} onChange={onSearch} placeholder="Search contacts by name, username, or email..." />
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-5">
@@ -5822,7 +5827,7 @@ function ContactsPage({
                 )}
             </section>
 
-            <section className="rounded-[18px] border border-white bg-white shadow-[0_16px_48px_rgba(15,23,42,0.05)]">
+            <section data-tour="contacts-table" className="rounded-[18px] border border-white bg-white shadow-[0_16px_48px_rgba(15,23,42,0.05)]">
                 <div className="flex flex-col gap-2 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h2 className="text-lg font-black text-slate-950">Captured leads</h2>
@@ -6341,7 +6346,7 @@ function contactTimelineTone(tone: "purple" | "green" | "amber" | "slate") {
 
 function InboxPage({ activity }: { activity: LogEntry[] }) {
     return (
-        <PageShell title="Inbox" subtitle="A unified conversation inbox for Instagram DMs is coming soon.">
+        <PageShell title="Inbox" subtitle="A unified conversation inbox for Instagram DMs is coming soon." tourKey="inbox">
             <section className="relative overflow-hidden rounded-[24px] border border-white bg-white p-6 shadow-[0_18px_54px_rgba(15,23,42,0.06)] sm:p-8">
                 <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#C13584]/10 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-24 left-10 h-52 w-52 rounded-full bg-fuchsia-200/20 blur-3xl" />
@@ -6589,6 +6594,7 @@ function AnalyticsPage({
         <PageShell
             title="Analytics"
             subtitle="Track your Instagram automation performance and recent activity."
+            tourKey="analytics"
             action={
                 <div className="flex flex-wrap items-center gap-2">
                     <SelectBox value={range} onChange={(value) => { onRange(value); showToast("Date range updated."); }} options={dateOptions} />
@@ -6597,7 +6603,7 @@ function AnalyticsPage({
                 </div>
             }
         >
-            <div className="flex gap-2 overflow-x-auto rounded-[18px] border border-white bg-white p-1.5 shadow-[0_14px_42px_rgba(15,23,42,0.04)]">
+            <div data-tour="analytics-tabs" className="flex gap-2 overflow-x-auto rounded-[18px] border border-white bg-white p-1.5 shadow-[0_14px_42px_rgba(15,23,42,0.04)]">
                 {(["Performance", "Activity Log", "Account Performance", "Audience Insights"] as AnalyticsTab[]).map((tab) => (
                     <button
                         key={tab}
@@ -6621,7 +6627,7 @@ function AnalyticsPage({
 
             {activeTab === "Performance" && (
                 <div className="space-y-4">
-                    <div className="grid grid-cols-[repeat(auto-fit,minmax(155px,1fr))] gap-3">
+                    <div data-tour="analytics-metrics" className="grid grid-cols-[repeat(auto-fit,minmax(155px,1fr))] gap-3">
                         <AnalyticsMetricCard icon={<Send className="h-5 w-5" />} label="DMs Sent" value={formatMetric(periodMetrics.dmsSent)} change="Selected period" tone="purple" />
                         <AnalyticsMetricCard icon={<MousePointerClick className="h-5 w-5" />} label="Link Clicks" value={formatMetric(periodMetrics.clicks)} change="Tracked clicks" tone="blue" />
                         <AnalyticsMetricCard icon={<UserPlus className="h-5 w-5" />} label="Leads Captured" value={formatMetric(periodMetrics.leads)} change="Captured contacts" tone="green" />
@@ -7831,6 +7837,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
         <PageShell
             title="Refer & Earn"
             subtitle="Earn 25% commission when your referrals upgrade to a paid DMGennie plan."
+            tourKey="referral"
             action={
                 <div className="flex flex-wrap items-center gap-2">
                     <span className="inline-flex h-9 items-center rounded-full border border-emerald-100 bg-emerald-50 px-3 text-xs font-black text-emerald-700">25% recurring commission</span>
@@ -8969,11 +8976,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
 
     return (
         <div style={systemFont} className="w-full max-w-[1500px] mx-auto">
-            <PageShell
-                title="Help & Support"
-                subtitle="Get in touch with the DMGennie team."
-                action={<SecondaryButton onClick={() => { resetAllTours(); startTour("help", true); }}><RefreshCw className="h-4 w-4" /> Replay tutorials</SecondaryButton>}
-            >
+            <PageShell title="Help & Support" subtitle="Get in touch with the DMGennie team.">
                 {/* ERROR ALERT - PROFESSIONAL DESIGN */}
                 {showErrorAlert && (
                     <div className="fixed top-6 right-6 z-[100] animate-in slide-in-from-top-2 fade-in duration-300">
@@ -9276,18 +9279,35 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
     );
 }
 
-function PageShell({ title, subtitle, action, children }: { title: string; subtitle: string; action?: ReactNode; children: ReactNode }) {
+function PageShell({ title, subtitle, action, tourKey, children }: { title: string; subtitle: string; action?: ReactNode; tourKey?: string; children: ReactNode }) {
     return (
         <div className="space-y-4">
             <header data-tour="page-header" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-[28px] font-black tracking-tight text-slate-950 sm:text-[32px]">{title}</h1>
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-[28px] font-black tracking-tight text-slate-950 sm:text-[32px]">{title}</h1>
+                        {tourKey && <TourReplayButton tourKey={tourKey} />}
+                    </div>
                     <p className="mt-1 text-sm font-semibold text-slate-500">{subtitle}</p>
                 </div>
                 {action && <div data-tour="page-action">{action}</div>}
             </header>
             {children}
         </div>
+    );
+}
+
+// A small "?" beside a section heading that replays that page's tutorial.
+function TourReplayButton({ tourKey }: { tourKey: string }) {
+    return (
+        <button
+            onClick={() => startTour(tourKey, true)}
+            title="Replay tutorial"
+            aria-label="Replay tutorial"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-[#C13584] hover:text-[#C13584]"
+        >
+            <CircleHelp className="h-4 w-4" />
+        </button>
     );
 }
 

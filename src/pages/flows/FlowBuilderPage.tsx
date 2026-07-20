@@ -18,12 +18,12 @@ import {
   type EdgeTypes,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowLeft, Save, Loader2, Sparkles, Link2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Sparkles, Link2, AlertTriangle, CircleHelp } from "lucide-react";
 import { toast } from "sonner";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Switch } from "@/components/ui/switch";
 import { useAuthFetch } from "@/lib/useAuthFetch";
-import { usePageTour } from "@/lib/usePageTour";
+import { usePageTour, startTour } from "@/lib/usePageTour";
 import { BLOCKS, DND_MIME, type BlockType, type FlowNodeData } from "./flowTypes";
 import { freeSourceHandles, suggestConnections, autoConnect, flowIssues } from "./flowGraph";
 import { FlowNode } from "./FlowNode";
@@ -272,6 +272,10 @@ function Builder() {
             <AlertTriangle className="h-3.5 w-3.5" /> {issues.length} warning{issues.length > 1 ? "s" : ""}
           </span>
         )}
+
+        <button onClick={() => startTour("flows", true)} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground" title="Replay tutorial" aria-label="Replay tutorial">
+          <CircleHelp className="h-4.5 w-4.5" />
+        </button>
 
         <button data-tour="fb-autoconnect" onClick={runAutoConnect} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-bold text-foreground transition hover:bg-muted" title="Auto-connect the blocks top-to-bottom">
           <Sparkles className="h-4 w-4" /> Auto-connect

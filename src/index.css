@@ -795,3 +795,35 @@ html {
 .dark .dmg-auth [class*="text-[#6f6570]"],
 .dark .dmg-auth [class*="text-[#756b73]"],
 .dark .dmg-auth [class*="text-[#6b6570]"] { color: #97a1b5; }
+
+/*
+ * React Flow (visual flow builder) — theme the library's built-in chrome for dark mode.
+ * The nodes/panels use our semantic tokens already; these are the pieces React Flow
+ * styles itself (zoom controls, minimap mask).
+ */
+.dark .react-flow__controls-button {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  color: var(--foreground);
+  fill: var(--foreground);
+}
+.dark .react-flow__controls-button:hover { background: var(--muted); }
+.dark .react-flow__controls { box-shadow: 0 0 0 1px var(--border); }
+.dark .react-flow__minimap-mask { fill: rgba(0, 0, 0, 0.4); }
+.dark .react-flow__attribution { display: none; }
+
+/*
+ * Tutorial (driver.js) popovers — slightly rounder corners in both themes,
+ * and readable in dark mode.
+ */
+.driver-popover { border-radius: 14px; }
+.dark .driver-popover {
+  background: var(--card);
+  color: var(--foreground);
+}
+.dark .driver-popover-title { color: var(--foreground); }
+.dark .driver-popover-description { color: var(--muted-foreground); }
+.dark .driver-popover-arrow-side-left.driver-popover-arrow { border-left-color: var(--card); }
+.dark .driver-popover-arrow-side-right.driver-popover-arrow { border-right-color: var(--card); }
+.dark .driver-popover-arrow-side-top.driver-popover-arrow { border-top-color: var(--card); }
+.dark .driver-popover-arrow-side-bottom.driver-popover-arrow { border-bottom-color: var(--card); }
