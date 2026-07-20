@@ -69,6 +69,7 @@ import {
     Trash2,
     TrendingUp,
     Wand2,
+    Workflow,
     X,
     User,
     UserPlus,
@@ -93,6 +94,17 @@ interface Trigger {
     triggerType?: string;
     status?: string;
     modifiedAt?: string | null;
+}
+
+// Visual (node-graph) automation summary from /api/flows. The full graph lives in the
+// standalone Flow Builder route; here we only list/toggle/delete.
+interface FlowSummary {
+    id: string;
+    name: string;
+    enabled: boolean;
+    triggerType?: string | null;
+    nodeCount: number;
+    updatedAt?: string | null;
 }
 
 interface Stats {
@@ -613,6 +625,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const [dashboardDeliveryRate, setDashboardDeliveryRate] = useState<number | null>(null);
     const [proOffer, setProOffer] = useState<ProOfferData>(defaultProOffer);
     const [triggers, setTriggers] = useState<Trigger[]>([]);
+    const [flows, setFlows] = useState<FlowSummary[]>([]);
     const [activity, setActivity] = useState<LogEntry[]>([]);
     const [contacts, setContacts] = useState<ContactRecord[]>([]);
     const [contactMetrics, setContactMetrics] = useState<ContactMetrics>(zeroContactMetrics);
@@ -701,6 +714,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             setDashboardDeliveryRate(98);
             setProOffer(defaultProOffer);
             setTriggers(previewTriggers);
+            setFlows([]);
             setActivity(previewActivity);
             setContacts(previewContacts);
             setContactMetrics(previewContactMetrics);
@@ -754,6 +768,10 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             }
             setTriggers(dashData.triggers || []);
             setActivity(dashData.activityLog || []);
+            authFetch("/api/flows")
+                .then((res) => (res.ok ? res.json() : []))
+                .then((list) => setFlows(Array.isArray(list) ? list : []))
+                .catch(() => setFlows([]));
             await loadContacts();
             setBotEnabled(Boolean(dashData.botEnabled));
             setConnected(Boolean(dashData.connected));
@@ -976,6 +994,35 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         }
     };
 
+    const openFlowBuilder = (id?: string) => navigate(`/dashboard/flows/${id || "new"}`);
+
+    const toggleFlow = async (id: string) => {
+        const flow = flows.find((f) => f.id === id);
+        if (!flow) return;
+        try {
+            const res = await authFetch(`/api/flows?id=${id}`, {
+                method: "PUT",
+                body: JSON.stringify({ enabled: !flow.enabled }),
+            });
+            if (!res.ok) throw new Error("update failed");
+            setFlows((prev) => prev.map((f) => (f.id === id ? { ...f, enabled: !f.enabled } : f)));
+            showDashboardToast(!flow.enabled ? "Flow set live" : "Flow paused");
+        } catch {
+            showDashboardToast("Unable to update flow.");
+        }
+    };
+
+    const deleteFlow = async (id: string) => {
+        try {
+            const res = await authFetch(`/api/flows?id=${id}`, { method: "DELETE" });
+            if (!res.ok) throw new Error("delete failed");
+            setFlows((prev) => prev.filter((f) => f.id !== id));
+            showDashboardToast("Flow deleted");
+        } catch {
+            showDashboardToast("Unable to delete flow.");
+        }
+    };
+
     const connectInstagram = async () => {
         if (preview) {
             setConnected(true);
@@ -1181,6 +1228,10 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         mediaLoading={mediaLoading}
                                         onConnectAccount={() => setConnectModalOpen(true)}
                                         automationCount={triggers.length}
+                                        flows={flows}
+                                        onOpenFlowBuilder={openFlowBuilder}
+                                        onToggleFlow={toggleFlow}
+                                        onDeleteFlow={deleteFlow}
                                     />
                                 )}
                                 {tab === "contacts" && (
@@ -2592,8 +2643,13 @@ function AutomationsPage(props: {
     mediaLoading: boolean;
     onConnectAccount: () => void;
     automationCount: number;
+    flows: FlowSummary[];
+    onOpenFlowBuilder: (id?: string) => void;
+    onToggleFlow: (id: string) => void;
+    onDeleteFlow: (id: string) => void;
 }) {
     const [creationPhase, setCreationPhase] = useState<null | "entry" | "template">(null);
+    const [flowDeleteTarget, setFlowDeleteTarget] = useState<FlowSummary | null>(null);
     const [builderOpen, setBuilderOpen] = useState(false);
     const [selectedTemplate, setSelectedTemplate] = useState<AutomationTemplate | null>(null);
     const [builderScratch, setBuilderScratch] = useState(false);
@@ -2683,6 +2739,7 @@ function AutomationsPage(props: {
                 onBack={cancelCreation}
                 onTemplate={() => setCreationPhase("template")}
                 onScratch={() => openBuilder(undefined, true)}
+                onFlow={() => { cancelCreation(); props.onOpenFlowBuilder(); }}
             />
         );
     }
@@ -2740,6 +2797,65 @@ function AutomationsPage(props: {
                 </div>
             </section>
 
+            {props.flows.length > 0 && (
+                <Panel
+                    title="Visual flows"
+                    action={<button onClick={() => props.onOpenFlowBuilder()} className="inline-flex items-center gap-1.5 text-xs font-black text-[#C13584] transition hover:text-[#ad2a75]"><Plus className="h-3.5 w-3.5" /> New flow</button>}
+                >
+                    <div className="space-y-2.5">
+                        {props.flows.map((flow) => (
+                            <div key={flow.id} className="flex items-center gap-3 rounded-[16px] border border-slate-100 bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition hover:border-[#F2D8E8]">
+                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.85rem] bg-brand-gradient text-white">
+                                    <Workflow className="h-5 w-5" />
+                                </span>
+                                <button onClick={() => props.onOpenFlowBuilder(flow.id)} className="min-w-0 flex-1 text-left">
+                                    <p className="truncate text-sm font-black text-[#0F172A]">{flow.name}</p>
+                                    <p className="mt-0.5 truncate text-[11px] font-semibold text-[#64748B]">
+                                        {flow.triggerType || "No trigger"} · {flow.nodeCount} block{flow.nodeCount === 1 ? "" : "s"}
+                                    </p>
+                                </button>
+                                <span className={cx("hidden rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide sm:inline-flex", flow.enabled ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500")}>
+                                    {flow.enabled ? "Live" : "Draft"}
+                                </span>
+                                <ToggleSwitch active={flow.enabled} onClick={() => props.onToggleFlow(flow.id)} label="Toggle flow" />
+                                <button onClick={() => props.onOpenFlowBuilder(flow.id)} className="flex h-9 w-9 items-center justify-center rounded-[0.7rem] text-slate-500 transition hover:bg-slate-50 hover:text-[#0F172A]" aria-label="Edit flow">
+                                    <PenLine className="h-4 w-4" />
+                                </button>
+                                <button onClick={() => setFlowDeleteTarget(flow)} className="flex h-9 w-9 items-center justify-center rounded-[0.7rem] text-slate-500 transition hover:bg-rose-50 hover:text-rose-600" aria-label="Delete flow">
+                                    <Trash2 className="h-4 w-4" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </Panel>
+            )}
+
+            {flowDeleteTarget && (
+                <ModalShell onClose={() => setFlowDeleteTarget(null)}>
+                    <div className="text-center">
+                        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-[1.15rem] bg-rose-50 text-rose-600 ring-1 ring-rose-100">
+                            <Trash2 className="h-6 w-6" />
+                        </span>
+                        <h3 className="mt-4 text-lg font-black text-[#0F172A]">Delete “{flowDeleteTarget.name}”?</h3>
+                        <p className="mt-1.5 text-sm font-semibold text-[#64748B]">This removes the flow and its steps. This can’t be undone.</p>
+                        <div className="mt-5 flex gap-2.5">
+                            <button
+                                onClick={() => setFlowDeleteTarget(null)}
+                                className="flex flex-1 items-center justify-center rounded-[0.85rem] border border-slate-200 px-4 py-2.5 text-sm font-black text-[#0F172A] transition hover:bg-slate-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => { props.onDeleteFlow(flowDeleteTarget.id); setFlowDeleteTarget(null); }}
+                                className="flex flex-1 items-center justify-center gap-1.5 rounded-[0.85rem] bg-rose-600 px-4 py-2.5 text-sm font-black text-white transition hover:bg-rose-700"
+                            >
+                                <Trash2 className="h-4 w-4" /> Delete flow
+                            </button>
+                        </div>
+                    </div>
+                </ModalShell>
+            )}
+
             <Panel title="Workflows" action={<button onClick={startCreation} className="inline-flex items-center gap-1.5 text-xs font-black text-[#C13584] transition hover:text-[#ad2a75]"><Plus className="h-3.5 w-3.5" /> New flow</button>}>
                 {!hasAutomations ? (
                     <EmptyState icon={<Bot className="h-6 w-6" />} title="Create your first automation" copy="Turn Instagram comments, story replies, and DMs into automatic conversations. Pick a template or start from scratch." action="Create your first automation" onAction={startCreation} />
@@ -2794,7 +2910,7 @@ function AutomationsPage(props: {
     );
 }
 
-function AutomationCreationEntry({ onBack, onTemplate, onScratch }: { onBack: () => void; onTemplate: () => void; onScratch: () => void }) {
+function AutomationCreationEntry({ onBack, onTemplate, onScratch, onFlow }: { onBack: () => void; onTemplate: () => void; onScratch: () => void; onFlow: () => void }) {
     return (
         <div className="space-y-5">
             <div className="flex items-center gap-3">
@@ -2806,6 +2922,23 @@ function AutomationCreationEntry({ onBack, onTemplate, onScratch }: { onBack: ()
                     <p className="mt-1 text-sm font-semibold text-slate-500">How would you like to start?</p>
                 </div>
             </div>
+
+            <button
+                onClick={onFlow}
+                className="group flex w-full items-center gap-4 rounded-[24px] border border-[#F2D8E8] bg-gradient-to-r from-[#FBEAF3] to-[#EEF1FF] p-6 text-left shadow-[0_14px_40px_rgba(193,53,132,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_50px_rgba(193,53,132,0.14)]"
+            >
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.1rem] bg-brand-gradient text-white">
+                    <Workflow className="h-7 w-7" />
+                </span>
+                <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2">
+                        <h2 className="text-xl font-black text-[#0F172A]">Visual flow builder</h2>
+                        <span className="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-[#C13584] ring-1 ring-[#F2D8E8]">New</span>
+                    </span>
+                    <p className="mt-1 text-sm font-semibold leading-6 text-[#64748B]">Design multi-step conversations on a canvas — messages, buttons, conditions and delays. The most powerful way to build.</p>
+                </span>
+                <ArrowRight className="hidden h-5 w-5 shrink-0 text-[#C13584] transition group-hover:translate-x-0.5 sm:block" />
+            </button>
 
             <div className="grid gap-4 sm:grid-cols-2">
                 <button
@@ -5618,7 +5751,7 @@ function ContactsPage({
                                                 className="h-4 w-4 rounded border-slate-300 text-[#C13584] focus:ring-[#C13584]"
                                             />
                                         </th>
-                                        {["Contact", "Email", "Source", "Relationship", "Last Interaction", "Joined", "Actions"].map((head) => <th key={head} className="px-3 py-3">{head}</th>)}
+                                        {["Contact", "Email", "Source", "Relationship", "Tags", "Last Interaction", "Joined", "Actions"].map((head) => <th key={head} className="px-3 py-3">{head}</th>)}
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
@@ -5744,6 +5877,31 @@ function ContactSelect({ value, onChange, options }: { value: string; onChange: 
     );
 }
 
+// ManyChat-style contact tags, derived from real attributes (no separate tags column
+// exists in the data, so we surface status/engagement the same way ManyChat does).
+function contactTags(contact: ContactRecord): { label: string; tone: string }[] {
+    const tags: { label: string; tone: string }[] = [];
+    if (hasCapturedEmail(contact)) tags.push({ label: "Lead", tone: "bg-emerald-50 text-emerald-700 ring-emerald-100" });
+    const last = contact.lastInteractionAt || contact.joinedDate;
+    if (isContactWithin(last, "Today")) tags.push({ label: "Active", tone: "bg-sky-50 text-sky-700 ring-sky-100" });
+    if (isContactWithin(contact.joinedDate, "This week")) tags.push({ label: "New", tone: "bg-violet-50 text-violet-700 ring-violet-100" });
+    if (contact.sourceType && contact.sourceType !== "Direct DM" && contact.sourceType !== "Unknown source") {
+        tags.push({ label: "Automated", tone: "bg-[#FBEAF3] text-[#C13584] ring-indigo-100" });
+    }
+    if (!tags.length) tags.push({ label: "Contact", tone: "bg-slate-100 text-slate-500 ring-slate-200" });
+    return tags.slice(0, 3);
+}
+
+function ContactTags({ contact }: { contact: ContactRecord }) {
+    return (
+        <div className="flex max-w-[170px] flex-wrap gap-1">
+            {contactTags(contact).map((tag) => (
+                <span key={tag.label} className={cx("inline-flex h-5 items-center rounded-full px-2 text-[9px] font-black uppercase tracking-[0.05em] ring-1", tag.tone)}>{tag.label}</span>
+            ))}
+        </div>
+    );
+}
+
 function ContactTableRow({
     contact,
     selected,
@@ -5780,6 +5938,7 @@ function ContactTableRow({
                 </div>
             </td>
             <td className="px-3 py-4"><RelationshipPill relationship={contact.relationship} /></td>
+            <td className="px-3 py-4"><ContactTags contact={contact} /></td>
             <td className="px-3 py-4 text-sm font-bold text-slate-500">{safeText(contact.lastInteractionLabel, "Unknown")}</td>
             <td className="px-3 py-4 text-sm font-bold text-slate-500">{safeText(contact.joined, "Unknown")}</td>
             <td className="px-3 py-4">
@@ -5825,6 +5984,7 @@ function ContactMobileCard({
             <div className="mt-4 flex flex-wrap items-center gap-2">
                 <SourcePill source={contact.sourceType} />
                 <RelationshipPill relationship={contact.relationship} />
+                <ContactTags contact={contact} />
             </div>
             <div className="mt-4 flex gap-2">
                 <button onClick={onOpen} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-[0.9rem] bg-[#C13584] text-sm font-black text-white transition hover:bg-[#ad2a75]">

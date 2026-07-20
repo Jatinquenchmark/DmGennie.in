@@ -11,6 +11,7 @@ import { getBillingConfig, getPlanLimitsForState, getProIntroEligibility, getSub
 import adminApiHandler from '../api/admin.js';
 import authApiHandler from '../api/auth.js';
 import billingApiHandler from '../api/billing.js';
+import flowsApiHandler from '../api/flows.js';
 
 dotenv.config({ path: '.env' });
 
@@ -233,6 +234,7 @@ app.put('/api/me', async (req, res) => {
 app.all('/api/admin', adminApiHandler);
 app.all('/api/auth', authApiHandler);
 app.all('/api/billing', billingApiHandler);
+app.all('/api/flows', flowsApiHandler);
 
 app.get('/api/admin/overview', async (req, res) => {
     const admin = await requireAdmin(req, res);

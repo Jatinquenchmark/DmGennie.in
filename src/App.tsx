@@ -13,6 +13,7 @@ import { Footer } from './components/Footer'
 import { PageHeader } from './components/PageHeader'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
+import FlowBuilderPage from './pages/flows/FlowBuilderPage'
 import AdminDashboard from './pages/AdminDashboard'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
@@ -24,6 +25,7 @@ import NotFound from './pages/NotFound'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminRoute from './components/AdminRoute'
+import { Toaster } from './components/ui/sonner'
 
 function HomePage() {
   const { session } = useAuth();
@@ -86,6 +88,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <Toaster />
         <ReferralCodeTracker />
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -103,6 +106,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/flows/:id"
+            element={
+              <ProtectedRoute>
+                <FlowBuilderPage />
               </ProtectedRoute>
             }
           />
