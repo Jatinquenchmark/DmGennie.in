@@ -30,7 +30,8 @@ export type FieldType =
   | "number"
   | "select"
   | "buttons"
-  | "keywords";
+  | "keywords"
+  | "content"; // Instagram post/story picker (Start block only)
 
 export interface FieldSpec {
   key: string;
@@ -78,9 +79,10 @@ export const BLOCKS: Record<BlockType, BlockSpec> = {
         type: "select",
         options: ["Post or Reel comment", "Story reply", "DM keyword", "Live comment"],
       },
+      { key: "content", label: "Which content?", type: "content" },
       { key: "keywords", label: "Keywords", type: "keywords", placeholder: "Add a keyword" },
     ],
-    defaultData: { triggerType: "Post or Reel comment", keywords: ["link"] },
+    defaultData: { triggerType: "Post or Reel comment", content: ["All posts & reels"], keywords: ["link"] },
     preview: (d) => {
       const kw = arr(d.keywords);
       return kw.length ? `${str(d.triggerType, "Trigger")} · ${kw.map((k) => `+${k}`).join(", ")}` : str(d.triggerType, "Set a trigger");

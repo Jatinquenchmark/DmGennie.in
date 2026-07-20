@@ -15,7 +15,7 @@ function FlowNodeComponent({ data, selected }: NodeProps) {
   return (
     <div
       className={cn(
-        "w-60 rounded-2xl border bg-card text-card-foreground shadow-sm transition",
+        "w-60 select-none rounded-2xl border bg-card text-card-foreground shadow-sm transition",
         selected ? "border-transparent ring-2 ring-offset-2 ring-offset-background" : "border-border",
       )}
       style={selected ? ({ "--tw-ring-color": spec.accent } as React.CSSProperties) : undefined}

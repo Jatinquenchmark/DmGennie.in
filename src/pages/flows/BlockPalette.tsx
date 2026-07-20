@@ -17,7 +17,7 @@ export function BlockPalette() {
             key={block.type}
             draggable
             onDragStart={(e) => onDragStart(e, block.type)}
-            className="flex cursor-grab items-center gap-2.5 rounded-xl border border-border bg-card p-2.5 text-left transition hover:border-transparent hover:shadow-sm active:cursor-grabbing"
+            className="flex cursor-grab select-none items-center gap-2.5 rounded-xl border border-border bg-card p-2.5 text-left transition hover:border-transparent hover:shadow-sm active:cursor-grabbing"
             style={{ ["--hover" as string]: block.accent }}
           >
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white" style={{ background: block.accent }}>

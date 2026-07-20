@@ -7,6 +7,7 @@ import { ErrorState, LoadingCard, SkeletonCard } from "@/components/Loading";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/lib/supabase";
 import { detectCurrency, formatPrice, type Currency } from "@/lib/utils";
+import { usePageTour, resetAllTours, startTour } from "@/lib/usePageTour";
 import { AnimatePresence, motion } from "framer-motion";
 import {
     Activity,
@@ -787,6 +788,14 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     useEffect(() => {
         fetchAll();
     }, [fetchAll]);
+
+    // Each tab appears in place, not mid-scroll — reset to the top on switch.
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }, [tab]);
+
+    // First-visit tutorial for the active tab (skipped in the unauthenticated preview).
+    usePageTour(!preview && !loading ? tab : null);
 
     // Load the connected account's real posts/reels and stories for the automation builder.
     useEffect(() => {
@@ -1604,10 +1613,11 @@ function Sidebar({
                     )}
                 </div>
 
-                <nav className="grid min-h-0 flex-1 content-start gap-1.5 pr-1">
+                <nav data-tour="sidebar-nav" className="grid min-h-0 flex-1 content-start gap-1.5 pr-1">
                     {navItems.map((item) => (
                         <button
                             key={item.key}
+                            data-tour={`nav-${item.key}`}
                             onClick={() => onNavigate(item.key)}
                             title={collapsed ? item.label : undefined}
                             className={cx(
@@ -2659,6 +2669,11 @@ function AutomationsPage(props: {
     const [deleteTarget, setDeleteTarget] = useState<Trigger | null>(null);
     const automationLimitReached = !props.accountPlan.isPro && props.automationCount >= props.accountPlan.limits.automationLimit;
 
+    // Builder sub-screens (list → entry → template → builder) appear in place, not mid-scroll.
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }, [creationPhase, builderOpen]);
+
     const startCreation = () => {
         if (automationLimitReached) {
             props.onUpgrade();
@@ -2912,7 +2927,7 @@ function AutomationsPage(props: {
 
 function AutomationCreationEntry({ onBack, onTemplate, onScratch, onFlow }: { onBack: () => void; onTemplate: () => void; onScratch: () => void; onFlow: () => void }) {
     return (
-        <div className="space-y-5">
+        <div className="animate-fade-up space-y-5">
             <div className="flex items-center gap-3">
                 <button onClick={onBack} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-50">
                     <ArrowRight className="h-4 w-4 rotate-180" />
@@ -2995,7 +3010,7 @@ function AutomationTemplatePicker({
     const proTemplates = matches.filter((template) => isProTemplate(template));
 
     return (
-        <div className="space-y-5">
+        <div className="animate-fade-up space-y-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
                     <button onClick={onBack} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-50">
@@ -8846,7 +8861,11 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
 
     return (
         <div style={systemFont} className="w-full max-w-[1500px] mx-auto">
-            <PageShell title="Help & Support" subtitle="Get in touch with the DMGennie team.">
+            <PageShell
+                title="Help & Support"
+                subtitle="Get in touch with the DMGennie team."
+                action={<SecondaryButton onClick={() => { resetAllTours(); startTour("help", true); }}><RefreshCw className="h-4 w-4" /> Replay tutorials</SecondaryButton>}
+            >
                 {/* ERROR ALERT - PROFESSIONAL DESIGN */}
                 {showErrorAlert && (
                     <div className="fixed top-6 right-6 z-[100] animate-in slide-in-from-top-2 fade-in duration-300">
@@ -9152,12 +9171,12 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
 function PageShell({ title, subtitle, action, children }: { title: string; subtitle: string; action?: ReactNode; children: ReactNode }) {
     return (
         <div className="space-y-4">
-            <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <header data-tour="page-header" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-[28px] font-black tracking-tight text-slate-950 sm:text-[32px]">{title}</h1>
                     <p className="mt-1 text-sm font-semibold text-slate-500">{subtitle}</p>
                 </div>
-                {action}
+                {action && <div data-tour="page-action">{action}</div>}
             </header>
             {children}
         </div>
