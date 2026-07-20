@@ -3606,6 +3606,40 @@ function AutomationBuilder({
         }
     };
 
+    // ── Guided wizard: 1 Trigger & content · 2 Keywords · 3 Message · 4 Review ──
+    const maxStep = 4;
+    const [step, setStep] = useState(1);
+    const [touchedSteps, setTouchedSteps] = useState<Set<number>>(new Set());
+    const markTouched = (s: number) => setTouchedSteps((prev) => (prev.has(s) ? prev : new Set(prev).add(s)));
+    const stepErrorList = (s: number): string[] => {
+        if (s === 1) return [currentErrors.trigger, currentErrors.name, currentErrors.content].filter(Boolean) as string[];
+        if (s === 2) return [currentErrors.keywords].filter(Boolean) as string[];
+        if (s === 3) return [currentErrors.message, currentErrors.link].filter(Boolean) as string[];
+        return [];
+    };
+    const stepIsValid = (s: number) => stepErrorList(s).length === 0;
+    const goToStep = (s: number) => { setStep(Math.min(maxStep, Math.max(1, s))); window.scrollTo({ top: 0, behavior: "smooth" }); };
+    const handleContinue = () => {
+        markTouched(step);
+        if (!stepIsValid(step)) {
+            setValidationErrors(computeErrors());
+            setShowValidationToast(true);
+            window.setTimeout(() => setShowValidationToast(false), 4200);
+            return;
+        }
+        if (step < maxStep) goToStep(step + 1);
+        else handleLaunch();
+    };
+    // Item 11: pulse Next once a (possibly template-prefilled) step is valid AND touched.
+    // The review step has nothing to fill, so it's ready as soon as it's reached.
+    const nextShouldPulse = stepIsValid(step) && (step === maxStep || touchedSteps.has(step));
+    const stepHint = (s: number): string => {
+        if (s === 1) return !hasTrigger ? "Choose what starts your automation" : currentErrors.name ? "Name your automation up top" : currentErrors.content ? "Select the content to watch" : "Trigger set — you're good to continue";
+        if (s === 2) return !keywordRequired ? "No keywords needed — continue" : currentErrors.keywords ? "Add at least one keyword" : "Keywords set — continue";
+        if (s === 3) return currentErrors.message ? "Write your main DM message" : currentErrors.link ? "Finish your link details" : "Message ready — continue";
+        return "Review the summary and launch";
+    };
+
     return (
         <div className="space-y-4">
             <section className="sticky top-3 z-20 rounded-[20px] border border-white bg-white/95 p-3 shadow-[0_16px_44px_rgba(15,23,42,0.07)] backdrop-blur">
@@ -3648,7 +3682,11 @@ function AutomationBuilder({
             </section>
 
             <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(340px,380px)] xl:gap-10">
-                <div className="space-y-4">
+                <div className="space-y-4" onClickCapture={() => markTouched(step)} onFocusCapture={() => markTouched(step)}>
+                    <BuilderStepIndicator step={step} onStep={goToStep} />
+                    <StepHint text={stepHint(step)} valid={stepIsValid(step)} />
+
+                    {step === 1 && (<div className="animate-fade-up space-y-4">
                     {/* Trigger selection */}
                     <BuilderCard title="What starts this automation?" subtitle="Pick the Instagram action that kicks off your flow.">
                         {changingTrigger ? (
@@ -3695,7 +3733,7 @@ function AutomationBuilder({
                                         ) : (
                                             <MediaSelectorState connected={connected} loading={mediaLoading} isEmpty={!hasPosts} kind="post" onConnect={onConnectAccount} />
                                         )}
-                                        {validationErrors.content && <p className="mt-2 text-xs font-black text-rose-600">{validationErrors.content}</p>}
+                                        <FieldPopup message={validationErrors.content} />
                                     </div>
                                 )}
 
@@ -3725,7 +3763,7 @@ function AutomationBuilder({
                                             ) : (
                                                 <MediaSelectorState connected={connected} loading={mediaLoading} isEmpty={!hasStories} kind="story" onConnect={onConnectAccount} />
                                             )}
-                                            {validationErrors.content && <p className="mt-2 text-xs font-black text-rose-600">{validationErrors.content}</p>}
+                                            <FieldPopup message={validationErrors.content} />
                                         </div>
                                         <div className="rounded-[18px] border border-slate-100 bg-white p-4">
                                             <h3 className="text-sm font-black text-[#0F172A]">How should it match?</h3>
@@ -3784,14 +3822,21 @@ function AutomationBuilder({
                             <p className="mx-auto mt-1.5 max-w-sm text-sm font-semibold leading-6 text-[#64748B]">Choose what starts your automation above. The rest of the setup appears once you select a trigger.</p>
                         </div>
                     )}
+                    </div>)}
 
-                    {hasTrigger && (<>
+                    {step === 2 && (<div className="animate-fade-up space-y-4">
                     {/* Keyword config */}
                     {keywordRequired && (
                         <BuilderCard title="Which keywords should trigger it?" subtitle="Add the words people will send. Tap a suggestion or type your own.">
                             <InlineKeywordSetup keywords={keywords} anyKeyword={anyKeyword} onAdd={addKeyword} onRemove={removeKeyword} onAnyKeyword={setAnyKeyword} />
-                            {validationErrors.keywords && <p className="mt-2 text-xs font-black text-rose-600">{validationErrors.keywords}</p>}
+                            <FieldPopup message={validationErrors.keywords} />
                         </BuilderCard>
+                    )}
+                    {!keywordRequired && (
+                        <div className="rounded-[20px] border border-dashed border-slate-200 bg-slate-50/60 p-8 text-center">
+                            <h3 className="text-base font-black text-[#0F172A]">No keywords needed</h3>
+                            <p className="mx-auto mt-1.5 max-w-sm text-sm font-semibold leading-6 text-[#64748B]">This trigger responds to every matching interaction. Continue to write your message.</p>
+                        </div>
                     )}
 
                     {/* Public replies (keyword-style chips) */}
@@ -3806,6 +3851,9 @@ function AutomationBuilder({
                         </BuilderCard>
                     )}
 
+                    </div>)}
+
+                    {step === 3 && (<div className="animate-fade-up space-y-4">
                     {/* Welcome DM */}
                     <BuilderCard title="Welcome DM" subtitle="The first message people receive. Leave it on for a friendly opener.">
                         <div className="mb-3 flex items-center justify-between gap-3">
@@ -3822,7 +3870,7 @@ function AutomationBuilder({
                             <button onClick={() => insertFinalToken("@username")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-indigo-50 hover:text-[#C13584]">@username</button>
                             <button onClick={() => insertFinalToken("first name")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-indigo-50 hover:text-[#C13584]">first name</button>
                         </div>
-                        {validationErrors.message && <p className="mt-2 text-xs font-black text-rose-600">{validationErrors.message}</p>}
+                        <FieldPopup message={validationErrors.message} />
 
                         <div className="mt-4 rounded-[16px] border border-slate-100 bg-slate-50/70 p-3.5">
                             <div className="flex items-center justify-between gap-3">
@@ -3838,7 +3886,7 @@ function AutomationBuilder({
                                     <Field label="Link URL" value={linkUrl} onChange={(value) => { setLinkUrl(value); setValidationErrors((prev) => { const next = { ...prev }; delete next.link; return next; }); }} />
                                 </div>
                             )}
-                            {linkEnabled && validationErrors.link && <p className="mt-2 text-xs font-black text-rose-600">{validationErrors.link}</p>}
+                            {linkEnabled && <FieldPopup message={validationErrors.link} />}
                         </div>
                     </BuilderCard>
 
@@ -3914,20 +3962,31 @@ function AutomationBuilder({
                         </div>
                     </BuilderCard>
 
-                    {/* Launch */}
-                    <div className="rounded-[20px] border border-white bg-white p-4 shadow-[0_16px_44px_rgba(15,23,42,0.06)]">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <h3 className="text-sm font-black text-[#0F172A]">Ready to launch?</h3>
-                                <p className="text-xs font-semibold text-[#64748B]">We will show you a plain-English summary before it goes live.</p>
-                            </div>
-                            <div className="flex gap-2">
-                                {!isComplete && <SecondaryButton onClick={saveDraft}>Save Draft</SecondaryButton>}
-                                <PrimaryButton onClick={handleLaunch}><Check className="h-4 w-4" /> Launch Automation</PrimaryButton>
-                            </div>
+                    </div>)}
+
+                    {step === 4 && (
+                        <div className="animate-fade-up space-y-4">
+                            <BuilderCard title="Review & launch" subtitle="A quick summary before it goes live.">
+                                <div className="space-y-2.5">
+                                    <ReviewLine label="Trigger" value={activeTrigger.title} />
+                                    <ReviewLine label="Keywords" value={keywordText} />
+                                    <ReviewLine label="Welcome DM" value={welcomeEnabled ? safeWelcomeDm : "Skipped"} />
+                                    <ReviewLine label="Main message" value={safeFinalDm} />
+                                    {linkEnabled && <ReviewLine label="Link button" value={`${buttonText || "Open Link"} → ${linkUrl || "—"}`} />}
+                                </div>
+                            </BuilderCard>
                         </div>
-                    </div>
-                    </>)}
+                    )}
+
+                    <WizardNav
+                        step={step}
+                        maxStep={maxStep}
+                        nextPulses={nextShouldPulse}
+                        onBack={() => goToStep(step - 1)}
+                        onNext={handleContinue}
+                        onSaveDraft={!isComplete ? saveDraft : undefined}
+                        saving={saving}
+                    />
                 </div>
 
                 <InstagramDmPreview
@@ -4700,6 +4759,55 @@ function BuilderStepIndicator({ step, onStep }: { step: number; onStep: (step: n
                 <span className="inline-flex h-8 w-fit items-center rounded-full bg-slate-50 px-3 text-xs font-black text-slate-500">{step}/4</span>
             </div>
         </section>
+    );
+}
+
+// Item 8: a pulsing box that tells the user what the current step needs next.
+function StepHint({ text, valid }: { text: string; valid: boolean }) {
+    return (
+        <div className={cx("flex items-center gap-2 rounded-[14px] border px-3.5 py-2.5 text-sm font-black transition", valid ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "animate-pulse border-amber-200 bg-amber-50 text-amber-700")}>
+            {valid ? <Check className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
+            <span>{text}</span>
+        </div>
+    );
+}
+
+// Item 10/11: Back + Continue; Continue pulses once the step is done (and touched).
+function WizardNav({ step, maxStep, nextPulses, onBack, onNext, onSaveDraft, saving }: { step: number; maxStep: number; nextPulses: boolean; onBack: () => void; onNext: () => void; onSaveDraft?: () => void; saving?: boolean }) {
+    const isLast = step >= maxStep;
+    return (
+        <div className="sticky bottom-3 z-10 flex items-center justify-between gap-3 rounded-[18px] border border-white bg-white/95 p-3 shadow-[0_16px_44px_rgba(15,23,42,0.08)] backdrop-blur">
+            <button onClick={onBack} disabled={step <= 1} className="inline-flex h-11 items-center gap-1.5 rounded-[1rem] border border-slate-200 px-4 text-sm font-black text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">
+                <ArrowRight className="h-4 w-4 rotate-180" /> Back
+            </button>
+            <div className="flex items-center gap-2">
+                {onSaveDraft && <SecondaryButton onClick={onSaveDraft}>{saving ? "Saving..." : "Save Draft"}</SecondaryButton>}
+                <button onClick={onNext} className={cx("inline-flex h-11 items-center gap-1.5 rounded-[1rem] bg-[#C13584] px-5 text-sm font-black text-white transition hover:bg-[#ad2a75]", nextPulses && "animate-pulse ring-2 ring-[#C13584]/40 ring-offset-2")}>
+                    {isLast ? (<><Check className="h-4 w-4" /> Launch Automation</>) : (<>Continue <ArrowRight className="h-4 w-4" /></>)}
+                </button>
+            </div>
+        </div>
+    );
+}
+
+function ReviewLine({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="flex items-start justify-between gap-4 rounded-[12px] bg-slate-50 px-3.5 py-2.5">
+            <span className="shrink-0 text-xs font-black uppercase tracking-[0.08em] text-slate-400">{label}</span>
+            <span className="min-w-0 flex-1 break-words text-right text-sm font-bold text-slate-700">{value}</span>
+        </div>
+    );
+}
+
+// Item 12: small popup box pointing out a missing input.
+function FieldPopup({ message }: { message?: string }) {
+    if (!message) return null;
+    return (
+        <div className="relative mt-2 inline-flex items-center gap-1.5 rounded-[10px] border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-600 shadow-sm">
+            <span className="absolute -top-1.5 left-4 h-3 w-3 rotate-45 border-l border-t border-rose-200 bg-rose-50" />
+            <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+            {message}
+        </div>
     );
 }
 
