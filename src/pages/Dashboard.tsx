@@ -1880,7 +1880,9 @@ function HomePage({
                 </div>
             </section>
 
-            <QuickActionGrid actions={actions} featureAccess={accountPlan.featureAccess} onNavigate={onNavigate} onUpgrade={onUpgrade} />
+            <div data-tour="home-quick-actions">
+                <QuickActionGrid actions={actions} featureAccess={accountPlan.featureAccess} onNavigate={onNavigate} onUpgrade={onUpgrade} />
+            </div>
 
             <MetricGrid stats={stats} leadsCollected={leadsCollected} activity={activity} accountCreatedAt={accountCreatedAt} />
 
@@ -2176,7 +2178,7 @@ function MetricGrid({ stats, leadsCollected, activity = [], accountCreatedAt }: 
     const currentRange = METRIC_RANGES.find((option) => option.key === range) ?? METRIC_RANGES[0];
 
     return (
-        <section className="overflow-visible rounded-[22px] border border-white bg-white p-5 shadow-[0_10px_28px_rgba(15,23,42,0.04)]">
+        <section data-tour="home-performance" className="overflow-visible rounded-[22px] border border-white bg-white p-5 shadow-[0_10px_28px_rgba(15,23,42,0.04)]">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <h2 className="text-[18px] font-black tracking-tight text-[#0F172A]">Performance snapshot</h2>

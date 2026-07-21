@@ -813,17 +813,20 @@ html {
 .dark .react-flow__attribution { display: none; }
 
 /*
- * Tutorial (driver.js) popovers — slightly rounder corners in both themes,
- * and readable in dark mode.
+ * Tutorial (driver.js) popovers. Rounder corners, and border/heading/background
+ * driven by our semantic tokens so they match the theme in light AND dark.
  */
-.driver-popover { border-radius: 14px; }
-.dark .driver-popover {
+.driver-popover {
+  border-radius: 14px;
+  border: 1px solid var(--border);
   background: var(--card);
   color: var(--foreground);
 }
-.dark .driver-popover-title { color: var(--foreground); }
-.dark .driver-popover-description { color: var(--muted-foreground); }
-.dark .driver-popover-arrow-side-left.driver-popover-arrow { border-left-color: var(--card); }
-.dark .driver-popover-arrow-side-right.driver-popover-arrow { border-right-color: var(--card); }
-.dark .driver-popover-arrow-side-top.driver-popover-arrow { border-top-color: var(--card); }
-.dark .driver-popover-arrow-side-bottom.driver-popover-arrow { border-bottom-color: var(--card); }
+.driver-popover-title { color: var(--foreground); }
+.driver-popover-description { color: var(--muted-foreground); }
+.driver-popover-progress-text { color: var(--muted-foreground); }
+/* the arrow is a CSS triangle, so its colour must track the popover background */
+.driver-popover-arrow-side-left.driver-popover-arrow { border-left-color: var(--card); }
+.driver-popover-arrow-side-right.driver-popover-arrow { border-right-color: var(--card); }
+.driver-popover-arrow-side-top.driver-popover-arrow { border-top-color: var(--card); }
+.driver-popover-arrow-side-bottom.driver-popover-arrow { border-bottom-color: var(--card); }
