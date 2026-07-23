@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/lib/supabase";
 import { detectCurrency, formatPrice, type Currency } from "@/lib/utils";
 import { usePageTour, startTour } from "@/lib/usePageTour";
+import { openProSubscriptionCheckout } from "@/lib/razorpayCheckout";
 import { AnimatePresence, motion } from "framer-motion";
 import {
     Activity,
@@ -133,6 +134,13 @@ interface SettingsData {
     botEnabled: boolean;
     instagramHandle: string;
     instagramAccountId: string;
+    instagramUserId?: string;
+    instagramUsername?: string;
+    instagramConnectionStatus?: string;
+    instagramTokenExpiresAt?: string | null;
+    instagramPermissions?: string[];
+    instagramConnectedAt?: string | null;
+    instagramLastSyncedAt?: string | null;
     pageAccessToken: string;
     appSecret: string;
     verifyToken: string;
@@ -826,15 +834,32 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     useEffect(() => {
         if (preview) return;
         const params = new URLSearchParams(window.location.search);
-        const igStatus = params.get("instagram");
-        if (igStatus === "connected") {
-            setConnected(true);
-            fetchAll();
-            window.history.replaceState({}, "", "/dashboard");
-        } else if (igStatus === "error") {
-            window.history.replaceState({}, "", "/dashboard");
+        const settingsTabParam = params.get("tab") as SettingsTab | null;
+        const validSettingsTabs: SettingsTab[] = ["profile", "instagram", "billing", "security", "notifications"];
+        const onSettingsRoute = window.location.pathname.startsWith("/dashboard/settings");
+        if (onSettingsRoute || settingsTabParam) {
+            setTab("settings");
+            if (settingsTabParam && validSettingsTabs.includes(settingsTabParam)) {
+                setSettingsTab(settingsTabParam);
+            }
         }
-    }, [fetchAll, preview]);
+        const igStatus = params.get("instagram");
+        const connectedParam = params.get("connected");
+        const errorParam = params.get("error");
+        if (igStatus === "connected" || connectedParam === "true") {
+            setConnected(true);
+            setTab("settings");
+            setSettingsTab("instagram");
+            showDashboardToast("Instagram connected");
+            fetchAll();
+            window.history.replaceState({}, "", "/dashboard/settings?tab=instagram");
+        } else if (igStatus === "error" || errorParam) {
+            setTab("settings");
+            setSettingsTab("instagram");
+            showDashboardToast("Instagram connection failed. Please try again.");
+            window.history.replaceState({}, "", "/dashboard/settings?tab=instagram");
+        }
+    }, [fetchAll, preview, showDashboardToast]);
 
     const displayStats = { ...zeroStats, ...(stats || {}) };
     const ownerName = preview
@@ -873,15 +898,33 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                 body: JSON.stringify({ plan: "pro", billingCycle: "monthly" }),
             });
             const data = await res.json();
-            if (res.ok && data.checkoutUrl) {
-                window.location.href = data.checkoutUrl;
+            if (res.ok && data.subscriptionId) {
+                await openProSubscriptionCheckout({
+                    subscriptionId: data.subscriptionId,
+                    customerName: session?.user?.user_metadata?.full_name,
+                    customerEmail: session?.user?.email,
+                    onSuccess: async (payment) => {
+                        try {
+                            const verifyRes = await authFetch("/api/billing?action=verify", {
+                                method: "POST",
+                                body: JSON.stringify(payment),
+                            });
+                            const verification = await verifyRes.json();
+                            if (!verifyRes.ok) throw new Error(verification.error || "Payment verification failed");
+                            showDashboardToast("Pro subscription activated.");
+                            await fetchAll();
+                        } catch (error) {
+                            showDashboardToast(error instanceof Error ? error.message : "Payment verification failed. Please contact support.");
+                        }
+                    },
+                });
                 return;
             }
             showDashboardToast(data.message || "Checkout is not ready yet. Please contact support.");
         } catch {
             showDashboardToast("Unable to start checkout. Please try again.");
         }
-    }, [authFetch, navigate, preview, showDashboardToast]);
+    }, [authFetch, fetchAll, navigate, preview, session?.user, showDashboardToast]);
 
     const openUpgradeModal = useCallback(() => setUpgradeModalOpen(true), []);
 

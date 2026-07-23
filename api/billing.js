@@ -7,6 +7,47 @@ export const config = {
     api: { bodyParser: false },
 };
 
+function fallbackSettings(userId) {
+    return {
+        user_id: userId,
+        bot_enabled: false,
+        instagram_account_id: null,
+        instagram_handle: null,
+        page_access_token: null,
+
+        // Billing-safe defaults
+        subscription_plan: 'starter',
+        subscription_status: 'inactive',
+        current_period_start: null,
+        current_period_end: null,
+        razorpay_customer_id: null,
+        razorpay_subscription_id: null,
+        razorpay_payment_id: null,
+        dm_limit: 1000,
+        has_used_pro_intro_offer: false,
+        pro_intro_started_at: null,
+    };
+}
+
+async function getSafeSettings(userId) {
+    try {
+        const settings = await ensureSettings(userId);
+
+        if (!settings) {
+            console.warn('[api/billing] user_settings missing. Using fallback defaults for user:', userId);
+            return fallbackSettings(userId);
+        }
+
+        return {
+            ...fallbackSettings(userId),
+            ...settings,
+        };
+    } catch (error) {
+        console.warn('[api/billing] ensureSettings failed. Using fallback defaults:', error?.message || error);
+        return fallbackSettings(userId);
+    }
+}
+
 async function getRawBody(req) {
     if (Buffer.isBuffer(req.body)) return req.body;
     if (typeof req.body === 'string') return Buffer.from(req.body);
@@ -42,64 +83,76 @@ async function updateCheckoutReference(userId, subscriptionId) {
         subscription_status: 'payment_pending',
         updated_at: new Date().toISOString(),
     };
+
     const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
-    if (error) {
-        // TODO: ensure billing migration is applied before enabling live checkout.
-        console.warn('[billing] Unable to store checkout reference:', error.message);
-    }
+
+    if (error) throw new Error(`Unable to store checkout reference: ${error.message}`);
 }
 
-async function markPaymentSuccess(userId, entity = {}, { introApplied = false } = {}) {
+async function markPaymentSuccess(userId, entity = {}, { introApplied = false, subscriptionId = null, paymentId = null } = {}) {
     if (!userId) return;
+
     const now = new Date().toISOString();
     const currentPeriodEnd = entity.current_end ? new Date(Number(entity.current_end) * 1000).toISOString() : null;
+
     const updates = {
         subscription_plan: 'pro',
         subscription_status: 'active',
         current_period_start: now,
         current_period_end: currentPeriodEnd,
         razorpay_customer_id: entity.customer_id || entity.customer || null,
-        razorpay_subscription_id: entity.subscription_id || entity.id || null,
+        razorpay_subscription_id: subscriptionId || entity.subscription_id || entity.id || null,
+        razorpay_payment_id: paymentId || entity.payment_id || null,
+        dm_limit: 20000,
         updated_at: now,
     };
+
     if (introApplied) {
         updates.has_used_pro_intro_offer = true;
         updates.pro_intro_started_at = now;
     }
 
     const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
-    if (error) {
-        // TODO: ensure billing migration is applied before enabling Razorpay webhooks.
-        console.warn('[billing] Unable to mark intro offer used:', error.message);
-    }
+
+    if (error) throw new Error(`Unable to activate Pro settings: ${error.message}`);
 
     const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+
     if (user) {
-        await supabase.auth.admin.updateUserById(userId, {
+        const { error: authError } = await supabase.auth.admin.updateUserById(userId, {
             app_metadata: {
                 ...(user.app_metadata || {}),
                 plan: 'pro',
                 subscription_status: 'active',
+                dm_limit: 20000,
+                razorpay_subscription_id: updates.razorpay_subscription_id,
+                razorpay_payment_id: updates.razorpay_payment_id,
                 ...(introApplied ? { has_used_pro_intro_offer: true, pro_intro_started_at: now } : {}),
                 current_period_start: now,
                 current_period_end: currentPeriodEnd,
             },
         });
+        if (authError) throw new Error(`Unable to activate Pro user metadata: ${authError.message}`);
     }
 }
 
 async function markPaymentNotCompleted(userId, status = 'payment_failed') {
     if (!userId) return;
+
     const safeStatus = ['payment_failed', 'cancelled', 'expired', 'inactive'].includes(status) ? status : 'payment_failed';
+
     const updates = {
         subscription_plan: 'starter',
         subscription_status: safeStatus,
         updated_at: new Date().toISOString(),
     };
+
     const { error } = await supabase.from('user_settings').update(updates).eq('user_id', userId);
+
     if (error) console.warn('[billing] Unable to mark payment incomplete:', error.message);
 
     const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+
     if (user) {
         await supabase.auth.admin.updateUserById(userId, {
             app_metadata: {
@@ -116,10 +169,19 @@ async function pricingHandler(req, res) {
 
     const configData = getBillingConfig(req.query.currency);
     const user = await getUser(req);
-    let eligibility = { eligible: false, reason: `Sign in to start Pro for ${configData.symbol}${configData.plans.pro.introOffer.amount}`, isPro: false, hasUsedIntroOffer: false };
+    let eligibility = {
+        eligible: false,
+        reason: `Sign in to start Pro for ${configData.symbol}${configData.plans.pro.introOffer.amount}`,
+        isPro: false,
+        hasUsedIntroOffer: false,
+        status: 'inactive',
+        isPaymentPending: false,
+        currentPeriodEnd: null,
+        proIntroStartedAt: null,
+    };
 
     if (user) {
-        const settings = await ensureSettings(user.id);
+        const settings = await getSafeSettings(user.id);
         eligibility = getProIntroEligibility(user, settings);
     }
 
@@ -129,8 +191,11 @@ async function pricingHandler(req, res) {
         plans: configData.plans,
         proIntroOffer: {
             ...configData.plans.pro.introOffer,
-            eligible: eligibility.eligible,
-            reason: eligibility.reason,
+            configured: Boolean(configData.razorpay.proFirstMonthOfferId),
+            eligible: eligibility.eligible && Boolean(configData.razorpay.proFirstMonthOfferId),
+            reason: !configData.razorpay.proFirstMonthOfferId && eligibility.eligible
+                ? 'First-month offer is not configured; standard monthly pricing applies.'
+                : eligibility.reason,
             hasUsedIntroOffer: eligibility.hasUsedIntroOffer,
             isPro: eligibility.isPro,
             subscriptionStatus: eligibility.status,
@@ -149,7 +214,7 @@ async function checkoutHandler(req, res) {
     if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
     const configData = getBillingConfig(body.currency || req.query.currency);
-    const settings = await ensureSettings(user.id);
+    const settings = await getSafeSettings(user.id);
     const eligibility = getProIntroEligibility(user, settings);
     const applyIntroOffer = !eligibility.isPro && !eligibility.hasUsedIntroOffer;
 
@@ -157,15 +222,6 @@ async function checkoutHandler(req, res) {
         return res.status(501).json({
             error: 'Checkout setup required',
             message: 'Razorpay Pro monthly plan is not configured yet.',
-            setupRequired: true,
-            pricing: configData.plans.pro,
-        });
-    }
-
-    if (applyIntroOffer && !configData.razorpay.proIntroOfferId) {
-        return res.status(501).json({
-            error: 'Intro offer setup required',
-            message: `Razorpay intro offer/coupon is not configured yet for ${configData.currency}. Add the intro offer id before charging ${configData.symbol}${configData.plans.pro.introOffer.amount}.`,
             setupRequired: true,
             pricing: configData.plans.pro,
         });
@@ -179,7 +235,7 @@ async function checkoutHandler(req, res) {
     try {
         const subscriptionPayload = {
             plan_id: configData.razorpay.proMonthlyPlanId,
-            total_count: Number(process.env.RAZORPAY_PRO_SUBSCRIPTION_MONTHS || 120),
+            total_count: 120,
             quantity: 1,
             customer_notify: 1,
             notes: {
@@ -193,7 +249,13 @@ async function checkoutHandler(req, res) {
             },
         };
 
-        if (applyIntroOffer) subscriptionPayload.offer_id = configData.razorpay.proIntroOfferId;
+        const offerApplied = applyIntroOffer && Boolean(configData.razorpay.proFirstMonthOfferId);
+        if (offerApplied) {
+            subscriptionPayload.offer_id = configData.razorpay.proFirstMonthOfferId;
+        } else if (applyIntroOffer) {
+            console.info('[billing] RAZORPAY_PRO_FIRST_MONTH_OFFER_ID is not configured; continuing without an offer.');
+            subscriptionPayload.notes.intro_offer = 'false';
+        }
 
         const subscription = await razorpay.subscriptions.create(subscriptionPayload);
         await updateCheckoutReference(user.id, subscription.id);
@@ -201,15 +263,73 @@ async function checkoutHandler(req, res) {
         return res.json({
             checkoutUrl: subscription.short_url,
             subscriptionId: subscription.id,
-            introOfferApplied: applyIntroOffer,
+            introOfferApplied: offerApplied,
             pricing: configData.plans.pro,
         });
     } catch (error) {
         console.error('[billing] Checkout failed:', error?.error || error);
+
         return res.status(500).json({
             error: 'Unable to create checkout',
             message: 'Something went wrong while creating the Pro checkout. Please try again.',
         });
+    }
+}
+
+async function verifyCheckoutHandler(req, res) {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+    const user = await getUser(req);
+    if (!user) return res.status(401).json({ error: 'Unauthorized' });
+
+    let body;
+    try {
+        body = await getJsonBody(req);
+    } catch {
+        return res.status(400).json({ error: 'Invalid payload' });
+    }
+
+    const paymentId = String(body.razorpay_payment_id || '');
+    const subscriptionId = String(body.razorpay_subscription_id || '');
+    const signature = String(body.razorpay_signature || '');
+    if (!paymentId || !subscriptionId || !signature) {
+        return res.status(400).json({ error: 'Missing Razorpay payment verification fields' });
+    }
+
+    const billing = getBillingConfig();
+    if (!billing.razorpay.keyId || !billing.razorpay.keySecret || !billing.razorpay.proMonthlyPlanId) {
+        return res.status(501).json({ error: 'Checkout setup required' });
+    }
+
+    const settings = await getSafeSettings(user.id);
+    if (settings.razorpay_subscription_id !== subscriptionId) {
+        return res.status(403).json({ error: 'Subscription does not belong to this user' });
+    }
+
+    const expected = crypto
+        .createHmac('sha256', billing.razorpay.keySecret)
+        .update(`${paymentId}|${subscriptionId}`)
+        .digest('hex');
+    const valid = Buffer.byteLength(expected) === Buffer.byteLength(signature)
+        && crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+    if (!valid) return res.status(401).json({ error: 'Invalid payment signature' });
+
+    try {
+        const razorpay = new Razorpay({ key_id: billing.razorpay.keyId, key_secret: billing.razorpay.keySecret });
+        const subscription = await razorpay.subscriptions.fetch(subscriptionId);
+        if (subscription.plan_id !== billing.razorpay.proMonthlyPlanId) {
+            return res.status(400).json({ error: 'Unexpected Razorpay plan' });
+        }
+
+        await markPaymentSuccess(user.id, subscription, {
+            introApplied: subscription.offer_id === billing.razorpay.proFirstMonthOfferId,
+            subscriptionId,
+            paymentId,
+        });
+        return res.json({ verified: true, plan: 'pro', dmLimit: 20000 });
+    } catch (error) {
+        console.error('[billing] Payment verification failed:', error?.error || error);
+        return res.status(502).json({ error: 'Unable to verify subscription with Razorpay' });
     }
 }
 
@@ -225,6 +345,7 @@ async function webhookHandler(req, res) {
     }
 
     let event;
+
     try {
         event = JSON.parse(rawBody.toString());
     } catch {
@@ -237,12 +358,18 @@ async function webhookHandler(req, res) {
     const notes = entity.notes || payment?.notes || subscription?.notes || {};
     const userId = notes.user_id;
     const introApplied = notes.intro_offer === 'true';
-    const isProPayment = String(notes.plan || '').toLowerCase() === 'pro'
-        || entity.plan_id === billing.razorpay.proMonthlyPlanId
-        || subscription?.plan_id === billing.razorpay.proMonthlyPlanId;
+
+    const isProPayment =
+        String(notes.plan || '').toLowerCase() === 'pro' ||
+        entity.plan_id === billing.razorpay.proMonthlyPlanId ||
+        subscription?.plan_id === billing.razorpay.proMonthlyPlanId;
 
     if ((event.event === 'subscription.charged' || event.event === 'payment.captured') && userId && isProPayment) {
-        await markPaymentSuccess(userId, entity, { introApplied });
+        await markPaymentSuccess(userId, subscription || entity, {
+            introApplied,
+            subscriptionId: subscription?.id || payment?.subscription_id || null,
+            paymentId: payment?.id || null,
+        });
     }
 
     if ((event.event === 'payment.failed' || event.event === 'subscription.payment_failed') && userId && isProPayment) {
@@ -261,12 +388,15 @@ async function webhookHandler(req, res) {
 }
 
 export default async function handler(req, res) {
-    const action = String(req.query.action || 'pricing');
+    const action = String(req.query.action || req.params?.action || 'pricing');
+
     if (action !== 'webhook') cors(req, res);
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     if (action === 'pricing') return pricingHandler(req, res);
     if (action === 'checkout') return checkoutHandler(req, res);
+    if (action === 'verify') return verifyCheckoutHandler(req, res);
     if (action === 'webhook') return webhookHandler(req, res);
+
     return res.status(400).json({ error: 'Unsupported billing action.' });
 }

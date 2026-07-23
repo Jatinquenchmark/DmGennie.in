@@ -119,7 +119,9 @@ export default function Terms() {
           <section>
             <h2 className="text-2xl font-bold text-foreground mb-3">7. Subscription & Payment Terms</h2>
             <p className="text-muted-foreground leading-relaxed">
-              DMGennie currently offers a free tier. Paid plans, when introduced, will be subject to additional pricing terms communicated clearly before purchase. All payments are processed securely. Refunds may be requested within 7 days of a charge by contacting <a href="mailto:support@dmgennie.in" className="text-accent-blue hover:underline">support@dmgennie.in</a>. We reserve the right to change pricing with 30 days' notice.
+              DMGennie offers free and paid plans. Paid plans are subject to the pricing and renewal terms shown at checkout. All payments are processed securely. Cancellations and refunds are handled according to our{' '}
+              <Link to="/refund-policy" className="text-accent-blue hover:underline">Return and Refund Policy</Link>
+              . We reserve the right to change pricing with 30 days' notice.
             </p>
           </section>
 

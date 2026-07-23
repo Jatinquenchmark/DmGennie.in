@@ -244,9 +244,9 @@ async function sendPrivateReply(settings, commentId, message) {
     }
     try {
         const res = await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${settings.instagram_account_id}/messages`,
-            { recipient: { comment_id: commentId }, message: { text: message } },
-            { headers: { 'Authorization': `Bearer ${settings.page_access_token}`, 'Content-Type': 'application/json' } }
+            `https://graph.instagram.com/${API_VERSION}/${settings.instagram_account_id}/messages`,
+            { recipient: { comment_id: commentId }, message: { text: message }, access_token: settings.page_access_token },
+            { headers: { 'Content-Type': 'application/json' } }
         );
         console.log('[sendPrivateReply] ✅ DM sent:', res.data.message_id);
         return { ok: true, rateLimited: false };
@@ -262,9 +262,9 @@ async function sendPublicReply(settings, commentId, message) {
     if (!settings.page_access_token) return false;
     try {
         await axios.post(
-            `https://graph.facebook.com/${API_VERSION}/${commentId}/replies`,
-            { message },
-            { headers: { 'Authorization': `Bearer ${settings.page_access_token}`, 'Content-Type': 'application/json' } }
+            `https://graph.instagram.com/${API_VERSION}/${commentId}/replies`,
+            { message, access_token: settings.page_access_token },
+            { headers: { 'Content-Type': 'application/json' } }
         );
         console.log('[sendPublicReply] ✅ Public reply sent');
         return true;

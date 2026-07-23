@@ -3,6 +3,12 @@ import axios from 'axios';
 import { supabase, getUserId, ensureSettings, cors } from '../server/supabaseApi.js';
 
 const API_VERSION = 'v25.0';
+const PRIMARY_INSTAGRAM_REDIRECT_URI = 'https://dm-gennie-in.vercel.app/auth/instagram/callback';
+const INSTAGRAM_BUSINESS_SCOPES = [
+    'instagram_business_basic',
+    'instagram_business_manage_comments',
+    'instagram_business_manage_messages',
+];
 const INSTAGRAM_AUTH_LIMIT = 10;
 const INSTAGRAM_AUTH_WINDOW_MS = 60 * 1000;
 // ponytail: per-instance in-memory limiter — resets on cold start and isn't shared
@@ -40,9 +46,30 @@ function timingSafeEqualText(left, right) {
 }
 
 function getOAuthStateSecret() {
-    // Prefer a dedicated secret; fall back to META_APP_SECRET for zero-config. Avoid
-    // the service-role key so a leak of one secret doesn't compromise the other purpose.
-    return process.env.OAUTH_STATE_SECRET || process.env.META_APP_SECRET;
+    // Prefer a dedicated secret; fall back to the Instagram client secret (always set for
+    // OAuth). Avoid the service-role key so a leak of one secret doesn't compromise the other.
+    return process.env.OAUTH_STATE_SECRET || process.env.INSTAGRAM_CLIENT_SECRET;
+}
+
+function getInstagramAppId() {
+    return process.env.INSTAGRAM_CLIENT_ID;
+}
+
+function getInstagramClientSecret() {
+    return process.env.INSTAGRAM_CLIENT_SECRET;
+}
+
+function getInstagramRedirectUri() {
+    return process.env.INSTAGRAM_REDIRECT_URI?.trim() || '';
+}
+
+function isValidInstagramRedirectUri(redirectUri) {
+    return redirectUri === PRIMARY_INSTAGRAM_REDIRECT_URI;
+}
+
+function redirectToInstagramSettings(res, params) {
+    const query = new URLSearchParams({ tab: 'instagram', ...params });
+    return res.redirect(`/dashboard/settings?${query.toString()}`);
 }
 
 function createOAuthState(userId) {
@@ -83,89 +110,209 @@ async function instagramAuthHandler(req, res) {
     const userId = await getUserId(req);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-    const appId = process.env.META_APP_ID;
-    const redirectUri = process.env.META_REDIRECT_URI || `${process.env.APP_URL}/api/auth?action=callback`;
-    const scopes = [
-        'instagram_basic',
-        'instagram_manage_comments',
-        'instagram_manage_messages',
-        'instagram_manage_insights',
-        'pages_show_list',
-        'pages_read_engagement',
-    ].join(',');
+    const appId = getInstagramAppId();
+    const redirectUri = getInstagramRedirectUri();
+    if (!appId) return res.status(500).json({ error: 'Instagram app is not configured.' });
+    if (!redirectUri) return res.status(500).json({ error: 'Instagram redirect URI is not configured.' });
+    if (!isValidInstagramRedirectUri(redirectUri)) {
+        console.error('[Instagram OAuth] Invalid INSTAGRAM_REDIRECT_URI:', redirectUri);
+        return res.status(500).json({ error: 'Instagram redirect URI does not match the configured Meta callback.' });
+    }
+    const scopes = INSTAGRAM_BUSINESS_SCOPES.join(',');
     const state = createOAuthState(userId);
     if (!state) return res.status(500).json({ error: 'Instagram connection is not configured.' });
-    const authUrl = `https://www.facebook.com/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${scopes}&state=${encodeURIComponent(state)}&response_type=code`;
+    const instagramAuthUrl = `https://www.instagram.com/oauth/authorize?client_id=${encodeURIComponent(appId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scopes)}&state=${encodeURIComponent(state)}`;
 
-    return res.json({ url: authUrl });
+    console.log('INSTAGRAM_REDIRECT_URI:', process.env.INSTAGRAM_REDIRECT_URI);
+    console.log('Instagram OAuth URL:', instagramAuthUrl);
+    console.log('[Instagram OAuth] OAuth URL generated:', instagramAuthUrl);
+    console.log('[Instagram OAuth] Redirect URI:', redirectUri);
+    console.log('[Instagram OAuth] Scopes:', scopes);
+
+    return res.json({ url: instagramAuthUrl });
+}
+
+async function exchangeCodeForShortToken({ appId, appSecret, redirectUri, code }) {
+    const body = new URLSearchParams({
+        client_id: appId,
+        client_secret: appSecret,
+        grant_type: 'authorization_code',
+        redirect_uri: redirectUri,
+        code,
+    });
+
+    const response = await axios.post('https://api.instagram.com/oauth/access_token', body, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    });
+    return response.data;
+}
+
+async function exchangeForLongLivedToken({ appSecret, accessToken }) {
+    const response = await axios.get('https://graph.instagram.com/access_token', {
+        params: {
+            grant_type: 'ig_exchange_token',
+            client_secret: appSecret,
+            access_token: accessToken,
+        },
+    });
+    return response.data;
+}
+
+async function fetchInstagramProfile(accessToken) {
+    try {
+        const response = await axios.get(`https://graph.instagram.com/${API_VERSION}/me`, {
+            params: {
+                fields: 'id,user_id,username,account_type,profile_picture_url,followers_count,media_count',
+                access_token: accessToken,
+            },
+        });
+        return response.data;
+    } catch (error) {
+        console.warn('[Instagram OAuth] Full profile fetch failed, retrying basic fields:', error.response?.data || error.message);
+        const response = await axios.get(`https://graph.instagram.com/${API_VERSION}/me`, {
+            params: {
+                fields: 'id,user_id,username',
+                access_token: accessToken,
+            },
+        });
+        return response.data;
+    }
+}
+
+async function saveInstagramConnection(userId, payload) {
+    await ensureSettings(userId);
+    const now = new Date().toISOString();
+    const fullUpdates = {
+        page_access_token: payload.accessToken,
+        instagram_access_token: payload.accessToken,
+        instagram_account_id: payload.instagramUserId,
+        instagram_user_id: payload.instagramUserId,
+        instagram_username: payload.username || '',
+        instagram_handle: payload.username ? `@${payload.username}` : '',
+        instagram_profile_picture_url: payload.profilePictureUrl || null,
+        instagram_account_type: payload.accountType || null,
+        instagram_token_expires_at: payload.expiresAt || null,
+        instagram_permissions: INSTAGRAM_BUSINESS_SCOPES,
+        instagram_connection_status: 'connected',
+        instagram_connected_at: now,
+        instagram_last_synced_at: now,
+        followers: payload.followersCount || 0,
+        updated_at: now,
+    };
+
+    const { error } = await supabase.from('user_settings').update(fullUpdates).eq('user_id', userId);
+    if (!error) {
+        console.log('[Instagram OAuth] Database save success:', { userId, instagramUserId: payload.instagramUserId, username: payload.username });
+        return;
+    }
+
+    console.warn('[Instagram OAuth] Full database save failed, retrying legacy fields:', error.message);
+    const legacyUpdates = {
+        page_access_token: payload.accessToken,
+        instagram_account_id: payload.instagramUserId,
+        instagram_handle: payload.username ? `@${payload.username}` : '',
+        followers: payload.followersCount || 0,
+        updated_at: now,
+    };
+    const retry = await supabase.from('user_settings').update(legacyUpdates).eq('user_id', userId);
+    if (retry.error) {
+        console.error('[Instagram OAuth] Database save failure:', retry.error.message);
+        throw retry.error;
+    }
+
+    console.log('[Instagram OAuth] Database save success with legacy fields:', { userId, instagramUserId: payload.instagramUserId, username: payload.username });
 }
 
 async function instagramCallbackHandler(req, res) {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
     const { code, state, error } = req.query;
-    const frontendUrl = process.env.FRONTEND_URL || 'https://www.dmgennie.in';
-    if (error) return res.redirect(`${frontendUrl}/dashboard?instagram=error&reason=${encodeURIComponent(String(error))}`);
-    if (!code || !state) return res.redirect(`${frontendUrl}/dashboard?instagram=error&reason=missing_params`);
+    console.log('Callback path hit:', req.url || req.headers['x-original-url'] || '/auth/instagram/callback');
+    console.log('[Instagram OAuth] Callback hit');
+    console.log('[Instagram OAuth] Code received:', Boolean(code));
+    console.log('Code received:', Boolean(code));
+    if (error) {
+        console.warn('[Instagram OAuth] Meta returned error:', error);
+        return redirectToInstagramSettings(res, { error: 'meta_oauth_failed' });
+    }
+    if (!code || !state) return redirectToInstagramSettings(res, { error: 'missing_params' });
 
     const userId = parseOAuthState(state);
-    if (!userId) return res.redirect(`${frontendUrl}/dashboard?instagram=error&reason=invalid_state`);
+    if (!userId) return redirectToInstagramSettings(res, { error: 'invalid_state' });
 
-    const appId = process.env.META_APP_ID;
-    const appSecret = process.env.META_APP_SECRET;
-    const redirectUri = process.env.META_REDIRECT_URI || `${process.env.APP_URL}/api/auth?action=callback`;
+    const appId = getInstagramAppId();
+    const appSecret = getInstagramClientSecret();
+    const redirectUri = getInstagramRedirectUri();
+    if (!appId || !appSecret) {
+        console.error('[Instagram OAuth] Missing app ID or app secret');
+        return redirectToInstagramSettings(res, { error: 'oauth_not_configured' });
+    }
+    if (!redirectUri || !isValidInstagramRedirectUri(redirectUri)) {
+        console.error('[Instagram OAuth] Invalid callback INSTAGRAM_REDIRECT_URI:', redirectUri || 'MISSING');
+        return redirectToInstagramSettings(res, { error: 'redirect_uri_mismatch' });
+    }
 
     try {
-        const tokenRes = await axios.get(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, {
-            params: { client_id: appId, client_secret: appSecret, redirect_uri: redirectUri, code },
-        });
-        const shortToken = tokenRes.data.access_token;
-
-        const longTokenRes = await axios.get(`https://graph.facebook.com/${API_VERSION}/oauth/access_token`, {
-            params: { grant_type: 'fb_exchange_token', client_id: appId, client_secret: appSecret, fb_exchange_token: shortToken },
-        });
-        const longToken = longTokenRes.data.access_token;
-
-        const pagesRes = await axios.get(`https://graph.facebook.com/${API_VERSION}/me/accounts`, {
-            params: { access_token: longToken, fields: 'id,name,access_token,instagram_business_account' },
-        });
-
-        const pages = pagesRes.data.data || [];
-        let igAccountId = null;
-        let pageAccessToken = null;
-        let igHandle = null;
-
-        for (const page of pages) {
-            if (page.instagram_business_account) {
-                igAccountId = page.instagram_business_account.id;
-                pageAccessToken = page.access_token;
-                try {
-                    const igProfile = await axios.get(`https://graph.facebook.com/${API_VERSION}/${igAccountId}`, {
-                        params: { fields: 'username,name', access_token: pageAccessToken },
-                    });
-                    igHandle = `@${igProfile.data.username}`;
-                } catch { }
-                break;
-            }
+        let shortTokenData;
+        try {
+            shortTokenData = await exchangeCodeForShortToken({ appId, appSecret, redirectUri, code: String(code) });
+        } catch (tokenError) {
+            console.error('Token exchange failure:', tokenError.response?.data || tokenError.message);
+            console.error('[Instagram OAuth] Short-lived token exchange failure:', tokenError.response?.data || tokenError.message);
+            return redirectToInstagramSettings(res, { error: 'token_exchange_failed' });
+        }
+        console.log('Token exchange success:', Boolean(shortTokenData?.access_token));
+        console.log('[Instagram OAuth] Short-lived token exchange success:', Boolean(shortTokenData?.access_token));
+        if (!shortTokenData?.access_token) {
+            return redirectToInstagramSettings(res, { error: 'token_exchange_failed' });
         }
 
-        if (!igAccountId || !pageAccessToken) {
-            return res.redirect(`${frontendUrl}/dashboard?instagram=error&reason=no_ig_account`);
+        let longTokenData;
+        try {
+            longTokenData = await exchangeForLongLivedToken({ appSecret, accessToken: shortTokenData.access_token });
+        } catch (tokenError) {
+            console.error('Token exchange failure:', tokenError.response?.data || tokenError.message);
+            console.error('[Instagram OAuth] Long-lived token exchange failure:', tokenError.response?.data || tokenError.message);
+            return redirectToInstagramSettings(res, { error: 'token_exchange_failed' });
+        }
+        console.log('[Instagram OAuth] Long-lived token exchange success:', Boolean(longTokenData?.access_token));
+        const accessToken = longTokenData?.access_token || shortTokenData.access_token;
+        const expiresAt = longTokenData?.expires_in
+            ? new Date(Date.now() + Number(longTokenData.expires_in) * 1000).toISOString()
+            : null;
+
+        let profile;
+        try {
+            profile = await fetchInstagramProfile(accessToken);
+        } catch (profileError) {
+            console.error('[Instagram OAuth] Instagram profile fetch failure:', profileError.response?.data || profileError.message);
+            return redirectToInstagramSettings(res, { error: 'profile_fetch_failed' });
+        }
+        console.log('[Instagram OAuth] Instagram profile fetch success:', { id: profile?.id || profile?.user_id || shortTokenData?.user_id, username: profile?.username || '' });
+        const instagramUserId = String(profile?.user_id || profile?.id || shortTokenData?.user_id || '');
+        if (!instagramUserId) return redirectToInstagramSettings(res, { error: 'profile_fetch_failed' });
+
+        try {
+            await saveInstagramConnection(userId, {
+                accessToken,
+                expiresAt,
+                instagramUserId,
+                username: profile?.username || '',
+                profilePictureUrl: profile?.profile_picture_url || null,
+                accountType: profile?.account_type || null,
+                followersCount: profile?.followers_count || 0,
+            });
+            console.log('Supabase save success:', true);
+        } catch (saveError) {
+            console.error('Supabase save failure:', saveError.message || saveError);
+            console.error('[Instagram OAuth] Database save failure:', saveError.message || saveError);
+            return redirectToInstagramSettings(res, { error: 'database_save_failed' });
         }
 
-        // Note: the Meta app secret is NOT persisted per-user. It lives only in
-        // process.env.META_APP_SECRET (used for webhook signature validation).
-        await supabase.from('user_settings').update({
-            page_access_token: pageAccessToken,
-            instagram_account_id: igAccountId,
-            instagram_handle: igHandle || '',
-            updated_at: new Date().toISOString(),
-        }).eq('user_id', userId);
-
-        return res.redirect(`${frontendUrl}/dashboard?instagram=connected&handle=${encodeURIComponent(igHandle || igAccountId)}`);
+        return redirectToInstagramSettings(res, { connected: 'true' });
     } catch (err) {
-        console.error('OAuth error:', err.response?.data || err.message);
-        return res.redirect(`${frontendUrl}/dashboard?instagram=error&reason=token_exchange_failed`);
+        console.error('[Instagram OAuth] Token exchange/profile/database failure:', err.response?.data || err.message);
+        return redirectToInstagramSettings(res, { error: 'token_exchange_failed' });
     }
 }
 
@@ -175,12 +322,28 @@ async function disconnectHandler(req, res) {
     const userId = await getUserId(req);
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
-    await supabase.from('user_settings').update({
+    const fullDisconnect = {
         page_access_token: '',
+        instagram_access_token: '',
         instagram_account_id: '',
+        instagram_user_id: '',
+        instagram_username: '',
         instagram_handle: '',
+        instagram_token_expires_at: null,
+        instagram_permissions: [],
+        instagram_connection_status: 'disconnected',
         updated_at: new Date().toISOString(),
-    }).eq('user_id', userId);
+    };
+    const { error } = await supabase.from('user_settings').update(fullDisconnect).eq('user_id', userId);
+    if (error) {
+        console.warn('[Instagram OAuth] Full disconnect failed, retrying legacy fields:', error.message);
+        await supabase.from('user_settings').update({
+            page_access_token: '',
+            instagram_account_id: '',
+            instagram_handle: '',
+            updated_at: new Date().toISOString(),
+        }).eq('user_id', userId);
+    }
 
     return res.json({ success: true });
 }
@@ -247,7 +410,7 @@ async function mediaHandler(req, res) {
         return res.status(200).json({ connected: false, posts: [], stories: [] });
     }
 
-    const base = `https://graph.facebook.com/${API_VERSION}/${instagram_account_id}`;
+    const base = `https://graph.instagram.com/${API_VERSION}/${instagram_account_id}`;
     const fetchEdge = async (edge, fields) => {
         try {
             const response = await axios.get(`${base}/${edge}`, {
@@ -286,12 +449,13 @@ async function profileHandler(req, res) {
     }
 
     try {
-        const response = await axios.get(
-            `https://graph.instagram.com/${API_VERSION}/${instagram_account_id}`,
-            { params: { fields: 'id,username,name,followers_count,media_count,profile_picture_url', access_token: page_access_token } }
-        );
-        const profile = response.data;
-        await supabase.from('user_settings').update({ followers: profile.followers_count || 0 }).eq('user_id', userId);
+        const profile = await fetchInstagramProfile(page_access_token);
+        await supabase.from('user_settings').update({
+            followers: profile.followers_count || 0,
+            instagram_username: profile.username || String(settings.instagram_handle || '').replace(/^@/, ''),
+            instagram_handle: profile.username ? `@${profile.username}` : settings.instagram_handle,
+            instagram_last_synced_at: new Date().toISOString(),
+        }).eq('user_id', userId);
         return res.json(profile);
     } catch (error) {
         console.error('Instagram profile load failed:', error.response?.data || error.message);

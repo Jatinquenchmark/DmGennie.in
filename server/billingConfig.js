@@ -127,7 +127,7 @@ export function getBillingConfig(currency = 'INR') {
             keyId: process.env.RAZORPAY_KEY_ID || '',
             keySecret: process.env.RAZORPAY_KEY_SECRET || '',
             proMonthlyPlanId: p.planId(),
-            proIntroOfferId: p.introOfferId(),
+            proFirstMonthOfferId: p.introOfferId(),
             webhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || '',
         },
     };

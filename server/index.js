@@ -161,6 +161,13 @@ app.get('/api/me', async (req, res) => {
             botEnabled: s.bot_enabled,
             instagramAccountId: s.instagram_account_id,
             instagramHandle: s.instagram_handle,
+            instagramUserId: s.instagram_user_id || s.instagram_account_id,
+            instagramUsername: s.instagram_username || String(s.instagram_handle || '').replace(/^@/, ''),
+            instagramConnectionStatus: s.instagram_connection_status || (s.page_access_token && s.instagram_account_id ? 'connected' : 'disconnected'),
+            instagramTokenExpiresAt: s.instagram_token_expires_at || null,
+            instagramPermissions: s.instagram_permissions || [],
+            instagramConnectedAt: s.instagram_connected_at || null,
+            instagramLastSyncedAt: s.instagram_last_synced_at || null,
             verifyToken: s.verify_token,
             successPublicReply: s.success_public_reply,
             fallbackPublicReply: s.fallback_public_reply,
@@ -223,6 +230,13 @@ app.put('/api/me', async (req, res) => {
         botEnabled: data.bot_enabled,
         instagramAccountId: data.instagram_account_id,
         instagramHandle: data.instagram_handle,
+        instagramUserId: data.instagram_user_id || data.instagram_account_id,
+        instagramUsername: data.instagram_username || String(data.instagram_handle || '').replace(/^@/, ''),
+        instagramConnectionStatus: data.instagram_connection_status || (data.page_access_token && data.instagram_account_id ? 'connected' : 'disconnected'),
+        instagramTokenExpiresAt: data.instagram_token_expires_at || null,
+        instagramPermissions: data.instagram_permissions || [],
+        instagramConnectedAt: data.instagram_connected_at || null,
+        instagramLastSyncedAt: data.instagram_last_synced_at || null,
         verifyToken: data.verify_token,
         successPublicReply: data.success_public_reply,
         fallbackPublicReply: data.fallback_public_reply,
@@ -235,6 +249,7 @@ app.all('/api/admin', adminApiHandler);
 app.all('/api/auth', authApiHandler);
 app.all('/api/billing', billingApiHandler);
 app.all('/api/flows', flowsApiHandler);
+app.all('/api/billing/:action', billingApiHandler);
 
 app.get('/api/admin/overview', async (req, res) => {
     const admin = await requireAdmin(req, res);
@@ -507,15 +522,6 @@ app.post('/api/billing/checkout', async (req, res) => {
         });
     }
 
-    if (applyIntroOffer && !config.razorpay.proIntroOfferId) {
-        return res.status(501).json({
-            error: 'Intro offer setup required',
-            message: 'Razorpay intro offer/coupon is not configured yet. Add RAZORPAY_PRO_INTRO_OFFER_ID before charging ₹1.',
-            setupRequired: true,
-            pricing: config.plans.pro,
-        });
-    }
-
     try {
         const razorpay = new Razorpay({
             key_id: config.razorpay.keyId,
@@ -524,7 +530,7 @@ app.post('/api/billing/checkout', async (req, res) => {
 
         const subscriptionPayload = {
             plan_id: config.razorpay.proMonthlyPlanId,
-            total_count: Number(process.env.RAZORPAY_PRO_SUBSCRIPTION_MONTHS || 120),
+            total_count: 120,
             quantity: 1,
             customer_notify: 1,
             notes: {
@@ -537,7 +543,13 @@ app.post('/api/billing/checkout', async (req, res) => {
             },
         };
 
-        if (applyIntroOffer) subscriptionPayload.offer_id = config.razorpay.proIntroOfferId;
+        const offerApplied = applyIntroOffer && Boolean(config.razorpay.proFirstMonthOfferId);
+        if (offerApplied) {
+            subscriptionPayload.offer_id = config.razorpay.proFirstMonthOfferId;
+        } else if (applyIntroOffer) {
+            console.info('[billing] RAZORPAY_PRO_FIRST_MONTH_OFFER_ID is not configured; continuing without an offer.');
+            subscriptionPayload.notes.intro_offer = 'false';
+        }
 
         const subscription = await razorpay.subscriptions.create(subscriptionPayload);
         const { error } = await supabase.from('user_settings').update({
@@ -551,7 +563,7 @@ app.post('/api/billing/checkout', async (req, res) => {
         res.json({
             checkoutUrl: subscription.short_url,
             subscriptionId: subscription.id,
-            introOfferApplied: applyIntroOffer,
+            introOfferApplied: offerApplied,
             pricing: config.plans.pro,
         });
     } catch (error) {
@@ -907,6 +919,13 @@ app.get('/api/settings', async (req, res) => {
         botEnabled: s.bot_enabled,
         instagramAccountId: s.instagram_account_id,
         instagramHandle: s.instagram_handle,
+        instagramUserId: s.instagram_user_id || s.instagram_account_id,
+        instagramUsername: s.instagram_username || String(s.instagram_handle || '').replace(/^@/, ''),
+        instagramConnectionStatus: s.instagram_connection_status || (s.page_access_token && s.instagram_account_id ? 'connected' : 'disconnected'),
+        instagramTokenExpiresAt: s.instagram_token_expires_at || null,
+        instagramPermissions: s.instagram_permissions || [],
+        instagramConnectedAt: s.instagram_connected_at || null,
+        instagramLastSyncedAt: s.instagram_last_synced_at || null,
         verifyToken: s.verify_token,
         successPublicReply: s.success_public_reply,
         fallbackPublicReply: s.fallback_public_reply,
@@ -946,6 +965,13 @@ app.put('/api/settings', async (req, res) => {
         botEnabled: data.bot_enabled,
         instagramAccountId: data.instagram_account_id,
         instagramHandle: data.instagram_handle,
+        instagramUserId: data.instagram_user_id || data.instagram_account_id,
+        instagramUsername: data.instagram_username || String(data.instagram_handle || '').replace(/^@/, ''),
+        instagramConnectionStatus: data.instagram_connection_status || (data.page_access_token && data.instagram_account_id ? 'connected' : 'disconnected'),
+        instagramTokenExpiresAt: data.instagram_token_expires_at || null,
+        instagramPermissions: data.instagram_permissions || [],
+        instagramConnectedAt: data.instagram_connected_at || null,
+        instagramLastSyncedAt: data.instagram_last_synced_at || null,
         verifyToken: data.verify_token,
         successPublicReply: data.success_public_reply,
         fallbackPublicReply: data.fallback_public_reply,
