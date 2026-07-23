@@ -11,18 +11,25 @@ const HOURLY_PRIVATE_REPLY_LIMIT = 700;
 // Meta Graph API rate-limit error codes.
 const RATE_LIMIT_ERROR_CODES = [4, 17, 32, 613];
 
-// Validates Meta's X-Hub-Signature-256 header against the raw request bytes,
-// using the app secret. Fails closed: any missing input returns false.
-function isValidMetaSignature(rawBody, signature, appSecret) {
-    if (!rawBody || !signature || !appSecret) return false;
+// Validates Meta's X-Hub-Signature-256 header against the raw request bytes.
+// Meta signs with the app secret; for an Instagram-Login app that value can live
+// in INSTAGRAM_CLIENT_SECRET or META_APP_SECRET depending on setup, so we accept a
+// signature that matches ANY configured secret. Still fails closed: no secret set,
+// missing/malformed signature, or no match all return false.
+function isValidMetaSignature(rawBody, signature) {
+    if (!rawBody || !signature) return false;
     if (typeof signature !== 'string' || !signature.startsWith('sha256=')) return false;
 
-    const expected = 'sha256=' + crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex');
-    const expectedBuffer = Buffer.from(expected);
-    const signatureBuffer = Buffer.from(signature);
+    const secrets = [process.env.INSTAGRAM_CLIENT_SECRET, process.env.META_APP_SECRET].filter(Boolean);
+    if (secrets.length === 0) return false;
 
-    return expectedBuffer.length === signatureBuffer.length
-        && crypto.timingSafeEqual(expectedBuffer, signatureBuffer);
+    const signatureBuffer = Buffer.from(signature);
+    return secrets.some((secret) => {
+        const expected = 'sha256=' + crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
+        const expectedBuffer = Buffer.from(expected);
+        return expectedBuffer.length === signatureBuffer.length
+            && crypto.timingSafeEqual(expectedBuffer, signatureBuffer);
+    });
 }
 
 export const config = {
@@ -73,7 +80,7 @@ export default async function handler(req, res) {
         // Verify Meta's signature over the exact raw bytes before trusting any payload.
         // Fail closed: forged or unsigned requests are rejected.
         const signature = req.headers['x-hub-signature-256'];
-        if (!isValidMetaSignature(rawBody, signature, process.env.META_APP_SECRET)) {
+        if (!isValidMetaSignature(rawBody, signature)) {
             console.warn('[Webhook] Rejected: invalid or missing X-Hub-Signature-256');
             return res.status(401).json({ error: 'Invalid signature' });
         }
