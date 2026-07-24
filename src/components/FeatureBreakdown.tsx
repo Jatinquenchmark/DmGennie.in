@@ -13,9 +13,10 @@ type Feature = {
 
 function PhoneMockup({ feature, index }: { feature: Feature; index: number }) {
   return (
-    <div className="relative mx-auto h-[360px] w-full max-w-[430px]">
+    <div className="relative mx-auto h-[440px] w-full max-w-[430px]">
       <div className={`absolute inset-8 rounded-full ${feature.accent} opacity-30 blur-3xl`} />
-      <div className="absolute left-2 top-5 h-[315px] w-[185px] rounded-[2.1rem] border-[7px] border-slate-950 bg-white shadow-2xl">
+      {/* 9:19.5 is a modern phone's aspect ratio; both frames use it so they read as real devices */}
+      <div className="absolute left-2 top-0 aspect-[9/19.5] w-[168px] overflow-hidden rounded-[2.1rem] border-[7px] border-slate-950 bg-white shadow-2xl">
         <div className="mx-auto mt-3 h-4 w-14 rounded-full bg-slate-950" />
         <div className="mx-3 mt-5 overflow-hidden rounded-2xl bg-slate-100">
           <div className={`h-36 ${feature.accent} p-4 text-white`}>
@@ -36,7 +37,7 @@ function PhoneMockup({ feature, index }: { feature: Feature; index: number }) {
         </div>
       </div>
 
-      <div className="absolute right-4 top-20 w-[190px] rounded-[1.6rem] border-[6px] border-slate-950 bg-white shadow-2xl">
+      <div className="absolute right-2 top-16 aspect-[9/19.5] w-[168px] overflow-hidden rounded-[1.6rem] border-[6px] border-slate-950 bg-white shadow-2xl">
         <div className="mx-auto mt-3 h-3 w-12 rounded-full bg-slate-950" />
         <div className="p-4">
           <div className="mb-4 flex items-center gap-2">
@@ -57,7 +58,7 @@ function PhoneMockup({ feature, index }: { feature: Feature; index: number }) {
         </div>
       </div>
 
-      <div className="absolute right-1 top-12 flex h-9 w-9 items-center justify-center rounded-full bg-red-500 text-sm font-black text-white shadow-xl">
+      <div className="absolute right-0 top-6 flex h-9 w-9 items-center justify-center rounded-full bg-red-500 text-sm font-black text-white shadow-xl">
         {index + 1}
       </div>
       <div className="absolute bottom-4 left-48 hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-700 shadow-lg sm:flex">

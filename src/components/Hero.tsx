@@ -29,7 +29,10 @@ export function Hero() {
   }, [isMobileMenuOpen])
 
   return (
-    <div className="premium-gradient relative isolate min-h-screen w-full overflow-hidden">
+    // `isolate` scopes the fixed navbar's z-index to this subtree, so without a z-index
+    // here every later section paints over the nav. z-50 lifts the whole hero context
+    // (nav + mobile menu) above the sections that follow.
+    <div className="premium-gradient relative isolate z-50 min-h-screen w-full overflow-hidden">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-white/50 dark:bg-transparent" />
       <div className="pointer-events-none absolute left-[-8%] top-[18%] h-72 w-72 rounded-full bg-[#C13584]/10 blur-3xl sm:h-96 sm:w-96" />
       <div className="pointer-events-none absolute right-[-10%] top-[24%] h-80 w-80 rounded-full bg-[#f5a9c4]/18 blur-3xl sm:h-[30rem] sm:w-[30rem]" />
