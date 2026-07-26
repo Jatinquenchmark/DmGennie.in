@@ -91,6 +91,10 @@ export default async function handler(req, res) {
         if (body.object === 'instagram') {
             const supabase = getSupabase();
             for (const entry of body.entry || []) {
+                // Incoming Direct Messages arrive as entry.messaging[] (Instagram Login messaging).
+                for (const event of entry.messaging || []) {
+                    await processMessage(supabase, event, entry.id);
+                }
                 const changes = entry.changes || [];
                 if (!changes.length && entry.field === 'comments' && entry.value) {
                     await processComment(supabase, entry.value, entry.id);
@@ -144,6 +148,8 @@ async function processComment(supabase, commentValue, igAccountId) {
     console.log(`[processComment] Active triggers: ${(triggers || []).length}`);
 
     for (const trigger of triggers || []) {
+        // DM-keyword automations fire on incoming Direct Messages (processMessage), not comments.
+        if (trigger.trigger_type === 'DM keyword') continue;
         if (!commentText.includes(trigger.keyword.toLowerCase())) continue;
 
         console.log(`[processComment] ✅ Matched trigger "${trigger.keyword}"`);
@@ -161,41 +167,101 @@ async function processComment(supabase, commentValue, igAccountId) {
         }
 
         const dmResult = await sendPrivateReply(settings, commentId, trigger.reply_message);
+        await recordDmOutcome(supabase, settings, username, trigger.keyword, dmResult);
 
-        if (dmResult.ok) {
+        if (dmResult.ok && settings.success_public_reply) {
+            await sendPublicReply(settings, commentId, settings.success_public_reply);
             await supabase.from('user_settings').update({
-                total_dms_sent: (settings.total_dms_sent || 0) + 1,
-                total_links_sent: (settings.total_links_sent || 0) + 1,
-                dms_sent_today: (settings.dms_sent_today || 0) + 1,
+                total_public_replies: (settings.total_public_replies || 0) + 1
             }).eq('user_id', settings.user_id);
+        } else if (!dmResult.ok && settings.fallback_public_reply) {
+            await sendPublicReply(settings, commentId, settings.fallback_public_reply);
+        }
+        break;
+    }
+}
 
-            await supabase.from('activity_log').insert({
-                user_id: settings.user_id, username: `@${username}`,
-                keyword: trigger.keyword, trigger_keyword: trigger.keyword, status: 'sent',
-            });
+// Parses an Instagram messaging event, filtering out echoes (messages we sent) and
+// non-text events (reactions, read receipts, deliveries, attachments). Returns null
+// when there is nothing to act on. Exported for the self-check in webhook.test.mjs.
+export function parseIncomingMessage(event) {
+    if (!event || event.message?.is_echo) return null;
+    const senderId = event.sender?.id;
+    const text = (event.message?.text || '').trim();
+    if (!senderId || !text) return null;
+    return { senderId, text };
+}
 
-            if (settings.success_public_reply) {
-                await sendPublicReply(settings, commentId, settings.success_public_reply);
-                await supabase.from('user_settings').update({
-                    total_public_replies: (settings.total_public_replies || 0) + 1
-                }).eq('user_id', settings.user_id);
-            }
-        } else {
-            await supabase.from('user_settings').update({
-                failed_dms: (settings.failed_dms || 0) + 1
-            }).eq('user_id', settings.user_id);
+async function processMessage(supabase, event, igAccountId) {
+    const parsed = parseIncomingMessage(event);
+    if (!parsed) return;
+    const { senderId, text } = parsed;
 
+    const { data: settingsRows } = await supabase
+        .from('user_settings')
+        .select('*')
+        .eq('instagram_account_id', igAccountId)
+        .not('page_access_token', 'is', null);
+
+    const settings = settingsRows?.[0];
+    if (!settings) {
+        console.warn('[processMessage] No connected account for this Instagram id; ignoring.');
+        return;
+    }
+    if (!settings.bot_enabled) return;
+    // Never reply to our own account's messages.
+    if (senderId === settings.instagram_account_id) return;
+
+    const messageText = text.toLowerCase();
+    const username = event.sender?.username || senderId;
+
+    const { data: triggers } = await supabase.from('triggers').select('*')
+        .eq('user_id', settings.user_id).eq('enabled', true).eq('trigger_type', 'DM keyword');
+
+    console.log(`[processMessage] Active DM triggers: ${(triggers || []).length}`);
+
+    for (const trigger of triggers || []) {
+        if (!messageText.includes(trigger.keyword.toLowerCase())) continue;
+
+        console.log(`[processMessage] ✅ Matched DM trigger "${trigger.keyword}"`);
+        const limitStatus = await getAutomationLimitStatus(supabase, settings);
+        if (limitStatus.blocked) {
             await supabase.from('activity_log').insert({
                 user_id: settings.user_id, username: `@${username}`,
                 keyword: trigger.keyword, trigger_keyword: trigger.keyword,
-                status: dmResult.rateLimited ? 'rate_limited' : 'failed_dms_closed',
+                status: limitStatus.reason,
             });
-
-            if (settings.fallback_public_reply) {
-                await sendPublicReply(settings, commentId, settings.fallback_public_reply);
-            }
+            console.warn(`[processMessage] Blocked by plan limit: ${limitStatus.reason}`);
+            return;
         }
+
+        const dmResult = await sendDirectMessage(settings, senderId, trigger.reply_message);
+        await recordDmOutcome(supabase, settings, username, trigger.keyword, dmResult);
         break;
+    }
+}
+
+// Shared success/failure bookkeeping for a sent (or attempted) DM.
+async function recordDmOutcome(supabase, settings, username, keyword, dmResult) {
+    if (dmResult.ok) {
+        await supabase.from('user_settings').update({
+            total_dms_sent: (settings.total_dms_sent || 0) + 1,
+            total_links_sent: (settings.total_links_sent || 0) + 1,
+            dms_sent_today: (settings.dms_sent_today || 0) + 1,
+        }).eq('user_id', settings.user_id);
+        await supabase.from('activity_log').insert({
+            user_id: settings.user_id, username: `@${username}`,
+            keyword, trigger_keyword: keyword, status: 'sent',
+        });
+    } else {
+        await supabase.from('user_settings').update({
+            failed_dms: (settings.failed_dms || 0) + 1
+        }).eq('user_id', settings.user_id);
+        await supabase.from('activity_log').insert({
+            user_id: settings.user_id, username: `@${username}`,
+            keyword, trigger_keyword: keyword,
+            status: dmResult.rateLimited ? 'rate_limited' : 'failed_dms_closed',
+        });
     }
 }
 
@@ -261,6 +327,27 @@ async function sendPrivateReply(settings, commentId, message) {
         const e = err.response?.data?.error || {};
         const rateLimited = RATE_LIMIT_ERROR_CODES.includes(e.code);
         console.error(`[sendPrivateReply] ❌ Failed [${e.code}/${e.error_subcode}]${rateLimited ? ' (rate limited)' : ''}: ${e.message || err.message}`);
+        return { ok: false, rateLimited };
+    }
+}
+
+async function sendDirectMessage(settings, recipientId, message) {
+    if (!settings.page_access_token || !settings.instagram_account_id) {
+        console.warn('[sendDirectMessage] Missing token or account ID');
+        return { ok: false, rateLimited: false };
+    }
+    try {
+        const res = await axios.post(
+            `https://graph.instagram.com/${API_VERSION}/${settings.instagram_account_id}/messages`,
+            { recipient: { id: recipientId }, message: { text: message }, access_token: settings.page_access_token },
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+        console.log('[sendDirectMessage] ✅ DM sent:', res.data.message_id);
+        return { ok: true, rateLimited: false };
+    } catch (err) {
+        const e = err.response?.data?.error || {};
+        const rateLimited = RATE_LIMIT_ERROR_CODES.includes(e.code);
+        console.error(`[sendDirectMessage] ❌ Failed [${e.code}/${e.error_subcode}]${rateLimited ? ' (rate limited)' : ''}: ${e.message || err.message}`);
         return { ok: false, rateLimited };
     }
 }
