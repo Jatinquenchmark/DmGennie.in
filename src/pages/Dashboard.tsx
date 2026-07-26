@@ -3431,7 +3431,6 @@ function AutomationBuilder({
     const [reTriggerEnabled, setReTriggerEnabled] = useState(false);
     const [repliesModalOpen, setRepliesModalOpen] = useState(false);
     const [responseModalOpen, setResponseModalOpen] = useState(false);
-    const [reviewOpen, setReviewOpen] = useState(false);
     const [duplicateWarning, setDuplicateWarning] = useState<{ title: string; onContinue: () => void; onCancel?: () => void } | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [showValidationToast, setShowValidationToast] = useState(false);
@@ -3619,14 +3618,13 @@ function AutomationBuilder({
             window.setTimeout(() => setShowValidationToast(false), 4200);
             return;
         }
-        setReviewOpen(true);
+        void completeSave();
     };
 
     const completeSave = async () => {
         const errors = computeErrors();
         if (Object.keys(errors).length) {
             setValidationErrors(errors);
-            setReviewOpen(false);
             setShowValidationToast(true);
             window.setTimeout(() => setShowValidationToast(false), 4200);
             return;
@@ -4128,55 +4126,6 @@ function AutomationBuilder({
                     </div>
                 </motion.div>
             )}
-            {reviewOpen && (
-                <ReviewLaunchModal
-                    saving={saving}
-                    profile="@dmgennie.in"
-                    selectedMedia={contentSource === "story" ? selectedStoryMedia : selectedMedia}
-                    triggerType={triggerType}
-                    keywords={keywords}
-                    anyKeyword={anyKeyword}
-                    welcomeEnabled={welcomeEnabled}
-                    welcomeDm={safeWelcomeDm}
-                    commentReplies={commentReplies}
-                    finalDm={safeFinalDm}
-                    linkEnabled={linkEnabled}
-                    buttonText={buttonText}
-                    linkUrl={linkUrl}
-                    askFollowFirst={askFollowFirst}
-                    askEmailFirst={askEmailFirst}
-                    followUpEnabled={followUpEnabled}
-                    responseCount={responses.length}
-                    contentSource={contentSource}
-                    storyExpirationEnabled={storyExpirationEnabled}
-                    reTriggerEnabled={reTriggerEnabled}
-                    failedProtocolEnabled={failedProtocolEnabled}
-                    selectedContentLabel={selectedContentCountLabel}
-                    triggerLabel={activeTrigger.title}
-                    previewProps={{
-                        contentSource,
-                        triggerType,
-                        username: "@dmgennie.in",
-                        keyword: primaryKeyword,
-                        anyKeyword,
-                        contextMedia: previewContextMedia,
-                        storyReplyMode,
-                        liveCommentMode,
-                        welcomeEnabled,
-                        welcomeDm: safeWelcomeDm,
-                        askFollowFirst,
-                        askEmailFirst,
-                        finalDm: safeFinalDm,
-                        linkEnabled,
-                        buttonText,
-                        linkUrl,
-                        followUpEnabled,
-                        followUpMessage,
-                    }}
-                    onBack={() => setReviewOpen(false)}
-                    onConfirm={completeSave}
-                />
-            )}
         </div>
     );
 }
@@ -4589,184 +4538,6 @@ function InstagramDmPreview({
                 </div>
             </div>
         </aside>
-    );
-}
-
-function ReviewLaunchModal({
-    saving,
-    profile,
-    selectedMedia,
-    triggerType,
-    keywords,
-    anyKeyword,
-    welcomeEnabled,
-    welcomeDm,
-    commentReplies,
-    finalDm,
-    linkEnabled,
-    buttonText,
-    linkUrl,
-    askFollowFirst,
-    askEmailFirst,
-    followUpEnabled,
-    responseCount,
-    contentSource,
-    storyExpirationEnabled,
-    reTriggerEnabled,
-    failedProtocolEnabled,
-    selectedContentLabel,
-    triggerLabel,
-    previewProps,
-    onBack,
-    onConfirm,
-}: {
-    saving: boolean;
-    profile: string;
-    selectedMedia: InstagramMedia;
-    triggerType: string;
-    keywords: string[];
-    anyKeyword: boolean;
-    welcomeEnabled: boolean;
-    welcomeDm: string;
-    commentReplies: string[];
-    finalDm: string;
-    linkEnabled: boolean;
-    buttonText: string;
-    linkUrl: string;
-    askFollowFirst: boolean;
-    askEmailFirst: boolean;
-    followUpEnabled: boolean;
-    responseCount: number;
-    contentSource: string;
-    storyExpirationEnabled: boolean;
-    reTriggerEnabled: boolean;
-    failedProtocolEnabled: boolean;
-    selectedContentLabel: string;
-    triggerLabel: string;
-    previewProps: Parameters<typeof InstagramDmPreview>[0];
-    onBack: () => void;
-    onConfirm: () => void;
-}) {
-    const keywordText = anyKeyword ? "Any keyword" : keywords.map((item) => `+${item}`).join(", ");
-    const repliesCount = commentReplies.filter((reply) => reply.trim()).length;
-    const triggerLine = triggerType === "Live comment"
-        ? "When someone comments during your Instagram Live"
-        : triggerType === "Story reply"
-            ? "When someone replies to your story"
-            : triggerType === "DM keyword"
-                ? "When someone sends a DM keyword"
-                : selectedMedia.id === "all"
-                    ? "When someone comments on any post or reel"
-                    : "When someone comments on selected post/reel";
-    const expirationApplicable = contentSource === "story";
-
-    const reviewGroups: Array<{ group: string; items: Array<{ label: string; value: string; muted?: boolean }> }> = [
-        {
-            group: "Trigger",
-            items: [
-                { label: "Trigger", value: triggerLine },
-                { label: "Content", value: contentSource === "live" ? "Your next Instagram Live" : contentSource === "dm" ? "Direct messages" : selectedContentLabel === "All" ? "All posts & reels" : `${selectedContentLabel} selected`, muted: selectedContentLabel === "0" },
-                { label: "Keywords", value: anyKeyword ? "Any keyword" : (keywordText || "No keywords yet"), muted: !anyKeyword && keywords.length === 0 },
-            ],
-        },
-        {
-            group: "Messages",
-            items: [
-                { label: "Welcome DM", value: welcomeEnabled ? welcomeDm : "Turned off", muted: !welcomeEnabled },
-                { label: "Public replies", value: repliesCount ? `${repliesCount} saved` : "None", muted: repliesCount === 0 },
-                { label: "Main message", value: finalDm },
-                { label: "Link", value: linkEnabled ? `“${buttonText}” → ${linkUrl}` : "No link", muted: !linkEnabled },
-                { label: "If delivery fails", value: failedProtocolEnabled ? "Fallback messages on" : "No fallback", muted: !failedProtocolEnabled },
-            ],
-        },
-        {
-            group: "Extra steps",
-            items: [
-                { label: "Before final DM", value: [askFollowFirst ? "Ask to follow" : "", askEmailFirst ? "Ask for email" : ""].filter(Boolean).join(" · ") || "None", muted: !askFollowFirst && !askEmailFirst },
-                { label: "Extra responses", value: responseCount ? `${responseCount} added` : "None", muted: responseCount === 0 },
-                { label: "Follow-up", value: followUpEnabled ? `After ${FOLLOW_UP_WINDOW_LABEL}` : "Off", muted: !followUpEnabled },
-                { label: "Re-trigger", value: reTriggerEnabled ? "Same person can re-trigger" : "Once per person", muted: !reTriggerEnabled },
-                ...(expirationApplicable ? [{ label: "Story expiry", value: storyExpirationEnabled ? "Auto-remove on expiry" : "Stays active after expiry", muted: false }] : []),
-            ],
-        },
-    ];
-
-    const summaryRows: Array<{ label: string; on: boolean; value: string }> = [
-        { label: "Trigger", on: true, value: triggerLabel },
-        { label: "Content", on: selectedContentLabel !== "0", value: selectedContentLabel },
-        { label: "Keywords", on: anyKeyword || keywords.length > 0, value: anyKeyword ? "Any" : String(keywords.length) },
-        { label: "Public replies", on: repliesCount > 0, value: String(repliesCount) },
-        { label: "Link", on: linkEnabled, value: linkEnabled ? "On" : "Off" },
-        { label: "Welcome DM", on: welcomeEnabled, value: welcomeEnabled ? "On" : "Off" },
-        { label: "Failed protocol", on: failedProtocolEnabled, value: failedProtocolEnabled ? "On" : "Off" },
-        { label: "Follow-ups", on: followUpEnabled, value: followUpEnabled ? "On" : "Off" },
-        { label: "Expiration", on: expirationApplicable && storyExpirationEnabled, value: expirationApplicable ? (storyExpirationEnabled ? "On" : "Off") : "N/A" },
-        { label: "Re-trigger", on: reTriggerEnabled, value: reTriggerEnabled ? "On" : "Off" },
-    ];
-
-    return (
-        <ModalShell onClose={onBack} wide>
-            <div className="flex flex-col gap-5">
-                <div className="flex items-start justify-between gap-4">
-                    <div>
-                        <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#C13584]">Final check</p>
-                        <h2 className="mt-1 text-2xl font-black tracking-tight text-[#0F172A]">Review & launch automation</h2>
-                        <p className="mt-1 text-sm font-semibold text-[#64748B]">Confirm your setup before turning this automation live.</p>
-                    </div>
-                    <button onClick={onBack} className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50">
-                        <X className="h-4 w-4" />
-                    </button>
-                </div>
-
-                <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_300px]">
-                    {/* Left: configuration review */}
-                    <div className="space-y-3">
-                        {reviewGroups.map((groupBlock) => (
-                            <div key={groupBlock.group} className="rounded-[20px] border border-slate-100 bg-white p-4">
-                                <p className="mb-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#94A3B8]">{groupBlock.group}</p>
-                                <div className="space-y-2.5">
-                                    {groupBlock.items.map((item) => (
-                                        <div key={item.label} className="grid grid-cols-[110px_minmax(0,1fr)] items-start gap-3">
-                                            <span className="pt-0.5 text-[11px] font-bold uppercase tracking-[0.06em] text-slate-400">{item.label}</span>
-                                            <span className={cx("text-sm font-black leading-5", item.muted ? "text-slate-400" : "text-[#0F172A]")}>{item.value}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Right: preview -> summary -> ready to go */}
-                    <div className="space-y-4">
-                        <InstagramDmPreview {...previewProps} />
-
-                        <div className="rounded-[20px] border border-slate-100 bg-white p-4">
-                            <p className="mb-3 text-[10px] font-black uppercase tracking-[0.14em] text-[#94A3B8]">At a glance</p>
-                            <div className="space-y-1.5">
-                                {summaryRows.map((row) => (
-                                    <div key={row.label} className="flex items-center justify-between gap-3">
-                                        <span className="text-xs font-bold text-[#64748B]">{row.label}</span>
-                                        <span className={cx("inline-flex h-6 items-center rounded-full px-2.5 text-[11px] font-black ring-1", row.value === "N/A" ? "bg-slate-50 text-slate-400 ring-slate-100" : row.on ? "bg-emerald-50 text-emerald-700 ring-emerald-100" : "bg-slate-50 text-slate-500 ring-slate-200")}>{row.value}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="rounded-[20px] border border-indigo-100 bg-[#FBEAF3]/50 p-4">
-                            <span className="flex h-11 w-11 items-center justify-center rounded-[1rem] bg-white text-[#C13584] shadow-sm ring-1 ring-indigo-100">
-                                <ShieldCheck className="h-5 w-5" />
-                            </span>
-                            <h3 className="mt-3 text-base font-black text-[#0F172A]">Ready to go live</h3>
-                            <p className="mt-1.5 text-sm font-semibold leading-6 text-[#64748B]">DMGennie responds only when this trigger matches. You can edit or pause anytime.</p>
-                            <div className="mt-4 flex flex-col gap-2">
-                                <PrimaryButton onClick={onConfirm}><Check className="h-4 w-4" /> {saving ? "Launching..." : "Confirm & Launch"}</PrimaryButton>
-                                <SecondaryButton onClick={onBack}>Back to editing</SecondaryButton>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </ModalShell>
     );
 }
 
