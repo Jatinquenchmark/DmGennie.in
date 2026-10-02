@@ -1,5 +1,5 @@
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -10,7 +10,7 @@ import { supabase } from "@/lib/supabase";
 import { detectCurrency, formatPrice, type Currency } from "@/lib/utils";
 import { usePageTour, startTour } from "@/lib/usePageTour";
 import { openProSubscriptionCheckout } from "@/lib/razorpayCheckout";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion } from "framer-motion";
 import {
     Activity,
     AlertCircle,
@@ -1232,7 +1232,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                 />
 
                 <main className="mt-3 min-w-0 flex-1 overflow-x-hidden lg:mt-0">
-                    <div className="mx-auto w-full max-w-[1400px] space-y-4 pb-24">
+                    <div className="mx-auto w-full max-w-[1400px] space-y-4">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={tab}
@@ -2557,7 +2557,27 @@ function formatActivityCount(count: number): string {
     return "10k+";
 }
 
-// Permanent bottom-center dock. Holds quick-access buttons; append new ones as
+type DockCorner = "top-left" | "top-right" | "bottom-left" | "bottom-right";
+
+const DOCK_GLIDE = { type: "spring", stiffness: 260, damping: 28 } as const;
+
+// Viewport coords for the dock's top-left when parked in `corner`. clientWidth/Height
+// exclude the scrollbar, matching what `position: fixed` lays out against.
+function dockCornerPosition(corner: DockCorner, w: number, h: number) {
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+    const desktop = vw >= 1024; // Tailwind lg
+    const margin = desktop ? 20 : 12;
+    // ponytail: below lg the sticky mobile top bar is 61px tall; top corners sit under it.
+    const top = desktop ? margin : 61 + margin;
+    return {
+        x: corner.endsWith("left") ? margin : vw - w - margin,
+        y: corner.startsWith("top") ? top : vh - h - margin,
+    };
+}
+
+// Permanent dock: drag it anywhere, it glides to the nearest corner (top-right by
+// default; resets on refresh). Holds quick-access buttons; append new ones as
 // siblings of the Activity button. Activity opens in a right-side drawer.
 function QuickDock({ activity, onNavigate }: { activity: LogEntry[]; onNavigate: (tab: Tab) => void }) {
     const [open, setOpen] = useState(false);
@@ -2581,6 +2601,47 @@ function QuickDock({ activity, onNavigate }: { activity: LogEntry[]; onNavigate:
         }
     }, [open, activity.length]);
 
+    const dockRef = useRef<HTMLDivElement>(null);
+    const corner = useRef<DockCorner>("top-right");
+    const dragged = useRef(false);
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+    const reduced = useReducedMotion();
+
+    const glideTo = useCallback((next: DockCorner, instant = false) => {
+        const el = dockRef.current;
+        if (!el) return;
+        const pos = dockCornerPosition(next, el.offsetWidth, el.offsetHeight);
+        if (instant || reduced) {
+            x.set(pos.x);
+            y.set(pos.y);
+            return;
+        }
+        animate(x, pos.x, DOCK_GLIDE);
+        animate(y, pos.y, DOCK_GLIDE);
+    }, [x, y, reduced]);
+
+    // Park before first paint, and re-park on resize (breakpoints change size/insets).
+    useLayoutEffect(() => {
+        const place = () => glideTo(corner.current, true);
+        place();
+        window.addEventListener("resize", place);
+        return () => window.removeEventListener("resize", place);
+    }, [glideTo]);
+
+    const snapToNearestCorner = () => {
+        const el = dockRef.current;
+        if (!el) return;
+        const cx = x.get() + el.offsetWidth / 2;
+        const cy = y.get() + el.offsetHeight / 2;
+        const vertical = cy < document.documentElement.clientHeight / 2 ? "top" : "bottom";
+        const horizontal = cx < document.documentElement.clientWidth / 2 ? "left" : "right";
+        corner.current = `${vertical}-${horizontal}`;
+        glideTo(corner.current);
+        // The click that ends a drag must not open the drawer; clear after it fires.
+        window.setTimeout(() => { dragged.current = false; }, 0);
+    };
+
     const unseenCount = Math.max(0, activity.length - seenCount);
     const goToInbox = () => {
         setOpen(false);
@@ -2589,24 +2650,33 @@ function QuickDock({ activity, onNavigate }: { activity: LogEntry[]; onNavigate:
 
     return (
         <>
-            <div className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-[14px] bg-[#0F172A] p-1 shadow-[0_18px_38px_rgba(15,23,42,0.28)]">
+            <motion.div
+                ref={dockRef}
+                drag
+                dragMomentum={false}
+                onDragStart={() => { dragged.current = true; }}
+                onDragEnd={snapToNearestCorner}
+                whileDrag={{ scale: 1.05 }}
+                style={{ x, y, touchAction: "none" }}
+                className="fixed left-0 top-0 z-40 flex cursor-grab items-center gap-1 rounded-[14px] bg-[#0F172A] p-1 shadow-[0_18px_38px_rgba(15,23,42,0.28)] active:cursor-grabbing"
+            >
                 <button
                     type="button"
-                    onClick={() => setOpen(true)}
+                    onClick={() => { if (!dragged.current) setOpen(true); }}
                     aria-label="Recent activity"
                     aria-haspopup="dialog"
                     aria-expanded={open}
                     className="relative flex h-9 items-center gap-2 rounded-[10px] px-3 text-[12px] font-black text-white transition hover:bg-white/10"
                 >
                     <Activity className="h-4 w-4" />
-                    Activity
+                    <span className="hidden sm:inline">Activity</span>
                     {unseenCount > 0 && (
                         <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#EF4444] px-1 text-[10px] font-black text-white ring-2 ring-[#0F172A]">
                             {formatActivityCount(unseenCount)}
                         </span>
                     )}
                 </button>
-            </div>
+            </motion.div>
 
             <Drawer
                 open={open}
@@ -9083,7 +9153,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
 function PageShell({ title, subtitle, action, tourKey, children }: { title: string; subtitle: string; action?: ReactNode; tourKey?: string; children: ReactNode }) {
     return (
         <div className="space-y-4">
-            <header data-tour="page-header" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <header data-tour="page-header" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:pr-28">
                 <div>
                     <div className="flex items-center gap-2">
                         <h1 className="text-[28px] font-black tracking-tight text-slate-950 sm:text-[32px]">{title}</h1>
