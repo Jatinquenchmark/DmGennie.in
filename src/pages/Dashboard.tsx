@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { ErrorState, LoadingCard, SkeletonCard } from "@/components/Loading";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Drawer } from "@/components/ui/drawer";
 import { supabase } from "@/lib/supabase";
 import { detectCurrency, formatPrice, type Currency } from "@/lib/utils";
 import { usePageTour, startTour } from "@/lib/usePageTour";
@@ -1231,7 +1232,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                 />
 
                 <main className="mt-3 min-w-0 flex-1 overflow-x-hidden lg:mt-0">
-                    <div className="mx-auto w-full max-w-[1400px] space-y-4">
+                    <div className="mx-auto w-full max-w-[1400px] space-y-4 pb-24">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={tab}
@@ -1351,6 +1352,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                     </div>
                 </main>
             </div>
+            <QuickDock activity={activity} onNavigate={handleNavigate} />
             {disconnectConfirmOpen && (
                 <ConfirmInstagramDisconnectModal
                     onCancel={() => setDisconnectConfirmOpen(false)}
@@ -1935,8 +1937,6 @@ function HomePage({
             </div>
 
             <MetricGrid stats={stats} leadsCollected={leadsCollected} activity={activity} accountCreatedAt={accountCreatedAt} />
-
-            <ActivityLauncher activity={activity} onNavigate={onNavigate} />
         </div>
     );
 }
@@ -2557,33 +2557,15 @@ function formatActivityCount(count: number): string {
     return "10k+";
 }
 
-function ActivityLauncher({ activity, onNavigate }: { activity: LogEntry[]; onNavigate: (tab: Tab) => void }) {
+// Permanent bottom-center dock. Holds quick-access buttons; append new ones as
+// siblings of the Activity button. Activity opens in a right-side drawer.
+function QuickDock({ activity, onNavigate }: { activity: LogEntry[]; onNavigate: (tab: Tab) => void }) {
     const [open, setOpen] = useState(false);
     const [seenCount, setSeenCount] = useState(0);
-    const closeTimer = useRef<number | null>(null);
     const markSeenTimer = useRef<number | null>(null);
 
-    const cancelClose = () => {
-        if (closeTimer.current !== null) {
-            window.clearTimeout(closeTimer.current);
-            closeTimer.current = null;
-        }
-    };
-
-    const scheduleClose = () => {
-        cancelClose();
-        closeTimer.current = window.setTimeout(() => {
-            setOpen(false);
-            closeTimer.current = null;
-        }, 500);
-    };
-
     useEffect(() => () => {
-        cancelClose();
-        if (markSeenTimer.current !== null) {
-            window.clearTimeout(markSeenTimer.current);
-            markSeenTimer.current = null;
-        }
+        if (markSeenTimer.current !== null) window.clearTimeout(markSeenTimer.current);
     }, []);
 
     useEffect(() => {
@@ -2600,85 +2582,81 @@ function ActivityLauncher({ activity, onNavigate }: { activity: LogEntry[]; onNa
     }, [open, activity.length]);
 
     const unseenCount = Math.max(0, activity.length - seenCount);
-    const countLabel = formatActivityCount(unseenCount);
+    const goToInbox = () => {
+        setOpen(false);
+        onNavigate("inbox");
+    };
 
     return (
-        <div
-            className="fixed right-0 top-1/2 z-40 -translate-y-1/2"
-            onMouseEnter={() => { cancelClose(); setOpen(true); }}
-            onMouseLeave={scheduleClose}
-        >
-            <button
-                type="button"
-                className="relative flex h-48 w-7 items-center justify-center gap-1.5 rounded-l-[12px] bg-[#0F172A] px-1 py-3 text-white shadow-[0_18px_38px_rgba(15,23,42,0.28)] transition hover:bg-slate-800"
-                aria-label="Recent activity"
-                aria-expanded={open}
-            >
-                {open ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
-                <span className="whitespace-nowrap text-[11px] font-black uppercase tracking-[0.18em] [writing-mode:vertical-rl]">Recent activity</span>
-                {unseenCount > 0 && (
-                    <span className="absolute -left-1 -top-1 inline-flex min-h-[20px] min-w-[20px] items-center justify-center rounded-full bg-[#EF4444] px-1.5 text-[10px] font-black text-white ring-2 ring-white">
-                        {countLabel}
-                    </span>
-                )}
-            </button>
-
-            <div
-                className={cx(
-                    "absolute right-0 top-1/2 origin-right -translate-y-1/2 overflow-hidden rounded-l-[18px] border border-r-0 border-slate-100 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.18)] transition-all duration-200",
-                    open ? "pointer-events-auto w-[320px] max-w-[calc(100vw-2rem)] opacity-100" : "pointer-events-none w-0 opacity-0"
-                )}
-                aria-hidden={!open}
-            >
-                <div className="flex items-center justify-between gap-2 border-b border-slate-100 bg-white px-3.5 py-2.5">
-                    <div className="flex items-center gap-2">
-                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FBEAF3] text-[#C13584]">
-                            <Activity className="h-4 w-4" />
+        <>
+            <div className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-1 rounded-[14px] bg-[#0F172A] p-1 shadow-[0_18px_38px_rgba(15,23,42,0.28)]">
+                <button
+                    type="button"
+                    onClick={() => setOpen(true)}
+                    aria-label="Recent activity"
+                    aria-haspopup="dialog"
+                    aria-expanded={open}
+                    className="relative flex h-9 items-center gap-2 rounded-[10px] px-3 text-[12px] font-black text-white transition hover:bg-white/10"
+                >
+                    <Activity className="h-4 w-4" />
+                    Activity
+                    {unseenCount > 0 && (
+                        <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#EF4444] px-1 text-[10px] font-black text-white ring-2 ring-[#0F172A]">
+                            {formatActivityCount(unseenCount)}
                         </span>
-                        <div>
-                            <p className="text-[11px] font-black uppercase tracking-[0.1em] text-slate-400">Recent activity</p>
-                            <p className="text-[12px] font-black text-[#0F172A]">{countLabel} events</p>
-                        </div>
-                    </div>
+                    )}
+                </button>
+            </div>
+
+            <Drawer
+                open={open}
+                onOpenChange={setOpen}
+                side="right"
+                width={380}
+                title="Recent activity"
+                description={`${formatActivityCount(activity.length)} events`}
+                // dmg-dash pulls in the dashboard dark-mode overrides (src/index.css) for the
+                // portaled rows; the bg override keeps the panel on the dashboard's navy, not stone.
+                className="dmg-dash dark:!bg-[#161d2e]"
+                footer={
                     <button
                         type="button"
-                        onClick={() => onNavigate("inbox")}
-                        className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-[#C13584] ring-1 ring-slate-100 transition hover:bg-slate-100"
+                        onClick={goToInbox}
+                        className="h-9 w-full rounded-[10px] bg-[#0F172A] text-[12px] font-black text-white transition hover:bg-slate-800"
                     >
                         View inbox
                     </button>
-                </div>
-                <div className="max-h-[360px] overflow-y-auto px-2 py-2">
-                    {activity.length ? (
-                        <ul className="space-y-1.5">
-                            {activity.map((item) => (
-                                <li key={item.id}>
-                                    <button
-                                        type="button"
-                                        onClick={() => onNavigate("inbox")}
-                                        className="flex w-full items-start gap-2.5 rounded-[12px] border border-transparent bg-white px-2.5 py-2 text-left transition hover:border-slate-100 hover:bg-slate-50"
-                                    >
-                                        <span className={cx("flex h-7 w-7 shrink-0 items-center justify-center rounded-full", item.status === "sent" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600")}>
-                                            {item.status === "sent" ? <Send className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}
-                                        </span>
-                                        <div className="min-w-0 flex-1">
-                                            <p className="truncate text-[12px] font-black text-[#0F172A]">{item.status === "sent" ? "DM sent" : "Failed DM"} to {item.user}</p>
-                                            <p className="truncate text-[11px] font-semibold text-slate-500">Trigger: <span className="font-black text-slate-700">{item.trigger || item.keyword}</span></p>
-                                        </div>
-                                        <span className="shrink-0 text-[10px] font-bold text-slate-400">{item.time}</span>
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <div className="px-3 py-6 text-center">
-                            <Activity className="mx-auto h-5 w-5 text-slate-300" />
-                            <p className="mt-2 text-[12px] font-bold text-slate-500">No recent activity yet.</p>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </div>
+                }
+            >
+                {activity.length ? (
+                    <ul className="-mx-2 space-y-1.5">
+                        {activity.map((item) => (
+                            <li key={item.id}>
+                                <button
+                                    type="button"
+                                    onClick={goToInbox}
+                                    className="flex w-full items-start gap-2.5 rounded-[12px] border border-transparent bg-white px-2.5 py-2 text-left transition hover:border-slate-100 hover:bg-slate-50"
+                                >
+                                    <span className={cx("flex h-7 w-7 shrink-0 items-center justify-center rounded-full", item.status === "sent" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600")}>
+                                        {item.status === "sent" ? <Send className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}
+                                    </span>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate text-[12px] font-black text-[#0F172A]">{item.status === "sent" ? "DM sent" : "Failed DM"} to {item.user}</p>
+                                        <p className="truncate text-[11px] font-semibold text-slate-500">Trigger: <span className="font-black text-slate-700">{item.trigger || item.keyword}</span></p>
+                                    </div>
+                                    <span className="shrink-0 text-[10px] font-bold text-slate-400">{item.time}</span>
+                                </button>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <div className="px-3 py-6 text-center">
+                        <Activity className="mx-auto h-5 w-5 text-slate-300" />
+                        <p className="mt-2 text-[12px] font-bold text-slate-500">No recent activity yet.</p>
+                    </div>
+                )}
+            </Drawer>
+        </>
     );
 }
 
