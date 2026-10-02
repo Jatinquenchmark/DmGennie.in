@@ -148,23 +148,21 @@ function mapContactRow(row, tableName) {
 }
 
 async function loadRowsFromTable(supabase, tableName, userId) {
+    // ponytail: select * stays — mapContactRow reads ~40 optional column aliases and the
+    // contacts schema isn't in any migration, so naming columns would 400 on a miss.
+    // Ordering is pushed into SQL (indexed) instead of sorting in Node.
     const { data, error } = await supabase
         .from(tableName)
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
     if (error) {
         if (isMissingTable(error)) return { available: false, rows: [] };
         throw error;
     }
 
-    const rows = [...(data || [])].sort((a, b) => {
-        const left = new Date(b.created_at || b.joined_at || b.inserted_at || 0).getTime();
-        const right = new Date(a.created_at || a.joined_at || a.inserted_at || 0).getTime();
-        return left - right;
-    });
-
-    return { available: true, rows };
+    return { available: true, rows: data || [] };
 }
 
 export async function buildContactsPayload({ supabase, userId }) {
@@ -172,12 +170,14 @@ export async function buildContactsPayload({ supabase, userId }) {
     let rows = [];
     let tableName = 'contacts';
 
+    // Stop at the first table that exists — an empty contacts table is still the answer;
+    // the old loop went on to probe leads as well.
     for (const table of tables) {
         const result = await loadRowsFromTable(supabase, table, userId);
         if (!result.available) continue;
         tableName = table;
         rows = result.rows;
-        if (rows.length || table === tables[tables.length - 1]) break;
+        break;
     }
 
     const contacts = rows.map((row) => mapContactRow(row, tableName));

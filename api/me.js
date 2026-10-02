@@ -1,7 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { supabase, getUser, getUserRole, ensureSettings, cors } from '../server/supabaseApi.js';
 import { getSubscriptionState } from '../server/billingConfig.js';
-import { buildDashboardMetrics } from '../server/dashboardMetrics.js';
 
 // Permanently deletes the authenticated user's account and all their data.
 // Re-auth control: password accounts must re-enter their password; OAuth accounts
@@ -183,14 +182,8 @@ export default async function handler(req, res) {
     const settings = await getSafeSettings(user.id);
     const subscription = getSubscriptionState(user, settings);
 
-    let dashboard = { usage: {} };
-
-    try {
-        dashboard = await buildDashboardMetrics({ supabase, userId: user.id, user, settings });
-    } catch (error) {
-        console.warn('[api/me] buildDashboardMetrics failed. Using empty usage fallback:', error?.message || error);
-    }
-
+    // Usage/metrics come from /api/dashboard; nothing reads them off this endpoint
+    // (AdminRoute and Signup only read `role`), so don't run the 16+N query fan-out here.
     return res.json({
         user: {
             id: user.id,
@@ -213,7 +206,6 @@ export default async function handler(req, res) {
         has_used_pro_intro_offer: subscription.hasUsedIntroOffer,
         pro_intro_started_at: subscription.proIntroStartedAt,
         limits: subscription.limits,
-        usage: dashboard.usage || {},
         featureAccess: subscription.featureAccess,
     });
 }

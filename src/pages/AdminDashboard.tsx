@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
@@ -73,16 +73,21 @@ export default function AdminDashboard() {
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
 
+  // Ref-read token: keeps authFetch stable so a TOKEN_REFRESHED event doesn't
+  // rebuild loadData and refetch the admin payload in the background.
+  const tokenRef = useRef(session?.access_token)
+  tokenRef.current = session?.access_token
+
   const authFetch = useCallback((url: string, options: RequestInit = {}) => {
     return fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        ...(tokenRef.current ? { Authorization: `Bearer ${tokenRef.current}` } : {}),
         ...(options.headers || {}),
       },
     })
-  }, [session?.access_token])
+  }, [])
 
   const endpoint = useMemo(() => {
     if (section === 'overview') return '/api/admin?action=overview'

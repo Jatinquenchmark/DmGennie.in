@@ -104,36 +104,27 @@ async function firstAvailableCount(supabase, tables, userId, options) {
     return null;
 }
 
+// One RPC (one index scan) replaces 8 count(*) queries + one more per trigger.
+// See supabase/migrations/20260912000000_perf_indexes_and_rpcs.sql.
 async function getActivityCounts(supabase, userId, startTodayIso, startMonthIso) {
-    const [
-        successAll,
-        successToday,
-        successMonth,
-        failedAll,
-        failedToday,
-        failedMonth,
-        leadAll,
-        leadMonth,
-    ] = await Promise.all([
-        countRows(supabase, 'activity_log', userId, { statuses: SUCCESS_STATUSES }),
-        countRows(supabase, 'activity_log', userId, { statuses: SUCCESS_STATUSES, since: startTodayIso }),
-        countRows(supabase, 'activity_log', userId, { statuses: SUCCESS_STATUSES, since: startMonthIso }),
-        countRows(supabase, 'activity_log', userId, { statuses: FAILED_STATUSES }),
-        countRows(supabase, 'activity_log', userId, { statuses: FAILED_STATUSES, since: startTodayIso }),
-        countRows(supabase, 'activity_log', userId, { statuses: FAILED_STATUSES, since: startMonthIso }),
-        countRows(supabase, 'activity_log', userId, { statuses: LEAD_STATUSES }),
-        countRows(supabase, 'activity_log', userId, { statuses: LEAD_STATUSES, since: startMonthIso }),
-    ]);
+    const { data, error } = await supabase.rpc('dashboard_activity_counts', {
+        p_user_id: userId,
+        p_start_today: startTodayIso,
+        p_start_month: startMonthIso,
+    });
+    if (error) console.error('[dashboardMetrics] dashboard_activity_counts failed:', error.message);
+    const row = data?.[0] || {};
 
     return {
-        successAll: successAll.count,
-        successToday: successToday.count,
-        successMonth: successMonth.count,
-        failedAll: failedAll.count,
-        failedToday: failedToday.count,
-        failedMonth: failedMonth.count,
-        leadAll: leadAll.count,
-        leadMonth: leadMonth.count,
+        successAll: safeNumber(row.success_all),
+        successToday: safeNumber(row.success_today),
+        successMonth: safeNumber(row.success_month),
+        failedAll: safeNumber(row.failed_all),
+        failedToday: safeNumber(row.failed_today),
+        failedMonth: safeNumber(row.failed_month),
+        leadAll: safeNumber(row.lead_all),
+        leadMonth: safeNumber(row.lead_month),
+        perTrigger: row.per_trigger || {},
     };
 }
 
@@ -168,19 +159,6 @@ async function getLeadCounts(supabase, userId, startMonthIso, activityCounts) {
     return { all: activityCounts.leadAll, month: activityCounts.leadMonth };
 }
 
-async function countTriggerDms(supabase, userId, keyword) {
-    const normalized = String(keyword || '').trim();
-    if (!normalized) return 0;
-    const { count, error } = await supabase
-        .from('activity_log')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .eq('trigger_keyword', normalized)
-        .in('status', SUCCESS_STATUSES);
-    if (error) return 0;
-    return count || 0;
-}
-
 function mapActivity(row) {
     const status = normalizeStatus(row.status);
     const isSuccess = SUCCESS_STATUSES.includes(status);
@@ -203,21 +181,16 @@ export async function buildDashboardMetrics({ supabase, userId, user, settings }
     const startMonthIso = zonedBoundary(timeZone, 'month').toISOString();
     const connected = Boolean(safeSettings.page_access_token && safeSettings.instagram_account_id);
 
-    const { data: triggersData } = await supabase
-        .from('triggers')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: true });
-
-    const { data: recentRows } = await supabase
-        .from('activity_log')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
-    const activityCounts = await getActivityCounts(supabase, userId, startTodayIso, startMonthIso);
-    const rawMessageCounts = await getMessageCounts(supabase, userId, startTodayIso, startMonthIso);
+    // ponytail: getMessageCounts/getLeadCounts probe optional tables (messages, leads,
+    // contacts). PostgREST rejects a missing table from its schema cache without touching
+    // Postgres, so they cost round trips, not CPU. Delete them once prod confirms the
+    // tables don't exist (pg_tables) — until then keep the behaviour identical.
+    const [{ data: triggersData }, { data: recentRows }, activityCounts, rawMessageCounts] = await Promise.all([
+        supabase.from('triggers').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
+        supabase.from('activity_log').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(10),
+        getActivityCounts(supabase, userId, startTodayIso, startMonthIso),
+        getMessageCounts(supabase, userId, startTodayIso, startMonthIso),
+    ]);
     const messageCounts = rawMessageCounts && (rawMessageCounts.successAll + rawMessageCounts.failedAll > 0)
         ? rawMessageCounts
         : null;
@@ -234,16 +207,16 @@ export async function buildDashboardMetrics({ supabase, userId, user, settings }
     const subscription = getSubscriptionState(user, safeSettings);
     const plan = getPlanLimitsForState(subscription);
 
-    const automations = await Promise.all((triggersData || []).map(async (trigger) => ({
+    const automations = (triggersData || []).map((trigger) => ({
         id: trigger.id,
         keyword: trigger.keyword || '',
         replyMessage: trigger.reply_message || '',
         enabled: Boolean(trigger.enabled),
         status: trigger.enabled ? 'Live' : 'Paused',
         triggerType: trigger.trigger_type || 'Post or Reel comment',
-        dmsSent: await countTriggerDms(supabase, userId, trigger.keyword),
+        dmsSent: safeNumber(activityCounts.perTrigger[String(trigger.keyword || '').trim()]),
         modifiedAt: trigger.updated_at || trigger.created_at || null,
-    })));
+    }));
 
     const followersValue = connected && safeSettings.followers !== null && safeSettings.followers !== undefined
         ? safeNumber(safeSettings.followers)

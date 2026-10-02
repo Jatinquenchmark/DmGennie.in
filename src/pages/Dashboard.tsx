@@ -666,8 +666,15 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         window.setTimeout(() => setDashboardToast(""), 2400);
     }, []);
 
+    // Read the token through a ref so authFetch keeps a stable identity. Supabase
+    // fires onAuthStateChange(TOKEN_REFRESHED) roughly hourly and on tab focus; with
+    // [session] in the deps that rebuilt authFetch -> fetchAll -> the load effect,
+    // re-running the whole dashboard query fan-out in the background.
+    const tokenRef = useRef(session?.access_token);
+    tokenRef.current = session?.access_token;
+
     const authFetch = useCallback((url: string, options: RequestInit = {}) => {
-        const token = session?.access_token;
+        const token = tokenRef.current;
         return fetch(url, {
             ...options,
             headers: {
@@ -676,7 +683,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                 ...(options.headers || {}),
             },
         });
-    }, [session]);
+    }, []);
 
     const loadContacts = useCallback(async () => {
         if (preview) {

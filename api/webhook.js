@@ -4,7 +4,6 @@ import { createClient } from '@supabase/supabase-js';
 import { getPlanLimitsForState, getSubscriptionState } from '../server/billingConfig.js';
 
 const API_VERSION = 'v25.0';
-const SUCCESS_STATUSES = ['sent', 'success', 'delivered'];
 // Meta allows 750 private replies/hour per IG professional account for post/reel comments.
 // We stop at 700 to stay safely under the ceiling.
 const HOURLY_PRIVATE_REPLY_LIMIT = 700;
@@ -117,9 +116,10 @@ async function processComment(supabase, commentValue, igAccountId) {
     // entry.id on Instagram comment webhooks is the business (professional) account id
     // the media belongs to. Match strictly on it — never fall back to "any connected
     // account", which would fire one tenant's triggers/token for another tenant's comments.
+    // Only the columns this path reads — keeps tokens/jsonb off the wire on every event.
     const { data: settingsRows } = await supabase
         .from('user_settings')
-        .select('*')
+        .select('user_id,bot_enabled,page_access_token,instagram_account_id,success_public_reply,fallback_public_reply,subscription_plan,subscription_status,current_period_end,has_used_pro_intro_offer,total_dms_sent,total_links_sent,total_public_replies,failed_dms')
         .eq('instagram_account_id', igAccountId)
         .not('page_access_token', 'is', null);
 
@@ -142,7 +142,7 @@ async function processComment(supabase, commentValue, igAccountId) {
 
     if (!commentId || !commentText) return;
 
-    const { data: triggers } = await supabase.from('triggers').select('*')
+    const { data: triggers } = await supabase.from('triggers').select('keyword,reply_message,trigger_type')
         .eq('user_id', settings.user_id).eq('enabled', true);
 
     console.log(`[processComment] Active triggers: ${(triggers || []).length}`);
@@ -271,39 +271,28 @@ async function getAutomationLimitStatus(supabase, settings) {
     const startMonth = new Date();
     startMonth.setUTCDate(1);
     startMonth.setUTCHours(0, 0, 0, 0);
+    const startHour = new Date(Date.now() - 60 * 60 * 1000);
 
-    const { count: dmsThisMonth } = await supabase
-        .from('activity_log')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', settings.user_id)
-        .in('status', SUCCESS_STATUSES)
-        .gte('created_at', startMonth.toISOString());
+    // One RPC (one index scan) instead of three count(*) scans of activity_log.
+    // Fails open like the old code did (a null count read as 0).
+    const { data, error } = await supabase.rpc('webhook_limit_counts', {
+        p_user_id: settings.user_id,
+        p_start_month: startMonth.toISOString(),
+        p_start_hour: startHour.toISOString(),
+    });
+    if (error) console.error('[getAutomationLimitStatus] webhook_limit_counts failed:', error.message);
+    const counts = data?.[0] || {};
 
-    if ((dmsThisMonth || 0) >= limits.dmLimit) {
+    if ((counts.dms_month || 0) >= limits.dmLimit) {
         return { blocked: true, reason: 'blocked_due_to_dm_limit' };
     }
 
     // Meta caps private replies at 750/hour per account; back off before we hit it.
-    const startHour = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-    const { count: dmsThisHour } = await supabase
-        .from('activity_log')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', settings.user_id)
-        .in('status', SUCCESS_STATUSES)
-        .gte('created_at', startHour);
-
-    if ((dmsThisHour || 0) >= HOURLY_PRIVATE_REPLY_LIMIT) {
+    if ((counts.dms_hour || 0) >= HOURLY_PRIVATE_REPLY_LIMIT) {
         return { blocked: true, reason: 'blocked_due_to_rate_limit' };
     }
 
-    const { count: contactsThisMonth } = await supabase
-        .from('activity_log')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', settings.user_id)
-        .in('status', ['lead_captured', 'email_captured', 'captured'])
-        .gte('created_at', startMonth.toISOString());
-
-    if ((contactsThisMonth || 0) >= limits.contactLimit) {
+    if ((counts.leads_month || 0) >= limits.contactLimit) {
         return { blocked: true, reason: 'blocked_due_to_contact_limit' };
     }
 
