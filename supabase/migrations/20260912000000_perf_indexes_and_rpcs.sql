@@ -33,7 +33,8 @@ drop index if exists public.idx_user_settings_intro_offer;
 -- ── RPCs ───────────────────────────────────────────────────────────────────
 
 -- Replaces 8 count(*) queries + one more per trigger in buildDashboardMetrics.
--- Called by the service role only (the API); no grants to anon/authenticated.
+-- Called by the service role only (the API). Functions get EXECUTE granted to PUBLIC
+-- by default, so the revoke at the bottom must include public.
 create or replace function public.dashboard_activity_counts(
   p_user_id uuid,
   p_start_today timestamptz,
@@ -105,5 +106,5 @@ as $$
     and created_at >= least(p_start_month, p_start_hour);
 $$;
 
-revoke all on function public.dashboard_activity_counts(uuid, timestamptz, timestamptz) from anon, authenticated;
-revoke all on function public.webhook_limit_counts(uuid, timestamptz, timestamptz) from anon, authenticated;
+revoke all on function public.dashboard_activity_counts(uuid, timestamptz, timestamptz) from public, anon, authenticated;
+revoke all on function public.webhook_limit_counts(uuid, timestamptz, timestamptz) from public, anon, authenticated;
