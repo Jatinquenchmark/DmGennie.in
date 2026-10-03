@@ -65,6 +65,7 @@ export default async function handler(req, res) {
         if (req.body.keyword !== undefined) updates.keyword = req.body.keyword;
         if (req.body.replyMessage !== undefined) updates.reply_message = req.body.replyMessage;
         if (req.body.enabled !== undefined) updates.enabled = req.body.enabled;
+        if (req.body.triggerType !== undefined) updates.trigger_type = req.body.triggerType;
         const { data, error } = await supabase.from('triggers').update(updates).eq('id', id).eq('user_id', userId).select().single();
         if (error) {
             console.error('[triggers] update failed:', error.message);

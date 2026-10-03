@@ -578,16 +578,6 @@ const previewSettings: SettingsData = {
     timezone: "Asia/Kolkata",
 };
 
-const chartData = [
-    { day: "Mon", dms: 82, leads: 18 },
-    { day: "Tue", dms: 126, leads: 27 },
-    { day: "Wed", dms: 154, leads: 34 },
-    { day: "Thu", dms: 141, leads: 29 },
-    { day: "Fri", dms: 198, leads: 46 },
-    { day: "Sat", dms: 176, leads: 39 },
-    { day: "Sun", dms: 224, leads: 52 },
-];
-
 const navItems: Array<{ key: Tab; label: string; icon: ReactNode }> = [
     { key: "home", label: "Home", icon: <Home className="h-4 w-4" /> },
     { key: "automations", label: "Automations", icon: <Bot className="h-4 w-4" /> },
@@ -649,7 +639,6 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const [automationSearch, setAutomationSearch] = useState("");
     const [automationStatus, setAutomationStatus] = useState("all");
     const [contactSearch, setContactSearch] = useState("");
-    const [analyticsRange, setAnalyticsRange] = useState("Last 7 days");
     const [helpQuery, setHelpQuery] = useState("");
     const [openFaq, setOpenFaq] = useState(0);
     const [disconnectConfirmOpen, setDisconnectConfirmOpen] = useState(false);
@@ -968,10 +957,10 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         }
     };
 
-    const addTrigger = async (draft?: AutomationDraft) => {
+    const addTrigger = async (draft?: AutomationDraft): Promise<boolean> => {
         const keyword = (draft?.keyword ?? newKeyword).trim();
         const replyMessage = (draft?.replyMessage ?? newReply).trim();
-        if (!keyword) return;
+        if (!keyword) return false;
         if (preview) {
             setTriggers((prev) => [
                 ...prev,
@@ -980,6 +969,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                     keyword,
                     replyMessage: replyMessage || "Thanks for commenting. Here is the link.",
                     enabled: true,
+                    triggerType: draft?.triggerType,
                 },
             ]);
         } else {
@@ -999,18 +989,40 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                         openUpgradeModal();
                     }
                     showDashboardToast(trigger?.message || "Unable to create automation.");
-                    return;
+                    return false;
                 }
-                setTriggers((prev) => [...prev, trigger]);
+                setTriggers((prev) => [...prev, { ...trigger, triggerType: draft?.triggerType }]);
                 showDashboardToast("Automation launched");
             } catch {
                 showDashboardToast("Unable to save automation.");
-                return;
+                return false;
             }
         }
         setNewKeyword("");
         setNewReply("");
         setAddingTrigger(false);
+        return true;
+    };
+
+    const updateTrigger = async (id: number, draft: AutomationDraft): Promise<boolean> => {
+        const changes = { keyword: draft.keyword.trim(), replyMessage: draft.replyMessage.trim(), triggerType: draft.triggerType };
+        if (!changes.keyword) return false;
+        if (preview) {
+            setTriggers((prev) => prev.map((item) => item.id === id ? { ...item, ...changes } : item));
+            showDashboardToast("Automation updated");
+            return true;
+        }
+        try {
+            const res = await authFetch(`/api/triggers?id=${id}`, { method: "PUT", body: JSON.stringify(changes) });
+            if (!res.ok) throw new Error("Unable to update automation");
+            const updated = await res.json();
+            setTriggers((prev) => prev.map((item) => item.id === id ? { ...item, ...updated, triggerType: changes.triggerType ?? item.triggerType } : item));
+            showDashboardToast("Automation updated");
+            return true;
+        } catch {
+            showDashboardToast("Unable to update automation.");
+            return false;
+        }
     };
 
     const deleteTrigger = async (id: number) => {
@@ -1041,7 +1053,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             });
             if (!res.ok) throw new Error("Unable to update automation");
             const updated = await res.json();
-            setTriggers((prev) => prev.map((item) => item.id === id ? updated : item));
+            setTriggers((prev) => prev.map((item) => item.id === id ? { ...item, ...updated } : item));
             showDashboardToast(updated.enabled ? "Automation resumed" : "Automation paused");
         } catch {
             showDashboardToast("Unable to update automation.");
@@ -1238,7 +1250,6 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         proOffer={proOffer}
                                         activity={activity}
                                         accountPlan={accountPlan}
-                                        accountCreatedAt={preview ? "2024-12-01T00:00:00Z" : session?.user?.created_at ?? null}
                                         onNavigate={setTab}
                                         onConnect={() => setConnectModalOpen(true)}
                                         onUpgrade={openUpgradeModal}
@@ -1259,6 +1270,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         onKeyword={setNewKeyword}
                                         onReply={setNewReply}
                                         onAdd={addTrigger}
+                                        onUpdate={updateTrigger}
                                         onToggle={toggleTrigger}
                                         onDelete={deleteTrigger}
                                         onNavigate={setTab}
@@ -1296,13 +1308,13 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         stats={displayStats}
                                         leadsCollected={leadsCollected}
                                         deliveryRate={deliveryRate}
-                                        range={analyticsRange}
-                                        onRange={setAnalyticsRange}
                                         triggers={triggers}
                                         activity={activity}
                                         onNavigate={setTab}
                                         accountPlan={accountPlan}
                                         onUpgrade={openUpgradeModal}
+                                        onRefresh={fetchAll}
+                                        onReconnect={connectInstagram}
                                     />
                                 )}
                                 {tab === "referral" && <ReferralPage preview={preview} />}
@@ -1786,7 +1798,6 @@ function HomePage({
     proOffer,
     activity,
     accountPlan,
-    accountCreatedAt,
     onNavigate,
     onConnect,
     onUpgrade,
@@ -1799,7 +1810,6 @@ function HomePage({
     proOffer: ProOfferData;
     activity: LogEntry[];
     accountPlan: AccountPlanState;
-    accountCreatedAt?: string | null;
     onNavigate: (tab: Tab) => void;
     onConnect: () => void;
     onUpgrade: () => void;
@@ -1825,7 +1835,7 @@ function HomePage({
                         </p>
                     </div>
 
-                    <HomeStartHereChecklist connected={connected} activeTriggers={activeTriggers} leadsCollected={leadsCollected} onNavigate={onNavigate} onConnect={onConnect} />
+                    <HomeStartHereChecklist connected={connected} activeTriggers={activeTriggers} leadsCollected={leadsCollected} dmSent={stats.totalDmsSent > 0 || activity.some((entry) => entry.status === "sent")} onNavigate={onNavigate} onConnect={onConnect} />
 
                     {accountPlan.isPro ? (
                         <ProFeaturesShowcase onNavigate={onNavigate} />
@@ -1845,7 +1855,7 @@ function HomePage({
                 <QuickActionGrid actions={actions} featureAccess={accountPlan.featureAccess} onNavigate={onNavigate} onUpgrade={onUpgrade} />
             </div>
 
-            <MetricGrid stats={stats} leadsCollected={leadsCollected} activity={activity} accountCreatedAt={accountCreatedAt} />
+            <MetricGrid stats={stats} leadsCollected={leadsCollected} activity={activity} />
         </div>
     );
 }
@@ -1891,11 +1901,11 @@ function ProFeaturesShowcase({ onNavigate }: { onNavigate: (tab: Tab) => void })
     );
 }
 
-function HomeStartHereChecklist({ connected, activeTriggers, leadsCollected, onNavigate, onConnect }: { connected: boolean; activeTriggers: number; leadsCollected: number; onNavigate: (tab: Tab) => void; onConnect: () => void }) {
+function HomeStartHereChecklist({ connected, activeTriggers, leadsCollected, dmSent, onNavigate, onConnect }: { connected: boolean; activeTriggers: number; leadsCollected: number; dmSent: boolean; onNavigate: (tab: Tab) => void; onConnect: () => void }) {
     const steps = [
         { label: "Connect Instagram", done: connected, go: onConnect },
         { label: "Create automation", done: activeTriggers > 0, go: () => onNavigate("automations") },
-        { label: "Send test DM", done: activeTriggers > 0, go: () => onNavigate("automations") },
+        { label: "Send test DM", done: dmSent, go: () => onNavigate("automations") },
         { label: "Collect first lead", done: leadsCollected > 0, go: () => onNavigate("contacts") },
     ];
     const complete = steps.filter((step) => step.done).length;
@@ -2049,17 +2059,6 @@ function QuickActionGrid({
 const FOLLOW_UP_WINDOW_LABEL = "24 hours";
 const FOLLOW_UP_POLICY_NOTE = "Meta policy allows replies only within 24 hours of the user's last message. To stay safely inside the window, follow-ups are sent at 23 hours 50 minutes.";
 
-const METRIC_RANGES = [
-    { key: "7d", label: "7 days", days: 7 },
-    { key: "1m", label: "1 month", days: 30 },
-    { key: "3m", label: "3 months", days: 90 },
-    { key: "6m", label: "6 months", days: 180 },
-    { key: "1y", label: "1 year", days: 365 },
-    { key: "5y", label: "5 years", days: 365 * 5 },
-    { key: "all", label: "All time", days: Number.POSITIVE_INFINITY },
-] as const;
-type MetricRangeKey = (typeof METRIC_RANGES)[number]["key"];
-
 const tonePalette: Record<string, { bg: string; text: string; stroke: string }> = {
     indigo: { bg: "bg-brand-soft", text: "text-brand", stroke: "#C13584" },
     purple: { bg: "bg-brand-soft", text: "text-brand", stroke: "#C13584" },
@@ -2068,18 +2067,7 @@ const tonePalette: Record<string, { bg: string; text: string; stroke: string }> 
     amber: { bg: "bg-amber-50", text: "text-amber-600", stroke: "#F59E0B" },
 };
 
-function MetricGrid({ stats, leadsCollected, activity = [], accountCreatedAt }: { stats: Stats; leadsCollected: number; activity?: LogEntry[]; accountCreatedAt?: string | null }) {
-    const accountAgeDays = useMemo(() => {
-        if (!accountCreatedAt) return Number.POSITIVE_INFINITY;
-        const created = new Date(accountCreatedAt).getTime();
-        if (Number.isNaN(created)) return Number.POSITIVE_INFINITY;
-        return Math.max(0, (Date.now() - created) / (1000 * 60 * 60 * 24));
-    }, [accountCreatedAt]);
-
-    const initialRange: MetricRangeKey = "7d";
-    const [range, setRange] = useState<MetricRangeKey>(initialRange);
-    const [pickerOpen, setPickerOpen] = useState(false);
-
+function MetricGrid({ stats, leadsCollected, activity = [] }: { stats: Stats; leadsCollected: number; activity?: LogEntry[] }) {
     const sentActivity = activity.filter((item) => item.status === "sent");
     const failedActivity = activity.filter((item) => item.status !== "sent");
 
@@ -2090,8 +2078,6 @@ function MetricGrid({ stats, leadsCollected, activity = [], accountCreatedAt }: 
         { label: "Failed", value: stats.failedDms.toLocaleString(), icon: <AlertTriangle className="h-6 w-6" />, tone: "amber", entries: failedActivity, numericValue: stats.failedDms },
     ];
 
-    const currentRange = METRIC_RANGES.find((option) => option.key === range) ?? METRIC_RANGES[0];
-
     return (
         <section data-tour="home-performance" className="overflow-visible rounded-card border border-white bg-white p-5 shadow-rest">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -2099,51 +2085,10 @@ function MetricGrid({ stats, leadsCollected, activity = [], accountCreatedAt }: 
                     <h2 className="text-[18px] font-black tracking-tight text-slate-900">Performance snapshot</h2>
                     <p className="mt-0.5 text-[13px] font-semibold leading-5 text-slate-500">The numbers that matter most for your Instagram automation.</p>
                 </div>
-                <div className="relative">
-                    <button
-                        type="button"
-                        onClick={() => setPickerOpen((value) => !value)}
-                        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-[12px] font-black text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-                        aria-haspopup="listbox"
-                        aria-expanded={pickerOpen}
-                    >
-                        <Calendar className="h-3.5 w-3.5 text-slate-500" />
-                        {currentRange.label}
-                        <ChevronDown className={cx("h-3.5 w-3.5 text-slate-500 transition-transform", pickerOpen && "rotate-180")} />
-                    </button>
-                    {pickerOpen && (
-                        <>
-                            <button type="button" aria-label="Close" className="fixed inset-0 z-30 cursor-default" onClick={() => setPickerOpen(false)} />
-                            <ul role="listbox" className="absolute bottom-full right-0 z-40 mb-1.5 w-44 overflow-hidden rounded-control border border-slate-100 bg-white py-1 shadow-raised">
-                                {METRIC_RANGES.map((option) => {
-                                    const disabled = option.days !== Number.POSITIVE_INFINITY && option.days > accountAgeDays;
-                                    return (
-                                        <li key={option.key}>
-                                            <button
-                                                type="button"
-                                                disabled={disabled}
-                                                onClick={() => { if (!disabled) { setRange(option.key); setPickerOpen(false); } }}
-                                                className={cx(
-                                                    "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[12px] font-black transition",
-                                                    disabled
-                                                        ? "cursor-not-allowed text-slate-300"
-                                                        : range === option.key
-                                                            ? "bg-brand-soft text-brand"
-                                                            : "text-slate-700 hover:bg-slate-50"
-                                                )}
-                                                title={disabled ? "Range exceeds account age" : undefined}
-                                            >
-                                                <span>{option.label}</span>
-                                                {disabled && <Lock className="h-3 w-3" />}
-                                                {!disabled && range === option.key && <Check className="h-3.5 w-3.5" />}
-                                            </button>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        </>
-                    )}
-                </div>
+                <span className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-[12px] font-black text-slate-700">
+                    <Calendar className="h-3.5 w-3.5 text-slate-500" />
+                    All time
+                </span>
             </div>
 
             <div className="grid grid-cols-1 divide-y divide-slate-100 sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4">
@@ -2151,7 +2096,7 @@ function MetricGrid({ stats, leadsCollected, activity = [], accountCreatedAt }: 
                     <MetricCell
                         key={metric.label}
                         metric={metric}
-                        rangeLabel={currentRange.label}
+                        rangeLabel="All time"
                         isLastCol={index === metrics.length - 1}
                     />
                 ))}
@@ -2465,7 +2410,8 @@ function AutomationsPage(props: {
     onAddCancel: () => void;
     onKeyword: (value: string) => void;
     onReply: (value: string) => void;
-    onAdd: (draft?: AutomationDraft) => void | Promise<void>;
+    onAdd: (draft?: AutomationDraft) => Promise<boolean>;
+    onUpdate: (id: number, draft: AutomationDraft) => Promise<boolean>;
     onToggle: (id: number) => void;
     onDelete: (id: number) => void;
     onNavigate: (tab: Tab) => void;
@@ -2491,6 +2437,7 @@ function AutomationsPage(props: {
     const [triggerFilter, setTriggerFilter] = useState("All triggers");
     const [viewMode, setViewMode] = useState<"list" | "grid">("list");
     const [launchSuccess, setLaunchSuccess] = useState(false);
+    const [editingId, setEditingId] = useState<number | null>(null);
     const [deleteTarget, setDeleteTarget] = useState<Trigger | null>(null);
     const automationLimitReached = !props.accountPlan.isPro && props.automationCount >= props.accountPlan.limits.automationLimit;
 
@@ -2516,11 +2463,12 @@ function AutomationsPage(props: {
     };
 
     const openExistingBuilder = (trigger: Trigger) => {
+        setEditingId(trigger.id);
         openBuilder({
             title: `Auto DM for "${trigger.keyword}"`,
             description: trigger.replyMessage,
             category: "Engage audience",
-            trigger: "Post or Reel comment",
+            trigger: trigger.triggerType || "Post or Reel comment",
             keyword: trigger.keyword,
             replyMessage: trigger.replyMessage,
             icon: <MessageCircle className="h-5 w-5" />,
@@ -2528,6 +2476,7 @@ function AutomationsPage(props: {
     };
 
     const closeBuilder = () => {
+        setEditingId(null);
         setBuilderOpen(false);
         setSelectedTemplate(null);
         setBuilderScratch(false);
@@ -2539,20 +2488,22 @@ function AutomationsPage(props: {
         props.onAddCancel();
     };
 
+    // Edit updates the existing automation; the builder stays open (with the error toast) if the save fails.
     const saveBuilder = async (draft: AutomationDraft) => {
-        await props.onAdd(draft);
+        const isEdit = editingId !== null;
+        const ok = isEdit ? await props.onUpdate(editingId, draft) : await props.onAdd(draft);
+        if (!ok) return;
+        setEditingId(null);
         setBuilderOpen(false);
         setSelectedTemplate(null);
         setBuilderScratch(false);
         props.onAddCancel();
-        setLaunchSuccess(true);
+        if (!isEdit) setLaunchSuccess(true);
     };
 
-    const visibleTriggers = props.triggers.filter((trigger) => {
-        if (triggerFilter === "All triggers") return true;
-        const triggerLabel = "Post or Reel comment";
-        return triggerFilter === triggerLabel || trigger.keyword.toLowerCase().includes(triggerFilter.toLowerCase());
-    });
+    const visibleTriggers = props.triggers.filter((trigger) =>
+        triggerFilter === "All triggers" || (trigger.triggerType || "Post or Reel comment") === triggerFilter
+    );
 
     if (builderOpen) {
         return (
@@ -2616,7 +2567,7 @@ function AutomationsPage(props: {
                 <div className="grid gap-3 xl:grid-cols-[minmax(240px,1fr)_180px_160px_auto] xl:items-center">
                     <SearchBox value={props.search} onChange={props.onSearch} placeholder="Search automations..." />
                     <SelectBox value={triggerFilter} onChange={setTriggerFilter} options={["All triggers", "Post or Reel comment", "DM keyword", "Story reply", "Live comment"]} />
-                    <SelectBox value={props.status} onChange={props.onStatus} options={["all", "live", "paused", "draft"]} />
+                    <SelectBox value={props.status} onChange={props.onStatus} options={["all", "live", "paused"]} />
                     <div className="flex rounded-control border border-slate-200 bg-slate-50 p-1">
                         {[
                             { key: "list" as const, label: "List", icon: <FileText className="h-3.5 w-3.5" /> },
@@ -2710,7 +2661,7 @@ function AutomationsPage(props: {
                                     index={index}
                                     onToggle={() => props.onToggle(trigger.id)}
                                     onEdit={() => openExistingBuilder(trigger)}
-                                    onDuplicate={() => props.onAdd({ keyword: `${trigger.keyword}-copy`, replyMessage: trigger.replyMessage })}
+                                    onDuplicate={() => props.onAdd({ keyword: `${trigger.keyword}-copy`, replyMessage: trigger.replyMessage, triggerType: trigger.triggerType })}
                                     onAnalytics={() => props.onNavigate("analytics")}
                                     onDelete={() => setDeleteTarget(trigger)}
                                 />
@@ -2725,7 +2676,7 @@ function AutomationsPage(props: {
                                     index={index}
                                     onToggle={() => props.onToggle(trigger.id)}
                                     onEdit={() => openExistingBuilder(trigger)}
-                                    onDuplicate={() => props.onAdd({ keyword: `${trigger.keyword}-copy`, replyMessage: trigger.replyMessage })}
+                                    onDuplicate={() => props.onAdd({ keyword: `${trigger.keyword}-copy`, replyMessage: trigger.replyMessage, triggerType: trigger.triggerType })}
                                     onAnalytics={() => props.onNavigate("analytics")}
                                 />
                             ))}
@@ -3010,12 +2961,10 @@ function AutomationListRow({
     onDelete: () => void;
 }) {
     const dms = safeNumber(trigger.dmsSent);
-    const clicks = 0;
-    const ctr = dms > 0 ? Math.max(0, Math.round((clicks / dms) * 100)) : 0;
     const modifiedLabel = trigger.modifiedAt ? new Date(trigger.modifiedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : "Unknown";
 
     return (
-        <div className="grid gap-3 rounded-card border border-slate-100 bg-white p-3.5 shadow-rest transition hover:border-brand/15 xl:grid-cols-[minmax(280px,1.4fr)_140px_120px_78px_78px_68px_84px_92px_auto] xl:items-center">
+        <div className="grid gap-3 rounded-card border border-slate-100 bg-white p-3.5 shadow-rest transition hover:border-brand/15 xl:grid-cols-[minmax(280px,1.4fr)_140px_120px_78px_84px_92px_auto] xl:items-center">
             <div className="flex min-w-0 items-center gap-3">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-card bg-brand-soft text-brand ring-1 ring-brand/15">
                     <MessageCircle className="h-5 w-5" />
@@ -3033,8 +2982,6 @@ function AutomationListRow({
                 </div>
             </div>
             <AutomationDataPill label="DMs" value={dms.toLocaleString()} />
-            <AutomationDataPill label="Clicks" value={clicks.toLocaleString()} />
-            <AutomationDataPill label="CTR" value={`${ctr}%`} muted />
             <StatusBadge status={trigger.enabled ? "Live" : "Paused"} />
             <span className="text-xs font-bold text-slate-500">{modifiedLabel}</span>
             <div className="flex justify-end gap-1.5">
@@ -3043,7 +2990,6 @@ function AutomationListRow({
                 <IconButton title="Duplicate automation" onClick={onDuplicate}><ClipboardList className="h-4 w-4" /></IconButton>
                 <IconButton title="View analytics" onClick={onAnalytics}><BarChart3 className="h-4 w-4" /></IconButton>
                 <IconButton title="Delete automation" danger onClick={onDelete}><Trash2 className="h-4 w-4" /></IconButton>
-                <IconButton title="More actions"><MoreHorizontal className="h-4 w-4" /></IconButton>
             </div>
         </div>
     );
@@ -3065,8 +3011,6 @@ function AutomationGridCard({
     onAnalytics: () => void;
 }) {
     const dms = safeNumber(trigger.dmsSent);
-    const clicks = 0;
-    const ctr = dms > 0 ? Math.max(0, Math.round((clicks / dms) * 100)) : 0;
 
     return (
         <div
@@ -3088,10 +3032,8 @@ function AutomationGridCard({
                 <span className="rounded-full bg-brand-soft px-2 py-1 text-[10px] font-black text-brand ring-1 ring-brand/15">+{trigger.keyword}</span>
                 <span className="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-black text-slate-500 ring-1 ring-slate-100">{trigger.triggerType || "Comment keyword"}</span>
             </div>
-            <div className="mt-auto grid grid-cols-3 gap-2 border-t border-slate-100 pt-3">
+            <div className="mt-auto grid grid-cols-1 gap-2 border-t border-slate-100 pt-3">
                 <AutomationDataPill label="DMs" value={dms.toLocaleString()} />
-                <AutomationDataPill label="Clicks" value={clicks.toLocaleString()} />
-                <AutomationDataPill label="CTR" value={`${ctr}%`} muted />
             </div>
             <div className="mt-3 flex items-center justify-between">
                 <span className="text-xs font-black text-brand">Edit flow</span>
@@ -3378,7 +3320,6 @@ function AutomationBuilder({
         link: "Link button",
     };
     const currentErrors = computeErrors();
-    const isComplete = Object.keys(currentErrors).length === 0;
 
     const handleLaunch = () => {
         const errors = computeErrors();
@@ -3414,14 +3355,6 @@ function AutomationBuilder({
         }
     };
 
-    const saveDraft = async () => {
-        setSaving(true);
-        try {
-            await onSave({ keyword: anyKeyword ? "any" : (keywords[0] || "draft"), replyMessage: safeFinalDm, triggerType });
-        } finally {
-            setSaving(false);
-        }
-    };
 
     // ── Guided wizard: 1 Trigger & content · 2 Keywords · 3 Message · 4 Review ──
     const maxStep = 4;
@@ -3476,9 +3409,6 @@ function AutomationBuilder({
                         </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
-                        {!isComplete && (
-                            <SecondaryButton onClick={saveDraft}><FileText className="h-4 w-4" /> {saving ? "Saving..." : "Save Draft"}</SecondaryButton>
-                        )}
                         {isPro ? (
                             <button
                                 onClick={toggleReTrigger}
@@ -3801,8 +3731,7 @@ function AutomationBuilder({
                         nextPulses={nextShouldPulse}
                         onBack={() => goToStep(step - 1)}
                         onNext={handleContinue}
-                        onSaveDraft={!isComplete ? saveDraft : undefined}
-                        saving={saving}
+                        busy={saving}
                     />
                 </div>
 
@@ -4345,7 +4274,7 @@ function StepHint({ text, valid }: { text: string; valid: boolean }) {
 }
 
 // Item 10/11: Back + Continue; Continue gets a ring once the step is done (and touched).
-function WizardNav({ step, maxStep, nextPulses, onBack, onNext, onSaveDraft, saving }: { step: number; maxStep: number; nextPulses: boolean; onBack: () => void; onNext: () => void; onSaveDraft?: () => void; saving?: boolean }) {
+function WizardNav({ step, maxStep, nextPulses, onBack, onNext, busy }: { step: number; maxStep: number; nextPulses: boolean; onBack: () => void; onNext: () => void; busy?: boolean }) {
     const isLast = step >= maxStep;
     return (
         <div className="sticky bottom-3 z-10 flex items-center justify-between gap-3 rounded-card border border-white bg-white/95 p-3 shadow-raised backdrop-blur">
@@ -4353,9 +4282,8 @@ function WizardNav({ step, maxStep, nextPulses, onBack, onNext, onSaveDraft, sav
                 <ArrowRight className="h-4 w-4 rotate-180" /> Back
             </button>
             <div className="flex items-center gap-2">
-                {onSaveDraft && <SecondaryButton onClick={onSaveDraft}>{saving ? "Saving..." : "Save Draft"}</SecondaryButton>}
-                <button onClick={onNext} className={cx("inline-flex h-11 items-center gap-1.5 rounded-card bg-brand px-5 text-sm font-black text-white transition hover:bg-brand-hover", nextPulses && "ring-2 ring-brand/40 ring-offset-2")}>
-                    {isLast ? (<><Check className="h-4 w-4" /> Launch Automation</>) : (<>Continue <ArrowRight className="h-4 w-4" /></>)}
+                <button onClick={onNext} disabled={busy} className={cx("inline-flex h-11 items-center gap-1.5 rounded-card bg-brand px-5 text-sm font-black text-white transition hover:bg-brand-hover disabled:cursor-wait disabled:opacity-60", nextPulses && "ring-2 ring-brand/40 ring-offset-2")}>
+                    {isLast ? (busy ? "Saving..." : <><Check className="h-4 w-4" /> Launch Automation</>) : (<>Continue <ArrowRight className="h-4 w-4" /></>)}
                 </button>
             </div>
         </div>
@@ -5517,15 +5445,8 @@ type AnalyticsAutomationRow = {
     trigger: string;
     keywords: string[];
     dms: number;
-    clicks: number;
-    ctr: number;
-    leads: number;
-    deliveryRate: number;
-    failed: number;
-    status: "Live" | "Paused" | "Draft";
+    status: "Live" | "Paused";
     modified: string;
-    selectedContent: string;
-    lastActivity: string;
 };
 type AnalyticsActivityEvent = {
     id: string;
@@ -5537,20 +5458,6 @@ type AnalyticsActivityEvent = {
     timestamp: string;
     errorReason?: string;
     suggestedFix?: string;
-};
-type ContentPerformanceRow = {
-    id: string;
-    title: string;
-    type: InstagramMedia["type"];
-    caption: string;
-    metric: string;
-    comments: number;
-    keywordComments: number;
-    triggerRate: number;
-    dms: number;
-    clicks: number;
-    leads: number;
-    color: string;
 };
 type AudienceUserRow = {
     id: string;
@@ -5568,49 +5475,45 @@ function AnalyticsPage({
     stats,
     leadsCollected,
     deliveryRate,
-    range,
-    onRange,
     triggers,
     activity,
     onNavigate,
     accountPlan,
     onUpgrade,
+    onRefresh,
+    onReconnect,
 }: {
     stats: Stats;
     leadsCollected: number;
     deliveryRate: number | null;
-    range: string;
-    onRange: (value: string) => void;
     triggers: Trigger[];
     activity: LogEntry[];
     onNavigate: (tab: Tab) => void;
     accountPlan: AccountPlanState;
     onUpgrade: () => void;
+    onRefresh: () => Promise<void> | void;
+    onReconnect: () => Promise<void> | void;
 }) {
     const [activeTab, setActiveTab] = useState<AnalyticsTab>("Performance");
     const [automationSort, setAutomationSort] = useState("Sort by DMs sent");
     const [automationStatus, setAutomationStatus] = useState("All statuses");
     const [automationTrigger, setAutomationTrigger] = useState("All triggers");
     const [selectedAutomation, setSelectedAutomation] = useState<AnalyticsAutomationRow | null>(null);
-    const [contentSearch, setContentSearch] = useState("");
-    const [contentSort, setContentSort] = useState("Sort by comments");
     const [activityType, setActivityType] = useState("All events");
     const [activityAutomation, setActivityAutomation] = useState("All automations");
     const [audienceSegment, setAudienceSegment] = useState("Top commenters");
     const [audienceAutomation, setAudienceAutomation] = useState("All Automations");
     const [toastMessage, setToastMessage] = useState("");
+    const [refreshing, setRefreshing] = useState(false);
 
     const showToast = useCallback((message: string) => {
         setToastMessage(message);
         setTimeout(() => setToastMessage(""), 2200);
     }, []);
 
-    const dateOptions = ["Today", "Yesterday", "Last 7 days", "Last 30 days", "This month", "All time"];
-    const automationRows = useMemo(() => buildAutomationAnalyticsRows(triggers, stats, leadsCollected, deliveryRate), [triggers, stats, leadsCollected, deliveryRate]);
+    const automationRows = useMemo(() => buildAutomationAnalyticsRows(triggers), [triggers]);
     const activityEvents = useMemo(() => buildAnalyticsActivityEvents(activity, automationRows), [activity, automationRows]);
-    const contentRows = useMemo(() => buildContentPerformanceRows(stats, leadsCollected), [stats, leadsCollected]);
     const audienceRows = useMemo(() => buildAudienceRows(activity, automationRows), [activity, automationRows]);
-    const trendData = useMemo(() => buildAnalyticsTrendData(range, stats, leadsCollected), [range, stats, leadsCollected]);
 
     const visibleAutomationRows = useMemo(() => {
         let rows = automationRows.filter((row) => {
@@ -5620,23 +5523,10 @@ function AnalyticsPage({
         });
         rows = [...rows].sort((a, b) => {
             if (automationSort === "Sort by newest") return b.id - a.id;
-            if (automationSort === "Sort by clicks") return b.clicks - a.clicks;
-            if (automationSort === "Sort by CTR") return b.ctr - a.ctr;
-            if (automationSort === "Sort by leads") return b.leads - a.leads;
             return b.dms - a.dms;
         });
         return rows;
     }, [automationRows, automationSort, automationStatus, automationTrigger]);
-
-    const visibleContentRows = useMemo(() => {
-        const query = contentSearch.toLowerCase();
-        const rows = contentRows.filter((row) => `${row.title} ${row.caption} ${row.type}`.toLowerCase().includes(query));
-        return [...rows].sort((a, b) => {
-            if (contentSort === "Sort by trigger rate") return b.triggerRate - a.triggerRate;
-            if (contentSort === "Sort by DMs sent") return b.dms - a.dms;
-            return b.comments - a.comments;
-        });
-    }, [contentRows, contentSearch, contentSort]);
 
     const visibleActivityEvents = useMemo(() => {
         return activityEvents.filter((event) => {
@@ -5650,31 +5540,21 @@ function AnalyticsPage({
         let rows = audienceRows.filter((row) => audienceAutomation === "All Automations" || row.sourceAutomation === audienceAutomation);
         if (audienceSegment === "Most recent commenters") rows = [...rows].sort((a, b) => a.lastComment.localeCompare(b.lastComment));
         if (audienceSegment === "Leads captured") rows = rows.filter((row) => row.leads > 0);
-        if (audienceSegment === "Clicked link") rows = rows.filter((row) => row.clicked);
         if (audienceSegment === "Superfans") rows = rows.filter((row) => row.comments >= 2);
         return rows;
     }, [audienceRows, audienceAutomation, audienceSegment]);
 
-    const periodMetrics = useMemo(() => {
-        const factor = analyticsRangeFactor(range);
-        const totalDms = range === "Today" ? stats.dmsSentToday : Math.round(stats.totalDmsSent * factor);
-        const dmsSent = safeNumber(totalDms);
-        const clicks = safeNumber(Math.round(stats.totalLinksSent * (range === "Today" ? 0.22 : factor)));
-        const leads = safeNumber(Math.round(leadsCollected * (range === "Today" ? 0.22 : factor)));
-        const failed = safeNumber(Math.round(stats.failedDms * (range === "Today" ? 0.22 : factor)));
-        const activeAutomations = triggers.filter((trigger) => trigger.enabled).length;
-        return {
-            dmsSent,
-            clicks,
-            leads,
-            deliveryRate,
-            failed,
-            activeAutomations,
-        };
-    }, [range, stats, leadsCollected, deliveryRate, triggers]);
+    // All-time totals straight from the server. There is no per-period data yet, so no date filter.
+    const periodMetrics = {
+        dmsSent: safeNumber(stats.totalDmsSent),
+        linksSent: safeNumber(stats.totalLinksSent),
+        leads: safeNumber(leadsCollected),
+        deliveryRate,
+        failed: safeNumber(stats.failedDms),
+        activeAutomations: triggers.filter((trigger) => trigger.enabled).length,
+    };
 
     const bestAutomation = automationRows[0];
-    const rangeLabel = range || "Last 7 days";
     const analyticsLocked = !accountPlan.featureAccess.advancedAnalytics;
     const exportLocked = !accountPlan.featureAccess.exportCsv;
 
@@ -5713,8 +5593,7 @@ function AnalyticsPage({
             tourKey="analytics"
             action={
                 <div className="flex flex-wrap items-center gap-2">
-                    <SelectBox value={range} onChange={(value) => { onRange(value); showToast("Date range updated."); }} options={dateOptions} />
-                    <SecondaryButton onClick={() => showToast("Analytics refreshed.")}><RefreshCw className="h-4 w-4" /> Refresh</SecondaryButton>
+                    <SecondaryButton onClick={async () => { setRefreshing(true); try { await onRefresh(); showToast("Analytics refreshed."); } finally { setRefreshing(false); } }}><RefreshCw className={cx("h-4 w-4", refreshing && "animate-spin")} /> {refreshing ? "Refreshing..." : "Refresh"}</SecondaryButton>
                     <PrimaryButton onClick={activeTab === "Activity Log" ? exportActivity : exportPerformance} compact>{exportLocked ? <Lock className="h-4 w-4" /> : <Download className="h-4 w-4" />} {exportLocked ? "Upgrade to export" : "Export CSV"}</PrimaryButton>
                 </div>
             }
@@ -5744,12 +5623,12 @@ function AnalyticsPage({
             {activeTab === "Performance" && (
                 <div className="space-y-4">
                     <div data-tour="analytics-metrics" className="grid grid-cols-[repeat(auto-fit,minmax(155px,1fr))] gap-3">
-                        <AnalyticsMetricCard icon={<Send className="h-5 w-5" />} label="DMs Sent" value={formatMetric(periodMetrics.dmsSent)} change="Selected period" tone="purple" />
-                        <AnalyticsMetricCard icon={<MousePointerClick className="h-5 w-5" />} label="Link Clicks" value={formatMetric(periodMetrics.clicks)} change="Tracked clicks" tone="blue" />
+                        <AnalyticsMetricCard icon={<Send className="h-5 w-5" />} label="DMs Sent" value={formatMetric(periodMetrics.dmsSent)} change="All time" tone="purple" />
+                        <AnalyticsMetricCard icon={<MousePointerClick className="h-5 w-5" />} label="Links Sent" value={formatMetric(periodMetrics.linksSent)} change="DMs that included a link" tone="blue" />
                         <AnalyticsMetricCard icon={<UserPlus className="h-5 w-5" />} label="Leads Captured" value={formatMetric(periodMetrics.leads)} change="Captured contacts" tone="green" />
                         <AnalyticsMetricCard icon={<CheckCircle2 className="h-5 w-5" />} label="Delivery Rate" value={formatPercent(periodMetrics.deliveryRate)} change={periodMetrics.deliveryRate === null ? "No messages sent yet" : "Successful sends"} tone="green" />
                         <AnalyticsMetricCard icon={<AlertTriangle className="h-5 w-5" />} label="Failed Messages" value={formatMetric(periodMetrics.failed)} change="Needs review only if rising" tone="amber" />
-                        <AnalyticsMetricCard icon={<Bot className="h-5 w-5" />} label="Active Automations" value={formatMetric(periodMetrics.activeAutomations)} change="Live workflows" tone="purple" />
+                        <AnalyticsMetricCard icon={<Bot className="h-5 w-5" />} label="Active Automations" value={formatMetric(periodMetrics.activeAutomations)} change="Live automations" tone="purple" />
                     </div>
 
                     {analyticsLocked ? (
@@ -5761,17 +5640,12 @@ function AnalyticsPage({
                         />
                     ) : (
                         <>
-                            <div className="grid gap-4 xl:grid-cols-2">
-                                <AnalyticsChartCard title="DMs sent over time" range={rangeLabel} data={trendData} primaryKey="dms" primaryColor="#C13584" secondaryKey="clicks" secondaryColor="#38BDF8" emptyText="No DMs sent data for this period" />
-                                <AnalyticsChartCard title="Leads and failed DMs" range={rangeLabel} data={trendData} primaryKey="leads" primaryColor="#10B981" secondaryKey="failed" secondaryColor="#EF4444" emptyText="No lead data for this period" />
-                            </div>
-
                     <Panel
                         title="Automation Performance"
                         action={
                             <div className="flex flex-wrap gap-2">
-                                <SelectBox value={automationSort} onChange={setAutomationSort} options={["Sort by DMs sent", "Sort by newest", "Sort by clicks", "Sort by CTR", "Sort by leads"]} />
-                                <SelectBox value={automationStatus} onChange={setAutomationStatus} options={["All statuses", "Live", "Draft", "Paused"]} />
+                                <SelectBox value={automationSort} onChange={setAutomationSort} options={["Sort by DMs sent", "Sort by newest"]} />
+                                <SelectBox value={automationStatus} onChange={setAutomationStatus} options={["All statuses", "Live", "Paused"]} />
                                 <SelectBox value={automationTrigger} onChange={setAutomationTrigger} options={["All triggers", "Post or Reel comment", "DM keyword", "Story reply", "Live comment"]} />
                             </div>
                         }
@@ -5779,18 +5653,13 @@ function AnalyticsPage({
                         {visibleAutomationRows.length ? (
                             <>
                                 <div className="hidden overflow-x-auto lg:block">
-                                    <table className="w-full min-w-[900px] text-left">
+                                    <table className="w-full min-w-[640px] text-left">
                                         <thead>
                                             <tr className="border-b border-slate-100 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">
                                                 <th className="px-3 py-3">Automation</th>
                                                 <th className="px-3 py-3">Trigger</th>
                                                 <th className="px-3 py-3">Keywords</th>
                                                 <th className="px-3 py-3 text-right">DMs</th>
-                                                <th className="px-3 py-3 text-right">Clicks</th>
-                                                <th className="px-3 py-3 text-right">CTR</th>
-                                                <th className="px-3 py-3 text-right">Leads</th>
-                                                <th className="px-3 py-3 text-right">Delivery</th>
-                                                <th className="px-3 py-3 text-right">Failed</th>
                                                 <th className="px-3 py-3">Status</th>
                                             </tr>
                                         </thead>
@@ -5813,11 +5682,6 @@ function AnalyticsPage({
                                                         </div>
                                                     </td>
                                                     <AnalyticsNumberCell value={row.dms} />
-                                                    <AnalyticsNumberCell value={row.clicks} />
-                                                    <td className="px-3 py-4 text-right text-sm font-black text-slate-700">{row.ctr}%</td>
-                                                    <AnalyticsNumberCell value={row.leads} />
-                                                    <td className="px-3 py-4 text-right text-sm font-black text-emerald-600">{row.deliveryRate}%</td>
-                                                    <td className={cx("px-3 py-4 text-right text-sm font-black", row.failed ? "text-rose-600" : "text-slate-400")}>{formatMetric(row.failed)}</td>
                                                     <td className="px-3 py-4"><StatusBadge status={row.status} /></td>
                                                 </tr>
                                             ))}
@@ -5834,10 +5698,8 @@ function AnalyticsPage({
                                                 </div>
                                                 <StatusBadge status={row.status} />
                                             </div>
-                                            <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                                            <div className="mt-4 grid grid-cols-1 gap-2 text-center">
                                                 <CompactStat label="DMs" value={formatMetric(row.dms)} />
-                                                <CompactStat label="Clicks" value={formatMetric(row.clicks)} />
-                                                <CompactStat label="Leads" value={formatMetric(row.leads)} />
                                             </div>
                                         </button>
                                     ))}
@@ -5848,37 +5710,13 @@ function AnalyticsPage({
                         )}
                     </Panel>
 
-                    <Panel
-                        title="Content Performance"
-                        action={
-                            <div className="flex flex-wrap gap-2">
-                                <SearchBox value={contentSearch} onChange={setContentSearch} placeholder="Search content..." compact />
-                                <SelectBox value={contentSort} onChange={setContentSort} options={["Sort by comments", "Sort by trigger rate", "Sort by DMs sent"]} />
-                            </div>
-                        }
-                    >
-                        {visibleContentRows.length ? (
-                            <div className="grid gap-3">
-                                {visibleContentRows.slice(0, 5).map((row) => <ContentPerformanceCard key={row.id} row={row} />)}
-                                {visibleContentRows.length > 5 && (
-                                    <button onClick={() => showToast("More content performance will load as Instagram sync grows.")} className="mx-auto mt-1 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-50">Load More</button>
-                                )}
-                            </div>
-                        ) : (
-                            <EmptyState icon={<ImageIcon className="h-6 w-6" />} title="No content performance yet" copy="Once your posts or reels receive comments, performance will appear here." />
-                        )}
-                    </Panel>
 
-                    <div className="grid gap-4 xl:grid-cols-[1fr_0.8fr]">
-                        <GeographicDistributionCard />
-                        <Panel title="Performance insights">
-                            <div className="grid gap-3">
-                                <InsightRow icon={<TrophyIcon />} title="Best performing automation" value={bestAutomation?.name || "No automation yet"} copy={bestAutomation ? `${bestAutomation.ctr}% click-through rate` : "Launch an automation to identify a winner."} />
-                                <InsightRow icon={<Activity className="h-4 w-4" />} title="Peak engagement day" value="Sunday" copy="Based on current DM volume trend." />
-                                <InsightRow icon={<CheckCircle2 className="h-4 w-4" />} title="Delivery rate" value={formatPercent(periodMetrics.deliveryRate)} copy="Successful sends divided by DM attempts." />
-                            </div>
-                        </Panel>
-                    </div>
+                    <Panel title="Performance insights">
+                        <div className="grid gap-3 md:grid-cols-2">
+                            <InsightRow icon={<TrophyIcon />} title="Best performing automation" value={bestAutomation?.name || "No automation yet"} copy={bestAutomation ? `${formatMetric(bestAutomation.dms)} DMs sent` : "Launch an automation to identify a winner."} />
+                            <InsightRow icon={<CheckCircle2 className="h-4 w-4" />} title="Delivery rate" value={formatPercent(periodMetrics.deliveryRate)} copy="Successful sends divided by DM attempts." />
+                        </div>
+                    </Panel>
                         </>
                     )}
                 </div>
@@ -5890,7 +5728,7 @@ function AnalyticsPage({
                         title="Recent Automation Activity"
                         action={
                             <div className="flex flex-wrap gap-2">
-                                <SelectBox value={activityType} onChange={setActivityType} options={["All events", "DM sent", "Link clicked", "Lead captured", "Failed DM"]} />
+                                <SelectBox value={activityType} onChange={setActivityType} options={["All events", "DM sent", "Lead captured", "Failed DM"]} />
                                 <SelectBox value={activityAutomation} onChange={setActivityAutomation} options={["All automations", ...automationRows.map((row) => row.name)]} />
                                 <PrimaryButton onClick={exportActivity} compact><Download className="h-4 w-4" /> Export activity</PrimaryButton>
                             </div>
@@ -5899,7 +5737,7 @@ function AnalyticsPage({
                         {visibleActivityEvents.some((event) => event.type === "Failed DM") && <FailedDmHelpCard />}
                         <div className="mt-4 grid gap-2">
                             {visibleActivityEvents.length ? visibleActivityEvents.map((event) => (
-                                <ActivityEventRow key={event.id} event={event} onCopy={() => { navigator.clipboard?.writeText(`${event.type} - ${event.user}`); showToast("Activity copied."); }} onRetry={() => showToast("Failed DM retry started.")} />
+                                <ActivityEventRow key={event.id} event={event} onCopy={() => { navigator.clipboard?.writeText(`${event.type} - ${event.user}`); showToast("Activity copied."); }} />
                             )) : (
                                 <EmptyState icon={<Activity className="h-6 w-6" />} title="No activity yet" copy="Once your automations start sending DMs, activity will appear here." />
                             )}
@@ -5915,11 +5753,9 @@ function AnalyticsPage({
                         <AnalyticsMetricCard icon={<TrendingUp className="h-5 w-5" />} label="New Followers" value="—" change="Requires Instagram insights sync" tone="green" />
                         <AnalyticsMetricCard icon={<ChevronDown className="h-5 w-5" />} label="Unfollowers" value="—" change="Requires Instagram insights sync" tone="amber" />
                         <AnalyticsMetricCard icon={<Activity className="h-5 w-5" />} label="Net Growth" value="—" change="Requires Instagram insights sync" tone="purple" />
-                        <AnalyticsMetricCard icon={<MousePointerClick className="h-5 w-5" />} label="Profile Activity" value={formatMetric(Math.max(0, stats.totalLinksSent + stats.totalPublicReplies))} change="Clicks, replies, interactions" tone="blue" />
-                        <AnalyticsMetricCard icon={<BarChart3 className="h-5 w-5" />} label="Engagement Rate" value={typeof stats.followers === "number" && stats.followers > 0 ? `${Math.max(0, Math.min(100, Math.round((stats.totalPublicReplies / stats.followers) * 1000) / 10))}%` : "—"} change="Based on available activity" tone="green" />
+                        <AnalyticsMetricCard icon={<MousePointerClick className="h-5 w-5" />} label="Replies & Links Sent" value={formatMetric(Math.max(0, stats.totalLinksSent + stats.totalPublicReplies))} change="Public replies plus link DMs" tone="blue" />
                     </div>
-                    <div className="grid gap-4 xl:grid-cols-2">
-                        <AnalyticsChartCard title="Follower growth" range={rangeLabel} data={trendData} primaryKey="followers" primaryColor="#C13584" secondaryKey="leads" secondaryColor="#10B981" emptyText="Follower data is unavailable for this period" />
+                    <div>
                         <Panel title="Account insights availability">
                             <div className="rounded-card border border-amber-100 bg-amber-50/70 p-4">
                                 <div className="flex gap-3">
@@ -5928,8 +5764,7 @@ function AnalyticsPage({
                                         <h3 className="font-black text-slate-950">Account insights unavailable</h3>
                                         <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Instagram may require additional permissions or enough account activity to show deeper account-level insights.</p>
                                         <div className="mt-4 flex flex-wrap gap-2">
-                                            <SecondaryButton><RefreshCw className="h-4 w-4" /> Check permissions</SecondaryButton>
-                                            <PrimaryButton compact><Instagram className="h-4 w-4" /> Reconnect Instagram</PrimaryButton>
+                                            <PrimaryButton compact onClick={() => void onReconnect()}><Instagram className="h-4 w-4" /> Reconnect Instagram</PrimaryButton>
                                         </div>
                                     </div>
                                 </div>
@@ -5945,8 +5780,8 @@ function AnalyticsPage({
                         title="Audience Insights"
                         action={
                             <div className="flex flex-wrap gap-2">
-                                <SelectBox value={audienceAutomation} onChange={setAudienceAutomation} options={["All Automations", ...automationRows.map((row) => row.name), "Create group"]} />
-                                <SelectBox value={audienceSegment} onChange={setAudienceSegment} options={["Top commenters", "Most recent commenters", "Leads captured", "Clicked link", "Superfans"]} />
+                                <SelectBox value={audienceAutomation} onChange={setAudienceAutomation} options={["All Automations", ...automationRows.map((row) => row.name)]} />
+                                <SelectBox value={audienceSegment} onChange={setAudienceSegment} options={["Top commenters", "Most recent commenters", "Leads captured", "Superfans"]} />
                             </div>
                         }
                     >
@@ -6065,51 +5900,6 @@ function ProLockPanel({ title, copy, cta, onUpgrade }: { title: string; copy: st
     );
 }
 
-function AnalyticsChartCard({
-    title,
-    range,
-    data,
-    primaryKey,
-    primaryColor,
-    secondaryKey,
-    secondaryColor,
-    emptyText,
-}: {
-    title: string;
-    range: string;
-    data: Array<Record<string, string | number>>;
-    primaryKey: string;
-    primaryColor: string;
-    secondaryKey?: string;
-    secondaryColor?: string;
-    emptyText: string;
-}) {
-    const hasData = data.some((item) => safeNumber(item[primaryKey] as number) > 0 || (secondaryKey ? safeNumber(item[secondaryKey] as number) > 0 : false));
-    return (
-        <Panel
-            title={title}
-            action={<span className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-500">{range}</span>}
-        >
-            {hasData ? (
-                <div className="h-[280px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={data} margin={{ top: 10, right: 18, bottom: 0, left: -22 }}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
-                            <XAxis dataKey="day" tickLine={false} axisLine={false} tick={{ fill: "#64748B", fontSize: 12, fontWeight: 700 }} />
-                            <YAxis tickLine={false} axisLine={false} tick={{ fill: "#64748B", fontSize: 12, fontWeight: 700 }} />
-                            <Tooltip contentStyle={{ borderRadius: 16, border: "1px solid #E2E8F0", boxShadow: "0 20px 45px rgba(15,23,42,0.10)" }} />
-                            <Line type="monotone" dataKey={primaryKey} stroke={primaryColor} strokeWidth={3} dot={{ r: 3 }} activeDot={{ r: 5 }} />
-                            {secondaryKey && <Line type="monotone" dataKey={secondaryKey} stroke={secondaryColor || "#10B981"} strokeWidth={3} dot={false} />}
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
-            ) : (
-                <EmptyState icon={<BarChart3 className="h-6 w-6" />} title={emptyText} copy="Try a wider date range or launch an automation." />
-            )}
-        </Panel>
-    );
-}
-
 function AnalyticsNumberCell({ value }: { value: number }) {
     return <td className="px-3 py-4 text-right text-sm font-black text-slate-700">{formatMetric(value)}</td>;
 }
@@ -6123,48 +5913,12 @@ function CompactStat({ label, value }: { label: string; value: string }) {
     );
 }
 
-function ContentPerformanceCard({ row }: { row: ContentPerformanceRow }) {
-    return (
-        <div className="grid gap-3 rounded-card border border-slate-100 bg-white p-3 transition hover:border-brand/15 hover:shadow-raised md:grid-cols-[minmax(0,1.35fr)_repeat(6,minmax(72px,0.5fr))] md:items-center">
-            <div className="flex min-w-0 items-center gap-3">
-                <div className={cx("h-14 w-14 shrink-0 rounded-card bg-gradient-to-br shadow-inner", row.color)} />
-                <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <p className="truncate text-sm font-black text-slate-950">{row.title}</p>
-                        <SmallBadge label={row.type} tone={row.type === "Reel" ? "purple" : row.type === "Carousel" ? "gold" : "gray"} />
-                    </div>
-                    <p className="mt-1 line-clamp-1 text-xs font-semibold text-slate-500">{row.caption}</p>
-                    <p className="mt-1 text-[11px] font-black text-slate-400">{row.metric}</p>
-                </div>
-            </div>
-            <MiniMetric label="Comments" value={formatMetric(row.comments)} />
-            <MiniMetric label="Keyword" value={formatMetric(row.keywordComments)} />
-            <MiniMetric label="Trigger" value={`${row.triggerRate}%`} />
-            <MiniMetric label="DMs" value={formatMetric(row.dms)} />
-            <MiniMetric label="Clicks" value={formatMetric(row.clicks)} />
-            <MiniMetric label="Leads" value={formatMetric(row.leads)} />
-        </div>
-    );
-}
-
 function MiniMetric({ label, value }: { label: string; value: string }) {
     return (
         <div className="rounded-control bg-slate-50 px-3 py-2 text-left md:text-center">
             <p className="text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
             <p className="mt-0.5 text-sm font-black text-slate-800">{value}</p>
         </div>
-    );
-}
-
-function GeographicDistributionCard() {
-    return (
-        <Panel title="Geographic Distribution">
-            <EmptyState
-                icon={<ExternalLink className="h-6 w-6" />}
-                title="No geographic data yet"
-                copy="Location data will appear when users click your tracked links."
-            />
-        </Panel>
     );
 }
 
@@ -6208,7 +5962,7 @@ function FailedDmHelpCard() {
     );
 }
 
-function ActivityEventRow({ event, onCopy, onRetry }: { event: AnalyticsActivityEvent; onCopy: () => void; onRetry: () => void }) {
+function ActivityEventRow({ event, onCopy }: { event: AnalyticsActivityEvent; onCopy: () => void }) {
     const config = activityConfig(event.type);
     return (
         <div className="rounded-card border border-slate-100 bg-white p-3 transition hover:bg-slate-50">
@@ -6227,7 +5981,6 @@ function ActivityEventRow({ event, onCopy, onRetry }: { event: AnalyticsActivity
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
                     <span className={cx("rounded-full px-2.5 py-1 text-xs font-black", event.status === "Failed" ? "bg-rose-50 text-rose-700" : event.status === "Captured" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600")}>{event.status}</span>
-                    {event.status === "Failed" && <SecondaryButton onClick={onRetry}><RefreshCw className="h-4 w-4" /> Retry</SecondaryButton>}
                     <IconButton title="Copy event" onClick={onCopy}><Copy className="h-4 w-4" /></IconButton>
                 </div>
             </div>
@@ -6306,36 +6059,21 @@ function AutomationAnalyticsDrawer({
                 <div className="mt-5 rounded-card border border-slate-100 bg-slate-50/70 p-4">
                     <div className="flex items-center justify-between">
                         <StatusBadge status={row.status} />
-                        <span className="text-xs font-black text-slate-400">{row.lastActivity}</span>
+                        <span className="text-xs font-black text-slate-400">{row.modified}</span>
                     </div>
                     <p className="mt-4 text-sm font-semibold leading-6 text-slate-600">{row.description}</p>
                 </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="mt-4 grid grid-cols-1 gap-3">
                     <CompactStat label="DMs sent" value={formatMetric(row.dms)} />
-                    <CompactStat label="Clicks" value={formatMetric(row.clicks)} />
-                    <CompactStat label="CTR" value={`${row.ctr}%`} />
-                    <CompactStat label="Leads" value={formatMetric(row.leads)} />
-                    <CompactStat label="Failed" value={formatMetric(row.failed)} />
-                    <CompactStat label="Delivery" value={`${row.deliveryRate}%`} />
                 </div>
 
                 <div className="mt-4 space-y-3 rounded-card border border-slate-100 p-4">
                     <AnalyticsDetailRow label="Trigger type" value={row.trigger} />
-                    <AnalyticsDetailRow label="Selected content" value={row.selectedContent} />
                     <AnalyticsDetailRow label="Keywords" value={row.keywords.map((keyword) => `+${keyword}`).join(", ") || "Any keyword"} />
                     <AnalyticsDetailRow label="Last modified" value={row.modified} />
                 </div>
 
-                <div className="mt-4 rounded-card border border-slate-100 p-4">
-                    <h3 className="font-black text-slate-950">Mini timeline</h3>
-                    <div className="mt-4 space-y-3">
-                        <TimelineMini label="DM sent" value={formatMetric(row.dms)} tone="purple" />
-                        <TimelineMini label="Link clicked" value={formatMetric(row.clicks)} tone="blue" />
-                        <TimelineMini label="Lead captured" value={formatMetric(row.leads)} tone="green" />
-                        <TimelineMini label="Failed DM" value={formatMetric(row.failed)} tone="red" />
-                    </div>
-                </div>
 
                 <div className="mt-5 grid gap-2">
                     <PrimaryButton onClick={onEdit}><PenLine className="h-4 w-4" /> Edit automation</PrimaryButton>
@@ -6356,22 +6094,6 @@ function AnalyticsDetailRow({ label, value }: { label: string; value: string }) 
     );
 }
 
-function TimelineMini({ label, value, tone }: { label: string; value: string; tone: "purple" | "blue" | "green" | "red" }) {
-    const tones = {
-        purple: "bg-brand",
-        blue: "bg-sky-500",
-        green: "bg-emerald-500",
-        red: "bg-rose-500",
-    };
-    return (
-        <div className="flex items-center gap-3">
-            <span className={cx("h-2.5 w-2.5 rounded-full", tones[tone])} />
-            <span className="flex-1 text-sm font-bold text-slate-600">{label}</span>
-            <span className="text-sm font-black text-slate-950">{value}</span>
-        </div>
-    );
-}
-
 function activityConfig(type: AnalyticsActivityEvent["type"]) {
     if (type === "Link clicked") return { icon: <MousePointerClick className="h-5 w-5" />, className: "bg-sky-50 text-sky-600" };
     if (type === "Lead captured") return { icon: <UserPlus className="h-5 w-5" />, className: "bg-emerald-50 text-emerald-600" };
@@ -6379,33 +6101,18 @@ function activityConfig(type: AnalyticsActivityEvent["type"]) {
     return { icon: <Send className="h-5 w-5" />, className: "bg-brand-soft text-brand" };
 }
 
-function buildAutomationAnalyticsRows(triggers: Trigger[], stats: Stats, leadsCollected: number, deliveryRate: number | null): AnalyticsAutomationRow[] {
-    if (!triggers.length) return [];
-    const triggerTypes = ["Post or Reel comment", "DM keyword", "Story reply", "Live comment"];
-    return triggers.map((trigger, index): AnalyticsAutomationRow => {
-        const dms = safeNumber(trigger.dmsSent);
-        const clicks = 0;
-        const leads = 0;
-        const failed = 0;
-        const ctr = dms > 0 ? Math.round((clicks / dms) * 100) : 0;
-        const rowDelivery = dms > 0 ? Math.max(0, Math.round(((dms - failed) / dms) * 100)) : safeNumber(deliveryRate);
+function buildAutomationAnalyticsRows(triggers: Trigger[]): AnalyticsAutomationRow[] {
+    return triggers.map((trigger): AnalyticsAutomationRow => {
         const keyword = normalizeKeyword(trigger.keyword || "link");
         return {
             id: trigger.id,
             name: `Auto DM for "${keyword}"`,
             description: safeText(trigger.replyMessage, "Automated Instagram response."),
-            trigger: trigger.triggerType || triggerTypes[index % triggerTypes.length],
+            trigger: trigger.triggerType || "Post or Reel comment",
             keywords: [keyword],
-            dms,
-            clicks,
-            ctr,
-            leads,
-            deliveryRate: rowDelivery,
-            failed,
+            dms: safeNumber(trigger.dmsSent),
             status: trigger.enabled ? "Live" : "Paused",
             modified: trigger.modifiedAt ? new Date(trigger.modifiedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "Unknown",
-            selectedContent: "All posts & reels",
-            lastActivity: trigger.modifiedAt ? new Date(trigger.modifiedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "Unknown",
         };
     }).sort((a, b) => b.dms - a.dms);
 }
@@ -6413,8 +6120,8 @@ function buildAutomationAnalyticsRows(triggers: Trigger[], stats: Stats, leadsCo
 function buildAnalyticsActivityEvents(activity: LogEntry[], automations: AnalyticsAutomationRow[]): AnalyticsActivityEvent[] {
     if (!activity.length) return [];
     const rows: AnalyticsActivityEvent[] = [];
-    activity.forEach((entry, index) => {
-        const automation = automations.find((item) => item.keywords.includes(normalizeKeyword(entry.trigger))) || automations[index % Math.max(1, automations.length)];
+    activity.forEach((entry) => {
+        const automation = automations.find((item) => item.keywords.includes(normalizeKeyword(entry.trigger)));
         const automationName = automation?.name || (entry.trigger ? `Auto DM for "${entry.trigger}"` : "Unknown automation");
         const user = safeText(entry.user, "Unknown user");
         const keyword = normalizeKeyword(entry.keyword || entry.trigger || "link");
@@ -6447,38 +6154,10 @@ function buildAnalyticsActivityEvents(activity: LogEntry[], automations: Analyti
                 keyword,
                 status: "Failed",
                 timestamp: safeText(entry.time, "Unknown date"),
-                errorReason: "User may have closed DMs or the 24-hour window expired",
-                suggestedFix: "Ask the user to follow or comment again.",
             });
         }
     });
     return rows;
-}
-
-function buildContentPerformanceRows(stats: Stats, leadsCollected: number): ContentPerformanceRow[] {
-    if (!stats.totalDmsSent && !stats.totalPublicReplies && !leadsCollected) return [];
-    const content = fallbackInstagramMedia.filter((media) => media.id !== "all");
-    return content.map((media, index) => {
-        const baseComments = Math.max(0, Math.round((safeNumber(stats.totalPublicReplies || stats.totalDmsSent) / Math.max(1, content.length)) * Math.max(0.5, 1.2 - index * 0.1)));
-        const keywordComments = Math.max(0, Math.round(baseComments * Math.max(0.25, 0.62 - index * 0.04)));
-        const dms = Math.max(0, Math.round(keywordComments * 0.88));
-        const clicks = Math.max(0, Math.round(dms * Math.max(0.18, 0.34 - index * 0.025)));
-        const leads = Math.max(0, Math.round(clicks * 0.45));
-        return {
-            id: media.id,
-            title: media.title,
-            type: media.type,
-            caption: media.caption,
-            metric: media.metric,
-            comments: baseComments,
-            keywordComments,
-            triggerRate: baseComments > 0 ? Math.round((keywordComments / baseComments) * 100) : 0,
-            dms,
-            clicks,
-            leads,
-            color: media.color,
-        };
-    });
 }
 
 function buildAudienceRows(activity: LogEntry[], automations: AnalyticsAutomationRow[]): AudienceUserRow[] {
@@ -6513,38 +6192,6 @@ function buildAudienceRows(activity: LogEntry[], automations: AnalyticsAutomatio
     return [...map.values()].sort((a, b) => b.comments - a.comments);
 }
 
-function buildAnalyticsTrendData(range: string, stats: Stats, leadsCollected: number) {
-    const factor = analyticsRangeFactor(range);
-    const baseDms = chartData.reduce((sum, item) => sum + item.dms, 0);
-    const baseLeads = chartData.reduce((sum, item) => sum + item.leads, 0);
-    const dmsScale = stats.totalDmsSent > 0 && baseDms > 0 ? stats.totalDmsSent / baseDms : 0;
-    const leadScale = leadsCollected > 0 && baseLeads > 0 ? leadsCollected / baseLeads : 0;
-    return chartData.map((item, index) => {
-        const dms = Math.max(0, Math.round(item.dms * factor * dmsScale));
-        const leads = Math.max(0, Math.round(item.leads * factor * leadScale));
-        const clicks = Math.max(0, Math.round(dms * 0.32));
-        const failed = Math.max(0, Math.round((safeNumber(stats.failedDms) / chartData.length) * Math.max(0.4, 1 - index * 0.08)));
-        const followerStep = Math.max(1, Math.round(safeNumber(stats.followers) * 0.0015));
-        return {
-            day: item.day,
-            dms,
-            leads,
-            clicks,
-            failed,
-            followers: Math.max(0, safeNumber(stats.followers) - (chartData.length - index - 1) * followerStep),
-        };
-    });
-}
-
-function analyticsRangeFactor(range: string) {
-    if (range === "Today") return 0.22;
-    if (range === "Yesterday") return 0.2;
-    if (range === "Last 30 days") return 2.9;
-    if (range === "This month") return 2.6;
-    if (range === "All time") return 4.4;
-    return 1;
-}
-
 function safeNumber(value: number | string | undefined | null) {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : 0;
@@ -6573,17 +6220,12 @@ function formatMetric(value: number) {
 }
 
 function buildAutomationPerformanceCsv(rows: AnalyticsAutomationRow[]) {
-    const headers = ["Automation name", "Trigger", "Keywords", "DMs sent", "Clicks", "CTR", "Leads", "Failed", "Delivery rate", "Status"];
+    const headers = ["Automation name", "Trigger", "Keywords", "DMs sent", "Status"];
     const body = rows.map((row) => [
         row.name,
         row.trigger,
         row.keywords.map((keyword) => `+${keyword}`).join(" "),
         String(row.dms),
-        String(row.clicks),
-        `${row.ctr}%`,
-        String(row.leads),
-        String(row.failed),
-        `${row.deliveryRate}%`,
         row.status,
     ].map(csvEscape).join(","));
     return [headers.join(","), ...body].join("\n");
