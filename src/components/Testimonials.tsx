@@ -41,7 +41,7 @@ export function Testimonials() {
       <div className="container mx-auto px-6 sm:px-8 lg:px-12">
         <div className="text-center mb-16">
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6 text-foreground">
-            See What People Are Saying 👀
+            See What People Are Saying
           </h2>
         </div>
 
@@ -56,7 +56,7 @@ export function Testimonials() {
               className="bg-background clean-border rounded-card p-6 subtle-shadow hover:elevated-shadow gentle-animation"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-accent-blue to-brand rounded-full flex items-center justify-center text-white font-bold">
+                <div className="w-12 h-12 bg-brand rounded-full flex items-center justify-center text-white font-bold">
                   {t.name.charAt(0)}
                 </div>
                 <div>
@@ -64,7 +64,6 @@ export function Testimonials() {
                   <div className="text-muted-foreground text-sm">{t.handle}</div>
                 </div>
               </div>
-              <div className="text-yellow-500 mb-3 text-sm">★★★★★</div>
               <p className="text-muted-foreground text-sm leading-relaxed">{t.text}</p>
             </motion.div>
           ))}

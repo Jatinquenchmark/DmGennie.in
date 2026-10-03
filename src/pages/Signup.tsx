@@ -109,7 +109,7 @@ function CreatorProof() {
         {['A', 'M', 'R', 'S', 'K'].map((initial, index) => (
           <span
             key={initial}
-            className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-gradient-to-br from-brand to-brand/40 text-[11px] font-black text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-brand text-[11px] font-black text-white"
             style={{ opacity: 1 - index * 0.045 }}
           >
             {initial}
@@ -124,14 +124,12 @@ function CreatorProof() {
 function AuthShowcase() {
   return (
     <div className="relative flex flex-col items-center justify-center overflow-hidden px-2 py-8 sm:py-10 lg:px-4 lg:py-0">
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[27rem] w-[27rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(193,53,132,0.13),rgba(193, 53, 132,0.08)_38%,rgba(245,169,196,0.045)_58%,transparent_74%)] blur-3xl" />
       <motion.div
         initial={{ opacity: 0, y: 18, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.55, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-10 w-[min(76vw,18.5rem)] sm:w-[min(50vw,18.75rem)] lg:w-[min(27vw,17.25rem)] xl:w-[18rem]"
       >
-        <div className="pointer-events-none absolute -inset-6 rounded-[3.3rem] bg-[radial-gradient(circle,rgba(193,53,132,0.14),rgba(193, 53, 132,0.07)_48%,transparent_72%)] blur-2xl" />
         <div className="relative aspect-[390/812] rounded-[2.75rem] border border-white/30 bg-slate-900 p-[7px] shadow-raised">
           <div className="absolute -right-5 top-24 z-30 rounded-card border border-white/70 bg-white/90 px-3 py-2 text-center backdrop-blur-xl">
             <p className="text-sm font-black leading-none text-brand">+2.3K</p>
@@ -501,8 +499,6 @@ export default function Signup() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-200">
-      <div className="pointer-events-none absolute left-[-10%] top-[-18%] h-[30rem] w-[30rem] rounded-full bg-brand/[0.07] blur-3xl" />
-      <div className="pointer-events-none absolute bottom-[-22%] right-[-12%] h-[34rem] w-[34rem] rounded-full bg-brand/5 blur-3xl" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.65),rgba(251,247,248,0.9))] dark:opacity-0" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.13] [background-image:linear-gradient(rgba(193,53,132,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(193,53,132,0.08)_1px,transparent_1px)] [background-size:56px_56px]" />
 
@@ -584,7 +580,7 @@ export default function Signup() {
                           type="button"
                           onClick={handleGoogleSignIn}
                           disabled={googleLoading || signUpLoading}
-                          className="mt-6 flex h-11 w-full items-center justify-center gap-3 rounded-control border border-slate-200 bg-white/[0.82] px-4 text-sm font-black text-slate-900 transition-all duration-200 hover:-translate-y-px hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                          className="mt-6 flex h-11 w-full items-center justify-center gap-3 rounded-control border border-slate-200 bg-white/[0.82] px-4 text-sm font-black text-slate-900 transition-all duration-200 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                         >
                           {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
                           {googleLoading ? 'Connecting...' : 'Continue with Google'}
@@ -626,7 +622,7 @@ export default function Signup() {
                           <button
                             type="submit"
                             disabled={signUpLoading || googleLoading}
-                            className="flex h-12 w-full items-center justify-center gap-2 rounded-control bg-brand-gradient text-sm font-black text-white transition-all duration-200 hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
+                            className="flex h-12 w-full items-center justify-center gap-2 rounded-control bg-brand text-sm font-black text-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60"
                           >
                             {signUpLoading ? (
                               <><Loader2 className="h-5 w-5 animate-spin" /> Creating account...</>
@@ -665,7 +661,7 @@ export default function Signup() {
                       type="button"
                       onClick={handleGoogleSignIn}
                       disabled={googleLoading || signInLoading || passwordResetLoading}
-                      className="mt-6 flex h-11 w-full items-center justify-center gap-3 rounded-control border border-slate-200 bg-white/[0.82] px-4 text-sm font-black text-slate-900 transition-all duration-200 hover:-translate-y-px hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+                      className="mt-6 flex h-11 w-full items-center justify-center gap-3 rounded-control border border-slate-200 bg-white/[0.82] px-4 text-sm font-black text-slate-900 transition-all duration-200 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
                       {googleLoading ? 'Connecting...' : 'Continue with Google'}
@@ -719,7 +715,7 @@ export default function Signup() {
                       <button
                         type="submit"
                         disabled={signInLoading || googleLoading || passwordResetLoading}
-                        className="flex h-12 w-full items-center justify-center gap-2 rounded-control bg-brand-gradient text-sm font-black text-white transition-all duration-200 hover:-translate-y-px disabled:cursor-not-allowed disabled:opacity-60"
+                        className="flex h-12 w-full items-center justify-center gap-2 rounded-control bg-brand text-sm font-black text-white transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {signInLoading ? <><Loader2 className="h-5 w-5 animate-spin" /> Signing in...</> : 'Sign In'}
                       </button>

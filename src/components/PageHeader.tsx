@@ -27,7 +27,7 @@ export function PageHeader() {
 
         <div className="flex items-center gap-3">
           <ThemeToggle />
-          <Link to="/signup" className="hidden rounded-control bg-brand-gradient px-5 py-2.5 text-sm font-black text-white transition-all hover:opacity-90 sm:block">
+          <Link to="/signup" className="hidden rounded-control bg-brand px-5 py-2.5 text-sm font-black text-white transition-all hover:opacity-90 sm:block">
             Get Started Free
           </Link>
         </div>

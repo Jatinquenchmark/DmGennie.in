@@ -18,7 +18,7 @@ import {
   type EdgeTypes,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { ArrowLeft, Save, Loader2, Sparkles, Link2, AlertTriangle, CircleHelp } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Link2, AlertTriangle, CircleHelp } from "lucide-react";
 import { toast } from "sonner";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { Switch } from "@/components/ui/switch";
@@ -278,7 +278,7 @@ function Builder() {
         </button>
 
         <button data-tour="fb-autoconnect" onClick={runAutoConnect} className="flex items-center gap-1.5 rounded-control border border-border px-3 py-2 text-sm font-bold text-foreground transition hover:bg-muted" title="Auto-connect the blocks top-to-bottom">
-          <Sparkles className="h-4 w-4" /> Auto-connect
+          <Link2 className="h-4 w-4" /> Auto-connect
         </button>
 
         <label className="flex items-center gap-2 text-xs font-bold text-muted-foreground">

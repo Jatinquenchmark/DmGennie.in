@@ -38,7 +38,6 @@ export function FeatureShowcase() {
 
   return (
     <section className="relative overflow-hidden bg-background py-16 sm:py-20 lg:py-24">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_8%_20%,rgba(53,92,255,0.08),transparent_28%),radial-gradient(circle_at_92%_55%,rgba(109,93,252,0.08),transparent_28%)]" />
       <div className="container relative mx-auto space-y-24 px-6 sm:px-8 lg:px-12">
         {showcases.map((item, index) => {
           const Icon = item.icon
@@ -61,7 +60,7 @@ export function FeatureShowcase() {
                   {item.description}
                 </p>
                 <Link to="/signup">
-                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="premium-button inline-flex items-center gap-3 rounded-control px-8 py-4 text-lg font-bold text-white transition-colors">
+                  <motion.button whileTap={{ scale: 0.97 }} className="premium-button inline-flex items-center gap-3 rounded-control px-8 py-4 text-lg font-bold text-white transition-colors">
                     Start For Free
                     <Send className="h-5 w-5" />
                   </motion.button>

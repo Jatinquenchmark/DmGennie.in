@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { MessageCircle, MousePointerClick, Send, Sparkles } from 'lucide-react'
+import { MessageCircle, MousePointerClick, Send } from 'lucide-react'
 
 type Feature = {
   title: string
@@ -14,7 +14,6 @@ type Feature = {
 function PhoneMockup({ feature, index }: { feature: Feature; index: number }) {
   return (
     <div className="relative mx-auto h-[440px] w-full max-w-[430px]">
-      <div className={`absolute inset-8 rounded-full ${feature.accent} opacity-30 blur-3xl`} />
       {/* 9:19.5 is a modern phone's aspect ratio; both frames use it so they read as real devices */}
       <div className="absolute left-2 top-0 aspect-[9/19.5] w-[168px] overflow-hidden rounded-panel border-[7px] border-slate-950 bg-white shadow-overlay">
         <div className="mx-auto mt-3 h-4 w-14 rounded-full bg-slate-950" />
@@ -127,7 +126,7 @@ export function FeatureBreakdown() {
               <PhoneMockup feature={feature} index={index} />
               <div>
                 <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-card bg-accent-blue/10 text-accent-blue">
-                  {index % 2 === 0 ? <MousePointerClick className="h-6 w-6" /> : <Sparkles className="h-6 w-6" />}
+                  {index % 2 === 0 ? <MousePointerClick className="h-6 w-6" /> : <Send className="h-6 w-6" />}
                 </div>
                 <h3 className="mb-5 text-4xl font-black leading-tight text-foreground lg:text-5xl">
                   {feature.title}

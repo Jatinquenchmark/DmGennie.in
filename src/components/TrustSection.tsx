@@ -5,7 +5,6 @@ import { motion } from 'framer-motion'
 export function TrustSection() {
   return (
     <section className="relative overflow-hidden bg-background py-14 sm:py-16 lg:py-20" aria-label="Meta Tech Provider trust section">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_48%_100%,rgba(193,53,132,0.07),transparent_34%)]" />
       <div className="container relative mx-auto px-4 sm:px-8 lg:px-12">
         <motion.div
           initial={{ opacity: 0, y: 24 }}

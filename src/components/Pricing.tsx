@@ -169,7 +169,6 @@ export function Pricing() {
 
   return (
     <section id="pricing" className="relative overflow-hidden bg-background py-16 sm:py-20 lg:py-24">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_16%,rgba(193,53,132,0.10),transparent_30%),radial-gradient(circle_at_80%_72%,rgba(64,93,230,0.10),transparent_30%),linear-gradient(180deg,#fff,rgba(248,241,243,0.82)_100%)] dark:opacity-0" />
       <div className="container relative mx-auto px-6 sm:px-8 lg:px-12">
         <div className="mx-auto mb-10 max-w-3xl text-center">
           <div className="mb-4 text-sm font-black uppercase tracking-[0.18em] text-brand">Pricing</div>
@@ -253,16 +252,14 @@ export function Pricing() {
               return (
             <motion.div
               key={plan.name}
-              whileHover={{ y: -6 }}
               className={`relative flex min-h-[580px] flex-col overflow-hidden rounded-panel border p-8 shadow-raised sm:p-10 ${
                 plan.highlight
-                  ? 'border-white/20 bg-[linear-gradient(155deg,#405DE6_0%,#C13584_52%,#C13584_100%)] text-white lg:-mt-5 lg:min-h-[640px]'
+                  ? 'border-white/20 bg-brand text-white lg:-mt-5 lg:min-h-[640px]'
                   : 'border-white/80 bg-white/86 text-slate-900 backdrop-blur'
               }`}
             >
               {plan.highlight && (
                 <>
-                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.18),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.08),transparent_42%)]" />
                   <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
                 </>
               )}

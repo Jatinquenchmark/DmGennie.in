@@ -14,21 +14,7 @@ function DMGennieLoadingMark() {
     <div className="relative mx-auto flex h-16 w-16 items-center justify-center" aria-hidden="true">
       <div className="absolute inset-0 rounded-card border border-brand/20 bg-brand-soft" />
       <div className="absolute inset-[-6px] rounded-card border-2 border-brand/15 border-t-brand animate-spin" />
-      <BrandMark size={36} className="relative animate-pulse" />
-    </div>
-  );
-}
-
-function LoadingDots() {
-  return (
-    <div className="mt-6 flex items-center justify-center gap-2" aria-hidden="true">
-      {[0, 1, 2].map((dot) => (
-        <span
-          key={dot}
-          className="h-2 w-2 animate-bounce rounded-full bg-brand"
-          style={{ animationDelay: `${dot * 140}ms` }}
-        />
-      ))}
+      <BrandMark size={36} className="relative" />
     </div>
   );
 }
@@ -59,7 +45,6 @@ export function LoadingCard({
           </p>
         ) : null}
       </div>
-      <LoadingDots />
     </div>
   );
 }
@@ -67,8 +52,6 @@ export function LoadingCard({
 export function LoadingScreen(props: LoadingCardProps) {
   return (
     <div className="fixed inset-0 z-[100] flex min-h-screen items-center justify-center overflow-hidden bg-slate-50 px-5">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_18%,rgba(193, 53, 132,0.14),transparent_30%),radial-gradient(circle_at_78%_12%,rgba(192,122,138,0.12),transparent_28%),linear-gradient(180deg,#fff_0%,#F7F7FB_58%,#FBEAF3_100%)]" />
-      <div className="absolute left-1/2 top-1/2 h-[360px] w-[360px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/8 blur-3xl" />
       <div className="relative w-full">
         <LoadingCard {...props} />
       </div>
@@ -132,7 +115,7 @@ export function ErrorState({
           <button
             type="button"
             onClick={onRetry}
-            className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand px-6 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-brand-hover"
+            className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand px-6 text-sm font-black text-white transition hover:bg-brand-hover"
           >
             <RefreshCw className="h-4 w-4" />
             {retryLabel}

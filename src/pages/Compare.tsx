@@ -134,7 +134,7 @@ export default function Compare() {
           <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">Choose one of the available DMGennie comparisons below.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {compareLinks.map((item) => (
-              <Link key={item.slug} to={`/compare/${item.slug}`} className="rounded-full border border-border bg-card/70 px-4 py-2 text-sm font-bold text-muted-foreground shadow-rest backdrop-blur transition-all hover:-translate-y-0.5 hover:text-brand">
+              <Link key={item.slug} to={`/compare/${item.slug}`} className="rounded-full border border-border bg-card/70 px-4 py-2 text-sm font-bold text-muted-foreground shadow-rest backdrop-blur transition-all hover:text-brand">
                 {item.name}
               </Link>
             ))}
@@ -150,8 +150,6 @@ export default function Compare() {
       <PageHeader />
 
       <main className="relative overflow-hidden pb-20 pt-36">
-        <div className="pointer-events-none absolute left-[-10%] top-24 h-80 w-80 rounded-full bg-brand/10 blur-3xl" />
-        <div className="pointer-events-none absolute right-[-10%] top-40 h-96 w-96 rounded-full bg-brand/5 blur-3xl" />
 
         <section className="relative mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
           <div className="mb-10 flex flex-wrap items-center justify-center gap-2 text-sm font-bold text-muted-foreground">
@@ -186,7 +184,7 @@ export default function Compare() {
                   className={`rounded-full border px-4 py-2 text-sm font-black transition-all ${
                     active
                       ? 'border-brand bg-brand text-white'
-                      : 'border-border bg-card/66 text-muted-foreground shadow-rest backdrop-blur hover:-translate-y-0.5 hover:text-brand'
+                      : 'border-border bg-card/66 text-muted-foreground shadow-rest backdrop-blur hover:text-brand'
                   }`}
                 >
                   {item.name}
@@ -250,7 +248,7 @@ export default function Compare() {
           <div className="mx-auto mt-16 max-w-4xl rounded-panel border border-border bg-card/68 p-8 text-center backdrop-blur-xl sm:p-10">
             <h2 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl">Get started with DMGennie for free</h2>
             <p className="mx-auto mt-3 max-w-2xl text-lg font-medium text-muted-foreground">Create your account and launch your first automation in minutes.</p>
-            <Link to="/signup" className="premium-button mt-8 inline-flex rounded-control px-9 py-4 text-lg font-bold text-white transition-all hover:-translate-y-0.5">
+            <Link to="/signup" className="premium-button mt-8 inline-flex rounded-control px-9 py-4 text-lg font-bold text-white transition-all">
               Create Free Account
             </Link>
             <TrustChips className="mt-6 justify-center" />

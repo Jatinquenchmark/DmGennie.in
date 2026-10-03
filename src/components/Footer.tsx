@@ -46,7 +46,6 @@ export function Footer() {
 
   return (
     <footer className="relative overflow-hidden border-t border-slate-200 bg-slate-100 text-slate-900 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_8%,rgba(193,53,132,0.12),transparent_32%),radial-gradient(circle_at_86%_24%,rgba(64,93,230,0.12),transparent_28%),linear-gradient(135deg,rgba(255,255,255,0.82),rgba(255,255,255,0.18)_48%,rgba(193,53,132,0.05))] dark:opacity-0" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:linear-gradient(rgba(193,53,132,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(193,53,132,0.08)_1px,transparent_1px)] [background-size:42px_42px]" />
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/25 to-transparent" />
       <div
@@ -77,14 +76,14 @@ export function Footer() {
                 href="https://www.instagram.com/dmgennie.in/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/80 bg-white/55 text-brand shadow-rest backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white hover:text-slate-900"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/80 bg-white/55 text-brand shadow-rest backdrop-blur transition-all hover:bg-white hover:text-slate-900"
                 aria-label="DMGennie on Instagram"
               >
                 <Instagram className="h-4 w-4" />
               </a>
               <a
                 href="mailto:support@dmgennie.in"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/80 bg-white/55 text-brand shadow-rest backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white hover:text-slate-900"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/80 bg-white/55 text-brand shadow-rest backdrop-blur transition-all hover:bg-white hover:text-slate-900"
                 aria-label="Email support"
               >
                 <Mail className="h-4 w-4" />
@@ -94,7 +93,7 @@ export function Footer() {
               href="https://www.parameterx.org/"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-8 inline-flex items-center gap-3 rounded-card border border-white/80 bg-white/58 px-4 py-3 text-sm font-bold text-slate-900 backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white"
+              className="mt-8 inline-flex items-center gap-3 rounded-card border border-white/80 bg-white/58 px-4 py-3 text-sm font-bold text-slate-900 backdrop-blur transition-all hover:bg-white"
               aria-label="ParameterX security partner"
             >
               <span className="inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-control bg-black p-1.5">

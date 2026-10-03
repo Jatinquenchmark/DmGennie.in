@@ -2,7 +2,7 @@
 
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
+import { BrandMark } from '@/components/BrandMark'
 import { TrustChips } from './TrustChips'
 
 export function Features() {
@@ -59,18 +59,16 @@ export function Features() {
 
   return (
     <section id="features" className="relative overflow-hidden bg-slate-950 py-16 text-white sm:py-20 lg:py-24">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(193,53,132,0.36),transparent_30%),radial-gradient(circle_at_18%_22%,rgba(245,169,196,0.16),transparent_25%),radial-gradient(circle_at_86%_66%,rgba(64,93,230,0.14),transparent_26%)]" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.065] [background-image:linear-gradient(rgba(255,255,255,0.9)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.9)_1px,transparent_1px)] [background-size:46px_46px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_76%)]" />
       <div className="container relative mx-auto px-6 sm:px-8 lg:px-12">
         <div className="relative mx-auto mb-16 max-w-5xl text-center sm:mb-18 lg:mb-20">
-          <div className="pointer-events-none absolute left-1/2 top-2 h-60 w-[min(900px,92vw)] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(245,169,196,0.24),rgba(193,53,132,0.16)_42%,transparent_72%)] blur-3xl" />
           <div className="relative mb-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.07] px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-white/62 shadow-raised backdrop-blur-xl">
             <span className="h-1.5 w-1.5 rounded-full bg-[#f1bd51]" />
             All the features you need
           </div>
           <h2 className="relative mx-auto max-w-5xl text-balance text-4xl font-black leading-[0.96] tracking-tight text-white sm:text-5xl lg:text-7xl">
             Unlock the Full Power of{' '}
-            <span className="bg-gradient-to-r from-[#f5d8a8] via-[#fff7f0] to-brand/40 bg-clip-text text-transparent">
+            <span>
               Instagram
             </span>
           </h2>
@@ -86,8 +84,6 @@ export function Features() {
             return (
               <motion.div
                 key={feature.id}
-                whileHover={{ y: -6 }}
-                transition={{ type: 'spring', stiffness: 220, damping: 22 }}
                 className="group relative overflow-hidden rounded-panel border border-white/[0.11] bg-white/[0.065] p-2 shadow-overlay backdrop-blur-xl transition-all duration-300 hover:border-brand/14 hover:bg-white/[0.085]"
               >
                 <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/35 to-transparent" />
@@ -96,13 +92,13 @@ export function Features() {
                     <img
                       src={feature.image}
                       alt={`${feature.title} preview`}
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.035]"
+                      className="h-full w-full object-cover transition-transform duration-500"
                       loading="lazy"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-white text-slate-900">
                       <div className="flex items-center gap-3 rounded-card border border-slate-200 bg-white px-5 py-4 shadow-rest">
-                        <Sparkles className="h-8 w-8 text-brand" />
+                        <BrandMark size={32} />
                         <div className="text-2xl font-black tracking-tight">DMGennie AI</div>
                       </div>
                     </div>
@@ -125,7 +121,7 @@ export function Features() {
 
         <div className="mt-14 text-center">
           <Link to="/signup">
-            <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="rounded-control bg-white px-9 py-4 text-lg font-black text-brand shadow-raised transition-all hover:-translate-y-0.5 hover:bg-white">
+            <motion.button whileTap={{ scale: 0.97 }} className="rounded-control bg-white px-9 py-4 text-lg font-black text-brand shadow-raised transition-all hover:bg-white">
               Start For Free
             </motion.button>
           </Link>

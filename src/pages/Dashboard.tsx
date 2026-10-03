@@ -63,7 +63,6 @@ import {
     Send,
     Settings,
     ShieldCheck,
-    Sparkles,
     Trash2,
     TrendingUp,
     Wand2,
@@ -276,7 +275,7 @@ const inputCls =
     "w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-950 outline-none transition focus:border-brand/40 focus:ring-4 focus:ring-brand/10 placeholder:text-slate-400";
 
 const goldCtaCls =
-    "bg-[linear-gradient(135deg,#FFF7DA_0%,#E8C56C_48%,#B9832B_100%)] text-[#2F2108] ring-1 ring-[#D9B760]/70 transition hover:-translate-y-0.5";
+    "bg-gold hover:bg-gold/90 text-[#2F2108] ring-1 ring-[#D9B760]/70 transition";
 
 const goldCrownCls = "fill-gold-deep text-[#6F4B12]";
 
@@ -409,7 +408,7 @@ const previewContactMetrics: ContactMetrics = {
 };
 
 const suggestedKeywords = ["link", "send", "price", "info", "demo", "guide", "offer", "course", "ebook", "discount", "buy", "join"];
-const defaultCommentReplies = ["Got it, check your inbox! 📬", "Great! Check your messages 💌", "Sent :)", "Check your DM"];
+const defaultCommentReplies = ["Got it, check your inbox!", "Great! Check your messages", "Sent :)", "Check your DM"];
 const defaultFailedMessages = [
     "I tried to DM you but couldn't reach your inbox. Please send me a quick DM and I'll share the link right away.",
     "Looks like your DM settings blocked my message. Drop me a message and I'll send it over.",
@@ -1584,7 +1583,7 @@ function Sidebar({
                         className={cx("w-full rounded-card border border-slate-200 bg-slate-50 px-2.5 py-2 text-left shadow-rest transition hover:border-brand/25 hover:bg-white", collapsed && "lg:px-1.5")}
                     >
                         <div className={cx("flex items-center gap-2.5", collapsed && "lg:justify-center lg:gap-0")}>
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-orange-400 text-sm font-black text-white">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-black text-white">
                                 {handle.replace("@", "").charAt(0).toUpperCase() || "D"}
                             </div>
                             <div className={cx("min-w-0 flex-1", hideOnCollapse)}>
@@ -1815,12 +1814,10 @@ function HomePage({
     return (
         <div className="space-y-4">
             <section className="relative overflow-hidden rounded-card border border-white bg-white p-4 shadow-raised">
-                <div className="pointer-events-none absolute -right-20 -top-28 h-64 w-64 rounded-full bg-brand/10 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-32 left-1/3 h-56 w-56 rounded-full bg-brand/5 blur-3xl" />
                 <div className="relative space-y-4">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[30px]">Welcome back, {ownerName} 👋</h1>
+                            <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[30px]">Welcome back, {ownerName}</h1>
                             <TourReplayButton tourKey="home" />
                         </div>
                         <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-slate-500">
@@ -1857,7 +1854,7 @@ function ProFeaturesShowcase({ onNavigate }: { onNavigate: (tab: Tab) => void })
     const features = [
         { title: "Advanced analytics", copy: "Charts, conversion funnels, content performance.", icon: <BarChart3 className="h-5 w-5" />, tab: "analytics" as Tab },
         { title: "Export contacts", copy: "Download leads as CSV for your CRM.", icon: <Download className="h-5 w-5" />, tab: "contacts" as Tab },
-        { title: "Pro automations", copy: "Lead capture, ask-for-follow, re-trigger flows.", icon: <Sparkles className="h-5 w-5" />, tab: "automations" as Tab },
+        { title: "Pro automations", copy: "Lead capture, ask-for-follow, re-trigger flows.", icon: <Crown className="h-5 w-5" />, tab: "automations" as Tab },
     ];
     return (
         <div className="rounded-card border border-gold/60 bg-[linear-gradient(135deg,#FFFDF6_0%,#FFF7DA_55%,#FFFDF6_100%)] p-3.5">
@@ -1875,7 +1872,7 @@ function ProFeaturesShowcase({ onNavigate }: { onNavigate: (tab: Tab) => void })
                     <button
                         key={feature.title}
                         onClick={() => onNavigate(feature.tab)}
-                        className="group flex items-start gap-3 rounded-control border border-white bg-white/85 p-3 text-left transition hover:-translate-y-0.5 hover:border-gold/80 hover:bg-white"
+                        className="group flex items-start gap-3 rounded-control border border-white bg-white/85 p-3 text-left transition hover:border-gold/80 hover:bg-white"
                     >
                         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-gold-soft text-gold-deep ring-1 ring-gold/50">
                             {feature.icon}
@@ -1994,14 +1991,13 @@ function QuickActionGrid({
                         key={action.title}
                         onClick={() => locked ? onUpgrade() : onNavigate("automations")}
                         className={cx(
-                            "group relative flex min-h-[132px] flex-col overflow-hidden rounded-card bg-white p-4 text-left transition duration-200 hover:-translate-y-0.5",
+                            "group relative flex min-h-[132px] flex-col overflow-hidden rounded-card bg-white p-4 text-left transition duration-200",
                             action.featured
                                 ? "border border-gold/70 bg-[linear-gradient(180deg,#FFFFFF_0%,#FFFDF7_100%)] hover:border-gold/80"
                                 : "border border-slate-200 shadow-rest hover:border-brand/15",
                             locked && "border-amber-200 bg-[#FFFDF6]"
                         )}
                     >
-                        <span className={cx("pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full blur-2xl transition group-hover:opacity-100", action.featured ? "bg-amber-200/20 opacity-50" : "bg-brand/10 opacity-40")} />
                         <div className="mb-3 flex items-start justify-between gap-3">
                             <span className={cx(
                                 "flex h-10 w-10 shrink-0 items-center justify-center rounded-control transition",
@@ -2066,7 +2062,7 @@ type MetricRangeKey = (typeof METRIC_RANGES)[number]["key"];
 
 const tonePalette: Record<string, { bg: string; text: string; stroke: string }> = {
     indigo: { bg: "bg-brand-soft", text: "text-brand", stroke: "#C13584" },
-    purple: { bg: "bg-brand-soft", text: "text-brand", stroke: "#A855F7" },
+    purple: { bg: "bg-brand-soft", text: "text-brand", stroke: "#C13584" },
     green: { bg: "bg-emerald-50", text: "text-emerald-600", stroke: "#10B981" },
     blue: { bg: "bg-sky-50", text: "text-sky-600", stroke: "#0EA5E9" },
     amber: { bg: "bg-amber-50", text: "text-amber-600", stroke: "#F59E0B" },
@@ -2173,7 +2169,9 @@ function MetricCell({
     rangeLabel: string;
     isLastCol: boolean;
 }) {
-    const [hovered, setHovered] = useState(false);
+    // Click (or Enter/Space) opens the details; blur or Escape closes. Was hover-only, which
+    // keyboard and touch users could never reach.
+    const [open, setOpen] = useState(false);
     const palette = tonePalette[metric.tone] ?? tonePalette.indigo;
     const trendData = useMemo(() => {
         if (typeof metric.numericValue !== "number" || metric.numericValue <= 0) return null;
@@ -2191,10 +2189,16 @@ function MetricCell({
                 "relative isolate p-4 transition sm:p-5",
                 !isLastCol && "sm:border-r sm:border-slate-100"
             )}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
         >
-            <div title={metric.tooltip}>
+            <button
+                type="button"
+                title={metric.tooltip}
+                aria-expanded={open}
+                onClick={() => setOpen((v) => !v)}
+                onBlur={() => setOpen(false)}
+                onKeyDown={(e) => { if (e.key === "Escape") setOpen(false); }}
+                className="block w-full rounded-control text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+            >
                 <div className="mb-3 flex items-center justify-between">
                     <span className={cx("flex h-11 w-11 items-center justify-center rounded-control", palette.bg, palette.text)}>
                         {metric.icon}
@@ -2202,12 +2206,12 @@ function MetricCell({
                 </div>
                 <p className="text-[12px] font-black uppercase tracking-[0.08em] text-slate-400">{metric.label}</p>
                 <h3 className="mt-1 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{metric.value}</h3>
-            </div>
+            </button>
 
-            {hovered && (
+            {open && (
                 <div
                     className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-3 w-[300px] max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-card border border-slate-100 bg-white p-3.5 shadow-raised"
-                    role="dialog"
+                    role="region"
                     aria-label={`${metric.label} details`}
                 >
                     <div className="flex items-center justify-between gap-2">
@@ -2642,7 +2646,7 @@ function AutomationsPage(props: {
                     <div className="space-y-2.5">
                         {props.flows.map((flow) => (
                             <div key={flow.id} className="flex items-center gap-3 rounded-card border border-slate-100 bg-white p-3 shadow-rest transition hover:border-brand/20">
-                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-gradient text-white">
+                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand text-white">
                                     <Workflow className="h-5 w-5" />
                                 </span>
                                 <button onClick={() => props.onOpenFlowBuilder(flow.id)} className="min-w-0 flex-1 text-left">
@@ -2762,9 +2766,9 @@ function AutomationCreationEntry({ onBack, onTemplate, onScratch, onFlow }: { on
 
             <button
                 onClick={onFlow}
-                className="group flex w-full items-center gap-4 rounded-card border border-brand/20 bg-gradient-to-r from-brand-soft to-slate-100 p-6 text-left transition hover:-translate-y-0.5"
+                className="group flex w-full items-center gap-4 rounded-card border border-brand/20 bg-brand-soft p-6 text-left transition"
             >
-                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-brand-gradient text-white">
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-brand text-white">
                     <Workflow className="h-7 w-7" />
                 </span>
                 <span className="min-w-0 flex-1">
@@ -2780,10 +2784,10 @@ function AutomationCreationEntry({ onBack, onTemplate, onScratch, onFlow }: { on
             <div className="grid gap-4 sm:grid-cols-2">
                 <button
                     onClick={onTemplate}
-                    className="group flex flex-col items-start rounded-card border border-slate-100 bg-white p-6 text-left shadow-raised transition hover:-translate-y-1 hover:border-brand/25"
+                    className="group flex flex-col items-start rounded-card border border-slate-100 bg-white p-6 text-left shadow-raised transition hover:border-brand/25"
                 >
                     <span className="flex h-14 w-14 items-center justify-center rounded-card bg-brand-soft text-brand">
-                        <Sparkles className="h-7 w-7" />
+                        <LayoutGrid className="h-7 w-7" />
                     </span>
                     <h2 className="mt-5 text-xl font-black text-slate-900">Use a template</h2>
                     <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">Pick a ready-made setup and we will fill in the details for you. Best if you are just getting started.</p>
@@ -2794,7 +2798,7 @@ function AutomationCreationEntry({ onBack, onTemplate, onScratch, onFlow }: { on
 
                 <button
                     onClick={onScratch}
-                    className="group flex flex-col items-start rounded-card border border-slate-100 bg-white p-6 text-left shadow-raised transition hover:-translate-y-1 hover:border-brand/25"
+                    className="group flex flex-col items-start rounded-card border border-slate-100 bg-white p-6 text-left shadow-raised transition hover:border-brand/25"
                 >
                     <span className="flex h-14 w-14 items-center justify-center rounded-card bg-slate-100 text-slate-900">
                         <Wand2 className="h-7 w-7" />
@@ -2972,7 +2976,7 @@ function AutomationMiniUpgradeStrip({ onUpgrade, proOffer }: { onUpgrade: () => 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-white text-gold-deep shadow-rest ring-1 ring-gold/50">
-                        <Sparkles className="h-5 w-5" />
+                        <Crown className="h-5 w-5" />
                     </span>
                     <div>
                         <h2 className="text-sm font-black text-slate-900">Unlock Pro Power</h2>
@@ -3011,9 +3015,9 @@ function AutomationListRow({
     const modifiedLabel = trigger.modifiedAt ? new Date(trigger.modifiedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : "Unknown";
 
     return (
-        <div className="grid gap-3 rounded-card border border-slate-100 bg-white p-3.5 shadow-rest transition hover:-translate-y-0.5 hover:border-brand/15 xl:grid-cols-[minmax(280px,1.4fr)_140px_120px_78px_78px_68px_84px_92px_auto] xl:items-center">
+        <div className="grid gap-3 rounded-card border border-slate-100 bg-white p-3.5 shadow-rest transition hover:border-brand/15 xl:grid-cols-[minmax(280px,1.4fr)_140px_120px_78px_78px_68px_84px_92px_auto] xl:items-center">
             <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand-soft via-white to-slate-100 text-brand ring-1 ring-brand/15">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-card bg-brand-soft text-brand ring-1 ring-brand/15">
                     <MessageCircle className="h-5 w-5" />
                 </span>
                 <div className="min-w-0">
@@ -3070,7 +3074,7 @@ function AutomationGridCard({
             tabIndex={0}
             onClick={onEdit}
             onKeyDown={(event) => event.key === "Enter" && onEdit()}
-            className="group flex min-h-[178px] flex-col rounded-card border border-slate-100 bg-white p-4 text-left shadow-rest transition hover:-translate-y-0.5 hover:border-brand/15"
+            className="group flex min-h-[178px] flex-col rounded-card border border-slate-100 bg-white p-4 text-left shadow-rest transition hover:border-brand/15"
         >
             <div className="mb-3 flex items-center justify-between">
                 <span className="flex h-10 w-10 items-center justify-center rounded-control bg-brand-soft text-brand">
@@ -3122,7 +3126,7 @@ function TemplateCard({ template, accountPlan, onSelect, onUpgrade }: { template
             key={template.title}
             onClick={() => locked ? onUpgrade() : onSelect(template)}
             className={cx(
-                "group relative rounded-card border bg-white p-4 text-left shadow-rest transition hover:-translate-y-0.5 hover:border-brand/15",
+                "group relative rounded-card border bg-white p-4 text-left shadow-rest transition hover:border-brand/15",
                 isAdvanced ? "border-amber-200 bg-[#FFFDF6]" : "border-slate-100"
             )}
         >
@@ -3479,7 +3483,7 @@ function AutomationBuilder({
                             <button
                                 onClick={toggleReTrigger}
                                 className={cx(
-                                    "inline-flex items-center gap-2 rounded-card border px-4 py-2.5 text-sm font-black transition hover:-translate-y-0.5",
+                                    "inline-flex items-center gap-2 rounded-card border px-4 py-2.5 text-sm font-black transition",
                                     reTriggerEnabled ? "border-brand/25 bg-brand-soft text-brand" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                                 )}
                             >
@@ -3499,7 +3503,7 @@ function AutomationBuilder({
                     <BuilderStepIndicator step={step} onStep={goToStep} />
                     <StepHint text={stepHint(step)} valid={stepIsValid(step)} />
 
-                    {step === 1 && (<div className="animate-fade-up space-y-4">
+                    {step === 1 && (<div className="space-y-4">
                     {/* Trigger selection */}
                     <BuilderCard title="What starts this automation?" subtitle="Pick the Instagram action that kicks off your flow.">
                         {changingTrigger ? (
@@ -3529,7 +3533,7 @@ function AutomationBuilder({
                                                 <p className="text-xs font-semibold text-slate-500">Pick specific content, or listen across all posts & reels.</p>
                                             </div>
                                             {connected && !mediaLoading && hasPosts && (
-                                                <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-brand px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-brand-hover">
+                                                <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-brand px-4 text-xs font-black text-white transition hover:bg-brand-hover">
                                                     <ImageIcon className="h-3.5 w-3.5" /> Select posts
                                                 </button>
                                             )}
@@ -3559,7 +3563,7 @@ function AutomationBuilder({
                                                     <p className="text-xs font-semibold text-slate-500">Pick the active stories this automation should watch.</p>
                                                 </div>
                                                 {connected && !mediaLoading && hasStories && (
-                                                    <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-brand px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-brand-hover">
+                                                    <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-brand px-4 text-xs font-black text-white transition hover:bg-brand-hover">
                                                         <ImageIcon className="h-3.5 w-3.5" /> Select stories
                                                     </button>
                                                 )}
@@ -3630,14 +3634,14 @@ function AutomationBuilder({
 
                     {!hasTrigger && (
                         <div className="rounded-card border border-dashed border-slate-200 bg-slate-50/60 p-8 text-center">
-                            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-card bg-white text-brand shadow-rest"><Sparkles className="h-6 w-6" /></span>
+                            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-card bg-white text-brand shadow-rest"><MousePointerClick className="h-6 w-6" /></span>
                             <h3 className="mt-4 text-base font-black text-slate-900">Pick a trigger to get started</h3>
                             <p className="mx-auto mt-1.5 max-w-sm text-sm font-semibold leading-6 text-slate-500">Choose what starts your automation above. The rest of the setup appears once you select a trigger.</p>
                         </div>
                     )}
                     </div>)}
 
-                    {step === 2 && (<div className="animate-fade-up space-y-4">
+                    {step === 2 && (<div className="space-y-4">
                     {/* Keyword config */}
                     {keywordRequired && (
                         <BuilderCard title="Which keywords should trigger it?" subtitle="Add the words people will send. Tap a suggestion or type your own.">
@@ -3666,7 +3670,7 @@ function AutomationBuilder({
 
                     </div>)}
 
-                    {step === 3 && (<div className="animate-fade-up space-y-4">
+                    {step === 3 && (<div className="space-y-4">
                     {/* Welcome DM */}
                     <BuilderCard title="Welcome DM" subtitle="The first message people receive. Leave it on for a friendly opener.">
                         <div className="mb-3 flex items-center justify-between gap-3">
@@ -3778,7 +3782,7 @@ function AutomationBuilder({
                     </div>)}
 
                     {step === 4 && (
-                        <div className="animate-fade-up space-y-4">
+                        <div className="space-y-4">
                             <BuilderCard title="Review & launch" subtitle="A quick summary before it goes live.">
                                 <div className="space-y-2.5">
                                     <ReviewLine label="Trigger" value={activeTrigger.title} />
@@ -3937,7 +3941,7 @@ function InlineReplySetup({ replies, onAdd, onRemove, suggestions = [] }: { repl
             {replies.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                     {replies.map((reply) => (
-                        <button key={reply} type="button" onClick={() => onRemove(reply)} className="transition hover:-translate-y-0.5">
+                        <button key={reply} type="button" onClick={() => onRemove(reply)} className="transition">
                             <KeywordChip>{reply} ×</KeywordChip>
                         </button>
                     ))}
@@ -3948,7 +3952,7 @@ function InlineReplySetup({ replies, onAdd, onRemove, suggestions = [] }: { repl
             {availableSuggestions.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                     {availableSuggestions.map((suggestion) => (
-                        <button key={suggestion} type="button" onClick={() => onAdd(suggestion)} className="inline-flex h-8 items-center rounded-full bg-white px-3 text-xs font-black text-brand ring-1 ring-brand/15 transition hover:-translate-y-0.5 hover:bg-brand-soft">{suggestion}</button>
+                        <button key={suggestion} type="button" onClick={() => onAdd(suggestion)} className="inline-flex h-8 items-center rounded-full bg-white px-3 text-xs font-black text-brand ring-1 ring-brand/15 transition hover:bg-brand-soft">{suggestion}</button>
                     ))}
                 </div>
             )}
@@ -4004,7 +4008,7 @@ function MediaSelectorState({ connected, loading, isEmpty, kind, onConnect }: { 
                     <p className="text-sm font-black text-slate-900">Connect your Instagram account first</p>
                     <p className="mt-0.5 text-xs font-semibold text-slate-500">You need a connected account before you can pick {label}.</p>
                 </div>
-                <button onClick={onConnect} className="inline-flex h-9 items-center gap-2 rounded-full bg-brand px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-brand-hover">
+                <button onClick={onConnect} className="inline-flex h-9 items-center gap-2 rounded-full bg-brand px-4 text-xs font-black text-white transition hover:bg-brand-hover">
                     <Instagram className="h-3.5 w-3.5" /> Connect account
                 </button>
             </div>
@@ -4032,7 +4036,7 @@ function MediaSelectorState({ connected, loading, isEmpty, kind, onConnect }: { 
 function ContentSelectCard({ media, kind, selected, occupied, onClick }: { media: InstagramMedia; kind: "post" | "story"; selected: boolean; occupied: boolean; onClick: () => void }) {
     const isAll = media.id === "all";
     return (
-        <button onClick={onClick} className={cx("group rounded-card border p-2 text-left transition hover:-translate-y-0.5", selected ? "border-brand bg-brand-soft" : "border-slate-100 bg-white hover:border-brand/15")}>
+        <button onClick={onClick} className={cx("group rounded-card border p-2 text-left transition", selected ? "border-brand bg-brand-soft" : "border-slate-100 bg-white hover:border-brand/15")}>
             <div className={cx("relative flex h-28 items-center justify-center overflow-hidden rounded-control bg-gradient-to-br", media.color)}>
                 {media.thumbnailUrl && !isAll && (
                     <img src={media.thumbnailUrl} alt={media.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
@@ -4118,7 +4122,7 @@ function TriggerOptionButton({ option, selected, onClick }: { option: { type: st
         <button
             onClick={onClick}
             className={cx(
-                "flex w-full items-center gap-3 rounded-card border p-3.5 text-left transition hover:-translate-y-0.5",
+                "flex w-full items-center gap-3 rounded-card border p-3.5 text-left transition",
                 selected
                     ? "border-brand bg-brand-soft"
                     : option.pro
@@ -4251,7 +4255,7 @@ function InstagramDmPreview({
                 </div>
                 <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-2.5">
                     <ArrowRight className="h-5 w-5 rotate-180 text-slate-900" />
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand text-sm font-black text-white">D</span>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-sm font-black text-white">D</span>
                     <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-black text-slate-900">{username.replace("@", "")}</p>
                         <p className="text-[10px] font-bold text-slate-400">Active now</p>
@@ -4330,17 +4334,17 @@ function BuilderStepIndicator({ step, onStep }: { step: number; onStep: (step: n
     );
 }
 
-// Item 8: a pulsing box that tells the user what the current step needs next.
+// Item 8: a box that tells the user what the current step needs next.
 function StepHint({ text, valid }: { text: string; valid: boolean }) {
     return (
-        <div className={cx("flex items-center gap-2 rounded-control border px-3.5 py-2.5 text-sm font-black transition", valid ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "animate-pulse border-amber-200 bg-amber-50 text-amber-700")}>
+        <div className={cx("flex items-center gap-2 rounded-control border px-3.5 py-2.5 text-sm font-black transition", valid ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "border-amber-200 bg-amber-50 text-amber-700")}>
             {valid ? <Check className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
             <span>{text}</span>
         </div>
     );
 }
 
-// Item 10/11: Back + Continue; Continue pulses once the step is done (and touched).
+// Item 10/11: Back + Continue; Continue gets a ring once the step is done (and touched).
 function WizardNav({ step, maxStep, nextPulses, onBack, onNext, onSaveDraft, saving }: { step: number; maxStep: number; nextPulses: boolean; onBack: () => void; onNext: () => void; onSaveDraft?: () => void; saving?: boolean }) {
     const isLast = step >= maxStep;
     return (
@@ -4350,7 +4354,7 @@ function WizardNav({ step, maxStep, nextPulses, onBack, onNext, onSaveDraft, sav
             </button>
             <div className="flex items-center gap-2">
                 {onSaveDraft && <SecondaryButton onClick={onSaveDraft}>{saving ? "Saving..." : "Save Draft"}</SecondaryButton>}
-                <button onClick={onNext} className={cx("inline-flex h-11 items-center gap-1.5 rounded-card bg-brand px-5 text-sm font-black text-white transition hover:bg-brand-hover", nextPulses && "animate-pulse ring-2 ring-brand/40 ring-offset-2")}>
+                <button onClick={onNext} className={cx("inline-flex h-11 items-center gap-1.5 rounded-card bg-brand px-5 text-sm font-black text-white transition hover:bg-brand-hover", nextPulses && "ring-2 ring-brand/40 ring-offset-2")}>
                     {isLast ? (<><Check className="h-4 w-4" /> Launch Automation</>) : (<>Continue <ArrowRight className="h-4 w-4" /></>)}
                 </button>
             </div>
@@ -4437,7 +4441,7 @@ function InlineKeywordSetup({
             {keywords.length > 0 && (
                 <div className={cx("flex flex-wrap gap-2", anyKeyword && "opacity-45")}>
                     {keywords.map((keyword) => (
-                        <button key={keyword} type="button" onClick={() => onRemove(keyword)} className="transition hover:-translate-y-0.5">
+                        <button key={keyword} type="button" onClick={() => onRemove(keyword)} className="transition">
                             <KeywordChip>+{keyword} ×</KeywordChip>
                         </button>
                     ))}
@@ -4620,7 +4624,7 @@ function SuggestedKeywordButton({ keyword, selected, onClick }: { keyword: strin
         <button
             onClick={onClick}
             className={cx(
-                "inline-flex h-8 items-center rounded-full px-3 text-xs font-black ring-1 transition hover:-translate-y-0.5",
+                "inline-flex h-8 items-center rounded-full px-3 text-xs font-black ring-1 transition",
                 selected ? "bg-brand text-white ring-brand" : "bg-white text-brand ring-brand/15 hover:bg-brand-soft"
             )}
         >
@@ -5245,7 +5249,7 @@ function ContactIdentity({ contact }: { contact: ContactRecord }) {
     const initial = safeText(contact.name, contact.username).replace("@", "").charAt(0).toUpperCase() || "U";
     return (
         <div className="flex min-w-0 items-center gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand to-brand-hover text-sm font-black text-white">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-card bg-brand text-sm font-black text-white">
                 {contact.avatar ? <img src={contact.avatar} alt="" className="h-full w-full rounded-card object-cover" /> : initial}
             </span>
             <div className="min-w-0">
@@ -5462,8 +5466,6 @@ function InboxPage({ activity }: { activity: LogEntry[] }) {
     return (
         <PageShell title="Inbox" subtitle="A unified conversation inbox for Instagram DMs is coming soon." tourKey="inbox">
             <section className="relative overflow-hidden rounded-card border border-white bg-white p-6 shadow-raised sm:p-8">
-                <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-brand/10 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-24 left-10 h-52 w-52 rounded-full bg-brand/5 blur-3xl" />
                 <div className="relative mx-auto flex max-w-2xl flex-col items-center text-center">
                     <span className="inline-flex h-8 items-center rounded-full bg-brand-soft px-3 text-[11px] font-black uppercase tracking-[0.12em] text-brand ring-1 ring-brand/15">
                         Coming soon
@@ -5492,11 +5494,11 @@ function InboxPage({ activity }: { activity: LogEntry[] }) {
                     </div>
 
                     <div className="mt-7 flex flex-col gap-2 sm:flex-row">
-                        <Link to="/pricing" className="inline-flex h-11 items-center justify-center gap-2 rounded-card bg-brand px-4 text-sm font-black text-white shadow-raised transition hover:-translate-y-0.5 hover:bg-brand-hover">
+                        <Link to="/pricing" className="inline-flex h-11 items-center justify-center gap-2 rounded-card bg-brand px-4 text-sm font-black text-white shadow-raised transition hover:bg-brand-hover">
                             <Crown className="h-4 w-4" />
                             Get ready with Pro
                         </Link>
-                        <button className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50">
+                        <button className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 transition hover:bg-slate-50">
                             <Bell className="h-4 w-4" />
                             Notify me
                         </button>
@@ -5824,7 +5826,7 @@ function AnalyticsPage({
                                 </div>
                                 <div className="grid gap-3 lg:hidden">
                                     {visibleAutomationRows.map((row) => (
-                                        <button key={row.id} onClick={() => setSelectedAutomation(row)} className="rounded-card border border-slate-100 bg-white p-4 text-left shadow-rest transition hover:-translate-y-0.5 hover:shadow-rest">
+                                        <button key={row.id} onClick={() => setSelectedAutomation(row)} className="rounded-card border border-slate-100 bg-white p-4 text-left shadow-rest transition hover:shadow-rest">
                                             <div className="flex items-start justify-between gap-3">
                                                 <div>
                                                     <p className="font-black text-slate-950">{row.name}</p>
@@ -5985,7 +5987,7 @@ function AnalyticsPage({
                                     ))}
                                 </div>
                             ) : (
-                                <EmptyState icon={<Sparkles className="h-6 w-6" />} title="No superfans yet" copy="Superfans will appear after users repeatedly engage with your automations." />
+                                <EmptyState icon={<Users className="h-6 w-6" />} title="No superfans yet" copy="Superfans will appear after users repeatedly engage with your automations." />
                             )}
                         </Panel>
                     </div>
@@ -6029,7 +6031,7 @@ function AnalyticsMetricCard({ icon, label, value, change, tone }: { icon: React
         amber: "bg-amber-50 text-amber-600",
     };
     return (
-        <div className="rounded-card border border-white bg-white p-4 shadow-raised transition hover:-translate-y-0.5 hover:shadow-raised">
+        <div className="rounded-card border border-white bg-white p-4 shadow-raised transition hover:shadow-raised">
             <div className="flex items-start justify-between gap-3">
                 <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center rounded-card", tones[tone])}>{icon}</span>
                 <span className="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">Live</span>
@@ -6123,7 +6125,7 @@ function CompactStat({ label, value }: { label: string; value: string }) {
 
 function ContentPerformanceCard({ row }: { row: ContentPerformanceRow }) {
     return (
-        <div className="grid gap-3 rounded-card border border-slate-100 bg-white p-3 transition hover:-translate-y-0.5 hover:border-brand/15 hover:shadow-raised md:grid-cols-[minmax(0,1.35fr)_repeat(6,minmax(72px,0.5fr))] md:items-center">
+        <div className="grid gap-3 rounded-card border border-slate-100 bg-white p-3 transition hover:border-brand/15 hover:shadow-raised md:grid-cols-[minmax(0,1.35fr)_repeat(6,minmax(72px,0.5fr))] md:items-center">
             <div className="flex min-w-0 items-center gap-3">
                 <div className={cx("h-14 w-14 shrink-0 rounded-card bg-gradient-to-br shadow-inner", row.color)} />
                 <div className="min-w-0">
@@ -6264,7 +6266,7 @@ function AudienceRow({ row }: { row: AudienceUserRow }) {
 function FallbackAvatar({ value }: { value: string }) {
     const initial = safeText(value, "D").replace("@", "").charAt(0).toUpperCase() || "D";
     return (
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-hover text-sm font-black text-white shadow-rest">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-black text-white shadow-rest">
             {initial}
         </span>
     );
@@ -7065,7 +7067,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                         </div>
                         <IconButton title="Close" onClick={() => setPublicPreviewOpen(false)}><X className="h-5 w-5" /></IconButton>
                     </div>
-                    <div className="mt-5 rounded-card border border-slate-200 bg-gradient-to-br from-brand-soft to-rose-50 p-5">
+                    <div className="mt-5 rounded-card border border-slate-200 bg-brand-soft p-5">
                         <p className="text-xs font-black uppercase tracking-[0.12em] text-brand">DMGennie referral</p>
                         <h4 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Automate Instagram DMs from comments</h4>
                         <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-600">You were invited with referral code <span className="font-black text-slate-950">{referralCode}</span>. Start free, then upgrade when you are ready.</p>
@@ -7161,7 +7163,7 @@ function ReferralHeroCard({
     const { session } = useAuth();
     return (
         <section className="overflow-hidden rounded-card border border-white bg-white shadow-raised">
-            <div className="bg-gradient-to-br from-slate-950 via-[#405DE6] to-brand p-5 text-white sm:p-6">
+            <div className="bg-brand p-5 text-white sm:p-6">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                         <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-white/75">Partner program</span>
@@ -7461,7 +7463,7 @@ function ReferralFaq({ openIndex, onOpen }: { openIndex: number; onOpen: (index:
 
 function ReferralShareButton({ icon, label, onClick }: { icon: ReactNode; label: string; onClick: () => void }) {
     return (
-        <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-control border border-slate-200 bg-white px-3 py-2.5 text-xs font-black text-slate-700 transition hover:-translate-y-0.5 hover:border-brand/25 hover:bg-brand-soft hover:text-brand">
+        <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-control border border-slate-200 bg-white px-3 py-2.5 text-xs font-black text-slate-700 transition hover:border-brand/25 hover:bg-brand-soft hover:text-brand">
             {icon}
             {label}
         </button>
@@ -7748,7 +7750,7 @@ function SettingsPage(props: {
                             {!editingProfile ? (
                                 <div className="rounded-card border border-slate-100 bg-slate-50/70 p-4">
                                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand to-brand-hover text-lg font-black text-white">
+                                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-brand text-lg font-black text-white">
                                             {(profileSaved.fullName || "Creator").charAt(0).toUpperCase()}
                                         </span>
                                         <div className="min-w-0 flex-1">
@@ -7796,7 +7798,7 @@ function SettingsPage(props: {
                                 <div className="rounded-card border border-slate-100 bg-white p-4 shadow-rest">
                                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                         <div className="flex min-w-0 items-center gap-4">
-                                            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand to-brand-hover text-lg font-black text-white shadow-rest">
+                                            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-brand text-lg font-black text-white shadow-rest">
                                                 {cleanHandle.charAt(0).toUpperCase() || "D"}
                                             </span>
                                             <div className="min-w-0">
@@ -7852,7 +7854,7 @@ function SettingsPage(props: {
                                             <h3 className="font-black text-slate-950">Subscription status</h3>
                                             <p className="mt-1 text-sm font-semibold text-slate-500">Trial active · No active paid subscription yet.</p>
                                         </div>
-                                        <button type="button" onClick={openPricing} className="inline-flex h-10 items-center justify-center rounded-control bg-white px-4 text-sm font-black text-emerald-700 ring-1 ring-emerald-100 transition hover:-translate-y-0.5">
+                                        <button type="button" onClick={openPricing} className="inline-flex h-10 items-center justify-center rounded-control bg-white px-4 text-sm font-black text-emerald-700 ring-1 ring-emerald-100 transition">
                                             Activate Subscription
                                         </button>
                                     </div>
@@ -8115,7 +8117,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                     <div className="fixed inset-0 flex items-center justify-center z-[100] bg-black/20 backdrop-blur-sm">
                         <div className="bg-white rounded-card p-10 shadow-overlay animate-in fade-in zoom-in duration-300 max-w-sm">
                             <div className="flex flex-col items-center gap-5">
-                                <div className="h-20 w-20 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center">
+                                <div className="h-20 w-20 rounded-full bg-emerald-50 flex items-center justify-center">
                                     <Check className="h-10 w-10 text-emerald-600" />
                                 </div>
                                 <div className="text-center">
@@ -8282,7 +8284,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                             >
                                 Cancel
                             </button>
-                            <button type="submit" className="px-28 py-5 rounded-card bg-brand text-white font-black uppercase tracking-widest text-[11px] shadow-overlay hover:translate-y-[-2px] hover:brightness-105 transition-all active:scale-95 flex items-center gap-3">
+                            <button type="submit" className="px-28 py-5 rounded-card bg-brand text-white font-black uppercase tracking-widest text-[11px] shadow-overlay hover:brightness-105 transition-all active:scale-95 flex items-center gap-3">
                                 Submit Message
                                 <Send className="h-5 w-5 opacity-80" />
                             </button>
@@ -8323,7 +8325,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                     <span className="text-brand">Support Journey</span>
                                 </h3>
                                 <div className="flex flex-col items-center gap-6 relative flex-1 justify-center">
-                                    <div className="absolute top-0 bottom-0 w-[2px] bg-gradient-to-b from-brand/25 via-brand/40 to-brand/25"></div>
+                                    <div className="absolute top-0 bottom-0 w-[2px] bg-brand/30"></div>
                                     
                                     <div className="relative z-10 flex flex-col items-center text-center">
                                         <div className="h-8 w-8 rounded-full bg-brand-soft flex items-center justify-center border-2 border-brand/25 text-brand shadow-raised">
@@ -8333,7 +8335,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                     </div>
                                     
                                     <div className="relative z-10 flex flex-col items-center text-center">
-                                        <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center border-2 border-amber-200 text-amber-600 shadow-raised animate-pulse">
+                                        <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center border-2 border-amber-200 text-amber-600 shadow-raised">
                                             <RefreshCw className="h-3.5 w-3.5" />
                                         </div>
                                         <p className="mt-2 text-[11px] font-black uppercase text-slate-950">Review</p>
@@ -8349,9 +8351,9 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                             </div>
                             
                             <div className="mt-6 pt-6 border-t border-slate-100 flex justify-center gap-6">
-                                <Mail className="h-5 w-5 text-slate-300 hover:text-brand cursor-pointer transition-all hover:scale-125" />
-                                <MessageCircle className="h-5 w-5 text-slate-300 hover:text-brand cursor-pointer transition-all hover:scale-125" />
-                                <Instagram className="h-5 w-5 text-slate-300 hover:text-brand cursor-pointer transition-all hover:scale-125" />
+                                <Mail className="h-5 w-5 text-slate-300 hover:text-brand cursor-pointer transition-all" />
+                                <MessageCircle className="h-5 w-5 text-slate-300 hover:text-brand cursor-pointer transition-all" />
+                                <Instagram className="h-5 w-5 text-slate-300 hover:text-brand cursor-pointer transition-all" />
                             </div>
                         </div>
 
@@ -8442,7 +8444,7 @@ function PrimaryButton({ children, onClick, compact, disabled }: { children: Rea
             onClick={onClick}
             disabled={disabled}
             className={cx(
-                "inline-flex items-center justify-center gap-2 rounded-card bg-brand text-sm font-black text-white shadow-raised transition hover:-translate-y-0.5 hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0",
+                "inline-flex items-center justify-center gap-2 rounded-card bg-brand text-sm font-black text-white shadow-raised transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-55",
                 compact ? "px-3.5 py-2" : "px-4 py-2.5"
             )}
         >
@@ -8452,11 +8454,11 @@ function PrimaryButton({ children, onClick, compact, disabled }: { children: Rea
 }
 
 function SecondaryButton({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
-    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50">{children}</button>;
+    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:bg-slate-50">{children}</button>;
 }
 
 function DangerButton({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
-    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-card border border-rose-200 bg-white px-4 py-2.5 text-sm font-black text-rose-600 transition hover:-translate-y-0.5 hover:bg-rose-50">{children}</button>;
+    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-card border border-rose-200 bg-white px-4 py-2.5 text-sm font-black text-rose-600 transition hover:bg-rose-50">{children}</button>;
 }
 
 function SearchBox({ value, onChange, placeholder, compact = false }: { value: string; onChange: (value: string) => void; placeholder: string; compact?: boolean }) {

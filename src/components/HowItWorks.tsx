@@ -2,13 +2,13 @@
 
 import { Fragment } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, MousePointerClick, Sparkles } from 'lucide-react'
+import { ArrowRight, Mail, MousePointerClick, Send } from 'lucide-react'
 
 export function HowItWorks() {
   const steps = [
     { number: '1', title: 'Choose Trigger', description: 'Choose which keywords activate your automation.', icon: MousePointerClick },
     { number: '2', title: 'Automate Response', description: 'Set up custom responses with links and offers to share.', icon: Mail },
-    { number: '3', title: 'Go Viral', description: 'Let automations do the work while you focus on creating.', icon: Sparkles },
+    { number: '3', title: 'Go Viral', description: 'Let automations do the work while you focus on creating.', icon: Send },
   ]
 
   return (
@@ -45,7 +45,7 @@ export function HowItWorks() {
                 </motion.div>
 
                 {index < steps.length - 1 && (
-                  <div className="hidden text-5xl font-light text-accent-blue md:block">→</div>
+                  <ArrowRight aria-hidden="true" className="hidden h-8 w-8 shrink-0 text-slate-300 md:block" />
                 )}
               </Fragment>
             )

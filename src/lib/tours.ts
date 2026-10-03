@@ -5,7 +5,7 @@ import type { DriveStep } from "driver.js";
 // flow builder). Descriptions may use <b> for emphasis (driver.js renders them as HTML).
 export const TOURS: Record<string, DriveStep[]> = {
   home: [
-    { popover: { title: "Welcome to DMGennie 👋", description: "Here is a quick tour of your <b>dashboard</b>. It takes about 30 seconds, and you can <b>skip</b> at any point." } },
+    { popover: { title: "Welcome to DMGennie", description: "Here is a quick tour of your <b>dashboard</b>. It takes about 30 seconds, and you can <b>skip</b> at any point." } },
     { element: "[data-tour='home-quick-actions']", popover: { title: "Quick Actions", description: "The fastest way to launch something. Each card is a <b>ready made automation</b>, like <b>Auto DM from comments</b>, <b>Grow followers</b> or <b>Generate leads</b>. Tap one and the builder opens with the trigger, keywords and message already filled in, so you only tweak the wording. Cards marked <b>Pro</b> need an upgrade first.", side: "bottom" } },
     { element: "[data-tour='home-performance']", popover: { title: "Performance snapshot", description: "Your live results at a glance: <b>DMs sent</b>, <b>link clicks</b>, <b>leads captured</b> and <b>delivery rate</b>. Use the <b>range picker</b> on the right to switch between the last 7 days, 30 days or all time. If delivery rate dips, it usually means some recipients have <b>closed DMs</b>.", side: "top" } },
     { element: "[data-tour='sidebar-nav']", popover: { title: "Your menu", description: "Move between <b>Home</b>, <b>Automations</b>, <b>Contacts</b>, <b>Inbox</b> and <b>Analytics</b> from this sidebar. It stays with you on every page.", side: "right", align: "start" } },

@@ -71,7 +71,7 @@ export function FAQ() {
         {/* Final CTA */}
         <div className="text-center mt-16">
           <Link to="/signup">
-            <motion.button whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="premium-button px-10 py-5 text-xl font-bold text-white">
+            <motion.button whileTap={{ scale: 0.97 }} className="premium-button px-10 py-5 text-xl font-bold text-white">
               Start For Free
             </motion.button>
           </Link>

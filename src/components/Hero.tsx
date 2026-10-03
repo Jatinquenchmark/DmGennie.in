@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, CheckCircle2, Link2, Menu, Send, Sparkles, X, Zap } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Link2, Menu, Send, X, Zap } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { TrustChips } from './TrustChips'
 import { ThemeToggle } from './ThemeToggle'
@@ -35,9 +35,6 @@ export function Hero() {
     // (nav + mobile menu) above the sections that follow.
     <div className="premium-gradient relative isolate z-50 min-h-screen w-full overflow-hidden">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-white/50 dark:bg-transparent" />
-      <div className="pointer-events-none absolute left-[-8%] top-[18%] h-72 w-72 rounded-full bg-brand/10 blur-3xl sm:h-96 sm:w-96" />
-      <div className="pointer-events-none absolute right-[-10%] top-[24%] h-80 w-80 rounded-full bg-brand/5 blur-3xl sm:h-[30rem] sm:w-[30rem]" />
-      <div className="pointer-events-none absolute bottom-[-18%] left-[30%] h-72 w-72 rounded-full bg-brand/8 blur-3xl" />
 
       {/* Navbar */}
       <motion.nav initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }} className="fixed left-0 right-0 top-0 z-[110] w-full">
@@ -47,7 +44,7 @@ export function Hero() {
               ? 'border-white/80 bg-white/78 backdrop-blur-xl dark:border-white/10 dark:bg-[#131b2e]/85'
               : 'border-white/60 bg-white/42 backdrop-blur-md dark:border-white/10 dark:bg-[#131b2e]/55'
           }`}>
-            <motion.div whileHover={{ scale: 1.03 }} className="flex cursor-pointer items-center gap-2.5" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <motion.div className="flex cursor-pointer items-center gap-2.5" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <BrandMark size={32} />
               <span className="font-black text-xl tracking-tight text-foreground">DMGennie</span>
             </motion.div>
@@ -77,7 +74,7 @@ export function Hero() {
             <div className="flex items-center space-x-3">
               <ThemeToggle />
               <Link to="/signup">
-                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="hidden rounded-control bg-brand px-5 py-2.5 text-sm font-black text-white transition-all hover:bg-brand-hover sm:block">
+                <motion.button whileTap={{ scale: 0.97 }} className="hidden rounded-control bg-brand px-5 py-2.5 text-sm font-black text-white transition-all hover:bg-brand-hover sm:block">
                   Get Started Free
                 </motion.button>
               </Link>
@@ -130,12 +127,12 @@ export function Hero() {
 
           <div className="flex flex-wrap justify-center gap-4 lg:justify-start">
             <Link to="/signup">
-              <motion.button whileHover={{ scale: 1.025, y: -2 }} whileTap={{ scale: 0.98 }} className="premium-button cursor-pointer rounded-control px-8 py-4 text-lg font-bold text-white gentle-animation">
+              <motion.button whileTap={{ scale: 0.98 }} className="premium-button cursor-pointer rounded-control px-8 py-4 text-lg font-bold text-white gentle-animation">
                 Start For Free
               </motion.button>
             </Link>
             <a href="#how-it-works">
-              <motion.button whileHover={{ scale: 1.025, y: -2 }} whileTap={{ scale: 0.98 }} className="glass-light cursor-pointer rounded-control px-8 py-4 text-lg font-bold text-foreground gentle-animation">
+              <motion.button whileTap={{ scale: 0.98 }} className="glass-light cursor-pointer rounded-control px-8 py-4 text-lg font-bold text-foreground gentle-animation">
                 See How It Works
               </motion.button>
             </a>
@@ -147,20 +144,16 @@ export function Hero() {
 
         <motion.div initial={{ opacity: 0, x: 42 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.9, delay: 0.7 }} className="relative flex w-full justify-center lg:justify-end">
           <div className="relative mx-auto flex w-full max-w-[460px] items-center justify-center lg:mx-0">
-            <div className="absolute -inset-10 rounded-full bg-rose-200/20 blur-3xl" />
-            <div className="absolute right-8 top-16 h-40 w-40 rounded-full bg-brand/5 blur-3xl" />
 
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-              className="premium-glow relative w-[265px] rounded-[2.6rem] border-[10px] border-slate-900 bg-slate-900 sm:w-[315px] sm:rounded-[3rem] sm:border-[12px] xl:w-[342px]"
+            <div
+              className="relative w-[265px] rounded-[2.6rem] border-[10px] border-slate-900 bg-slate-900 sm:w-[315px] sm:rounded-[3rem] sm:border-[12px] xl:w-[342px]"
             >
               <div className="absolute left-1/2 top-3 z-20 h-6 w-24 -translate-x-1/2 rounded-full bg-slate-900 sm:w-32" />
               <div className="relative overflow-hidden rounded-panel bg-slate-50">
                 <div className="border-b border-slate-200/70 bg-white px-5 pb-4 pt-12 sm:pt-14">
                   <div className="flex items-center gap-3">
                     <ArrowLeft className="h-5 w-5 shrink-0 text-gray-900" />
-                    <div className="relative h-11 w-11 shrink-0 rounded-full bg-gradient-to-br from-brand via-brand to-brand/40 p-[3px] sm:h-12 sm:w-12">
+                    <div className="relative h-11 w-11 shrink-0 rounded-full bg-brand p-[3px] sm:h-12 sm:w-12">
                       <div className="flex h-full w-full items-center justify-center rounded-full bg-white p-1">
                         <div className="h-full w-full overflow-hidden rounded-full">
                           <BrandMark className="h-full w-full" />
@@ -178,9 +171,9 @@ export function Hero() {
                   </div>
                 </div>
 
-                <div className="min-h-[420px] bg-gradient-to-b from-white via-slate-50 to-slate-100 px-5 py-6 sm:min-h-[500px] xl:min-h-[540px]">
+                <div className="min-h-[420px] bg-slate-50 px-5 py-6 sm:min-h-[500px] xl:min-h-[540px]">
                   <div className="flex items-end gap-2">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand via-brand to-brand/40 p-[2px] shadow-rest">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand p-[2px] shadow-rest">
                       <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-[11px] font-black text-accent-blue">
                         IG
                       </div>
@@ -190,14 +183,11 @@ export function Hero() {
                     </div>
                   </div>
 
-                  <motion.div
-                    animate={{ opacity: [0.65, 1, 0.65] }}
-                    transition={{ duration: 2.5, repeat: Infinity }}
+                  <div
                     className="my-6 flex items-center justify-end gap-2 text-[10px] font-black uppercase tracking-wider text-slate-400"
                   >
-                    <Sparkles className="h-4 w-4 text-accent-blue" />
                     DMGennie automated reply
-                  </motion.div>
+                  </div>
 
                   <div className="ml-auto max-w-[245px] rounded-card rounded-br-control bg-slate-900 px-4 py-3 text-sm font-semibold leading-relaxed text-white shadow-overlay">
                     Absolutely. Your Instagram growth guide is ready.
@@ -224,7 +214,7 @@ export function Hero() {
                   </motion.div>
 
                   <div className="mt-5 flex items-end gap-2 sm:mt-7">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand via-brand to-brand/40 p-[2px] shadow-rest">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand p-[2px] shadow-rest">
                       <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-[11px] font-black text-accent-blue">
                         IG
                       </div>
@@ -243,9 +233,9 @@ export function Hero() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3.5, repeat: Infinity }} className="glass-card absolute -right-12 top-20 hidden rounded-card px-4 py-3 sm:block">
+            <div className="glass-card absolute -right-12 top-20 hidden rounded-card px-4 py-3 sm:block">
               <div className="flex items-center gap-2">
                 <Zap className="h-4 w-4 text-accent-blue" />
                 <div>
@@ -253,14 +243,14 @@ export function Hero() {
                   <div className="text-xs font-semibold text-slate-500">Reply sent instantly</div>
                 </div>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 4, repeat: Infinity, delay: 0.6 }} className="glass-card absolute -left-2 bottom-28 hidden rounded-card px-4 py-3 sm:block">
+            <div className="glass-card absolute -left-2 bottom-28 hidden rounded-card px-4 py-3 sm:block">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                 <span className="text-sm font-black text-slate-950">Lead captured</span>
               </div>
-            </motion.div>
+            </div>
           </div>
         </motion.div>
       </div>
