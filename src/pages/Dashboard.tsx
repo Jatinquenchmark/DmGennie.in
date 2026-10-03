@@ -16,7 +16,6 @@ import {
     AlertCircle,
     AlertTriangle,
     ArrowRight,
-    AtSign,
     BarChart3,
     Bell,
     Bot,
@@ -36,9 +35,7 @@ import {
     ExternalLink,
     Eye,
     FileText,
-    Filter,
     Gift,
-    GripVertical,
     Hash,
     Headphones,
     Home,
@@ -47,7 +44,6 @@ import {
     Instagram,
     KeyRound,
     LayoutGrid,
-    LifeBuoy,
     Link2,
     Lock,
     LogOut,
@@ -67,7 +63,6 @@ import {
     Send,
     Settings,
     ShieldCheck,
-    Smartphone,
     Sparkles,
     Trash2,
     TrendingUp,
@@ -246,7 +241,6 @@ type ContactMetrics = {
     newThisWeek: number;
     fromAutomations: number;
 };
-type PreviewTab = "Post" | "Comments" | "Story" | "Live" | "DM";
 type AutomationTemplate = {
     title: string;
     description: string;
@@ -1214,7 +1208,6 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                 <Sidebar
                     activeTab={tab}
                     connected={connected}
-                    stats={displayStats}
                     usage={usage}
                     accountPlan={accountPlan}
                     proOffer={proOffer}
@@ -1247,17 +1240,13 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         stats={displayStats}
                                         activeTriggers={activeTriggers}
                                         leadsCollected={leadsCollected}
-                                        deliveryRate={deliveryRate}
                                         ownerName={ownerName}
                                         proOffer={proOffer}
                                         activity={activity}
-                                        triggers={triggers}
                                         accountPlan={accountPlan}
                                         accountCreatedAt={preview ? "2024-12-01T00:00:00Z" : session?.user?.created_at ?? null}
                                         onNavigate={setTab}
                                         onConnect={() => setConnectModalOpen(true)}
-                                        onToggleBot={toggleBot}
-                                        botEnabled={botEnabled}
                                         onUpgrade={openUpgradeModal}
                                     />
                                 )}
@@ -1509,7 +1498,6 @@ function ConnectInstagramModal({ connected, handle, onConnect, onDisconnect, onC
 function Sidebar({
     activeTab,
     connected,
-    stats,
     usage,
     accountPlan,
     proOffer,
@@ -1527,7 +1515,6 @@ function Sidebar({
 }: {
     activeTab: Tab;
     connected: boolean;
-    stats: Stats;
     usage: UsageData;
     accountPlan: AccountPlanState;
     proOffer: ProOfferData;
@@ -1802,95 +1789,31 @@ function CompactUsageLine({ icon, label, value, progress }: { icon: ReactNode; l
     );
 }
 
-function PlanUsageCard({ usage = zeroUsage, proOffer = defaultProOffer, onUpgrade }: { usage?: UsageData; proOffer?: ProOfferData; onUpgrade?: () => void }) {
-    const dmsProgress = usagePercent(usage.dmsThisMonth, usage.dmLimit);
-    const contactsProgress = usagePercent(usage.contactsThisMonth, usage.contactLimit);
-
-    return (
-        <div className="rounded-[18px] border border-[#E5E7EB] bg-white p-3 shadow-[0_10px_26px_rgba(15,23,42,0.04)]">
-            <div className="mb-3 flex items-start justify-between gap-3">
-                <div>
-                    <p className="text-[14px] font-black leading-5 text-[#0F172A]">Plan & Usage</p>
-                    <p className="text-[11px] font-bold leading-4 text-[#64748B]">{usage.planName || "Starter"} workspace</p>
-                </div>
-                <span className="inline-flex h-7 items-center rounded-full bg-[#F1F5F9] px-3 text-[12px] font-black text-slate-600">{usage.planName || "Starter"}</span>
-            </div>
-
-            <UsageLine icon={<Send className="h-4 w-4" />} label="DMs sent" value={formatUsage(usage.dmsThisMonth, usage.dmLimit)} progress={dmsProgress} />
-            <UsageLine icon={<User className="h-4 w-4" />} label="Contacts" value={formatUsage(usage.contactsThisMonth, usage.contactLimit)} progress={contactsProgress} />
-
-            <div className="mt-3 rounded-[16px] border border-[#FDE68A] bg-[#FFF8E1] p-2.5">
-                <div className="mb-2 flex items-start gap-2">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#F59E0B] shadow-sm">
-                        <Crown className="h-4 w-4 fill-[#F59E0B] text-[#F59E0B]" />
-                    </span>
-                    <p className="text-[11px] font-bold leading-4 text-[#64748B]">
-                        <span className="block text-[13px] font-black leading-4 text-[#0F172A]">Unlock Pro</span>
-                        {proOffer.eligible ? `Get your first month for ${formatPrice(proOffer.currency, proOffer.amount)}. ` : ""}Unlock 20,000 DMs, unlimited contacts & Pro tools.
-                    </p>
-                </div>
-                <button
-                    onClick={onUpgrade}
-                    className={cx("flex h-9 w-full items-center justify-center gap-2 rounded-full px-3 text-[13px] font-black", goldCtaCls)}
-                >
-                    <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                    {proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade now"}
-                </button>
-            </div>
-        </div>
-    );
-}
-
-function UsageLine({ icon, label, value, progress }: { icon: ReactNode; label: string; value: string; progress: number }) {
-    return (
-        <div className="mb-2.5 last:mb-0">
-            <div className="mb-1.5 flex items-center justify-between gap-2 text-[12px] font-bold text-slate-700">
-                <span className="inline-flex min-w-0 items-center gap-2.5">
-                    <span className="text-[#C13584]">{icon}</span>
-                    <span className="font-black text-[#0F172A]">{value}</span>
-                    <span className="text-[#64748B]">{label}</span>
-                </span>
-            </div>
-            <div className="h-1.5 rounded-full bg-[#F1F5F9]">
-                <div className="h-full rounded-full bg-[#C13584]" style={{ width: `${progress}%` }} />
-            </div>
-        </div>
-    );
-}
-
 function HomePage({
     connected,
     stats,
     activeTriggers,
     leadsCollected,
-    deliveryRate,
     ownerName,
     proOffer,
     activity,
-    triggers,
     accountPlan,
     accountCreatedAt,
-    botEnabled,
     onNavigate,
     onConnect,
-    onToggleBot,
     onUpgrade,
 }: {
     connected: boolean;
     stats: Stats;
     activeTriggers: number;
     leadsCollected: number;
-    deliveryRate: number | null;
     ownerName: string;
     proOffer: ProOfferData;
     activity: LogEntry[];
-    triggers: Trigger[];
     accountPlan: AccountPlanState;
     accountCreatedAt?: string | null;
-    botEnabled: boolean;
     onNavigate: (tab: Tab) => void;
     onConnect: () => void;
-    onToggleBot: () => void;
     onUpgrade: () => void;
 }) {
     const actions = [
@@ -2043,21 +1966,6 @@ function HomeStartHereChecklist({ connected, activeTriggers, leadsCollected, onN
     );
 }
 
-function HomeHeroStat({ label, value, tone }: { label: string; value: string; tone: "purple" | "green" | "blue" }) {
-    const tones: Record<typeof tone, string> = {
-        purple: "bg-[#FBEAF3] text-[#C13584] ring-indigo-100",
-        green: "bg-emerald-50 text-emerald-700 ring-emerald-100",
-        blue: "bg-sky-50 text-sky-700 ring-sky-100",
-    };
-
-    return (
-        <div className={cx("rounded-[16px] px-3 py-2 ring-1", tones[tone])}>
-            <p className="text-[10px] font-black uppercase tracking-[0.1em] opacity-70">{label}</p>
-            <p className="mt-0.5 text-lg font-black leading-6">{value}</p>
-        </div>
-    );
-}
-
 function SectionHeading({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
     return (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -2067,34 +1975,6 @@ function SectionHeading({ title, subtitle, action }: { title: string; subtitle?:
             </div>
             {action}
         </div>
-    );
-}
-
-function HomeUpgradeBanner({ accountPlan, proOffer, onUpgrade }: { accountPlan: AccountPlanState; proOffer: ProOfferData; onUpgrade: () => void }) {
-    const isPaymentPending = accountPlan.subscriptionStatus === "payment_pending";
-    return (
-        <section className="overflow-hidden rounded-[20px] border border-[#E8C56C]/70 bg-[linear-gradient(135deg,#FFFDF6_0%,#FFF7DA_48%,#FFFDF6_100%)] p-3.5 shadow-[0_12px_34px_rgba(120,83,20,0.08)]">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem] bg-white text-[#8A5D17] shadow-sm ring-1 ring-[#E8C56C]/50">
-                        <Crown className={cx("h-5 w-5", goldCrownCls)} />
-                    </span>
-                    <div>
-                        <h2 className="text-base font-black tracking-tight text-[#0F172A]">Unlock Pro Power</h2>
-                        <p className="mt-0.5 text-sm font-semibold leading-5 text-[#8A5D17]">
-                        {isPaymentPending ? "Payment pending. Complete payment to unlock Pro." : proOffer.eligible ? `First month only. Then ${formatPrice(proOffer.currency, proOffer.renewalMonthly)}/month.` : "Get 20,000 DMs, exports & advanced analytics."}
-                        </p>
-                    </div>
-                </div>
-                <button
-                    onClick={onUpgrade}
-                    className={cx("inline-flex items-center justify-center gap-2 rounded-[0.9rem] px-4 py-2.5 text-sm font-black", goldCtaCls)}
-                >
-                    <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                    {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}
-                </button>
-            </div>
-        </section>
     );
 }
 
@@ -2393,157 +2273,6 @@ function MetricCell({
                 </div>
             )}
         </div>
-    );
-}
-
-function MetricCard({ label, value, icon, tone, muted, tooltip, large }: { label: string; value: string; icon: ReactNode; tone: string; muted?: boolean; tooltip?: string; large?: boolean }) {
-    const tones: Record<string, string> = {
-        indigo: "bg-indigo-50 text-[#C13584]",
-        purple: "bg-purple-50 text-purple-600",
-        green: "bg-emerald-50 text-emerald-600",
-        blue: "bg-sky-50 text-sky-600",
-        amber: "bg-amber-50 text-amber-600",
-    };
-
-    return (
-        <div title={tooltip} className={cx("rounded-[20px] border border-white bg-white shadow-[0_10px_28px_rgba(15,23,42,0.04)]", large ? "p-5" : "p-3.5", muted && "bg-white/85", tooltip && "cursor-help")}>
-            <div className={cx("flex items-center justify-between gap-2", large ? "mb-4" : muted ? "mb-2" : "mb-2.5")}>
-                <div className={cx("flex items-center justify-center rounded-[0.9rem]", large ? "h-12 w-12" : muted ? "h-8 w-8" : "h-9 w-9", tones[tone])}>{icon}</div>
-                {muted && !large && <span className="rounded-full bg-slate-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">Monitor</span>}
-            </div>
-            <p className={cx("font-black uppercase tracking-[0.08em] text-slate-400", large ? "text-[13px]" : "text-[11px]")}>{label}</p>
-            <h3 className={cx("mt-1 font-black tracking-tight text-slate-950", large ? "text-3xl sm:text-4xl" : muted ? "text-lg" : "text-xl")}>{value}</h3>
-        </div>
-    );
-}
-
-function HomeAutomationPanel({ triggers, onNavigate }: { triggers: Trigger[]; onNavigate: (tab: Tab) => void }) {
-    const rows = triggers;
-
-    return (
-        <Panel
-            title="Automations"
-            action={<button onClick={() => onNavigate("automations")} className="inline-flex items-center gap-1 text-[11px] font-black text-[#C13584]/90 transition hover:text-[#ad2a75]">View all <ArrowRight className="h-3.5 w-3.5" /></button>}
-        >
-            {rows.length ? (
-                <>
-                    <div className="mb-3 flex items-center justify-between rounded-[16px] bg-slate-50 px-3 py-2.5">
-                        <div>
-                            <p className="text-[12px] font-black text-[#0F172A]">Live workflow preview</p>
-                            <p className="mt-0.5 text-[11px] font-semibold text-[#64748B]">Your latest automations by real message volume.</p>
-                        </div>
-                        <span className="inline-flex h-6 items-center rounded-full bg-emerald-50 px-2.5 text-[10px] font-black text-emerald-700 ring-1 ring-emerald-100">{rows.filter((item) => item.enabled).length} live</span>
-                    </div>
-                    <div className="grid grid-cols-1 gap-3">
-                    {rows.map((trigger) => (
-                        <button
-                            key={trigger.id}
-                            onClick={() => onNavigate("automations")}
-                            className="group flex rounded-[16px] border border-slate-100 bg-white p-3 text-left shadow-[0_8px_22px_rgba(15,23,42,0.025)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_14px_30px_rgba(193,53,132,0.08)]"
-                        >
-                            <span className="mr-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.85rem] bg-[#FBEAF3] text-[#C13584]">
-                                    <MessageCircle className="h-4 w-4" />
-                            </span>
-                            <div className="min-w-0 flex-1">
-                                <div className="flex items-start justify-between gap-2">
-                                    <h3 className="truncate text-[13px] font-black leading-5 text-slate-950">Auto DM for "{trigger.keyword}"</h3>
-                                    <span
-                                        className={cx(
-                                            "inline-flex h-5 shrink-0 items-center rounded-full px-2 text-[10px] font-black",
-                                            trigger.enabled
-                                                ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
-                                                : "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
-                                        )}
-                                    >
-                                        {trigger.enabled ? "Live" : "Paused"}
-                                    </span>
-                                </div>
-                                <p className="mt-1 line-clamp-1 text-[12px] font-medium leading-5 text-slate-500">{trigger.replyMessage}</p>
-                                <div className="mt-2 flex items-center justify-between gap-2">
-                                    <span className="text-[11px] font-black text-slate-500">{safeNumber(trigger.dmsSent).toLocaleString()} DMs sent</span>
-                                    <span className="text-[11px] font-black text-indigo-600 transition group-hover:translate-x-0.5">Manage</span>
-                                </div>
-                            </div>
-                        </button>
-                    ))}
-                    </div>
-                </>
-            ) : (
-                <EmptyState icon={<Bot className="h-6 w-6" />} title="No automations yet" copy="Create your first Instagram DM automation." action="Create Automation" onAction={() => onNavigate("automations")} />
-            )}
-        </Panel>
-    );
-}
-
-function OnboardingCard({ connected, activeTriggers, onNavigate }: { connected: boolean; activeTriggers: number; onNavigate: (tab: Tab) => void }) {
-    const steps = [
-        { label: "Connect Instagram", done: connected },
-        { label: "Create automation", done: activeTriggers > 0 },
-        { label: "Send first auto DM", done: activeTriggers > 0 },
-        { label: "Collect first lead", done: false },
-    ];
-    const complete = steps.filter((step) => step.done).length;
-    const progress = (complete / steps.length) * 100;
-
-    return (
-        <Panel title="Next best steps" action={<button onClick={() => onNavigate("automations")} className="text-xs font-black text-[#C13584]/90 transition hover:text-[#ad2a75]">Continue</button>}>
-            <div className="mb-4">
-                <div className="mb-2 flex justify-between text-sm font-bold text-slate-500">
-                    <span>{complete} of {steps.length} completed</span>
-                    <span>{Math.round(progress)}%</span>
-                </div>
-                <div className="h-2 rounded-full bg-slate-100">
-                    <div className="h-full rounded-full bg-indigo-600" style={{ width: `${progress}%` }} />
-                </div>
-            </div>
-            <div className="space-y-2.5">
-                {steps.map((step) => (
-                    <div key={step.label} className="flex items-center gap-3 rounded-[1rem] bg-slate-50 px-4 py-2.5">
-                        <span className={cx("flex h-7 w-7 items-center justify-center rounded-full", step.done ? "bg-emerald-100 text-emerald-600" : "bg-white text-slate-400 ring-1 ring-slate-200")}>
-                            {step.done ? <Check className="h-4 w-4 stroke-[3]" /> : <span className="h-2 w-2 rounded-full bg-current" />}
-                        </span>
-                        <span className="text-sm font-black text-slate-700">{step.label}</span>
-                    </div>
-                ))}
-            </div>
-        </Panel>
-    );
-}
-
-function RecentActivity({ activity, onNavigate }: { activity: LogEntry[]; onNavigate: (tab: Tab) => void }) {
-    const rows = activity;
-
-    return (
-        <Panel title="Recent activity" action={<button onClick={() => onNavigate("inbox")} className="text-xs font-black text-[#C13584]/90 transition hover:text-[#ad2a75]">View inbox</button>}>
-            {rows.length ? (
-                <div className="space-y-2.5">
-                    <div className="rounded-[16px] bg-[linear-gradient(135deg,#F8FAFC_0%,#FBEAF3_100%)] px-3.5 py-3 ring-1 ring-indigo-100/70">
-                        <p className="text-[12px] font-black text-[#0F172A]">Latest automation events</p>
-                        <p className="mt-0.5 text-[11px] font-semibold text-[#64748B]">Recent DMs, leads, and failed sends in one place.</p>
-                    </div>
-                    {rows.map((item, index) => (
-                        <div key={item.id} className="relative flex items-start gap-3 rounded-[1rem] border border-slate-100 bg-white px-3.5 py-3">
-                            {index < rows.length - 1 && <span className="absolute left-[31px] top-12 h-[calc(100%-18px)] w-px bg-slate-100" />}
-                            <span className={cx("flex h-9 w-9 items-center justify-center rounded-[1rem]", item.status === "sent" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600")}>
-                                {item.status === "sent" ? <Send className="h-5 w-5" /> : <AlertTriangle className="h-5 w-5" />}
-                            </span>
-                            <div className="min-w-0 flex-1">
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <p className="truncate text-sm font-black text-slate-950">{item.status === "sent" ? "DM sent" : "Failed DM"} to {item.user}</p>
-                                    <span className={cx("inline-flex h-5 items-center rounded-full px-2 text-[10px] font-black", item.status === "sent" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700")}>
-                                        {item.status === "sent" ? "Delivered" : "Needs review"}
-                                    </span>
-                                </div>
-                                <p className="mt-1 truncate text-xs font-semibold text-slate-500">Keyword trigger: <span className="font-black text-slate-700">{item.trigger || item.keyword}</span></p>
-                            </div>
-                            <span className="shrink-0 text-xs font-bold text-slate-400">{item.time}</span>
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <EmptyState icon={<Activity className="h-6 w-6" />} title="No activity yet" copy="Once your automation sends DMs, activity will appear here." action="Create automation" onAction={() => onNavigate("automations")} />
-            )}
-        </Panel>
     );
 }
 
@@ -3467,8 +3196,6 @@ function AutomationBuilder({
     const [selectedStories, setSelectedStories] = useState<string[]>([]);
     const [contentModalOpen, setContentModalOpen] = useState(false);
     const [contentVisibleCount, setContentVisibleCount] = useState(3);
-    const [mediaQuery, setMediaQuery] = useState("");
-    const [mediaFilter, setMediaFilter] = useState("All");
     const [storyReplyMode, setStoryReplyMode] = useState("Specific keyword in story reply");
     const [liveCommentMode, setLiveCommentMode] = useState("Specific live comment keyword");
     const [keywords, setKeywords] = useState<string[]>(() => scratch ? [] : Array.from(new Set([normalizeKeyword(template?.keyword || "link"), "send", "price"].filter(Boolean))));
@@ -3484,7 +3211,6 @@ function AutomationBuilder({
     const [failedMessages, setFailedMessages] = useState<string[]>(defaultFailedMessages);
     const [storyExpirationEnabled, setStoryExpirationEnabled] = useState(true);
     const [reTriggerEnabled, setReTriggerEnabled] = useState(false);
-    const [repliesModalOpen, setRepliesModalOpen] = useState(false);
     const [responseModalOpen, setResponseModalOpen] = useState(false);
     const [duplicateWarning, setDuplicateWarning] = useState<{ title: string; onContinue: () => void; onCancel?: () => void } | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -3513,13 +3239,9 @@ function AutomationBuilder({
     const safeWelcomeDm = welcomeDm.trim() || "Hey @username, thanks for commenting.";
     const safeFinalDm = finalDm.trim() || "Hey @username, here is the link you asked for.";
     const keywordText = anyKeyword ? "Any keyword" : keywords.length ? keywords.map((item) => `+${item}`).join(", ") : "No keywords yet";
-    const repliesCount = commentReplies.filter((reply) => reply.trim()).length;
     const keywordRequired = hasTrigger && (contentSource === "post" || contentSource === "dm" || (contentSource === "story" && storyReplyMode === "Specific keyword in story reply") || (contentSource === "live" && liveCommentMode === "Specific live comment keyword"));
     const showsCommentReplies = hasTrigger && (contentSource === "post" || contentSource === "live");
-    const usesContentSelector = contentSource === "post" || contentSource === "story";
     const selectedContentTitles = contentSource === "story" ? selectedStories : selectedPosts;
-    const selectedContentCountLabel = contentSource === "post" && selectedPosts.includes("All posts & reels") ? "All" : String(selectedContentTitles.length);
-    const beforeFinalDmItems = [askFollowFirst ? "Follow confirmation" : "", askEmailFirst ? "Email capture" : ""].filter(Boolean);
     const previewContextMedia = contentSource === "story" ? selectedStoryMedia : selectedMedia;
 
     const occupiedKeywords = useMemo(() => new Set(existingAutomations.map((automation) => automation.keyword.toLowerCase())), [existingAutomations]);
@@ -4123,7 +3845,6 @@ function AutomationBuilder({
                     onConfirm={confirmContentSelection}
                 />
             )}
-            {repliesModalOpen && <CommentRepliesModal replies={commentReplies} onClose={() => setRepliesModalOpen(false)} onConfirm={(next) => { setCommentReplies(next); setRepliesModalOpen(false); }} />}
             {responseModalOpen && (
                 <AddResponseModal
                     openingMessageEnabled={welcomeEnabled}
@@ -4426,23 +4147,6 @@ function TriggerOptionButton({ option, selected, onClick }: { option: { type: st
     );
 }
 
-function StorySelectionCard({ story, selected, onClick }: { story: InstagramMedia; selected: boolean; onClick: () => void }) {
-    return (
-        <button onClick={onClick} className={cx("group rounded-[16px] border p-2 text-left transition hover:-translate-y-0.5", selected ? "border-[#C13584] bg-[#FBEAF3]" : "border-slate-100 bg-white hover:border-indigo-100")}>
-            <div className={cx("relative flex h-28 items-end overflow-hidden rounded-[12px] bg-gradient-to-br p-2", story.color)}>
-                {story.thumbnailUrl && (
-                    <img src={story.thumbnailUrl} alt={story.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
-                )}
-                <div className="absolute inset-0 bg-black/15" />
-                <span className="absolute right-1.5 top-1.5 rounded-full bg-black/30 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-[0.08em] text-white">Story</span>
-                {selected && <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#C13584]"><Check className="h-3 w-3 stroke-[3]" /></span>}
-                <p className="relative text-[10px] font-black leading-3 text-white">{story.metric}</p>
-            </div>
-            <p className="mt-1.5 truncate text-[11px] font-black text-[#0F172A]">{story.title}</p>
-        </button>
-    );
-}
-
 function ProToggleCard({ icon, title, copy, active, locked, onToggle }: { icon: ReactNode; title: string; copy: string; active: boolean; locked: boolean; onToggle: () => void }) {
     return (
         <button
@@ -4698,66 +4402,6 @@ function BuilderCard({ title, subtitle, children }: { title: string; subtitle: s
     );
 }
 
-function TriggerChoiceCard({ title, value, copy, icon, selected, disabled, onClick }: { title: string; value: string; copy: string; icon: ReactNode; selected: boolean; disabled?: boolean; onClick: () => void }) {
-    return (
-        <button
-            onClick={onClick}
-            disabled={disabled}
-            className={cx(
-                "rounded-[18px] border p-4 text-left transition",
-                selected ? "border-[#C13584] bg-[#FBEAF3] shadow-[0_12px_28px_rgba(193,53,132,0.10)]" : "border-slate-100 bg-white hover:border-indigo-100 hover:bg-indigo-50/30",
-                disabled && "cursor-not-allowed opacity-55"
-            )}
-        >
-            <div className="mb-3 flex items-center justify-between">
-                <span className={cx("flex h-10 w-10 items-center justify-center rounded-[0.9rem]", selected ? "bg-white text-[#C13584]" : "bg-slate-50 text-slate-500")}>{icon}</span>
-                {disabled ? <SmallBadge label="Coming Soon" tone="gray" /> : selected && <CheckCircle2 className="h-5 w-5 text-[#C13584]" />}
-            </div>
-            <h3 className="text-sm font-black text-[#0F172A]">{title}</h3>
-            <p className="mt-1 text-xs font-semibold leading-5 text-[#64748B]">{copy}</p>
-        </button>
-    );
-}
-
-function ContentSourceCard({ title, copy, icon, selected, action, onClick }: { title: string; copy: string; icon: ReactNode; selected: boolean; action: string; onClick: () => void }) {
-    return (
-        <button
-            onClick={onClick}
-            className={cx(
-                "group flex min-h-[156px] flex-col rounded-[18px] border p-4 text-left transition hover:-translate-y-0.5",
-                selected
-                    ? "border-[#C13584] bg-[#FBEAF3] shadow-[0_14px_30px_rgba(193,53,132,0.12)]"
-                    : "border-slate-100 bg-white shadow-[0_8px_22px_rgba(15,23,42,0.025)] hover:border-indigo-100 hover:shadow-[0_14px_30px_rgba(193,53,132,0.07)]"
-            )}
-        >
-            <div className="mb-3 flex items-center justify-between gap-3">
-                <span className={cx("flex h-10 w-10 items-center justify-center rounded-[0.9rem] transition", selected ? "bg-white text-[#C13584]" : "bg-slate-50 text-slate-500 group-hover:bg-[#FBEAF3] group-hover:text-[#C13584]")}>
-                    {icon}
-                </span>
-                {selected && <CheckCircle2 className="h-5 w-5 text-[#C13584]" />}
-            </div>
-            <h3 className="text-sm font-black leading-5 text-[#0F172A]">{title}</h3>
-            <p className="mt-1.5 line-clamp-3 text-xs font-semibold leading-5 text-[#64748B]">{copy}</p>
-            <span className="mt-auto inline-flex items-center gap-1.5 pt-3 text-xs font-black text-[#C13584]">
-                {action}
-                <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
-            </span>
-        </button>
-    );
-}
-
-function TriggerSetupPanel({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
-    return (
-        <div className="mt-6 rounded-[20px] border border-indigo-100 bg-[#FBEAF3]/45 p-4">
-            <div className="mb-4">
-                <h3 className="text-lg font-black text-[#0F172A]">{title}</h3>
-                <p className="mt-1 text-sm font-semibold text-[#64748B]">{subtitle}</p>
-            </div>
-            <div className="space-y-4">{children}</div>
-        </div>
-    );
-}
-
 function TriggerSetupOption({ label, selected, disabled, onClick }: { label: string; selected: boolean; disabled?: boolean; onClick: () => void }) {
     return (
         <button
@@ -4831,381 +4475,6 @@ function InlineKeywordSetup({
             <ToggleMini label="Any keyword" active={anyKeyword} onClick={() => onAnyKeyword(!anyKeyword)} />
             {anyKeyword && <p className="rounded-[14px] bg-indigo-50 px-3 py-2 text-xs font-bold text-[#C13584]">{helper}</p>}
         </div>
-    );
-}
-
-function PostSelectionCard({ media, selected, onClick }: { media: InstagramMedia; selected: boolean; onClick: () => void }) {
-    const isAll = media.id === "all";
-
-    return (
-        <button onClick={onClick} className={cx("group rounded-[18px] border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(193,53,132,0.07)]", selected ? "border-[#C13584] bg-[#FBEAF3] shadow-[0_12px_26px_rgba(193,53,132,0.10)]" : "border-slate-100 bg-white hover:border-indigo-100")}>
-            <div className={cx("relative mb-3 flex h-28 items-center justify-center overflow-hidden rounded-[14px] bg-gradient-to-br text-slate-400", media.color)}>
-                <div className={cx("absolute inset-0", isAll ? "bg-white/40" : "bg-black/10")} />
-                {isAll ? <LayoutGrid className="relative h-8 w-8" /> : <Instagram className="relative h-8 w-8 text-white/90" />}
-                <span className={cx("absolute right-2 top-2 rounded-full px-2 py-1 text-[9px] font-black uppercase tracking-[0.08em] ring-1", isAll ? "bg-white text-slate-500 ring-slate-100" : "bg-black/25 text-white ring-white/20")}>
-                    {media.type}
-                </span>
-                {selected && (
-                    <span className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white text-[#C13584] shadow-sm">
-                        <Check className="h-4 w-4 stroke-[3]" />
-                    </span>
-                )}
-            </div>
-            <div className="min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                    <span className="truncate text-xs font-black text-[#0F172A]">{media.title}</span>
-                    {selected && <CheckCircle2 className="h-4 w-4 shrink-0 text-[#C13584]" />}
-                </div>
-                <p className="mt-1 line-clamp-2 text-[11px] font-semibold leading-4 text-[#64748B]">{media.caption}</p>
-                <p className="mt-2 text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">{media.metric}</p>
-            </div>
-        </button>
-    );
-}
-
-function InstagramPreviewPanel({
-    step,
-    previewTab,
-    onPreviewTab,
-    triggerType,
-    keyword,
-    anyKeyword,
-    selectedMedia,
-    username,
-    finalDm,
-    welcomeDm,
-    welcomeEnabled,
-    buttonText,
-    linkEnabled,
-    linkUrl,
-    commentReplies,
-    askFollowFirst,
-    askEmailFirst,
-    followUpEnabled,
-    followUpMessage,
-    responseCount,
-}: {
-    step: number;
-    previewTab: PreviewTab;
-    onPreviewTab: (tab: PreviewTab) => void;
-    triggerType: string;
-    keyword: string;
-    anyKeyword: boolean;
-    selectedMedia: InstagramMedia;
-    username: string;
-    finalDm: string;
-    welcomeDm: string;
-    welcomeEnabled: boolean;
-    buttonText: string;
-    linkEnabled: boolean;
-    linkUrl: string;
-    commentReplies: string[];
-    askFollowFirst: boolean;
-    askEmailFirst: boolean;
-    followUpEnabled: boolean;
-    followUpMessage: string;
-    responseCount: number;
-}) {
-    const subtitle = previewTab === "Story" ? "Story reply" : previewTab === "Live" ? "Live comment" : previewTab === "DM" ? "DM response" : previewTab === "Comments" ? "Keyword trigger" : step === 1 ? "Connected profile" : "Selected post or reel";
-    const previewKeyword = anyKeyword ? "Any keyword matched" : keyword || "link";
-    const triggerCopy = triggerType === "DM keyword"
-        ? anyKeyword ? previewKeyword : `User sends “${previewKeyword}”`
-        : triggerType === "Story reply"
-            ? anyKeyword ? previewKeyword : `Story reply contains “${previewKeyword}”`
-            : triggerType === "Live comment"
-                ? anyKeyword ? previewKeyword : `Live comment says “${previewKeyword}”`
-                : anyKeyword ? previewKeyword : `Commented “${previewKeyword}”`;
-
-    return (
-        <aside className="xl:sticky xl:top-28 xl:self-start">
-            <section className="rounded-[24px] border border-white bg-white p-4 shadow-[0_18px_54px_rgba(15,23,42,0.06)]">
-                <div className="mb-4 flex items-center justify-between">
-                    <div>
-                        <h3 className="text-sm font-black text-[#0F172A]">Live Instagram preview</h3>
-                        <p className="text-xs font-semibold text-[#64748B]">{subtitle}</p>
-                    </div>
-                    <SmallBadge label="Live" tone="green" />
-                </div>
-                <div className="mx-auto w-full max-w-[290px] rounded-[34px] border-[8px] border-slate-950 bg-slate-950 p-2 shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
-                    <div className="min-h-[520px] overflow-hidden rounded-[25px] bg-[#0B1020] text-white">
-                        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                            <span className="flex min-w-0 items-center gap-2 text-xs font-black">
-                                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#C13584] to-[#F05A8A] text-[11px] text-white">D</span>
-                                <span className="truncate">{username}</span>
-                            </span>
-                            <span className="rounded-full bg-emerald-500/15 px-2 py-1 text-[10px] font-black text-emerald-300">Active</span>
-                        </div>
-                        <div className="space-y-3 p-4">
-                            <AnimatePresence mode="wait">
-                                <motion.div
-                                    key={`${previewTab}-${selectedMedia.id}-${triggerType}-${previewKeyword}-${welcomeDm}-${finalDm}-${buttonText}-${linkUrl}-${commentReplies.length}-${askFollowFirst}-${askEmailFirst}-${followUpEnabled}-${responseCount}`}
-                                    initial={{ opacity: 0, y: 8 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -8 }}
-                                    transition={{ duration: 0.18 }}
-                                    className="space-y-3"
-                                >
-                                    {previewTab === "Post" && (
-                                        <>
-                                            <div className={cx("relative h-56 overflow-hidden rounded-[20px] bg-gradient-to-br p-4", selectedMedia.color)}>
-                                                <div className="absolute inset-0 bg-black/10" />
-                                                <div className="relative flex items-center justify-between">
-                                                    <span className="flex items-center gap-2 text-[11px] font-black">
-                                                        <span className="h-5 w-5 rounded-full bg-white/90" />
-                                                        {username}
-                                                    </span>
-                                                    <span className="rounded-full bg-black/30 px-2 py-1 text-[9px] font-black uppercase tracking-[0.08em]">{selectedMedia.type}</span>
-                                                </div>
-                                                <p className="relative mt-20 max-w-[190px] text-lg font-black leading-6">{selectedMedia.id === "all" ? "Listening across all posts & reels" : selectedMedia.caption}</p>
-                                            </div>
-                                            <div className="rounded-2xl bg-white/10 p-3">
-                                                <div className="flex items-center gap-3 text-white/70">
-                                                    <MessageCircle className="h-4 w-4" />
-                                                    <span className="text-xs font-bold">Comment area</span>
-                                                </div>
-                                                <p className="mt-2 text-xs font-semibold text-white">{triggerCopy}</p>
-                                            </div>
-                                        </>
-                                    )}
-                                    {previewTab === "Comments" && (
-                                        <>
-                                            <PreviewMiniPost media={selectedMedia} username={username} />
-                                            <ChatBubble side="left" text={triggerCopy} />
-                                            {welcomeEnabled && <ChatBubble side="right" text={welcomeDm || "Hey @username, thanks for commenting."} />}
-                                            {askFollowFirst && <ChatBubble side="right" text={`Please follow ${username} first, then I will send the link.`} />}
-                                            {askEmailFirst && <ChatBubble side="right" text="Share your email and I will send the resource instantly." />}
-                                            <div className="grid grid-cols-2 gap-2">
-                                                <PreviewStat label="Matched keyword" value={anyKeyword ? "Any keyword" : `+${previewKeyword}`} />
-                                                <PreviewStat label="Extras" value={`${commentReplies.filter((reply) => reply.trim()).length + responseCount} saved`} />
-                                            </div>
-                                        </>
-                                    )}
-                                    {previewTab === "Story" && (
-                                        <>
-                                            <div className="relative h-64 overflow-hidden rounded-[22px] bg-gradient-to-br from-[#2B1635] via-[#7A2E57] to-[#F3B8D0] p-4">
-                                                <div className="absolute inset-0 bg-black/15" />
-                                                <div className="relative flex items-center justify-between">
-                                                    <span className="flex items-center gap-2 text-[11px] font-black">
-                                                        <span className="h-5 w-5 rounded-full bg-white/90" />
-                                                        {username}
-                                                    </span>
-                                                    <span className="rounded-full bg-white/20 px-2 py-1 text-[9px] font-black uppercase tracking-[0.08em]">Story</span>
-                                                </div>
-                                                <div className="relative mt-32 rounded-2xl bg-black/28 p-3">
-                                                    <p className="text-xs font-semibold text-white/80">Reply field</p>
-                                                    <p className="mt-1 text-sm font-black text-white">{anyKeyword ? "Any keyword matched" : previewKeyword}</p>
-                                                </div>
-                                            </div>
-                                            <ChatBubble side="left" text={triggerCopy} />
-                                            {welcomeEnabled && <ChatBubble side="right" text={welcomeDm || "Hey @username, thanks for commenting."} />}
-                                            {askFollowFirst && <ChatBubble side="right" text={`Please follow ${username} first, then I will send the link.`} />}
-                                            {askEmailFirst && <ChatBubble side="right" text="Share your email and I will send the resource instantly." />}
-                                            <ChatBubble side="right" text={finalDm || "Here is the link you asked for."} />
-                                        </>
-                                    )}
-                                    {previewTab === "Live" && (
-                                        <>
-                                            <div className="relative h-64 overflow-hidden rounded-[22px] bg-gradient-to-br from-slate-950 via-[#251033] to-[#C13584] p-4">
-                                                <div className="absolute inset-0 bg-black/20" />
-                                                <div className="relative flex items-center justify-between">
-                                                    <span className="flex items-center gap-2 text-[11px] font-black">
-                                                        <span className="h-5 w-5 rounded-full bg-white/90" />
-                                                        {username}
-                                                    </span>
-                                                    <span className="rounded-full bg-pink-500 px-2 py-1 text-[9px] font-black uppercase tracking-[0.08em]">Live</span>
-                                                </div>
-                                                <div className="relative mt-24 space-y-2">
-                                                    <p className="rounded-full bg-white/12 px-3 py-2 text-xs font-semibold text-white/85">@creator.alpha 🔥🔥🔥</p>
-                                                    <p className="rounded-full bg-white/18 px-3 py-2 text-xs font-black text-white">@arjun: {anyKeyword ? "Any keyword matched" : previewKeyword}</p>
-                                                    <p className="rounded-full bg-white/12 px-3 py-2 text-xs font-semibold text-white/85">@reels.studio love this</p>
-                                                </div>
-                                            </div>
-                                            <ChatBubble side="left" text={triggerCopy} />
-                                            {welcomeEnabled && <ChatBubble side="right" text={welcomeDm || "Hey @username, thanks for commenting."} />}
-                                            {askFollowFirst && <ChatBubble side="right" text={`Please follow ${username} first, then I will send the link.`} />}
-                                            {askEmailFirst && <ChatBubble side="right" text="Share your email and I will send the resource instantly." />}
-                                            <ChatBubble side="right" text={finalDm || "Here is the link you asked for."} />
-                                        </>
-                                    )}
-                                    {previewTab === "DM" && (
-                                        <>
-                                            <PreviewMiniPost media={selectedMedia} username={username} />
-                                            <ChatBubble side="left" text={triggerCopy} />
-                                            {welcomeEnabled && <ChatBubble side="right" text={welcomeDm || "Hey @username, thanks for commenting."} />}
-                                            {askFollowFirst && <ChatBubble side="right" text={`Please follow ${username} first, then I will send the link.`} />}
-                                            {askEmailFirst && <ChatBubble side="right" text="Share your email and I will send the resource instantly." />}
-                                            <ChatBubble side="right" text={finalDm || "Here is the link you asked for."} />
-                                            {linkEnabled && (
-                                                <button className="w-full rounded-2xl bg-[#C13584] py-3 text-sm font-black text-white shadow-[0_12px_26px_rgba(193,53,132,0.22)]">
-                                                    {buttonText || "Open Link"}
-                                                </button>
-                                            )}
-                                            {linkEnabled && <PreviewStat label="Button URL" value={linkUrl || "https://dmgennie.in/guide"} />}
-                                            {followUpEnabled && <ChatBubble side="right" text={`Follow-up: ${followUpMessage || "Just checking in."}`} />}
-                                        </>
-                                    )}
-                                </motion.div>
-                            </AnimatePresence>
-                        </div>
-                    </div>
-                </div>
-                <div className="mt-4 grid grid-cols-5 gap-2">
-                    {(["Post", "Comments", "Story", "Live", "DM"] as PreviewTab[]).map((tab) => (
-                        <button key={tab} onClick={() => onPreviewTab(tab)} className={cx("h-9 rounded-full text-[11px] font-black transition", previewTab === tab ? "bg-[#C13584] text-white" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>{tab}</button>
-                    ))}
-                </div>
-            </section>
-        </aside>
-    );
-}
-
-function ChatBubble({ text, side }: { text: string; side: "left" | "right" }) {
-    return <div className={cx("max-w-[88%] rounded-2xl px-3 py-2 text-xs font-semibold leading-5", side === "right" ? "ml-auto bg-[#C13584] text-white" : "bg-white/10 text-white/85")}>{text}</div>;
-}
-
-function PreviewStat({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-            <p className="text-[10px] font-black uppercase tracking-[0.12em] text-white/40">{label}</p>
-            <p className="mt-1 text-sm font-black text-white">{value}</p>
-        </div>
-    );
-}
-
-function PreviewMiniPost({ media, username }: { media: InstagramMedia; username: string }) {
-    return (
-        <div className="rounded-[18px] border border-white/10 bg-white/[0.06] p-3">
-            <div className="mb-2 flex items-center justify-between">
-                <span className="flex items-center gap-2 text-[11px] font-black text-white/85">
-                    <span className="h-5 w-5 rounded-full bg-white/80" />
-                    {username}
-                </span>
-                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.08em] text-white/70">{media.type}</span>
-            </div>
-            <div className={cx("h-24 rounded-[14px] bg-gradient-to-br", media.color)} />
-            <p className="mt-2 line-clamp-2 text-[11px] font-semibold leading-4 text-white/70">{media.caption}</p>
-        </div>
-    );
-}
-
-function PostSelectionModal({ selected, onClose, onSelect }: { selected: string; onClose: () => void; onSelect: (post: string) => void }) {
-    const [query, setQuery] = useState("");
-    const [tab, setTab] = useState("All");
-    const [draftSelection, setDraftSelection] = useState(selected);
-    const filtered = fallbackInstagramMedia.filter((media) => {
-        const matchesQuery = `${media.title} ${media.caption}`.toLowerCase().includes(query.toLowerCase());
-        const matchesTab = media.id === "all" || tab === "All" || (tab === "Posts" && media.type === "Post") || (tab === "Reels" && media.type === "Reel") || (tab === "Carousels" && media.type === "Carousel");
-        return matchesQuery && matchesTab;
-    });
-
-    return (
-        <ModalShell onClose={onClose}>
-            <div className="flex items-start justify-between gap-4">
-                <div>
-                    <h2 className="text-2xl font-black text-[#0F172A]">Select Post or Reel</h2>
-                    <p className="mt-1 text-sm font-semibold text-[#64748B]">Choose where this automation should listen for comments.</p>
-                </div>
-                <button onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-500"><X className="h-4 w-4" /></button>
-            </div>
-            <div className="mt-5 space-y-4">
-                <SearchBox value={query} onChange={setQuery} placeholder="Search posts or reels..." />
-                <div className="flex flex-wrap gap-2">
-                    {["All", "Posts", "Reels", "Carousels"].map((item) => (
-                        <button key={item} onClick={() => setTab(item)} className={cx("rounded-full px-4 py-2 text-xs font-black transition", tab === item ? "bg-[#0F172A] text-white" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>{item}</button>
-                    ))}
-                </div>
-                {filtered.length ? (
-                    <div className="grid gap-3 sm:grid-cols-3">
-                        {filtered.map((media) => <PostSelectionCard key={media.id} media={media} selected={draftSelection === media.title} onClick={() => setDraftSelection(media.title)} />)}
-                    </div>
-                ) : (
-                    <div className="rounded-[18px] border border-dashed border-slate-200 bg-slate-50 p-6 text-center">
-                        <ImageIcon className="mx-auto h-8 w-8 text-slate-300" />
-                        <h3 className="mt-3 text-sm font-black text-[#0F172A]">No posts or reels found</h3>
-                        <p className="mt-1 text-xs font-semibold text-[#64748B]">Try another search or filter.</p>
-                    </div>
-                )}
-                <div className="flex justify-end">
-                    <PrimaryButton onClick={() => onSelect(draftSelection)}>Confirm</PrimaryButton>
-                </div>
-            </div>
-        </ModalShell>
-    );
-}
-
-function KeywordsModal({ keywords, anyKeyword, onAnyKeyword, onClose, onConfirm }: { keywords: string[]; anyKeyword: boolean; onAnyKeyword: (active: boolean) => void; onClose: () => void; onConfirm: (keywords: string[]) => void }) {
-    const [nextKeywords, setNextKeywords] = useState(keywords);
-    const [nextAnyKeyword, setNextAnyKeyword] = useState(anyKeyword);
-    const [value, setValue] = useState("");
-    const addNextKeyword = (keyword: string) => {
-        const cleanKeyword = normalizeKeyword(keyword);
-        if (!cleanKeyword) return;
-        setNextKeywords((prev) => prev.some((item) => item.toLowerCase() === cleanKeyword) ? prev : [...prev, cleanKeyword]);
-    };
-
-    return (
-        <ModalShell onClose={onClose}>
-            <h2 className="text-2xl font-black text-[#0F172A]">Setup Keywords</h2>
-            <p className="mt-1 text-sm font-semibold text-[#64748B]">Keywords are not case-sensitive. Example: “Link” and “link” are recognized as the same.</p>
-            <div className="mt-5 rounded-[18px] border border-slate-100 bg-slate-50 p-4">
-                <input
-                    className={inputCls}
-                    value={value}
-                    onChange={(event) => setValue(event.target.value)}
-                    placeholder="Type and press Enter to add keyword"
-                    disabled={nextAnyKeyword}
-                    onKeyDown={(event) => {
-                        if (event.key === "Enter" && value.trim()) {
-                            addNextKeyword(value);
-                            setValue("");
-                        }
-                    }}
-                />
-                <div className={cx("mt-4 flex flex-wrap gap-2", nextAnyKeyword && "pointer-events-none opacity-45")}>
-                    {suggestedKeywords.map((keyword) => (
-                        <SuggestedKeywordButton key={keyword} keyword={keyword} selected={nextKeywords.includes(keyword)} onClick={() => addNextKeyword(keyword)} />
-                    ))}
-                </div>
-                <div className={cx("mt-4 flex flex-wrap gap-2", nextAnyKeyword && "opacity-45")}>
-                    {nextKeywords.map((keyword) => (
-                        <button key={keyword} onClick={() => setNextKeywords((prev) => prev.filter((item) => item !== keyword))}>
-                            <KeywordChip>+{keyword} ×</KeywordChip>
-                        </button>
-                    ))}
-                </div>
-                <ToggleMini label="Any keyword" active={nextAnyKeyword} onClick={() => setNextAnyKeyword(!nextAnyKeyword)} />
-                {nextAnyKeyword && <p className="mt-2 text-xs font-bold text-[#C13584]">Automation will trigger on any comment.</p>}
-            </div>
-            <div className="mt-5 flex justify-end gap-2">
-                <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
-                <PrimaryButton onClick={() => { onAnyKeyword(nextAnyKeyword); onConfirm(nextKeywords); }}>Confirm</PrimaryButton>
-            </div>
-        </ModalShell>
-    );
-}
-
-function CommentRepliesModal({ replies, onClose, onConfirm }: { replies: string[]; onClose: () => void; onConfirm: (replies: string[]) => void }) {
-    const [nextReplies, setNextReplies] = useState(replies.length ? replies : defaultCommentReplies);
-    return (
-        <ModalShell onClose={onClose}>
-            <h2 className="text-2xl font-black text-[#0F172A]">Setup Comment Replies</h2>
-            <p className="mt-1 text-sm font-semibold text-[#64748B]">Add random public replies to make responses feel natural.</p>
-            <div className="mt-5 space-y-2.5">
-                {nextReplies.map((reply, index) => (
-                    <div key={`${reply}-${index}`} className="flex items-center gap-2 rounded-[16px] border border-slate-100 bg-white p-2.5">
-                        <GripVertical className="h-4 w-4 text-slate-300" />
-                        <input className="min-w-0 flex-1 bg-transparent text-sm font-bold text-[#0F172A] outline-none" value={reply} onChange={(event) => setNextReplies((prev) => prev.map((item, itemIndex) => itemIndex === index ? event.target.value : item))} />
-                        <button onClick={() => setNextReplies((prev) => prev.filter((_, itemIndex) => itemIndex !== index))} className="text-slate-400 hover:text-rose-500"><Trash2 className="h-4 w-4" /></button>
-                    </div>
-                ))}
-                <button onClick={() => setNextReplies((prev) => [...prev, ""])} className="flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border border-dashed border-slate-200 text-sm font-black text-slate-500 transition hover:border-indigo-200 hover:text-[#C13584]">
-                    <Plus className="h-4 w-4" /> Add New Reply
-                </button>
-            </div>
-            <div className="mt-5 flex justify-end">
-                <PrimaryButton onClick={() => onConfirm(nextReplies.map((reply) => reply.trim()).filter(Boolean))}>Confirm</PrimaryButton>
-            </div>
-        </ModalShell>
     );
 }
 
@@ -5350,21 +4619,6 @@ function AddResponseModal({
                 {selectedOption && <PrimaryButton onClick={saveResponse}><Check className="h-4 w-4" /> Add response</PrimaryButton>}
             </div>
         </ModalShell>
-    );
-}
-
-function BuilderOptionRow({ title, copy, active, onClick, badge }: { title: string; copy: string; active: boolean; onClick: () => void; badge?: string }) {
-    const badgeTone: "green" | "gold" | "gray" = active ? "green" : badge === "Pro" ? "gold" : "gray";
-    return (
-        <button onClick={onClick} className={cx("flex w-full items-center gap-3 rounded-[16px] border p-3 text-left transition hover:bg-white", active ? "border-indigo-200 bg-[#FBEAF3]" : "border-slate-100 bg-slate-50")}>
-            <span className={cx("flex h-8 w-8 items-center justify-center rounded-[0.75rem] ring-1", active ? "bg-white text-[#C13584] ring-indigo-100" : "bg-white text-[#C13584] ring-slate-100")}>
-                {active ? <Check className="h-4 w-4" /> : <MousePointerClick className="h-4 w-4" />}
-            </span>
-            <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-2 text-xs font-black text-[#0F172A]">{title}{badge && <SmallBadge label={active ? "Enabled" : badge} tone={badgeTone} />}</span>
-                <span className="block text-[11px] font-semibold text-[#64748B]">{copy}</span>
-            </span>
-        </button>
     );
 }
 
@@ -9237,15 +8491,6 @@ function SelectBox({ value, onChange, options }: { value: string; onChange: (val
     );
 }
 
-function StatusPill({ icon, label, tone, title }: { icon: ReactNode; label: string; tone: "green" | "red" | "indigo"; title?: string }) {
-    const tones = {
-        green: "bg-emerald-50 text-emerald-700 ring-emerald-100",
-        red: "bg-rose-50 text-rose-700 ring-rose-100",
-        indigo: "bg-indigo-50 text-[#C13584] ring-indigo-100",
-    };
-    return <span title={title} className={cx("inline-flex h-7 items-center gap-2 rounded-full px-3 text-xs font-black ring-1", title && "cursor-help", tones[tone])}>{icon}{label}</span>;
-}
-
 function StatusBadge({ status }: { status: "Live" | "Paused" | "Draft" }) {
     const classes = status === "Live" ? "bg-emerald-50 text-emerald-700" : status === "Paused" ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-600";
     return <span className={cx("inline-flex h-7 items-center rounded-full px-2.5 text-xs font-black", classes)}>{status}</span>;
@@ -9339,47 +8584,6 @@ function ToggleRow({ title, copy, active, onClick }: { title: string; copy: stri
             <button type="button" aria-label={`Toggle ${title}`} onClick={onClick} className={cx("relative h-7 w-12 rounded-full transition", active ? "bg-indigo-600" : "bg-slate-300")}>
                 <span className={cx("absolute top-1 h-5 w-5 rounded-full bg-white shadow transition", active ? "left-6" : "left-1")} />
             </button>
-        </div>
-    );
-}
-
-function BillingCard() {
-    return (
-        <div className="rounded-3xl border border-indigo-100 bg-indigo-50/70 p-5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <h3 className="font-black">Pro plan</h3>
-                    <p className="mt-1 text-sm font-medium text-slate-500">₹399/account/month, billed annually.</p>
-                </div>
-                <PrimaryButton>Manage Billing</PrimaryButton>
-            </div>
-        </div>
-    );
-}
-
-function SecurityCard() {
-    return (
-        <div className="space-y-4">
-            <div className="rounded-3xl border border-emerald-100 bg-emerald-50/70 p-5">
-                <div className="flex items-center gap-3">
-                    <ShieldCheck className="h-6 w-6 text-emerald-600" />
-                    <div>
-                        <h3 className="font-black">Secure OAuth Authentication</h3>
-                        <p className="mt-1 text-sm font-medium text-slate-500">DMGennie never stores Instagram passwords.</p>
-                    </div>
-                </div>
-            </div>
-            <SecondaryButton>Review login sessions</SecondaryButton>
-        </div>
-    );
-}
-
-function InsightCard({ title, value, copy }: { title: string; value: string; copy: string }) {
-    return (
-        <div className="rounded-[1.5rem] border border-white bg-white p-5 shadow-[0_14px_40px_rgba(15,23,42,0.04)]">
-            <p className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{title}</p>
-            <h3 className="mt-3 text-2xl font-black text-slate-950">{value}</h3>
-            <p className="mt-2 text-sm font-semibold text-slate-500">{copy}</p>
         </div>
     );
 }

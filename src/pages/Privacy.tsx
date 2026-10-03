@@ -1,24 +1,7 @@
 import { Link } from 'react-router-dom'
-import { Shield, ArrowLeft } from 'lucide-react'
+import { Shield } from 'lucide-react'
 import { Footer } from '@/components/Footer'
 import { PageHeader } from '@/components/PageHeader'
-
-// DMGennie Logo SVG inline
-function Logo() {
-  return (
-    <Link to="/" className="inline-flex items-center gap-2.5 group">
-      <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="40" height="40" rx="10" fill="#5b5ef4" fillOpacity="0.12" />
-        <path d="M10 26 L18 14" stroke="#5b5ef4" strokeWidth="3.5" strokeLinecap="round" />
-        <path d="M16 26 L24 14" stroke="#5b5ef4" strokeWidth="3.5" strokeLinecap="round" />
-        <circle cx="28" cy="26" r="3" fill="#5b5ef4" />
-      </svg>
-      <span className="text-xl font-extrabold tracking-tight text-foreground group-hover:text-accent-blue transition-colors">
-        DM<span className="text-accent-blue">Gennie</span>
-      </span>
-    </Link>
-  )
-}
 
 export default function Privacy() {
   const lastUpdated = 'May 10, 2025'
