@@ -3,7 +3,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import type { ReactNode } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { ErrorState, LoadingCard, SkeletonCard } from "@/components/Loading";
+import { ErrorState, SkeletonCard } from "@/components/Loading";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Drawer } from "@/components/ui/drawer";
 import { supabase } from "@/lib/supabase";
@@ -11,6 +11,7 @@ import { detectCurrency, formatPrice, type Currency } from "@/lib/utils";
 import { usePageTour, startTour } from "@/lib/usePageTour";
 import { openProSubscriptionCheckout } from "@/lib/razorpayCheckout";
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion } from "framer-motion";
+import { toast } from "sonner";
 import {
     Activity,
     AlertCircle,
@@ -589,6 +590,39 @@ const navItems: Array<{ key: Tab; label: string; icon: ReactNode }> = [
     { key: "help", label: "Help", icon: <CircleHelp className="h-4 w-4" /> },
 ];
 
+// One feedback channel for the whole dashboard (sonner's <Toaster /> is mounted in App).
+// ponytail: tone is read from the wording so the ~60 call sites stay one-liners; call
+// toast.error/success directly where a message doesn't fit the pattern.
+function notify(message: string) {
+    if (/\b(unable|failed|couldn.?t|could not|error|not ready|invalid)\b/i.test(message)) toast.error(message);
+    else if (/\b(saved|created|launched|updated|deleted|removed|copied|exported|connected|disconnected|activated|enabled|resumed|paused|refreshed|sent|submitted|added|set live|generated)\b/i.test(message)) toast.success(message);
+    else toast(message);
+}
+
+// In-flight async actions by key. Buttons read `pending[key]` to show a spinner, and a repeat
+// click while the action runs is ignored (tracked in a ref, so two clicks in one frame can't both start).
+function usePending() {
+    const inflight = useRef(new Set<string>());
+    const [pending, setPending] = useState<Record<string, true>>({});
+    const run = useCallback(async <T,>(key: string, fn: () => Promise<T>): Promise<T | undefined> => {
+        if (inflight.current.has(key)) return undefined;
+        inflight.current.add(key);
+        setPending((prev) => ({ ...prev, [key]: true }));
+        try {
+            return await fn();
+        } finally {
+            inflight.current.delete(key);
+            setPending((prev) => {
+                const next = { ...prev };
+                delete next[key];
+                return next;
+            });
+        }
+    }, []);
+    return { pending, run };
+}
+type RunPending = ReturnType<typeof usePending>["run"];
+
 export default function Dashboard({ preview = false }: { preview?: boolean } = {}) {
     const navigate = useNavigate();
     const { signOut, session } = useAuth();
@@ -620,6 +654,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const [proOffer, setProOffer] = useState<ProOfferData>(defaultProOffer);
     const [triggers, setTriggers] = useState<Trigger[]>([]);
     const [flows, setFlows] = useState<FlowSummary[]>([]);
+    const [flowsLoading, setFlowsLoading] = useState(!preview);
     const [activity, setActivity] = useState<LogEntry[]>([]);
     const [contacts, setContacts] = useState<ContactRecord[]>([]);
     const [contactMetrics, setContactMetrics] = useState<ContactMetrics>(zeroContactMetrics);
@@ -642,13 +677,10 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     const [helpQuery, setHelpQuery] = useState("");
     const [openFaq, setOpenFaq] = useState(0);
     const [disconnectConfirmOpen, setDisconnectConfirmOpen] = useState(false);
-    const [dashboardToast, setDashboardToast] = useState("");
     const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
-    const showDashboardToast = useCallback((message: string) => {
-        setDashboardToast(message);
-        window.setTimeout(() => setDashboardToast(""), 2400);
-    }, []);
+    const showDashboardToast = notify;
+    const { pending, run } = usePending();
 
     // Read the token through a ref so authFetch keeps a stable identity. Supabase
     // fires onAuthStateChange(TOKEN_REFRESHED) roughly hourly and on tab focus; with
@@ -771,7 +803,8 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             authFetch("/api/flows")
                 .then((res) => (res.ok ? res.json() : []))
                 .then((list) => setFlows(Array.isArray(list) ? list : []))
-                .catch(() => setFlows([]));
+                .catch(() => setFlows([]))
+                .finally(() => setFlowsLoading(false));
             await loadContacts();
             setBotEnabled(Boolean(dashData.botEnabled));
             setConnected(Boolean(dashData.connected));
@@ -878,7 +911,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         }
     };
 
-    const startProCheckout = useCallback(async () => {
+    const startProCheckoutNow = useCallback(async () => {
         if (preview) {
             navigate("/pricing");
             return;
@@ -916,10 +949,11 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             showDashboardToast("Unable to start checkout. Please try again.");
         }
     }, [authFetch, fetchAll, navigate, preview, session?.user, showDashboardToast]);
+    const startProCheckout = useCallback(() => run("checkout", startProCheckoutNow), [run, startProCheckoutNow]);
 
     const openUpgradeModal = useCallback(() => setUpgradeModalOpen(true), []);
 
-    const toggleBot = async () => {
+    const toggleBotNow = async () => {
         const next = !botEnabled;
         setBotEnabled(next);
         if (preview) {
@@ -939,7 +973,9 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         }
     };
 
-    const saveSettings = async () => {
+    const toggleBot = () => run("bot", toggleBotNow);
+
+    const saveSettingsNow = async () => {
         if (!settings) return;
         try {
             if (!preview) {
@@ -956,6 +992,8 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             showDashboardToast("Unable to save settings.");
         }
     };
+
+    const saveSettings = () => run("settings", saveSettingsNow);
 
     const addTrigger = async (draft?: AutomationDraft): Promise<boolean> => {
         const keyword = (draft?.keyword ?? newKeyword).trim();
@@ -1025,7 +1063,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         }
     };
 
-    const deleteTrigger = async (id: number) => {
+    const deleteTriggerNow = async (id: number): Promise<boolean> => {
         try {
             if (!preview) {
                 const res = await authFetch(`/api/triggers?id=${id}`, { method: "DELETE" });
@@ -1033,12 +1071,15 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             }
             setTriggers((prev) => prev.filter((t) => t.id !== id));
             showDashboardToast("Automation deleted successfully");
+            return true;
         } catch {
             showDashboardToast("Unable to delete automation.");
+            return false;
         }
     };
+    const deleteTrigger = async (id: number) => Boolean(await run(`delete-${id}`, () => deleteTriggerNow(id)));
 
-    const toggleTrigger = async (id: number) => {
+    const toggleTriggerNow = async (id: number) => {
         const trigger = triggers.find((t) => t.id === id);
         if (!trigger) return;
         if (preview) {
@@ -1060,9 +1101,11 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         }
     };
 
+    const toggleTrigger = (id: number) => run(`trigger-${id}`, () => toggleTriggerNow(id));
+
     const openFlowBuilder = (id?: string) => navigate(`/dashboard/flows/${id || "new"}`);
 
-    const toggleFlow = async (id: string) => {
+    const toggleFlowNow = async (id: string) => {
         const flow = flows.find((f) => f.id === id);
         if (!flow) return;
         try {
@@ -1078,18 +1121,23 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         }
     };
 
-    const deleteFlow = async (id: string) => {
+    const toggleFlow = (id: string) => run(`flow-${id}`, () => toggleFlowNow(id));
+
+    const deleteFlowNow = async (id: string): Promise<boolean> => {
         try {
             const res = await authFetch(`/api/flows?id=${id}`, { method: "DELETE" });
             if (!res.ok) throw new Error("delete failed");
             setFlows((prev) => prev.filter((f) => f.id !== id));
             showDashboardToast("Flow deleted");
+            return true;
         } catch {
             showDashboardToast("Unable to delete flow.");
+            return false;
         }
     };
+    const deleteFlow = async (id: string) => Boolean(await run(`flowdel-${id}`, () => deleteFlowNow(id)));
 
-    const connectInstagram = async () => {
+    const connectInstagramNow = async () => {
         if (preview) {
             setConnected(true);
             showDashboardToast("Instagram connected");
@@ -1106,7 +1154,9 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
         }
     };
 
-    const performDisconnectInstagram = async () => {
+    const connectInstagram = () => run("connect", connectInstagramNow);
+
+    const performDisconnectInstagram = async (): Promise<boolean> => {
         try {
             if (!preview) {
                 const res = await authFetch("/api/auth?action=disconnect", { method: "POST" });
@@ -1115,8 +1165,10 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             setConnected(false);
             if (settings) setSettings({ ...settings, instagramAccountId: "", instagramHandle: "", pageAccessToken: "" });
             showDashboardToast("Instagram disconnected");
+            return true;
         } catch {
             showDashboardToast("Unable to disconnect Instagram.");
+            return false;
         }
     };
 
@@ -1271,6 +1323,9 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                                         onReply={setNewReply}
                                         onAdd={addTrigger}
                                         onUpdate={updateTrigger}
+                                        pending={pending}
+                                        run={run}
+                                        flowsLoading={flowsLoading}
                                         onToggle={toggleTrigger}
                                         onDelete={deleteTrigger}
                                         onNavigate={setTab}
@@ -1352,8 +1407,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                 <ConfirmInstagramDisconnectModal
                     onCancel={() => setDisconnectConfirmOpen(false)}
                     onConfirm={async () => {
-                        await performDisconnectInstagram();
-                        setDisconnectConfirmOpen(false);
+                        if (await performDisconnectInstagram()) setDisconnectConfirmOpen(false);
                     }}
                 />
             )}
@@ -1362,6 +1416,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                     proOffer={proOffer}
                     onClose={() => setUpgradeModalOpen(false)}
                     onUpgrade={startProCheckout}
+                    busy={Boolean(pending.checkout)}
                 />
             )}
             {connectModalOpen && (
@@ -1369,11 +1424,11 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                     connected={connected}
                     handle={settings?.instagramHandle || "@your account"}
                     onConnect={connectInstagram}
+                    connecting={Boolean(pending.connect)}
                     onDisconnect={disconnectInstagram}
                     onClose={() => setConnectModalOpen(false)}
                 />
             )}
-            {dashboardToast && <ReferralToast message={dashboardToast} />}
         </div>
     );
 }
@@ -1414,45 +1469,37 @@ function DashboardLoadingState() {
                     </div>
                 </aside>
 
-                <main className="min-w-0 flex-1 lg:ml-0">
+                <main className="min-w-0 flex-1 lg:ml-0" role="status" aria-label="Loading your dashboard">
                     <div className="mx-auto w-full max-w-[1400px] space-y-4">
-                        <div className="grid gap-4 lg:grid-cols-[420px_1fr]">
-                            <LoadingCard
-                                title="Loading DMGennie"
-                                subtitle="Preparing your Instagram automation workspace..."
-                                detail="Loading your automation data..."
-                                className="max-w-none"
-                            />
-                            <div className="hidden rounded-card border border-slate-200 bg-white p-5 shadow-raised lg:block">
-                                <div className="dmgenie-shimmer h-4 w-44 rounded-full" />
-                                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                                    <SkeletonCard rows={2} showIcon />
-                                    <SkeletonCard rows={2} showIcon />
-                                </div>
+                        <section className="rounded-card border border-white bg-white p-4 shadow-raised">
+                            <div className="dmgenie-shimmer h-7 w-64 max-w-full rounded-full" />
+                            <div className="dmgenie-shimmer mt-3 h-3 w-[28rem] max-w-full rounded-full" />
+                            <div className="dmgenie-shimmer mt-4 h-12 w-full rounded-card" />
+                            <div className="dmgenie-shimmer mt-4 h-11 w-56 rounded-control" />
+                        </section>
+
+                        <section className="space-y-3">
+                            <div className="dmgenie-shimmer h-4 w-36 rounded-full" />
+                            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                                {Array.from({ length: 4 }).map((_, index) => (
+                                    <SkeletonCard key={index} rows={3} showIcon className="min-h-[150px]" />
+                                ))}
                             </div>
-                        </div>
-
-                        <section aria-label="Loading metric cards" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-                            {Array.from({ length: 6 }).map((_, index) => (
-                                <SkeletonCard key={index} rows={3} showIcon className="min-h-[118px]" />
-                            ))}
                         </section>
 
-                        <section aria-label="Loading quick actions" className="grid gap-4 md:grid-cols-2">
-                            {Array.from({ length: 4 }).map((_, index) => (
-                                <SkeletonCard key={index} rows={4} showIcon className="min-h-[150px]" />
-                            ))}
+                        <section className="rounded-card border border-white bg-white p-5 shadow-rest">
+                            <div className="dmgenie-shimmer h-4 w-44 rounded-full" />
+                            <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                                {Array.from({ length: 4 }).map((_, index) => (
+                                    <div key={index} className="space-y-3">
+                                        <div className="dmgenie-shimmer h-11 w-11 rounded-control" />
+                                        <div className="dmgenie-shimmer h-3 w-20 rounded-full" />
+                                        <div className="dmgenie-shimmer h-8 w-28 rounded-full" />
+                                    </div>
+                                ))}
+                            </div>
                         </section>
-
-                        <section aria-label="Loading automation cards" className="grid gap-4 lg:grid-cols-3">
-                            {Array.from({ length: 3 }).map((_, index) => (
-                                <SkeletonCard key={index} rows={4} className="min-h-[156px]" />
-                            ))}
-                        </section>
-
-                        <section aria-label="Loading recent activity">
-                            <SkeletonCard rows={5} showIcon className="min-h-[220px]" />
-                        </section>
+                        <span className="sr-only">Loading your dashboard</span>
                     </div>
                 </main>
             </div>
@@ -1462,7 +1509,7 @@ function DashboardLoadingState() {
 
 // Reusable popup mirroring the Settings → Instagram connection tab. Opened from the
 // automation builder and the sidebar profile panel so users never have to leave the page.
-function ConnectInstagramModal({ connected, handle, onConnect, onDisconnect, onClose }: { connected: boolean; handle: string; onConnect: () => void; onDisconnect?: () => void; onClose: () => void }) {
+function ConnectInstagramModal({ connected, handle, onConnect, connecting, onDisconnect, onClose }: { connected: boolean; handle: string; onConnect: () => void; connecting?: boolean; onDisconnect?: () => void; onClose: () => void }) {
     return (
         <ModalShell onClose={onClose}>
             <div className="flex items-start justify-between gap-4">
@@ -1493,7 +1540,7 @@ function ConnectInstagramModal({ connected, handle, onConnect, onDisconnect, onC
                             <p className="text-sm font-black text-slate-900">No account connected yet</p>
                             <p className="mt-1 text-xs font-semibold text-slate-500">Connect your Instagram business account through Meta to start automating DMs.</p>
                         </div>
-                        <PrimaryButton onClick={onConnect}><Instagram className="h-4 w-4" /> Connect Instagram</PrimaryButton>
+                        <PrimaryButton onClick={onConnect} loading={connecting}><Instagram className="h-4 w-4" /> Connect Instagram</PrimaryButton>
                     </div>
                 )}
             </div>
@@ -2413,7 +2460,7 @@ function AutomationsPage(props: {
     onAdd: (draft?: AutomationDraft) => Promise<boolean>;
     onUpdate: (id: number, draft: AutomationDraft) => Promise<boolean>;
     onToggle: (id: number) => void;
-    onDelete: (id: number) => void;
+    onDelete: (id: number) => Promise<boolean>;
     onNavigate: (tab: Tab) => void;
     onUpgrade: () => void;
     proOffer: ProOfferData;
@@ -2427,7 +2474,10 @@ function AutomationsPage(props: {
     flows: FlowSummary[];
     onOpenFlowBuilder: (id?: string) => void;
     onToggleFlow: (id: string) => void;
-    onDeleteFlow: (id: string) => void;
+    onDeleteFlow: (id: string) => Promise<boolean>;
+    pending: Record<string, true>;
+    run: RunPending;
+    flowsLoading: boolean;
 }) {
     const [creationPhase, setCreationPhase] = useState<null | "entry" | "template">(null);
     const [flowDeleteTarget, setFlowDeleteTarget] = useState<FlowSummary | null>(null);
@@ -2589,7 +2639,13 @@ function AutomationsPage(props: {
                 </div>
             </section>
 
-            {props.flows.length > 0 && (
+            {props.flowsLoading ? (
+                <Panel title="Visual flows">
+                    <div className="space-y-2.5" role="status" aria-label="Loading visual flows">
+                        {[0, 1].map((index) => <div key={index} className="dmgenie-shimmer h-16 rounded-card" />)}
+                    </div>
+                </Panel>
+            ) : props.flows.length > 0 && (
                 <Panel
                     title="Visual flows"
                     action={<button onClick={() => props.onOpenFlowBuilder()} className="inline-flex items-center gap-1.5 text-xs font-black text-brand transition hover:text-brand-hover"><Plus className="h-3.5 w-3.5" /> New flow</button>}
@@ -2609,7 +2665,7 @@ function AutomationsPage(props: {
                                 <span className={cx("hidden rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide sm:inline-flex", flow.enabled ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500")}>
                                     {flow.enabled ? "Live" : "Draft"}
                                 </span>
-                                <ToggleSwitch active={flow.enabled} onClick={() => props.onToggleFlow(flow.id)} label="Toggle flow" />
+                                <ToggleSwitch active={flow.enabled} onClick={() => props.onToggleFlow(flow.id)} label="Toggle flow" disabled={Boolean(props.pending[`flow-${flow.id}`])} />
                                 <button onClick={() => props.onOpenFlowBuilder(flow.id)} className="flex h-9 w-9 items-center justify-center rounded-control text-slate-500 transition hover:bg-slate-50 hover:text-slate-900" aria-label="Edit flow">
                                     <PenLine className="h-4 w-4" />
                                 </button>
@@ -2638,10 +2694,11 @@ function AutomationsPage(props: {
                                 Cancel
                             </button>
                             <button
-                                onClick={() => { props.onDeleteFlow(flowDeleteTarget.id); setFlowDeleteTarget(null); }}
-                                className="flex flex-1 items-center justify-center gap-1.5 rounded-control bg-rose-600 px-4 py-2.5 text-sm font-black text-white transition hover:bg-rose-700"
+                                onClick={async () => { if (await props.onDeleteFlow(flowDeleteTarget.id)) setFlowDeleteTarget(null); }}
+                                disabled={Boolean(props.pending[`flowdel-${flowDeleteTarget.id}`])}
+                                className="flex flex-1 items-center justify-center gap-1.5 rounded-control bg-rose-600 px-4 py-2.5 text-sm font-black text-white transition hover:bg-rose-700 disabled:cursor-wait disabled:opacity-70"
                             >
-                                <Trash2 className="h-4 w-4" /> Delete flow
+                                {props.pending[`flowdel-${flowDeleteTarget.id}`] ? <><RefreshCw className="h-4 w-4 animate-spin" /> Deleting...</> : <><Trash2 className="h-4 w-4" /> Delete flow</>}
                             </button>
                         </div>
                     </div>
@@ -2661,7 +2718,9 @@ function AutomationsPage(props: {
                                     index={index}
                                     onToggle={() => props.onToggle(trigger.id)}
                                     onEdit={() => openExistingBuilder(trigger)}
-                                    onDuplicate={() => props.onAdd({ keyword: `${trigger.keyword}-copy`, replyMessage: trigger.replyMessage, triggerType: trigger.triggerType })}
+                                    onDuplicate={() => props.run(`dup-${trigger.id}`, () => props.onAdd({ keyword: `${trigger.keyword}-copy`, replyMessage: trigger.replyMessage, triggerType: trigger.triggerType }))}
+                                    busyToggle={Boolean(props.pending[`trigger-${trigger.id}`])}
+                                    busyDuplicate={Boolean(props.pending[`dup-${trigger.id}`])}
                                     onAnalytics={() => props.onNavigate("analytics")}
                                     onDelete={() => setDeleteTarget(trigger)}
                                 />
@@ -2676,7 +2735,9 @@ function AutomationsPage(props: {
                                     index={index}
                                     onToggle={() => props.onToggle(trigger.id)}
                                     onEdit={() => openExistingBuilder(trigger)}
-                                    onDuplicate={() => props.onAdd({ keyword: `${trigger.keyword}-copy`, replyMessage: trigger.replyMessage, triggerType: trigger.triggerType })}
+                                    onDuplicate={() => props.run(`dup-${trigger.id}`, () => props.onAdd({ keyword: `${trigger.keyword}-copy`, replyMessage: trigger.replyMessage, triggerType: trigger.triggerType }))}
+                                    busyToggle={Boolean(props.pending[`trigger-${trigger.id}`])}
+                                    busyDuplicate={Boolean(props.pending[`dup-${trigger.id}`])}
                                     onAnalytics={() => props.onNavigate("analytics")}
                                 />
                             ))}
@@ -2691,10 +2752,10 @@ function AutomationsPage(props: {
             {deleteTarget && (
                 <ConfirmAutomationDeleteModal
                     trigger={deleteTarget}
+                    busy={Boolean(props.pending[`delete-${deleteTarget.id}`])}
                     onCancel={() => setDeleteTarget(null)}
-                    onConfirm={() => {
-                        props.onDelete(deleteTarget.id);
-                        setDeleteTarget(null);
+                    onConfirm={async () => {
+                        if (await props.onDelete(deleteTarget.id)) setDeleteTarget(null);
                     }}
                 />
             )}
@@ -2843,7 +2904,7 @@ function AutomationTemplatePicker({
     );
 }
 
-function ConfirmAutomationDeleteModal({ trigger, onCancel, onConfirm }: { trigger: Trigger; onCancel: () => void; onConfirm: () => void }) {
+function ConfirmAutomationDeleteModal({ trigger, busy, onCancel, onConfirm }: { trigger: Trigger; busy?: boolean; onCancel: () => void; onConfirm: () => void }) {
     return (
         <ModalShell onClose={onCancel}>
             <div className="text-center">
@@ -2852,12 +2913,12 @@ function ConfirmAutomationDeleteModal({ trigger, onCancel, onConfirm }: { trigge
                 </span>
                 <h2 className="mt-5 text-2xl font-black text-slate-900">Delete automation?</h2>
                 <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
-                    Auto DM for “{trigger.keyword}” will be removed from this dashboard preview. This action cannot be undone here.
+                    Auto DM for “{trigger.keyword}” will stop replying and be deleted. This can’t be undone.
                 </p>
                 <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
                     <SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
-                    <button onClick={onConfirm} className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-rose-600 px-5 text-sm font-black text-white transition hover:bg-rose-700">
-                        <Trash2 className="h-4 w-4" /> Delete
+                    <button onClick={onConfirm} className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-rose-600 px-5 text-sm font-black text-white transition hover:bg-rose-700 disabled:cursor-wait disabled:opacity-70" disabled={busy} aria-busy={busy || undefined}>
+                        {busy ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />} {busy ? "Deleting..." : "Delete"}
                     </button>
                 </div>
             </div>
@@ -2866,6 +2927,12 @@ function ConfirmAutomationDeleteModal({ trigger, onCancel, onConfirm }: { trigge
 }
 
 function ConfirmInstagramDisconnectModal({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void | Promise<void> }) {
+    // Stays open until the request finishes; the parent closes it only on success.
+    const [busy, setBusy] = useState(false);
+    const confirm = async () => {
+        setBusy(true);
+        try { await onConfirm(); } finally { setBusy(false); }
+    };
     return (
         <ModalShell onClose={onCancel}>
             <div className="text-center">
@@ -2878,8 +2945,8 @@ function ConfirmInstagramDisconnectModal({ onCancel, onConfirm }: { onCancel: ()
                 </p>
                 <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
                     <SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
-                    <button onClick={onConfirm} className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-rose-600 px-5 text-sm font-black text-white transition hover:bg-rose-700">
-                        Disconnect
+                    <button onClick={confirm} disabled={busy} aria-busy={busy || undefined} className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-rose-600 px-5 text-sm font-black text-white transition hover:bg-rose-700 disabled:cursor-wait disabled:opacity-70">
+                        {busy ? "Disconnecting..." : "Disconnect"}
                     </button>
                 </div>
             </div>
@@ -2887,7 +2954,7 @@ function ConfirmInstagramDisconnectModal({ onCancel, onConfirm }: { onCancel: ()
     );
 }
 
-function UpgradeModal({ proOffer, onClose, onUpgrade }: { proOffer: ProOfferData; onClose: () => void; onUpgrade: () => void }) {
+function UpgradeModal({ proOffer, onClose, onUpgrade, busy }: { proOffer: ProOfferData; onClose: () => void; onUpgrade: () => void; busy?: boolean }) {
     const isPaymentPending = proOffer.reason.toLowerCase().includes("payment pending");
     return (
         <ModalShell onClose={onClose}>
@@ -2909,10 +2976,12 @@ function UpgradeModal({ proOffer, onClose, onUpgrade }: { proOffer: ProOfferData
                     <SecondaryButton onClick={onClose}>Maybe later</SecondaryButton>
                     <button
                         onClick={onUpgrade}
-                        className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-control px-5 text-sm font-black", goldCtaCls)}
+                        disabled={busy}
+                        aria-busy={busy || undefined}
+                        className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-control px-5 text-sm font-black disabled:cursor-wait disabled:opacity-70", goldCtaCls)}
                     >
-                        <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                        {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}
+                        {busy ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Crown className={cx("h-4 w-4", goldCrownCls)} />}
+                        {busy ? "Opening checkout..." : isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}
                     </button>
                 </div>
             </div>
@@ -2951,6 +3020,8 @@ function AutomationListRow({
     onDuplicate,
     onAnalytics,
     onDelete,
+    busyToggle,
+    busyDuplicate,
 }: {
     trigger: Trigger;
     index: number;
@@ -2959,6 +3030,8 @@ function AutomationListRow({
     onDuplicate: () => void;
     onAnalytics: () => void;
     onDelete: () => void;
+    busyToggle?: boolean;
+    busyDuplicate?: boolean;
 }) {
     const dms = safeNumber(trigger.dmsSent);
     const modifiedLabel = trigger.modifiedAt ? new Date(trigger.modifiedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : "Unknown";
@@ -2985,9 +3058,9 @@ function AutomationListRow({
             <StatusBadge status={trigger.enabled ? "Live" : "Paused"} />
             <span className="text-xs font-bold text-slate-500">{modifiedLabel}</span>
             <div className="flex justify-end gap-1.5">
-                <IconButton title={trigger.enabled ? "Pause automation" : "Resume automation"} onClick={onToggle}>{trigger.enabled ? <Pause className="h-4 w-4" /> : <Power className="h-4 w-4" />}</IconButton>
+                <IconButton title={trigger.enabled ? "Pause automation" : "Resume automation"} onClick={onToggle} loading={busyToggle}>{trigger.enabled ? <Pause className="h-4 w-4" /> : <Power className="h-4 w-4" />}</IconButton>
                 <IconButton title="Edit automation" onClick={onEdit}><PenLine className="h-4 w-4" /></IconButton>
-                <IconButton title="Duplicate automation" onClick={onDuplicate}><ClipboardList className="h-4 w-4" /></IconButton>
+                <IconButton title="Duplicate automation" onClick={onDuplicate} loading={busyDuplicate}><ClipboardList className="h-4 w-4" /></IconButton>
                 <IconButton title="View analytics" onClick={onAnalytics}><BarChart3 className="h-4 w-4" /></IconButton>
                 <IconButton title="Delete automation" danger onClick={onDelete}><Trash2 className="h-4 w-4" /></IconButton>
             </div>
@@ -3002,6 +3075,8 @@ function AutomationGridCard({
     onEdit,
     onDuplicate,
     onAnalytics,
+    busyToggle,
+    busyDuplicate,
 }: {
     trigger: Trigger;
     index: number;
@@ -3009,6 +3084,8 @@ function AutomationGridCard({
     onEdit: () => void;
     onDuplicate: () => void;
     onAnalytics: () => void;
+    busyToggle?: boolean;
+    busyDuplicate?: boolean;
 }) {
     const dms = safeNumber(trigger.dmsSent);
 
@@ -3039,9 +3116,9 @@ function AutomationGridCard({
                 <span className="text-xs font-black text-brand">Edit flow</span>
                 <div className="flex gap-1">
                     <button onClick={(event) => { event.stopPropagation(); onAnalytics(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600 transition hover:bg-slate-100">Analytics</button>
-                    <button onClick={(event) => { event.stopPropagation(); onDuplicate(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600 transition hover:bg-slate-100">Duplicate</button>
-                    <button onClick={(event) => { event.stopPropagation(); onToggle(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600 transition hover:bg-slate-100">
-                        {trigger.enabled ? "Pause" : "Resume"}
+                    <button onClick={(event) => { event.stopPropagation(); onDuplicate(); }} disabled={busyDuplicate} className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600 transition hover:bg-slate-100 disabled:cursor-wait disabled:opacity-60">{busyDuplicate ? "Duplicating..." : "Duplicate"}</button>
+                    <button onClick={(event) => { event.stopPropagation(); onToggle(); }} disabled={busyToggle} className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600 transition hover:bg-slate-100 disabled:cursor-wait disabled:opacity-60">
+                        {busyToggle ? "Saving..." : trigger.enabled ? "Pause" : "Resume"}
                     </button>
                 </div>
             </div>
@@ -3149,14 +3226,12 @@ function AutomationBuilder({
     const [responseModalOpen, setResponseModalOpen] = useState(false);
     const [duplicateWarning, setDuplicateWarning] = useState<{ title: string; onContinue: () => void; onCancel?: () => void } | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-    const [showValidationToast, setShowValidationToast] = useState(false);
     const [saving, setSaving] = useState(false);
     const [askFollowFirst, setAskFollowFirst] = useState(false);
     const [askEmailFirst, setAskEmailFirst] = useState(scratch ? false : template?.category === "Collect leads");
     const [followUpEnabled, setFollowUpEnabled] = useState(false);
     const [followUpMessage, setFollowUpMessage] = useState("Just checking in. Did you get the guide?");
     const [responses, setResponses] = useState<ResponseConfig[]>([]);
-    const [builderToast, setBuilderToast] = useState("");
     const finalDmRef = useRef<HTMLTextAreaElement | null>(null);
 
     const isPro = accountPlan.isPro;
@@ -3202,10 +3277,7 @@ function AutomationBuilder({
         setKeywords((prev) => prev.some((item) => item.toLowerCase() === cleanKeyword) ? prev : [...prev, cleanKeyword]);
     };
     const removeKeyword = (keyword: string) => setKeywords((prev) => prev.filter((item) => item !== keyword));
-    const showBuilderToast = (message: string) => {
-        setBuilderToast(message);
-        window.setTimeout(() => setBuilderToast(""), 2200);
-    };
+    const showBuilderToast = notify;
     const requireBuilderFeature = (feature: keyof FeatureAccess, message: string) => {
         if (accountPlan.featureAccess[feature]) return true;
         showBuilderToast(message);
@@ -3320,13 +3392,15 @@ function AutomationBuilder({
         link: "Link button",
     };
     const currentErrors = computeErrors();
+    const showValidationToast = (errors: Record<string, string>) => toast.error("A few things need attention", {
+        description: `Please complete: ${Object.keys(errors).map((key) => errorSectionLabels[key]).filter(Boolean).join(", ")}`,
+    });
 
     const handleLaunch = () => {
         const errors = computeErrors();
         setValidationErrors(errors);
         if (Object.keys(errors).length) {
-            setShowValidationToast(true);
-            window.setTimeout(() => setShowValidationToast(false), 4200);
+            showValidationToast(errors);
             return;
         }
         void completeSave();
@@ -3336,8 +3410,7 @@ function AutomationBuilder({
         const errors = computeErrors();
         if (Object.keys(errors).length) {
             setValidationErrors(errors);
-            setShowValidationToast(true);
-            window.setTimeout(() => setShowValidationToast(false), 4200);
+            showValidationToast(errors);
             return;
         }
         setSaving(true);
@@ -3372,9 +3445,9 @@ function AutomationBuilder({
     const handleContinue = () => {
         markTouched(step);
         if (!stepIsValid(step)) {
-            setValidationErrors(computeErrors());
-            setShowValidationToast(true);
-            window.setTimeout(() => setShowValidationToast(false), 4200);
+            const errors = computeErrors();
+            setValidationErrors(errors);
+            showValidationToast(errors);
             return;
         }
         if (step < maxStep) goToStep(step + 1);
@@ -3805,24 +3878,6 @@ function AutomationBuilder({
                         </div>
                     </div>
                 </ModalShell>
-            )}
-            {builderToast && <ReferralToast message={builderToast} />}
-            {showValidationToast && (
-                <motion.div
-                    initial={{ opacity: 0, x: 40, y: 10 }}
-                    animate={{ opacity: 1, x: 0, y: 0 }}
-                    exit={{ opacity: 0, x: 40 }}
-                    transition={{ duration: 0.22 }}
-                    className="fixed bottom-6 right-6 z-50 w-[330px] max-w-[calc(100vw-2rem)] rounded-card border border-rose-200 bg-white p-4 shadow-raised"
-                >
-                    <div className="flex items-start gap-2.5">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600"><AlertTriangle className="h-4 w-4" /></span>
-                        <div className="min-w-0">
-                            <p className="text-sm font-black text-slate-900">A few things need attention</p>
-                            <p className="mt-0.5 text-xs font-semibold leading-5 text-slate-500">Please complete: {Object.keys(validationErrors).map((key) => errorSectionLabels[key]).filter(Boolean).join(", ")}.</p>
-                        </div>
-                    </div>
-                </motion.div>
             )}
         </div>
     );
@@ -4572,9 +4627,9 @@ function ToggleMini({ label, active, onClick }: { label: string; active: boolean
     );
 }
 
-function ToggleSwitch({ active, onClick, label = "Toggle setting" }: { active: boolean; onClick: () => void; label?: string }) {
+function ToggleSwitch({ active, onClick, label = "Toggle setting", disabled }: { active: boolean; onClick: () => void; label?: string; disabled?: boolean }) {
     return (
-        <button type="button" aria-label={label} onClick={onClick} className={cx("h-6 w-11 rounded-full p-0.5 transition", active ? "bg-brand" : "bg-slate-200")}>
+        <button type="button" role="switch" aria-checked={active} aria-label={label} onClick={onClick} disabled={disabled} aria-busy={disabled || undefined} className={cx("h-6 w-11 rounded-full p-0.5 transition disabled:cursor-wait disabled:opacity-60", active ? "bg-brand" : "bg-slate-200")}>
             <span className={cx("block h-5 w-5 rounded-full bg-white shadow-rest transition", active && "translate-x-5")} />
         </button>
     );
@@ -4639,12 +4694,8 @@ function ContactsPage({
     const [selectedContact, setSelectedContact] = useState<ContactRecord | null>(null);
     const [page, setPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [toastMessage, setToastMessage] = useState("");
 
-    const showToast = useCallback((message: string) => {
-        setToastMessage(message);
-        window.setTimeout(() => setToastMessage(""), 2200);
-    }, []);
+    const showToast = notify;
 
     const stats = useMemo(() => [
         { label: "Total Contacts", value: safeNumber(metrics.totalContacts).toLocaleString(), helper: "Captured leads", icon: <Users className="h-4 w-4" />, tone: "purple" },
@@ -5001,18 +5052,6 @@ function ContactsPage({
                 )}
             </AnimatePresence>
 
-            <AnimatePresence>
-                {toastMessage && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 12 }}
-                        className="fixed bottom-5 right-5 z-50 rounded-card border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-raised"
-                    >
-                        {toastMessage}
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </PageShell>
     );
 }
@@ -5503,13 +5542,9 @@ function AnalyticsPage({
     const [activityAutomation, setActivityAutomation] = useState("All automations");
     const [audienceSegment, setAudienceSegment] = useState("Top commenters");
     const [audienceAutomation, setAudienceAutomation] = useState("All Automations");
-    const [toastMessage, setToastMessage] = useState("");
     const [refreshing, setRefreshing] = useState(false);
 
-    const showToast = useCallback((message: string) => {
-        setToastMessage(message);
-        setTimeout(() => setToastMessage(""), 2200);
-    }, []);
+    const showToast = notify;
 
     const automationRows = useMemo(() => buildAutomationAnalyticsRows(triggers), [triggers]);
     const activityEvents = useMemo(() => buildAnalyticsActivityEvents(activity, automationRows), [activity, automationRows]);
@@ -5842,18 +5877,6 @@ function AnalyticsPage({
                 />
             )}
 
-            <AnimatePresence>
-                {toastMessage && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 12 }}
-                        className="fixed bottom-5 right-5 z-[70] rounded-card bg-slate-950 px-4 py-3 text-sm font-black text-white shadow-overlay"
-                    >
-                        {toastMessage}
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </PageShell>
     );
 }
@@ -6329,7 +6352,6 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
     const referralCode = preview ? "PRINCE4686" : "USER_REFERRAL_CODE";
     const referralLink = `https://dmgennie.in/?ref=${referralCode}`;
     const [activeTab, setActiveTab] = useState<ReferralDashboardTab>("Overview");
-    const [toast, setToast] = useState("");
     const [publicPreviewOpen, setPublicPreviewOpen] = useState(false);
     const [payoutMethodOpen, setPayoutMethodOpen] = useState(false);
     const [payoutRequestOpen, setPayoutRequestOpen] = useState(false);
@@ -6420,15 +6442,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
         return matchesSearch && matchesFilter;
     });
 
-    const showToast = useCallback((message: string) => {
-        setToast(message);
-    }, []);
-
-    useEffect(() => {
-        if (!toast) return;
-        const timeout = window.setTimeout(() => setToast(""), 2600);
-        return () => window.clearTimeout(timeout);
-    }, [toast]);
+    const showToast = notify;
 
     useEffect(() => {
         const storedCode = localStorage.getItem("dmgennie_referral_code");
@@ -6698,7 +6712,6 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                 {activeTab === "FAQ" && <ReferralFaq openIndex={faqOpen} onOpen={setFaqOpen} />}
             </div>
 
-            {toast && <ReferralToast message={toast} />}
 
             {publicPreviewOpen && (
                 <ModalShell onClose={() => setPublicPreviewOpen(false)}>
@@ -7141,14 +7154,6 @@ function ReferralStatusPill({ status }: { status: string }) {
                 ? "bg-rose-50 text-rose-700 ring-rose-100"
                 : "bg-slate-100 text-slate-600 ring-slate-200";
     return <span className={cx("inline-flex h-7 items-center rounded-full px-2.5 text-xs font-black ring-1", tone)}>{status}</span>;
-}
-
-function ReferralToast({ message }: { message: string }) {
-    return (
-        <div className="fixed bottom-5 right-5 z-50 rounded-card border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-950 shadow-raised">
-            {message}
-        </div>
-    );
 }
 
 function ClockIcon() {
@@ -8079,28 +8084,50 @@ function Panel({ title, action, children }: { title?: string; action?: ReactNode
     );
 }
 
-function PrimaryButton({ children, onClick, compact, disabled }: { children: ReactNode; onClick?: () => void; compact?: boolean; disabled?: boolean }) {
+type ActionButtonProps = { children: ReactNode; onClick?: () => void; disabled?: boolean; loading?: boolean };
+
+// Label stays in the layout (invisible) under the spinner so the button doesn't change width.
+function ButtonContent({ children, loading }: { children: ReactNode; loading?: boolean }) {
+    return (
+        <>
+            <span className={cx("inline-flex items-center justify-center gap-2", loading && "invisible")}>{children}</span>
+            {loading && <span className="absolute inset-0 flex items-center justify-center"><RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" /></span>}
+        </>
+    );
+}
+
+function PrimaryButton({ children, onClick, compact, disabled, loading }: ActionButtonProps & { compact?: boolean }) {
     return (
         <button
             type="button"
             onClick={onClick}
-            disabled={disabled}
+            disabled={disabled || loading}
+            aria-busy={loading || undefined}
             className={cx(
-                "inline-flex items-center justify-center gap-2 rounded-card bg-brand text-sm font-black text-white shadow-raised transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-55",
+                "relative inline-flex items-center justify-center gap-2 rounded-card bg-brand text-sm font-black text-white shadow-raised transition hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-55",
+                loading && "disabled:cursor-wait disabled:opacity-80",
                 compact ? "px-3.5 py-2" : "px-4 py-2.5"
             )}
         >
-            {children}
+            <ButtonContent loading={loading}>{children}</ButtonContent>
         </button>
     );
 }
 
-function SecondaryButton({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
-    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:bg-slate-50">{children}</button>;
+function SecondaryButton({ children, onClick, disabled, loading }: ActionButtonProps) {
+    return (
+        <button type="button" onClick={onClick} disabled={disabled || loading} aria-busy={loading || undefined} className={cx("relative inline-flex items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-55", loading && "disabled:cursor-wait disabled:opacity-80")}>
+            <ButtonContent loading={loading}>{children}</ButtonContent>
+        </button>
+    );
 }
 
-function DangerButton({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
-    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-card border border-rose-200 bg-white px-4 py-2.5 text-sm font-black text-rose-600 transition hover:bg-rose-50">{children}</button>;
+function DangerButton({ children, onClick, disabled, loading }: ActionButtonProps) {
+    return (
+        <button type="button" onClick={onClick} disabled={disabled || loading} aria-busy={loading || undefined} className={cx("relative inline-flex items-center justify-center gap-2 rounded-card border border-rose-200 bg-white px-4 py-2.5 text-sm font-black text-rose-600 transition hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-55", loading && "disabled:cursor-wait disabled:opacity-80")}>
+            <ButtonContent loading={loading}>{children}</ButtonContent>
+        </button>
+    );
 }
 
 function SearchBox({ value, onChange, placeholder, compact = false }: { value: string; onChange: (value: string) => void; placeholder: string; compact?: boolean }) {
@@ -8125,8 +8152,8 @@ function StatusBadge({ status }: { status: "Live" | "Paused" | "Draft" }) {
     return <span className={cx("inline-flex h-7 items-center rounded-full px-2.5 text-xs font-black", classes)}>{status}</span>;
 }
 
-function IconButton({ children, onClick, danger, title }: { children: ReactNode; onClick?: () => void; danger?: boolean; title?: string }) {
-    return <button type="button" title={title} aria-label={title || "Action"} onClick={onClick} className={cx("flex h-9 w-9 items-center justify-center rounded-control transition", danger ? "text-rose-500 hover:bg-rose-50" : "text-slate-500 hover:bg-slate-100 hover:text-slate-950")}>{children}</button>;
+function IconButton({ children, onClick, danger, title, loading }: { children: ReactNode; onClick?: () => void; danger?: boolean; title?: string; loading?: boolean }) {
+    return <button type="button" title={title} aria-label={title || "Action"} aria-busy={loading || undefined} disabled={loading} onClick={onClick} className={cx("flex h-9 w-9 items-center justify-center rounded-control transition disabled:cursor-wait disabled:opacity-60", danger ? "text-rose-500 hover:bg-rose-50" : "text-slate-500 hover:bg-slate-100 hover:text-slate-950")}>{loading ? <RefreshCw className="h-4 w-4 animate-spin" aria-hidden="true" /> : children}</button>;
 }
 
 function EmptyState({ icon, title, copy, action, onAction }: { icon: ReactNode; title: string; copy: string; action?: string; onAction?: () => void }) {

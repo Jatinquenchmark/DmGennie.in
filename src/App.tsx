@@ -89,7 +89,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Toaster />
+        <Toaster richColors />
         <ReferralCodeTracker />
         <Routes>
           <Route path="/" element={<HomePage />} />

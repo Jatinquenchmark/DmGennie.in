@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { ErrorState, LoadingCard, SkeletonCard } from '@/components/Loading'
+import { toast } from 'sonner'
 
 type AdminSection = 'overview' | 'users' | 'automations' | 'contacts' | 'billing' | 'settings'
 
@@ -297,9 +298,21 @@ function Overview({ data }: { data: any }) {
 function UsersPage({ data, search, setSearch, authFetch, onRefresh }: any) {
   const users = (data?.users || []).filter((user: any) => `${user.email} ${user.name} ${user.instagramHandle}`.toLowerCase().includes(search.toLowerCase()))
 
+  // One request per row at a time; the row's buttons show progress and the result is toasted.
+  const [busyId, setBusyId] = useState<string | null>(null)
   const updateUser = async (userId: string, action: string, plan?: string) => {
-    await authFetch('/api/admin?action=users', { method: 'PUT', body: JSON.stringify({ userId, action, plan }) })
-    onRefresh()
+    if (busyId) return
+    setBusyId(userId)
+    try {
+      const res = await authFetch('/api/admin?action=users', { method: 'PUT', body: JSON.stringify({ userId, action, plan }) })
+      if (!res.ok) throw new Error()
+      toast.success(action === 'plan' ? `Plan changed to ${plan}.` : action === 'suspend' ? 'User suspended.' : 'User activated.')
+      await onRefresh()
+    } catch {
+      toast.error('Unable to update user.')
+    } finally {
+      setBusyId(null)
+    }
   }
 
   return (
@@ -334,8 +347,8 @@ function UsersPage({ data, search, setSearch, authFetch, onRefresh }: any) {
                 <td className="px-3 py-4">{formatDate(user.createdAt)}</td>
                 <td className="px-3 py-4">
                   <div className="flex flex-wrap gap-2">
-                    <button className="rounded-full border px-3 py-1.5 font-bold" onClick={() => updateUser(user.id, user.suspended ? 'activate' : 'suspend')}>{user.suspended ? 'Activate' : 'Suspend'}</button>
-                    <button className="rounded-full border px-3 py-1.5 font-bold" onClick={() => updateUser(user.id, 'plan', user.plan === 'Pro' ? 'Starter' : 'Pro')}>Toggle plan</button>
+                    <button className="rounded-full border px-3 py-1.5 font-bold disabled:cursor-wait disabled:opacity-50" disabled={busyId !== null} aria-busy={busyId === user.id || undefined} onClick={() => updateUser(user.id, user.suspended ? 'activate' : 'suspend')}>{busyId === user.id ? 'Saving...' : user.suspended ? 'Activate' : 'Suspend'}</button>
+                    <button className="rounded-full border px-3 py-1.5 font-bold disabled:cursor-wait disabled:opacity-50" disabled={busyId !== null} onClick={() => updateUser(user.id, 'plan', user.plan === 'Pro' ? 'Starter' : 'Pro')}>Toggle plan</button>
                   </div>
                 </td>
               </tr>
@@ -349,9 +362,20 @@ function UsersPage({ data, search, setSearch, authFetch, onRefresh }: any) {
 
 function AutomationsPage({ data, search, setSearch, authFetch, onRefresh }: any) {
   const automations = (data?.automations || []).filter((item: any) => `${item.ownerEmail} ${item.keyword} ${item.replyMessage}`.toLowerCase().includes(search.toLowerCase()))
+  const [busyId, setBusyId] = useState<string | null>(null)
   const toggle = async (item: any) => {
-    await authFetch('/api/admin?action=automations', { method: 'PUT', body: JSON.stringify({ id: item.id, enabled: item.status !== 'Live' }) })
-    onRefresh()
+    if (busyId) return
+    setBusyId(item.id)
+    try {
+      const res = await authFetch('/api/admin?action=automations', { method: 'PUT', body: JSON.stringify({ id: item.id, enabled: item.status !== 'Live' }) })
+      if (!res.ok) throw new Error()
+      toast.success(item.status === 'Live' ? 'Automation paused.' : 'Automation resumed.')
+      await onRefresh()
+    } catch {
+      toast.error('Unable to update automation.')
+    } finally {
+      setBusyId(null)
+    }
   }
 
   return (
@@ -365,7 +389,7 @@ function AutomationsPage({ data, search, setSearch, authFetch, onRefresh }: any)
           'DMs sent': item.dmsSent,
           Failed: item.failed,
           Modified: formatDate(item.updatedAt),
-          Action: <button className="rounded-full border px-3 py-1.5 font-bold" onClick={() => toggle(item)}>{item.status === 'Live' ? 'Pause' : 'Resume'}</button>,
+          Action: <button className="rounded-full border px-3 py-1.5 font-bold disabled:cursor-wait disabled:opacity-50" disabled={busyId !== null} aria-busy={busyId === item.id || undefined} onClick={() => toggle(item)}>{busyId === item.id ? 'Saving...' : item.status === 'Live' ? 'Pause' : 'Resume'}</button>,
         }))}
       />
     </Panel>
