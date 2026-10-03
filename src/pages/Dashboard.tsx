@@ -8093,14 +8093,10 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
         ["Why did a DM fail?", "Usually due to privacy or closed DMs."],
     ];
 
-    const systemFont = {
-        fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, sans-serif'
-    };
-
     const sectionLabel = "block text-[16px] font-[900] uppercase tracking-tighter text-slate-950 mb-4 ml-1";
 
     return (
-        <div style={systemFont} className="w-full max-w-[1500px] mx-auto">
+        <div className="w-full max-w-[1500px] mx-auto">
             <PageShell title="Help & Support" subtitle="Get in touch with the DMGennie team.">
                 {/* ERROR ALERT - PROFESSIONAL DESIGN */}
                 {showErrorAlert && (

@@ -259,7 +259,7 @@ function Builder() {
       {/* Top bar */}
       <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border px-4">
         <button onClick={() => navigate("/dashboard")} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground" aria-label="Back to dashboard">
-          <ArrowLeft className="h-4.5 w-4.5" />
+          <ArrowLeft className="h-4 w-4" />
         </button>
         <input
           value={name}
@@ -274,7 +274,7 @@ function Builder() {
         )}
 
         <button onClick={() => startTour("flows", true)} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground" title="Replay tutorial" aria-label="Replay tutorial">
-          <CircleHelp className="h-4.5 w-4.5" />
+          <CircleHelp className="h-4 w-4" />
         </button>
 
         <button data-tour="fb-autoconnect" onClick={runAutoConnect} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-bold text-foreground transition hover:bg-muted" title="Auto-connect the blocks top-to-bottom">
@@ -327,7 +327,7 @@ function Builder() {
                   fitView
                   proOptions={{ hideAttribution: true }}
                 >
-                  <Background gap={16} color="var(--border)" />
+                  <Background gap={16} color="rgb(var(--border))" />
                   <Controls className="!border-border" />
                   <MiniMap pannable zoomable className="!bg-card" nodeColor={(n) => BLOCKS[(n.data as FlowNodeData).type]?.accent || "#94a3b8"} />
                 </ReactFlow>

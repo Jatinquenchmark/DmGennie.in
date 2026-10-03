@@ -1,4 +1,8 @@
 import type { Config } from "tailwindcss";
+import defaultTheme from "tailwindcss/defaultTheme";
+
+// Colours are "R G B" channel vars (src/index.css) so opacity modifiers like bg-card/80 work.
+const token = (name: string) => `rgb(var(--${name}) / <alpha-value>)`;
 
 export default {
   darkMode: ["class"],
@@ -7,7 +11,7 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: 'calc(var(--spacing) * 4)', // 1rem with 14px base = 14px padding
+      padding: '1rem',
       screens: {
         sm: '40rem',
         md: '48rem', 
@@ -18,60 +22,91 @@ export default {
     },
     extend: {
       fontFamily: {
-        bagel: ['Bagel Fat One', 'cursive'],
+        sans: ['"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
+      },
+      // Floor for UI text: uppercase micro-labels only. Everything else uses xs and up.
+      fontSize: {
+        '2xs': ['11px', '16px'],
+      },
+      // Steps used across the app (bg-white/72 etc.) that Tailwind v3 doesn't ship.
+      opacity: {
+        12: '0.12',
+        14: '0.14',
+        62: '0.62',
+        72: '0.72',
+        86: '0.86',
       },
       colors: {
-        border: "var(--border)",
-        input: "var(--input)",
-        ring: "var(--ring)",
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        border: token("border"),
+        input: token("input"),
+        ring: token("ring"),
+        background: token("background"),
+        foreground: token("foreground"),
         primary: {
-          DEFAULT: "var(--primary)",
-          foreground: "var(--primary-foreground)",
+          DEFAULT: token("primary"),
+          foreground: token("primary-foreground"),
         },
         secondary: {
-          DEFAULT: "var(--secondary)",
-          foreground: "var(--secondary-foreground)",
+          DEFAULT: token("secondary"),
+          foreground: token("secondary-foreground"),
         },
         destructive: {
-          DEFAULT: "var(--destructive)",
-          foreground: "var(--destructive-foreground)",
+          DEFAULT: token("destructive"),
+          foreground: token("destructive-foreground"),
         },
         muted: {
-          DEFAULT: "var(--muted)",
-          foreground: "var(--muted-foreground)",
+          DEFAULT: token("muted"),
+          foreground: token("muted-foreground"),
         },
         accent: {
-          DEFAULT: "var(--accent)",
-          foreground: "var(--accent-foreground)",
-          blue: "var(--accent-blue)",
-          emerald: "var(--accent-emerald)",
-          purple: "var(--accent-purple)",
+          DEFAULT: token("accent"),
+          foreground: token("accent-foreground"),
+          blue: token("accent-blue"),
+          emerald: token("accent-emerald"),
+          purple: token("accent-purple"),
         },
         brand: {
-          magenta: "var(--brand-magenta)",
-          blue: "var(--brand-blue)",
-          purple: "var(--brand-purple)",
-          soft: "var(--brand-soft)",
+          DEFAULT: token("brand"),
+          hover: token("brand-hover"),
+          soft: token("brand-soft"),
+          magenta: token("brand"), // ponytail: alias for the 4 old uses; Phase 2 moves them to `brand`
+          blue: token("brand-blue"),
+          purple: token("brand-purple"),
+        },
+        // Pro / premium only.
+        gold: {
+          soft: "#FFF7DA",
+          DEFAULT: "#E8C56C",
+          deep: "#8A5D17",
         },
         ink: {
-          DEFAULT: "var(--ink)",
-          muted: "var(--ink-muted)",
+          DEFAULT: token("ink"),
+          muted: token("ink-muted"),
         },
         popover: {
-          DEFAULT: "var(--popover)",
-          foreground: "var(--popover-foreground)",
+          DEFAULT: token("popover"),
+          foreground: token("popover-foreground"),
         },
         card: {
-          DEFAULT: "var(--card)",
-          foreground: "var(--card-foreground)",
+          DEFAULT: token("card"),
+          foreground: token("card-foreground"),
         },
       },
+      // Named scale for app/marketing code (shadcn ui keeps lg/md/sm):
+      // control = buttons, inputs, chips · card = cards, panels · panel = modals, drawers, hero blocks.
       borderRadius: {
+        control: "12px",
+        card: "20px",
+        panel: "28px",
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      // Three neutral elevations, no coloured glows.
+      boxShadow: {
+        card: "0 1px 2px rgb(15 23 42 / 0.04), 0 4px 16px rgb(15 23 42 / 0.05)",
+        raised: "0 2px 6px rgb(15 23 42 / 0.05), 0 12px 32px rgb(15 23 42 / 0.10)",
+        overlay: "0 8px 20px rgb(15 23 42 / 0.08), 0 32px 80px rgb(15 23 42 / 0.20)",
       },
       keyframes: {
         "accordion-down": {
