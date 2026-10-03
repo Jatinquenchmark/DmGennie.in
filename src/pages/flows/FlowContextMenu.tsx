@@ -49,7 +49,7 @@ export function FlowContextMenu({
 
   return (
     <div
-      className="fixed z-50 min-w-[168px] overflow-hidden rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-lg"
+      className="fixed z-50 min-w-[168px] overflow-hidden rounded-control border border-border bg-popover p-1 text-popover-foreground shadow-raised"
       style={{ top: menu.y, left: menu.x }}
       onClick={(e) => e.stopPropagation()}
     >
@@ -59,7 +59,7 @@ export function FlowContextMenu({
           disabled={item.disabled}
           onClick={() => { item.run(); onClose(); }}
           className={[
-            "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-sm font-medium transition",
+            "flex w-full items-center gap-2.5 rounded-control px-2.5 py-1.5 text-left text-sm font-medium transition",
             item.disabled ? "cursor-not-allowed opacity-40" : "hover:bg-muted",
             item.danger ? "text-destructive hover:bg-destructive/10" : "text-foreground",
           ].join(" ")}

@@ -42,19 +42,19 @@ export function ContentPicker({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-border bg-card text-card-foreground shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="flex max-h-[80vh] w-full max-w-2xl flex-col overflow-hidden rounded-card border border-border bg-card text-card-foreground shadow-overlay" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
           <h3 className="text-base font-bold">Select {kind === "post" ? "posts / reels" : "stories"}</h3>
-          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted"><X className="h-4 w-4" /></button>
+          <button onClick={onClose} className="flex h-8 w-8 items-center justify-center rounded-control text-muted-foreground transition hover:bg-muted"><X className="h-4 w-4" /></button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
           <button
             onClick={pickAll}
-            className={cn("mb-3 flex w-full items-center justify-between rounded-xl border p-3 text-left transition", allSelected ? "border-[#C13584] bg-[#C13584]/10" : "border-border hover:bg-muted")}
+            className={cn("mb-3 flex w-full items-center justify-between rounded-control border p-3 text-left transition", allSelected ? "border-brand bg-brand/10" : "border-border hover:bg-muted")}
           >
             <span className="text-sm font-bold">{allLabel}</span>
-            {allSelected && <Check className="h-4 w-4 text-[#C13584]" />}
+            {allSelected && <Check className="h-4 w-4 text-brand" />}
           </button>
 
           {!connected ? (
@@ -71,16 +71,16 @@ export function ContentPicker({
                   <button
                     key={media.id}
                     onClick={() => toggle(media.title)}
-                    className={cn("group relative overflow-hidden rounded-xl border text-left transition", on ? "border-[#C13584] ring-2 ring-[#C13584]/40" : "border-border hover:border-muted-foreground/40")}
+                    className={cn("group relative overflow-hidden rounded-control border text-left transition", on ? "border-brand ring-2 ring-brand/40" : "border-border hover:border-muted-foreground/40")}
                   >
                     <div className={cn("flex h-24 items-center justify-center bg-gradient-to-br text-white", media.color || "from-slate-400 to-slate-600")}>
                       {media.thumbnailUrl ? <img src={media.thumbnailUrl} alt="" className="h-full w-full object-cover" /> : <ImageIcon className="h-6 w-6 opacity-70" />}
                     </div>
                     <div className="p-2">
                       <p className="truncate text-xs font-bold">{media.title}</p>
-                      <p className="truncate text-[10px] text-muted-foreground">{media.metric || media.type}</p>
+                      <p className="truncate text-2xs text-muted-foreground">{media.metric || media.type}</p>
                     </div>
-                    {on && <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#C13584] text-white"><Check className="h-3 w-3" /></span>}
+                    {on && <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-white"><Check className="h-3 w-3" /></span>}
                   </button>
                 );
               })}
@@ -92,7 +92,7 @@ export function ContentPicker({
           <span className="text-xs font-medium text-muted-foreground">{allSelected ? allLabel : `${selected.length} selected`}</span>
           <button
             onClick={() => onConfirm(selected.length ? selected : [allLabel])}
-            className="rounded-lg bg-[#C13584] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#ad2a75]"
+            className="rounded-control bg-brand px-4 py-2 text-sm font-bold text-white transition hover:bg-brand-hover"
           >
             Done
           </button>

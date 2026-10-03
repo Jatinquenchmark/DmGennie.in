@@ -129,12 +129,12 @@ export default function Compare() {
       <div className="premium-gradient min-h-screen text-foreground">
         <PageHeader />
         <main className="mx-auto max-w-4xl px-6 pb-20 pt-36 text-center">
-          <p className="text-sm font-black uppercase tracking-[0.2em] text-[#C13584]">Compare</p>
-          <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">Comparison not found</h1>
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">Compare</p>
+          <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">Comparison not found</h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">Choose one of the available DMGennie comparisons below.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {compareLinks.map((item) => (
-              <Link key={item.slug} to={`/compare/${item.slug}`} className="rounded-full border border-border bg-card/70 px-4 py-2 text-sm font-bold text-muted-foreground shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:text-[#C13584]">
+              <Link key={item.slug} to={`/compare/${item.slug}`} className="rounded-full border border-border bg-card/70 px-4 py-2 text-sm font-bold text-muted-foreground shadow-rest backdrop-blur transition-all hover:-translate-y-0.5 hover:text-brand">
                 {item.name}
               </Link>
             ))}
@@ -150,12 +150,12 @@ export default function Compare() {
       <PageHeader />
 
       <main className="relative overflow-hidden pb-20 pt-36">
-        <div className="pointer-events-none absolute left-[-10%] top-24 h-80 w-80 rounded-full bg-[#C13584]/10 blur-3xl" />
-        <div className="pointer-events-none absolute right-[-10%] top-40 h-96 w-96 rounded-full bg-[#f5a9c4]/18 blur-3xl" />
+        <div className="pointer-events-none absolute left-[-10%] top-24 h-80 w-80 rounded-full bg-brand/10 blur-3xl" />
+        <div className="pointer-events-none absolute right-[-10%] top-40 h-96 w-96 rounded-full bg-brand/5 blur-3xl" />
 
         <section className="relative mx-auto max-w-7xl px-6 sm:px-8 lg:px-12">
           <div className="mb-10 flex flex-wrap items-center justify-center gap-2 text-sm font-bold text-muted-foreground">
-            <Link to="/" className="inline-flex items-center gap-1 rounded-full border border-border bg-card/62 px-3 py-1.5 backdrop-blur transition-colors hover:text-[#C13584]">
+            <Link to="/" className="inline-flex items-center gap-1 rounded-full border border-border bg-card/62 px-3 py-1.5 backdrop-blur transition-colors hover:text-brand">
               <Home className="h-4 w-4" />
               Home
             </Link>
@@ -166,14 +166,14 @@ export default function Compare() {
           </div>
 
           <div className="mx-auto max-w-5xl text-center">
-            <p className="text-sm font-black uppercase tracking-[0.22em] text-[#C13584]">Platform Comparison</p>
-            <h1 className="mt-7 text-4xl font-black leading-tight tracking-tight text-foreground sm:text-6xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brand">Platform Comparison</p>
+            <h1 className="mt-7 text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-6xl">
               DMGennie vs {page.name}
             </h1>
             <p className="mx-auto mt-6 max-w-4xl text-lg font-medium leading-8 text-muted-foreground sm:text-xl">
               {page.intro}
             </p>
-            {page.note && <p className="mt-5 text-sm font-bold text-[#9f3b58] dark:text-[#f5a9c4]">{page.note}</p>}
+            {page.note && <p className="mt-5 text-sm font-bold text-brand-hover dark:text-brand/40">{page.note}</p>}
           </div>
 
           <div className="mx-auto mt-10 flex max-w-5xl flex-wrap items-center justify-center gap-3">
@@ -183,10 +183,10 @@ export default function Compare() {
                 <Link
                   key={item.slug}
                   to={`/compare/${item.slug}`}
-                  className={`rounded-full border px-4 py-2 text-sm font-black transition-all ${
+                  className={`rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
                     active
-                      ? 'border-[#C13584] bg-[#C13584] text-white shadow-[0_14px_30px_rgba(193,53,132,0.22)]'
-                      : 'border-border bg-card/66 text-muted-foreground shadow-sm backdrop-blur hover:-translate-y-0.5 hover:text-[#C13584]'
+                      ? 'border-brand bg-brand text-white'
+                      : 'border-border bg-card/66 text-muted-foreground shadow-rest backdrop-blur hover:-translate-y-0.5 hover:text-brand'
                   }`}
                 >
                   {item.name}
@@ -195,24 +195,24 @@ export default function Compare() {
             })}
           </div>
 
-          <div className="mx-auto mt-16 max-w-6xl overflow-x-auto rounded-[2rem] border border-border bg-card/74 shadow-[0_28px_90px_rgba(193,53,132,0.10)] backdrop-blur-xl">
+          <div className="mx-auto mt-16 max-w-6xl overflow-x-auto rounded-panel border border-border bg-card/74 backdrop-blur-xl">
             <div className="min-w-[760px]">
               <div className="grid grid-cols-[1.2fr_1fr_1fr] bg-card/80">
-                <div className="px-7 py-7 text-2xl font-black text-foreground">Features</div>
+                <div className="px-7 py-7 text-2xl font-bold text-foreground">Features</div>
                 <div className="border-x border-border bg-card/72 px-7 py-7 text-center">
-                  <div className="inline-flex items-center gap-2 text-2xl font-black">
+                  <div className="inline-flex items-center gap-2 text-2xl font-bold">
                     DMGennie
-                    <Medal className="h-5 w-5 text-[#C13584]" />
+                    <Medal className="h-5 w-5 text-brand" />
                   </div>
-                  <div className="mt-2 text-xs font-black uppercase tracking-wider text-[#C13584]">Best for creators</div>
+                  <div className="mt-2 text-xs font-semibold uppercase tracking-wider text-brand">Best for creators</div>
                 </div>
-                <div className="px-7 py-7 text-center text-2xl font-black text-foreground">{page.name}</div>
+                <div className="px-7 py-7 text-center text-2xl font-bold text-foreground">{page.name}</div>
               </div>
 
               <div className="divide-y divide-border">
                 <div className="grid grid-cols-[1.2fr_1fr_1fr] items-center">
                   <div className="px-7 py-5 text-lg font-bold">Cost to send 25,000 DMs</div>
-                  <div className="border-x border-border px-7 py-5 text-center text-xl font-black text-[#C13584]">$0+</div>
+                  <div className="border-x border-border px-7 py-5 text-center text-xl font-bold text-brand">$0+</div>
                   <div className="px-7 py-5 text-center text-xl font-bold text-muted-foreground">{page.price}</div>
                 </div>
 
@@ -237,20 +237,20 @@ export default function Compare() {
               { icon: <ShieldCheck className="h-5 w-5" />, title: 'API-safe flow', text: 'Built around official Instagram connection patterns.' },
               { icon: <Medal className="h-5 w-5" />, title: 'Creator-first', text: 'Simple campaign controls for links, offers, and replies.' },
             ].map((item) => (
-              <div key={item.title} className="rounded-2xl border border-border bg-card/62 p-6 shadow-[0_18px_46px_rgba(193,53,132,0.08)] backdrop-blur">
-                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#C13584]/10 text-[#C13584]">
+              <div key={item.title} className="rounded-card border border-border bg-card/62 p-6 backdrop-blur">
+                <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-control bg-brand/10 text-brand">
                   {item.icon}
                 </div>
-                <h3 className="text-lg font-black">{item.title}</h3>
+                <h3 className="text-lg font-bold">{item.title}</h3>
                 <p className="mt-2 text-sm font-medium leading-relaxed text-muted-foreground">{item.text}</p>
               </div>
             ))}
           </div>
 
-          <div className="mx-auto mt-16 max-w-4xl rounded-[2rem] border border-border bg-card/68 p-8 text-center shadow-[0_26px_80px_rgba(193,53,132,0.10)] backdrop-blur-xl sm:p-10">
-            <h2 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl">Get started with DMGennie for free</h2>
+          <div className="mx-auto mt-16 max-w-4xl rounded-panel border border-border bg-card/68 p-8 text-center backdrop-blur-xl sm:p-10">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Get started with DMGennie for free</h2>
             <p className="mx-auto mt-3 max-w-2xl text-lg font-medium text-muted-foreground">Create your account and launch your first automation in minutes.</p>
-            <Link to="/signup" className="premium-button mt-8 inline-flex rounded-xl px-9 py-4 text-lg font-bold text-white transition-all hover:-translate-y-0.5">
+            <Link to="/signup" className="premium-button mt-8 inline-flex rounded-control px-9 py-4 text-lg font-bold text-white transition-all hover:-translate-y-0.5">
               Create Free Account
             </Link>
             <TrustChips className="mt-6 justify-center" />

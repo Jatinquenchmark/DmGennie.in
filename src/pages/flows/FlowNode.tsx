@@ -15,7 +15,7 @@ function FlowNodeComponent({ data, selected }: NodeProps) {
   return (
     <div
       className={cn(
-        "w-60 select-none rounded-2xl border bg-card text-card-foreground shadow-sm transition",
+        "w-60 select-none rounded-card border bg-card text-card-foreground shadow-rest transition",
         selected ? "border-transparent ring-2 ring-offset-2 ring-offset-background" : "border-border",
       )}
       style={selected ? ({ "--tw-ring-color": spec.accent } as React.CSSProperties) : undefined}
@@ -24,8 +24,8 @@ function FlowNodeComponent({ data, selected }: NodeProps) {
         <Handle type="target" position={Position.Top} className="!h-3 !w-3 !border-2 !border-background" style={{ background: spec.accent }} />
       )}
 
-      <div className="flex items-center gap-2 rounded-t-2xl px-3 py-2" style={{ background: `${spec.accent}14` }}>
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg text-white" style={{ background: spec.accent }}>
+      <div className="flex items-center gap-2 rounded-t-card px-3 py-2" style={{ background: `${spec.accent}14` }}>
+        <span className="flex h-7 w-7 items-center justify-center rounded-control text-white" style={{ background: spec.accent }}>
           <Icon className="h-4 w-4" />
         </span>
         <span className="text-sm font-bold" style={{ color: spec.accent }}>
@@ -40,7 +40,7 @@ function FlowNodeComponent({ data, selected }: NodeProps) {
       {spec.sources.length > 1 ? (
         <div className="flex justify-around border-t border-border px-2 py-1.5">
           {spec.sources.map((s) => (
-            <span key={s.id} className="relative text-[10px] font-bold text-muted-foreground">
+            <span key={s.id} className="relative text-2xs font-bold text-muted-foreground">
               {s.label}
               <Handle
                 type="source"

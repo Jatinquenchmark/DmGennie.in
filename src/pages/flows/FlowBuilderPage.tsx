@@ -258,26 +258,26 @@ function Builder() {
     <div className="flex h-screen flex-col bg-background text-foreground">
       {/* Top bar */}
       <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border px-4">
-        <button onClick={() => navigate("/dashboard")} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground" aria-label="Back to dashboard">
+        <button onClick={() => navigate("/dashboard")} className="flex h-9 w-9 items-center justify-center rounded-control text-muted-foreground transition hover:bg-muted hover:text-foreground" aria-label="Back to dashboard">
           <ArrowLeft className="h-4 w-4" />
         </button>
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 py-1 text-base font-bold text-foreground outline-none transition hover:border-border focus:border-border"
+          className="min-w-0 flex-1 rounded-control border border-transparent bg-transparent px-2 py-1 text-base font-bold text-foreground outline-none transition hover:border-border focus:border-border"
         />
 
         {issues.length > 0 && (
-          <span title={issues.join("\n")} className="hidden items-center gap-1.5 rounded-lg bg-amber-500/10 px-2.5 py-1.5 text-xs font-bold text-amber-600 sm:inline-flex">
+          <span title={issues.join("\n")} className="hidden items-center gap-1.5 rounded-control bg-amber-500/10 px-2.5 py-1.5 text-xs font-bold text-amber-600 sm:inline-flex">
             <AlertTriangle className="h-3.5 w-3.5" /> {issues.length} warning{issues.length > 1 ? "s" : ""}
           </span>
         )}
 
-        <button onClick={() => startTour("flows", true)} className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground" title="Replay tutorial" aria-label="Replay tutorial">
+        <button onClick={() => startTour("flows", true)} className="flex h-9 w-9 items-center justify-center rounded-control text-muted-foreground transition hover:bg-muted hover:text-foreground" title="Replay tutorial" aria-label="Replay tutorial">
           <CircleHelp className="h-4 w-4" />
         </button>
 
-        <button data-tour="fb-autoconnect" onClick={runAutoConnect} className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-bold text-foreground transition hover:bg-muted" title="Auto-connect the blocks top-to-bottom">
+        <button data-tour="fb-autoconnect" onClick={runAutoConnect} className="flex items-center gap-1.5 rounded-control border border-border px-3 py-2 text-sm font-bold text-foreground transition hover:bg-muted" title="Auto-connect the blocks top-to-bottom">
           <Sparkles className="h-4 w-4" /> Auto-connect
         </button>
 
@@ -285,14 +285,14 @@ function Builder() {
           <Switch checked={enabled} onCheckedChange={setEnabled} />
           {enabled ? "Live" : "Draft"}
         </label>
-        <button data-tour="fb-save" onClick={save} disabled={saving} className="flex items-center gap-1.5 rounded-lg bg-[#C13584] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#ad2a75] disabled:opacity-60">
+        <button data-tour="fb-save" onClick={save} disabled={saving} className="flex items-center gap-1.5 rounded-control bg-brand px-4 py-2 text-sm font-bold text-white transition hover:bg-brand-hover disabled:opacity-60">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Save
         </button>
       </header>
 
       {/* Linking hint */}
       {linkingFrom && (
-        <div className="flex items-center justify-center gap-2 bg-[#C13584] px-4 py-1.5 text-xs font-bold text-white">
+        <div className="flex items-center justify-center gap-2 bg-brand px-4 py-1.5 text-xs font-bold text-white">
           <Link2 className="h-3.5 w-3.5" /> Click a block to link to it · press Esc to cancel
         </div>
       )}

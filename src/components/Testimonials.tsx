@@ -40,7 +40,7 @@ export function Testimonials() {
     <section id="testimonials" className="relative py-16 sm:py-20 lg:py-24 bg-card/30">
       <div className="container mx-auto px-6 sm:px-8 lg:px-12">
         <div className="text-center mb-16">
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6 text-foreground">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-foreground">
             See What People Are Saying 👀
           </h2>
         </div>
@@ -53,10 +53,10 @@ export function Testimonials() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="bg-background clean-border rounded-2xl p-6 subtle-shadow hover:elevated-shadow gentle-animation"
+              className="bg-background clean-border rounded-card p-6 subtle-shadow hover:elevated-shadow gentle-animation"
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-accent-blue to-accent-purple rounded-full flex items-center justify-center text-white font-bold">
+                <div className="w-12 h-12 bg-gradient-to-br from-accent-blue to-brand rounded-full flex items-center justify-center text-white font-bold">
                   {t.name.charAt(0)}
                 </div>
                 <div>

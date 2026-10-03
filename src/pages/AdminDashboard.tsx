@@ -120,16 +120,16 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F7FB] text-[#0F172A]">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
       <div className="mx-auto flex w-full max-w-[1440px] gap-5 p-4 xl:p-5">
-        <aside className="hidden h-[calc(100vh-2rem)] w-[274px] shrink-0 rounded-[26px] border border-[#E5E7EB] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.06)] lg:sticky lg:top-4 lg:block">
+        <aside className="hidden h-[calc(100vh-2rem)] w-[274px] shrink-0 rounded-panel border border-slate-200 bg-white p-5 shadow-raised lg:sticky lg:top-4 lg:block">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#5B4DFF] text-white">
+            <div className="flex h-11 w-11 items-center justify-center rounded-card bg-brand text-white">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xl font-black tracking-tight">DMGennie</p>
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-[#94A3B8]">Admin Console</p>
+              <p className="text-xl font-bold tracking-tight">DMGennie</p>
+              <p className="text-2xs font-semibold uppercase tracking-[0.22em] text-slate-400">Admin Console</p>
             </div>
           </div>
 
@@ -138,10 +138,10 @@ export default function AdminDashboard() {
               <Link
                 key={item.key}
                 to={item.path}
-                className={`flex h-11 items-center gap-3 rounded-2xl px-3 text-sm font-black transition ${
+                className={`flex h-11 items-center gap-3 rounded-card px-3 text-sm font-semibold transition ${
                   section === item.key
-                    ? 'bg-[#0F172A] text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)]'
-                    : 'text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
+                    ? 'bg-slate-900 text-white shadow-rest'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                 }`}
               >
                 {item.icon}
@@ -151,13 +151,13 @@ export default function AdminDashboard() {
           </nav>
 
           <div className="mt-auto pt-8">
-            <Link to="/dashboard" className="flex h-10 items-center justify-center rounded-2xl border border-[#E5E7EB] text-sm font-black text-[#475569] transition hover:bg-[#F8FAFC]">
+            <Link to="/dashboard" className="flex h-10 items-center justify-center rounded-card border border-slate-200 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
               Back to App
             </Link>
             <button
               type="button"
               onClick={handleLogout}
-              className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-2xl bg-[#10B981] text-sm font-black text-white transition hover:bg-[#059669]"
+              className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-card bg-emerald-500 text-sm font-semibold text-white transition hover:bg-emerald-600"
             >
               <LogOut className="h-4 w-4" />
               Logout
@@ -166,18 +166,18 @@ export default function AdminDashboard() {
         </aside>
 
         <main className="min-w-0 flex-1">
-          <header className="flex flex-col gap-4 rounded-[24px] border border-white bg-white p-5 shadow-[0_16px_48px_rgba(15,23,42,0.05)] sm:flex-row sm:items-center sm:justify-between">
+          <header className="flex flex-col gap-4 rounded-card border border-white bg-white p-5 shadow-raised sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-[#5B4DFF]">Secure Admin</p>
-              <h1 className="mt-2 text-3xl font-black tracking-tight capitalize">{section === 'overview' ? 'Admin Overview' : section}</h1>
-              <p className="mt-1 text-sm font-semibold text-[#64748B]">Manage users, automations, contacts, billing, and platform health.</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Secure Admin</p>
+              <h1 className="mt-2 text-3xl font-bold tracking-tight capitalize">{section === 'overview' ? 'Admin Overview' : section}</h1>
+              <p className="mt-1 text-sm font-semibold text-slate-500">Manage users, automations, contacts, billing, and platform health.</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button onClick={loadData} className="inline-flex h-10 items-center gap-2 rounded-2xl border border-[#E5E7EB] bg-white px-4 text-sm font-black text-[#475569] transition hover:bg-[#F8FAFC]">
+              <button onClick={loadData} className="inline-flex h-10 items-center gap-2 rounded-card border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
                 <RefreshCw className="h-4 w-4" />
                 Refresh
               </button>
-              <Link to="/dashboard" className="inline-flex h-10 items-center rounded-2xl bg-[#5B4DFF] px-4 text-sm font-black text-white transition hover:bg-[#4738E8]">
+              <Link to="/dashboard" className="inline-flex h-10 items-center rounded-card bg-brand px-4 text-sm font-semibold text-white transition hover:bg-brand-hover">
                 Back to App
               </Link>
             </div>
@@ -244,14 +244,14 @@ function AdminContent({
 
 function Metric({ label, value, helper, icon }: { label: string; value: string; helper: string; icon: ReactNode }) {
   return (
-    <div className="rounded-[22px] border border-white bg-white p-5 shadow-[0_16px_48px_rgba(15,23,42,0.05)]">
+    <div className="rounded-card border border-white bg-white p-5 shadow-raised">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.1em] text-[#64748B]">{label}</p>
-          <p className="mt-3 text-3xl font-black tracking-tight">{value}</p>
-          <p className="mt-1 text-sm font-semibold text-[#64748B]">{helper}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">{label}</p>
+          <p className="mt-3 text-3xl font-bold tracking-tight">{value}</p>
+          <p className="mt-1 text-sm font-semibold text-slate-500">{helper}</p>
         </div>
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#EEF0FF] text-[#5B4DFF]">{icon}</span>
+        <span className="flex h-11 w-11 items-center justify-center rounded-card bg-brand-soft text-brand">{icon}</span>
       </div>
     </div>
   )
@@ -306,7 +306,7 @@ function UsersPage({ data, search, setSearch, authFetch, onRefresh }: any) {
     <Panel title="User management" action={<TableControls search={search} setSearch={setSearch} onExport={() => downloadCsv('dmgennie-admin-users.csv', users)} />}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1080px] text-left text-sm">
-          <thead className="text-xs font-black uppercase tracking-[0.08em] text-[#64748B]">
+          <thead className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
             <tr>
               <th className="px-3 py-3">User</th>
               <th className="px-3 py-3">Role</th>
@@ -318,19 +318,19 @@ function UsersPage({ data, search, setSearch, authFetch, onRefresh }: any) {
               <th className="px-3 py-3">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#EEF2F7]">
+          <tbody className="divide-y divide-slate-100">
             {users.map((user: any) => (
-              <tr key={user.id} className="hover:bg-[#F8FAFC]">
-                <td className="px-3 py-4"><strong>{user.name}</strong><br /><span className="text-[#64748B]">{user.email}</span></td>
+              <tr key={user.id} className="hover:bg-slate-50">
+                <td className="px-3 py-4"><strong>{user.name}</strong><br /><span className="text-slate-500">{user.email}</span></td>
                 <td className="px-3 py-4"><Badge tone={user.role === 'admin' ? 'purple' : 'gray'}>{user.role}</Badge></td>
                 <td className="px-3 py-4"><Badge tone={user.connectedInstagram ? 'green' : 'gray'}>{user.instagramHandle}</Badge></td>
                 <td className="px-3 py-4">{user.plan}</td>
                 <td className="px-3 py-4">
                   <Badge tone={user.introOfferUsed ? 'green' : 'gray'}>{user.introOfferUsed ? 'Used' : 'Not used'}</Badge>
                   <br />
-                  <span className="text-xs text-[#64748B]">{user.proIntroStartedAt ? formatDate(user.proIntroStartedAt) : user.subscriptionStatus || 'free'}</span>
+                  <span className="text-xs text-slate-500">{user.proIntroStartedAt ? formatDate(user.proIntroStartedAt) : user.subscriptionStatus || 'free'}</span>
                 </td>
-                <td className="px-3 py-4">{formatNumber(user.dmsSent)} DMs<br /><span className="text-[#64748B]">{formatNumber(user.contacts)} leads</span></td>
+                <td className="px-3 py-4">{formatNumber(user.dmsSent)} DMs<br /><span className="text-slate-500">{formatNumber(user.contacts)} leads</span></td>
                 <td className="px-3 py-4">{formatDate(user.createdAt)}</td>
                 <td className="px-3 py-4">
                   <div className="flex flex-wrap gap-2">
@@ -400,7 +400,7 @@ function BillingPage({ data }: { data: any }) {
         <Metric label="Users" value={formatNumber(data?.metrics?.totalUsers)} helper="Potential subscribers" icon={<Users className="h-5 w-5" />} />
       </div>
       <Panel title="Billing controls">
-        <p className="text-sm font-semibold leading-6 text-[#64748B]">
+        <p className="text-sm font-semibold leading-6 text-slate-500">
           Billing data is intentionally read-only here until Razorpay/subscription webhooks are connected to admin reporting.
           Admin APIs are ready to expose secure subscription data once the billing tables exist.
         </p>
@@ -424,9 +424,9 @@ function AdminSettings({ data }: { data: any }) {
 
 function Panel({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
-    <section className="rounded-[22px] border border-white bg-white p-5 shadow-[0_16px_48px_rgba(15,23,42,0.05)]">
+    <section className="rounded-card border border-white bg-white p-5 shadow-raised">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-black">{title}</h2>
+        <h2 className="text-lg font-bold">{title}</h2>
         {action}
       </div>
       {children}
@@ -435,17 +435,17 @@ function Panel({ title, action, children }: { title: string; action?: ReactNode;
 }
 
 function SimpleTable({ rows }: { rows: Array<Record<string, any>> }) {
-  if (!rows.length) return <div className="rounded-2xl border border-dashed border-[#CBD5E1] bg-[#F8FAFC] p-8 text-center text-sm font-bold text-[#64748B]">No admin data found.</div>
+  if (!rows.length) return <div className="rounded-card border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm font-bold text-slate-500">No admin data found.</div>
   const headers = Object.keys(rows[0])
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[760px] text-left text-sm">
-        <thead className="text-xs font-black uppercase tracking-[0.08em] text-[#64748B]">
+        <thead className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
           <tr>{headers.map((header) => <th key={header} className="px-3 py-3">{header}</th>)}</tr>
         </thead>
-        <tbody className="divide-y divide-[#EEF2F7]">
+        <tbody className="divide-y divide-slate-100">
           {rows.map((row, index) => (
-            <tr key={index} className="hover:bg-[#F8FAFC]">
+            <tr key={index} className="hover:bg-slate-50">
               {headers.map((header) => <td key={header} className="max-w-[320px] truncate px-3 py-4">{row[header]}</td>)}
             </tr>
           ))}
@@ -459,10 +459,10 @@ function TableControls({ search, setSearch, onExport }: { search: string; setSea
   return (
     <div className="flex flex-col gap-2 sm:flex-row">
       <label className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#94A3B8]" />
-        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search..." className="h-10 rounded-2xl border border-[#E5E7EB] bg-white pl-9 pr-3 text-sm font-bold outline-none focus:ring-4 focus:ring-[#5B4DFF]/10" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search..." className="h-10 rounded-card border border-slate-200 bg-white pl-9 pr-3 text-sm font-bold outline-none focus:ring-4 focus:ring-brand/10" />
       </label>
-      <button onClick={onExport} className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl border border-[#E5E7EB] px-4 text-sm font-black text-[#475569] transition hover:bg-[#F8FAFC]">
+      <button onClick={onExport} className="inline-flex h-10 items-center justify-center gap-2 rounded-card border border-slate-200 px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
         <Download className="h-4 w-4" />
         Export
       </button>
@@ -473,17 +473,17 @@ function TableControls({ search, setSearch, onExport }: { search: string; setSea
 function Badge({ children, tone }: { children: ReactNode; tone: 'green' | 'purple' | 'gray' }) {
   const classes = {
     green: 'bg-emerald-50 text-emerald-700',
-    purple: 'bg-[#EEF0FF] text-[#5B4DFF]',
+    purple: 'bg-brand-soft text-brand',
     gray: 'bg-slate-100 text-slate-600',
   }
-  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-black ${classes[tone]}`}>{children}</span>
+  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${classes[tone]}`}>{children}</span>
 }
 
 function InfoTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] bg-[#F8FAFC] p-4">
-      <p className="text-xs font-black uppercase tracking-[0.08em] text-[#64748B]">{label}</p>
-      <p className="mt-2 text-sm font-black">{value}</p>
+    <div className="rounded-card border border-slate-200 bg-slate-50 p-4">
+      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{label}</p>
+      <p className="mt-2 text-sm font-semibold">{value}</p>
     </div>
   )
 }

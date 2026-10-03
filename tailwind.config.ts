@@ -63,15 +63,11 @@ export default {
           foreground: token("accent-foreground"),
           blue: token("accent-blue"),
           emerald: token("accent-emerald"),
-          purple: token("accent-purple"),
         },
         brand: {
           DEFAULT: token("brand"),
           hover: token("brand-hover"),
           soft: token("brand-soft"),
-          magenta: token("brand"), // ponytail: alias for the 4 old uses; Phase 2 moves them to `brand`
-          blue: token("brand-blue"),
-          purple: token("brand-purple"),
         },
         // Pro / premium only.
         gold: {
@@ -104,7 +100,7 @@ export default {
       },
       // Three neutral elevations, no coloured glows.
       boxShadow: {
-        card: "0 1px 2px rgb(15 23 42 / 0.04), 0 4px 16px rgb(15 23 42 / 0.05)",
+        rest: "0 1px 2px rgb(15 23 42 / 0.04), 0 4px 16px rgb(15 23 42 / 0.05)", // not "card": that name is a colour token and would tint the shadow white
         raised: "0 2px 6px rgb(15 23 42 / 0.05), 0 12px 32px rgb(15 23 42 / 0.10)",
         overlay: "0 8px 20px rgb(15 23 42 / 0.08), 0 32px 80px rgb(15 23 42 / 0.20)",
       },

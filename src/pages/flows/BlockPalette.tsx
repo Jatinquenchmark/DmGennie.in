@@ -17,15 +17,15 @@ export function BlockPalette() {
             key={block.type}
             draggable
             onDragStart={(e) => onDragStart(e, block.type)}
-            className="flex cursor-grab select-none items-center gap-2.5 rounded-xl border border-border bg-card p-2.5 text-left transition hover:border-transparent hover:shadow-sm active:cursor-grabbing"
+            className="flex cursor-grab select-none items-center gap-2.5 rounded-control border border-border bg-card p-2.5 text-left transition hover:border-transparent hover:shadow-rest active:cursor-grabbing"
             style={{ ["--hover" as string]: block.accent }}
           >
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white" style={{ background: block.accent }}>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-white" style={{ background: block.accent }}>
               <Icon className="h-4 w-4" />
             </span>
             <span className="min-w-0">
               <span className="block text-sm font-bold text-foreground">{block.label}</span>
-              <span className="block truncate text-[11px] text-muted-foreground">{block.description}</span>
+              <span className="block truncate text-2xs text-muted-foreground">{block.description}</span>
             </span>
           </div>
         );

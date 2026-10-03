@@ -172,20 +172,20 @@ export function Pricing() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_16%,rgba(193,53,132,0.10),transparent_30%),radial-gradient(circle_at_80%_72%,rgba(64,93,230,0.10),transparent_30%),linear-gradient(180deg,#fff,rgba(248,241,243,0.82)_100%)] dark:opacity-0" />
       <div className="container relative mx-auto px-6 sm:px-8 lg:px-12">
         <div className="mx-auto mb-10 max-w-3xl text-center">
-          <div className="mb-4 text-sm font-black uppercase tracking-[0.18em] text-[#C13584]">Pricing</div>
-          <h2 className="text-4xl font-black leading-tight text-[#151119] sm:text-5xl">
+          <div className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-brand">Pricing</div>
+          <h2 className="text-4xl font-bold leading-tight text-slate-900 sm:text-5xl">
             Simple pricing for serious growth
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg font-medium leading-relaxed text-[#6a6168]">
+          <p className="mx-auto mt-4 max-w-2xl text-lg font-medium leading-relaxed text-slate-500">
             Start free, upgrade when your Instagram automation volume grows, and stay protected with fair usage.
           </p>
         </div>
 
-        <div className="mx-auto mb-16 flex w-fit items-center gap-4 rounded-2xl border border-white/80 bg-white/75 px-5 py-3 shadow-[0_16px_44px_rgba(193,53,132,0.10)] backdrop-blur">
+        <div className="mx-auto mb-16 flex w-fit items-center gap-4 rounded-card border border-white/80 bg-white/75 px-5 py-3 backdrop-blur">
           <button
             type="button"
             onClick={() => setBilling('monthly')}
-            className={`text-base font-bold transition-colors ${billing === 'monthly' ? 'text-[#151119]' : 'text-[#7b727a]'}`}
+            className={`text-base font-bold transition-colors ${billing === 'monthly' ? 'text-slate-900' : 'text-slate-500'}`}
           >
             Monthly
           </button>
@@ -193,12 +193,12 @@ export function Pricing() {
             type="button"
             onClick={() => setBilling(billing === 'monthly' ? 'yearly' : 'monthly')}
             className={`relative h-9 w-16 rounded-full border-2 p-1 transition-all ${
-              billing === 'yearly' ? 'border-[#C13584] bg-[#C13584]' : 'border-[#C13584] bg-[#f5f3ff]'
+              billing === 'yearly' ? 'border-brand bg-brand' : 'border-brand bg-brand-soft'
             }`}
             aria-label="Toggle annual pricing"
           >
             <span
-              className={`block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
+              className={`block h-5 w-5 rounded-full bg-white shadow-rest transition-transform ${
                 billing === 'yearly' ? 'translate-x-7' : 'translate-x-0'
               }`}
             />
@@ -206,11 +206,11 @@ export function Pricing() {
           <button
             type="button"
             onClick={() => setBilling('yearly')}
-            className={`text-base font-bold transition-colors ${billing === 'yearly' ? 'text-[#151119]' : 'text-[#7b727a]'}`}
+            className={`text-base font-bold transition-colors ${billing === 'yearly' ? 'text-slate-900' : 'text-slate-500'}`}
           >
             Annual
           </button>
-          <span className="rounded-lg bg-[#f3eefe] px-3 py-1 text-sm font-black text-[#C13584]">20% Off</span>
+          <span className="rounded-control bg-brand-soft px-3 py-1 text-sm font-semibold text-brand">20% Off</span>
         </div>
 
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-stretch gap-7 lg:grid-cols-3">
@@ -254,10 +254,10 @@ export function Pricing() {
             <motion.div
               key={plan.name}
               whileHover={{ y: -6 }}
-              className={`relative flex min-h-[580px] flex-col overflow-hidden rounded-[2rem] border p-8 shadow-[0_18px_55px_rgba(21,17,25,0.08)] sm:p-10 ${
+              className={`relative flex min-h-[580px] flex-col overflow-hidden rounded-panel border p-8 shadow-raised sm:p-10 ${
                 plan.highlight
-                  ? 'border-white/20 bg-[linear-gradient(155deg,#405DE6_0%,#833AB4_52%,#C13584_100%)] text-white shadow-[0_34px_100px_rgba(193,53,132,0.32)] lg:-mt-5 lg:min-h-[640px]'
-                  : 'border-white/80 bg-white/86 text-[#151119] shadow-[0_20px_60px_rgba(193,53,132,0.08)] backdrop-blur'
+                  ? 'border-white/20 bg-[linear-gradient(155deg,#405DE6_0%,#C13584_52%,#C13584_100%)] text-white lg:-mt-5 lg:min-h-[640px]'
+                  : 'border-white/80 bg-white/86 text-slate-900 backdrop-blur'
               }`}
             >
               {plan.highlight && (
@@ -268,32 +268,32 @@ export function Pricing() {
               )}
 
               {plan.highlight && (
-                <div className="relative mx-auto mb-7 inline-flex items-center rounded-full border border-white/20 bg-white/14 px-5 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#f9dfb5] shadow-[inset_0_1px_0_rgba(255,255,255,0.18)] backdrop-blur">
+                <div className="relative mx-auto mb-7 inline-flex items-center rounded-full border border-white/20 bg-white/14 px-5 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#f9dfb5] backdrop-blur">
                   {proActive ? 'Pro active' : paymentPending ? 'Payment pending' : (!session?.access_token || pricing.proIntroOffer.eligible) ? `Limited offer · ${fmt(introAmount)} first month` : 'Most Popular'}
                 </div>
               )}
               {!plan.highlight && <div className="mb-7 h-8" />}
 
               <div className="relative text-center">
-                <h3 className={`text-3xl font-black ${plan.highlight ? 'text-white' : 'text-[#151119]'}`}>
+                <h3 className={`text-3xl font-bold ${plan.highlight ? 'text-white' : 'text-slate-900'}`}>
                   {plan.name}
                 </h3>
                 <div className="mt-8">
-                  <span className={`text-6xl font-black tracking-tight sm:text-7xl ${
-                    plan.highlight ? 'text-white' : plan.name === 'Enterprise' ? 'text-5xl sm:text-6xl text-[#151119]' : 'text-[#151119]'
+                  <span className={`text-6xl font-bold tracking-tight sm:text-7xl ${
+                    plan.highlight ? 'text-white' : plan.name === 'Enterprise' ? 'text-5xl sm:text-6xl text-slate-900' : 'text-slate-900'
                   }`}>
                     {price}
                   </span>
                 </div>
                 {plan.suffix && (
-                  <div className={`mt-3 text-lg font-semibold ${plan.highlight ? 'text-white/78' : 'text-[#7a7279]'}`}>
+                  <div className={`mt-3 text-lg font-semibold ${plan.highlight ? 'text-white/78' : 'text-slate-500'}`}>
                     {showIntroOffer ? 'for first month' : plan.suffix}
                   </div>
                 )}
                 {showIntroOffer && (
                   <div className="mt-3 inline-flex flex-wrap justify-center gap-2">
-                    <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-black text-[#f9dfb5] ring-1 ring-white/18">Limited offer</span>
-                    <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-black text-white ring-1 ring-white/18">{fmt(introAmount)} first month</span>
+                    <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-semibold text-[#f9dfb5] ring-1 ring-white/18">Limited offer</span>
+                    <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/18">{fmt(introAmount)} first month</span>
                   </div>
                 )}
                 {plan.highlight && billing === 'yearly' && (
@@ -305,16 +305,16 @@ export function Pricing() {
                 <button
                   onClick={() => handlePlanCta(plan.name)}
                   disabled={(checkoutLoading && isPro) || proActive}
-                  className={`mt-12 w-full rounded-full px-6 py-4 text-base font-black transition-all disabled:cursor-not-allowed disabled:opacity-70 ${
+                  className={`mt-12 w-full rounded-full px-6 py-4 text-base font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-70 ${
                   plan.highlight
-                    ? 'bg-white text-[#C13584] shadow-[0_18px_42px_rgba(0,0,0,0.18)] hover:bg-[#ffffff]'
-                    : 'bg-[#C13584] text-white shadow-[0_14px_34px_rgba(193,53,132,0.22)] hover:bg-[#ad2a75]'
+                    ? 'bg-white text-brand shadow-raised hover:bg-white'
+                    : 'bg-brand text-white hover:bg-brand-hover'
                 }`}>
                   {checkoutLoading && isPro ? 'Starting checkout...' : cta}
                 </button>
               </div>
               {helper && (
-                <div className={`mt-3 text-center text-sm font-semibold ${plan.highlight ? 'text-white/72' : 'text-[#7a7279]'}`}>
+                <div className={`mt-3 text-center text-sm font-semibold ${plan.highlight ? 'text-white/72' : 'text-slate-500'}`}>
                   {helper}
                 </div>
               )}
@@ -326,9 +326,9 @@ export function Pricing() {
 
               <div className="relative mt-12 space-y-5">
                 {plan.included.map((feature) => (
-                  <div key={feature} className={`flex items-start gap-4 text-base font-bold ${plan.highlight ? 'text-white' : 'text-[#42404a]'}`}>
+                  <div key={feature} className={`flex items-start gap-4 text-base font-bold ${plan.highlight ? 'text-white' : 'text-slate-700'}`}>
                     <span className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
-                      plan.highlight ? 'bg-white/15 text-white' : 'bg-[#f3eefe] text-[#C13584]'
+                      plan.highlight ? 'bg-white/15 text-white' : 'bg-brand-soft text-brand'
                     }`}>
                       <Check className="h-3.5 w-3.5" />
                     </span>
@@ -336,8 +336,8 @@ export function Pricing() {
                   </div>
                 ))}
                 {plan.excluded.map((feature) => (
-                  <div key={feature} className="flex items-start gap-4 text-base font-bold text-[#9ba1ad]">
-                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#f3f0f2] text-[#9ba1ad]">
+                  <div key={feature} className="flex items-start gap-4 text-base font-bold text-slate-400">
+                    <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400">
                       <X className="h-3.5 w-3.5" />
                     </span>
                     <span>{feature}</span>
@@ -350,7 +350,7 @@ export function Pricing() {
           ))}
         </div>
         {notice && (
-          <div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm font-bold text-amber-800">
+          <div className="mx-auto mt-8 max-w-3xl rounded-card border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm font-bold text-amber-800">
             {notice}
           </div>
         )}

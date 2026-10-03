@@ -42,7 +42,7 @@ export default function ReviewerDemo() {
           <div className="inline-flex items-center gap-2 bg-accent-blue/10 text-accent-blue text-sm font-semibold px-4 py-2 rounded-full mb-6">
             Meta App Review — Reviewer Guide
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             How DMGennie Works
           </h1>
           <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl">
@@ -52,7 +52,7 @@ export default function ReviewerDemo() {
         </div>
 
         {/* What is DMGennie */}
-        <section className="mb-14 p-6 bg-card border border-border rounded-2xl shadow-sm">
+        <section className="mb-14 p-6 bg-card border border-border rounded-card shadow-rest">
           <h2 className="text-xl font-bold text-foreground mb-4">What is DMGennie?</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">
             DMGennie is a customer engagement tool for Instagram creators and businesses. It enables
@@ -94,7 +94,7 @@ export default function ReviewerDemo() {
                 reason: 'Required to subscribe the connected Facebook Page to Instagram webhook events so we receive real-time comment notifications.',
               },
             ].map((p) => (
-              <div key={p.permission} className="flex items-start gap-4 p-4 bg-card border border-border rounded-xl">
+              <div key={p.permission} className="flex items-start gap-4 p-4 bg-card border border-border rounded-control">
                 <div className="flex-shrink-0 w-2 h-2 rounded-full bg-accent-blue mt-2" />
                 <div>
                   <code className="text-accent-blue font-mono text-sm font-semibold">{p.permission}</code>
@@ -111,7 +111,7 @@ export default function ReviewerDemo() {
           <div className="space-y-8">
             {testSteps.map((s) => (
               <div key={s.step} className="flex gap-6">
-                <div className="flex-shrink-0 text-4xl font-extrabold text-accent-blue/20 leading-none mt-1 w-12 text-right">
+                <div className="flex-shrink-0 text-4xl font-bold text-accent-blue/20 leading-none mt-1 w-12 text-right">
                   {s.step}
                 </div>
                 <div className="flex-1 pb-8 border-b border-border last:border-0">
@@ -123,12 +123,12 @@ export default function ReviewerDemo() {
                   {'permissions' in s && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {s.permissions.map((p) => (
-                        <code key={p} className="text-xs bg-accent-blue/10 text-accent-blue px-2 py-1 rounded-md font-mono">{p}</code>
+                        <code key={p} className="text-xs bg-accent-blue/10 text-accent-blue px-2 py-1 rounded-control font-mono">{p}</code>
                       ))}
                     </div>
                   )}
                   {'note' in s && s.note && (
-                    <div className="mt-3 flex items-start gap-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                    <div className="mt-3 flex items-start gap-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-control">
                       <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
                       <p className="text-xs text-emerald-700 dark:text-emerald-400 leading-relaxed">{s.note}</p>
                     </div>
@@ -140,7 +140,7 @@ export default function ReviewerDemo() {
         </section>
 
         {/* Test Credentials Note */}
-        <div className="p-6 bg-amber-500/10 border border-amber-500/20 rounded-2xl mb-10">
+        <div className="p-6 bg-amber-500/10 border border-amber-500/20 rounded-card mb-10">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
             <div>

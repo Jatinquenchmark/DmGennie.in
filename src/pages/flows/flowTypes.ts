@@ -105,7 +105,7 @@ export const BLOCKS: Record<BlockType, BlockSpec> = {
     label: "Buttons",
     description: "Message with tappable buttons",
     icon: MousePointerClick,
-    accent: "#833AB4",
+    accent: "#C13584",
     hasTarget: true,
     sources: [{ id: "out" }],
     fields: [

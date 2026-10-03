@@ -18,7 +18,7 @@ const steps = [
     ),
   },
   {
-    icon: <Clock className="w-6 h-6 text-purple-500" />,
+    icon: <Clock className="w-6 h-6 text-brand" />,
     title: 'We Process Your Request',
     description:
       'Our team will verify your identity and initiate the deletion process within 3 business days of receiving your request. You will receive a confirmation email.',
@@ -42,7 +42,7 @@ export default function DeleteData() {
           <div className="inline-flex items-center gap-2 bg-red-500/10 text-red-500 text-sm font-semibold px-4 py-2 rounded-full mb-6">
             <Trash2 className="w-4 h-4" /> Data Deletion
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Request Data Deletion
           </h1>
           <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl">
@@ -63,7 +63,7 @@ export default function DeleteData() {
               { label: 'Activity Logs', detail: 'All records of comment events and DM delivery statuses.' },
               { label: 'Settings & Preferences', detail: 'All customisation data including reply delay, timezone, and bot settings.' },
             ].map((item) => (
-              <div key={item.label} className="flex items-start gap-4 p-4 bg-card border border-border rounded-xl">
+              <div key={item.label} className="flex items-start gap-4 p-4 bg-card border border-border rounded-control">
                 <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
                 </div>
@@ -82,7 +82,7 @@ export default function DeleteData() {
           <div className="space-y-6">
             {steps.map((step, i) => (
               <div key={i} className="flex items-start gap-5">
-                <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-card border border-border flex items-center justify-center shadow-sm">
+                <div className="flex-shrink-0 w-12 h-12 rounded-card bg-card border border-border flex items-center justify-center shadow-rest">
                   {step.icon}
                 </div>
                 <div className="flex-1 pt-2">
@@ -97,7 +97,7 @@ export default function DeleteData() {
         </section>
 
         {/* CTA */}
-        <div className="bg-card border border-border rounded-2xl p-8 text-center shadow-sm">
+        <div className="bg-card border border-border rounded-card p-8 text-center shadow-rest">
           <Trash2 className="w-10 h-10 text-red-400 mx-auto mb-4" />
           <h3 className="text-xl font-bold text-foreground mb-2">Ready to Delete Your Data?</h3>
           <p className="text-muted-foreground text-sm mb-6 max-w-sm mx-auto">
@@ -105,7 +105,7 @@ export default function DeleteData() {
           </p>
           <a
             href="mailto:support@dmgennie.in?subject=Data%20Deletion%20Request"
-            className="inline-flex items-center gap-2 bg-red-500 text-white font-bold px-6 py-3 rounded-xl hover:bg-red-600 transition-colors"
+            className="inline-flex items-center gap-2 bg-red-500 text-white font-bold px-6 py-3 rounded-control hover:bg-red-600 transition-colors"
           >
             <Mail className="w-4 h-4" />
             Send Deletion Request
@@ -116,7 +116,7 @@ export default function DeleteData() {
         </div>
 
         {/* Revoking from Meta */}
-        <div className="mt-10 p-5 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+        <div className="mt-10 p-5 bg-amber-500/10 border border-amber-500/20 rounded-card">
           <h3 className="font-bold text-amber-700 dark:text-amber-400 mb-2">Also Revoke from Meta</h3>
           <p className="text-sm text-amber-600/80 dark:text-amber-400/80 leading-relaxed">
             To completely revoke DMGennie's access, you can also remove it from Facebook's app settings:

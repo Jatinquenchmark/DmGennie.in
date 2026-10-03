@@ -7,11 +7,11 @@ import { TrustChips } from './TrustChips'
 
 function ShowcaseImage({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="glass-card relative mx-auto w-full max-w-[560px] overflow-hidden rounded-[2rem] p-2">
+    <div className="glass-card relative mx-auto w-full max-w-[560px] overflow-hidden rounded-panel p-2">
       <img
         src={src}
         alt={alt}
-        className="block aspect-[1.12/1] w-full rounded-[1.5rem] object-cover object-center"
+        className="block aspect-[1.12/1] w-full rounded-card object-cover object-center"
         loading="lazy"
       />
     </div>
@@ -51,17 +51,17 @@ export function FeatureShowcase() {
                 transition={{ duration: 0.6 }}
                 viewport={{ once: true }}
               >
-                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-blue/10 text-accent-blue">
+                <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-card bg-accent-blue/10 text-accent-blue">
                   <Icon className="h-6 w-6" />
                 </div>
-                <h2 className="mb-6 text-4xl font-black leading-tight text-foreground sm:text-5xl lg:text-6xl">
+                <h2 className="mb-6 text-4xl font-bold leading-tight text-foreground sm:text-5xl lg:text-6xl">
                   {item.title}
                 </h2>
                 <p className="mb-8 max-w-xl text-xl leading-relaxed text-muted-foreground">
                   {item.description}
                 </p>
                 <Link to="/signup">
-                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="premium-button inline-flex items-center gap-3 rounded-xl px-8 py-4 text-lg font-bold text-white transition-colors">
+                  <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="premium-button inline-flex items-center gap-3 rounded-control px-8 py-4 text-lg font-bold text-white transition-colors">
                     Start For Free
                     <Send className="h-5 w-5" />
                   </motion.button>

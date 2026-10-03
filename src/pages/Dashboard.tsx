@@ -82,6 +82,7 @@ import {
     XAxis,
     YAxis,
 } from "recharts";
+import { BrandMark } from "@/components/BrandMark";
 
 interface Trigger {
     id: number;
@@ -272,12 +273,12 @@ type ResponseConfig = {
 const cx = (...classes: Array<string | false | undefined>) => classes.filter(Boolean).join(" ");
 
 const inputCls =
-    "w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-950 outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10 placeholder:text-slate-400";
+    "w-full rounded-card border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-950 outline-none transition focus:border-brand/40 focus:ring-4 focus:ring-brand/10 placeholder:text-slate-400";
 
 const goldCtaCls =
-    "bg-[linear-gradient(135deg,#FFF7DA_0%,#E8C56C_48%,#B9832B_100%)] text-[#2F2108] ring-1 ring-[#D9B760]/70 shadow-[0_10px_22px_rgba(120,83,20,0.14)] transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(120,83,20,0.20)]";
+    "bg-[linear-gradient(135deg,#FFF7DA_0%,#E8C56C_48%,#B9832B_100%)] text-[#2F2108] ring-1 ring-[#D9B760]/70 transition hover:-translate-y-0.5";
 
-const goldCrownCls = "fill-[#8A5D17] text-[#6F4B12]";
+const goldCrownCls = "fill-gold-deep text-[#6F4B12]";
 
 const zeroStats: Stats = {
     followers: null,
@@ -431,7 +432,7 @@ const fallbackInstagramMedia: InstagramMedia[] = [
         title: "All posts & reels",
         type: "Carousel",
         caption: "Listen for keywords across every connected post and reel.",
-        color: "from-slate-100 via-white to-[#FBEAF3]",
+        color: "from-slate-100 via-white to-brand-soft",
         metric: "All content",
     },
     {
@@ -439,7 +440,7 @@ const fallbackInstagramMedia: InstagramMedia[] = [
         title: "Creator growth reel",
         type: "Reel",
         caption: "Comment GUIDE and I will send the free resource.",
-        color: "from-[#C13584] via-[#8A3FFC] to-[#F05A8A]",
+        color: "from-brand via-brand to-brand",
         metric: "12.4K plays",
     },
     {
@@ -447,7 +448,7 @@ const fallbackInstagramMedia: InstagramMedia[] = [
         title: "Pricing carousel",
         type: "Carousel",
         caption: "Want the exact pricing? Drop PRICE below.",
-        color: "from-[#2B1635] via-[#7A2E57] to-[#F3B8D0]",
+        color: "from-slate-900 via-brand-hover to-brand/35",
         metric: "1.8K saves",
     },
     {
@@ -455,7 +456,7 @@ const fallbackInstagramMedia: InstagramMedia[] = [
         title: "Launch announcement",
         type: "Post",
         caption: "DM automation is live. Comment LINK for early access.",
-        color: "from-[#111827] via-[#4C1D95] to-[#C13584]",
+        color: "from-slate-900 via-brand-hover to-brand",
         metric: "3.2K likes",
     },
     {
@@ -471,7 +472,7 @@ const fallbackInstagramMedia: InstagramMedia[] = [
         title: "Lead magnet post",
         type: "Post",
         caption: "Free checklist for creators. Comment CHECKLIST.",
-        color: "from-amber-100 via-white to-[#FFF7DA]",
+        color: "from-amber-100 via-white to-gold-soft",
         metric: "984 clicks",
     },
 ];
@@ -482,7 +483,7 @@ const fallbackInstagramStories: InstagramMedia[] = [
         title: "Launch countdown",
         type: "Post",
         caption: "Reply GO and I will send early access.",
-        color: "from-[#C13584] via-[#8A3FFC] to-[#F05A8A]",
+        color: "from-brand via-brand to-brand",
         metric: "Expires in 18h",
     },
     {
@@ -490,7 +491,7 @@ const fallbackInstagramStories: InstagramMedia[] = [
         title: "Poll: which guide?",
         type: "Post",
         caption: "Reply GUIDE to get the winning resource.",
-        color: "from-[#2B1635] via-[#7A2E57] to-[#F3B8D0]",
+        color: "from-slate-900 via-brand-hover to-brand/35",
         metric: "Expires in 9h",
     },
     {
@@ -1178,18 +1179,12 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
     }
 
     return (
-        <div className="dmg-dash min-h-screen overflow-x-hidden bg-[#F7F5FF] text-slate-950">
+        <div className="dmg-dash min-h-screen overflow-x-hidden bg-slate-100 text-slate-950">
             {/* Mobile top bar — the sidebar is an off-canvas drawer below lg */}
             <header className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/90 px-4 py-2.5 backdrop-blur lg:hidden">
                 <Link to="/" className="flex items-center gap-2">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-gradient text-white">
-                        <svg width="17" height="17" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-                            <path d="M10 27 L19 13" stroke="white" strokeWidth="4" strokeLinecap="round" />
-                            <path d="M17 27 L26 13" stroke="white" strokeWidth="4" strokeLinecap="round" />
-                            <circle cx="29" cy="27" r="3" fill="#cfd1ff" />
-                        </svg>
-                    </span>
-                    <span className="text-[16px] font-black tracking-tight text-[#0F172A]">DMGennie</span>
+                    <BrandMark size={32} className="shrink-0" />
+                    <span className="text-base font-semibold tracking-tight text-slate-900">DMGennie</span>
                 </Link>
                 <div className="flex items-center gap-2">
                     <ThemeToggle className="h-10 w-10" />
@@ -1197,7 +1192,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
                         type="button"
                         onClick={() => setMobileNavOpen(true)}
                         aria-label="Open menu"
-                        className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:text-[#C13584]"
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:text-brand"
                     >
                         <Menu className="h-5 w-5" />
                     </button>
@@ -1374,18 +1369,18 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
 
 function DashboardLoadingState() {
     return (
-        <div className="dmg-dash min-h-screen overflow-x-hidden bg-[#F7F5FF] p-3 text-slate-950 sm:p-4 xl:p-5">
+        <div className="dmg-dash min-h-screen overflow-x-hidden bg-slate-100 p-3 text-slate-950 sm:p-4 xl:p-5">
             <div className="mx-auto flex w-full max-w-[1720px] gap-5">
-                <aside className="hidden h-[calc(100vh-2rem)] w-[272px] shrink-0 rounded-[26px] border border-[#E5E7EB] bg-white p-5 shadow-[0_18px_55px_rgba(15,23,42,0.06)] lg:block">
+                <aside className="hidden h-[calc(100vh-2rem)] w-[272px] shrink-0 rounded-panel border border-slate-200 bg-white p-5 shadow-raised lg:block">
                     <div className="flex items-center gap-3">
-                        <div className="dmgenie-shimmer h-11 w-11 rounded-2xl" />
+                        <div className="dmgenie-shimmer h-11 w-11 rounded-card" />
                         <div className="space-y-2">
                             <div className="dmgenie-shimmer h-3 w-24 rounded-full" />
                             <div className="dmgenie-shimmer h-2 w-20 rounded-full" />
                         </div>
                     </div>
-                    <div className="mt-5 rounded-[18px] border border-[#E5E7EB] p-3">
-                        <div className="dmgenie-shimmer h-9 w-full rounded-2xl" />
+                    <div className="mt-5 rounded-card border border-slate-200 p-3">
+                        <div className="dmgenie-shimmer h-9 w-full rounded-card" />
                         <div className="mt-3 space-y-2">
                             <div className="dmgenie-shimmer h-2 w-28 rounded-full" />
                             <div className="dmgenie-shimmer h-2 w-36 rounded-full" />
@@ -1399,7 +1394,7 @@ function DashboardLoadingState() {
                             </div>
                         ))}
                     </div>
-                    <div className="mt-8 rounded-[18px] border border-[#E5E7EB] p-4">
+                    <div className="mt-8 rounded-card border border-slate-200 p-4">
                         <div className="dmgenie-shimmer h-3 w-28 rounded-full" />
                         <div className="mt-4 space-y-3">
                             <div className="dmgenie-shimmer h-2 w-full rounded-full" />
@@ -1417,7 +1412,7 @@ function DashboardLoadingState() {
                                 detail="Loading your automation data..."
                                 className="max-w-none"
                             />
-                            <div className="hidden rounded-[24px] border border-[#E5E7EB] bg-white p-5 shadow-[0_16px_45px_rgba(15,23,42,0.04)] lg:block">
+                            <div className="hidden rounded-card border border-slate-200 bg-white p-5 shadow-raised lg:block">
                                 <div className="dmgenie-shimmer h-4 w-44 rounded-full" />
                                 <div className="mt-5 grid gap-3 sm:grid-cols-2">
                                     <SkeletonCard rows={2} showIcon />
@@ -1461,18 +1456,18 @@ function ConnectInstagramModal({ connected, handle, onConnect, onDisconnect, onC
         <ModalShell onClose={onClose}>
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl font-black text-[#0F172A]">Instagram connection</h2>
-                    <p className="mt-1 text-sm font-semibold text-[#64748B]">Connect your Instagram business account to automate DMs.</p>
+                    <h2 className="text-2xl font-bold text-slate-900">Instagram connection</h2>
+                    <p className="mt-1 text-sm font-semibold text-slate-500">Connect your Instagram business account to automate DMs.</p>
                 </div>
                 <button onClick={onClose} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50"><X className="h-4 w-4" /></button>
             </div>
-            <div className="mt-5 rounded-[18px] border border-slate-100 bg-slate-50/70 p-6">
+            <div className="mt-5 rounded-card border border-slate-100 bg-slate-50/70 p-6">
                 {connected ? (
                     <div className="flex flex-col items-center gap-4 text-center">
                         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100"><Instagram className="h-6 w-6" /></span>
                         <div>
-                            <p className="text-sm font-black text-[#0F172A]">{handle} is connected</p>
-                            <p className="mt-1 text-xs font-semibold text-[#64748B]">Connected through secure Meta OAuth. No Instagram password is stored.</p>
+                            <p className="text-sm font-semibold text-slate-900">{handle} is connected</p>
+                            <p className="mt-1 text-xs font-semibold text-slate-500">Connected through secure Meta OAuth. No Instagram password is stored.</p>
                         </div>
                         {onDisconnect && (
                             <div className="flex flex-wrap items-center justify-center gap-2">
@@ -1482,10 +1477,10 @@ function ConnectInstagramModal({ connected, handle, onConnect, onDisconnect, onC
                     </div>
                 ) : (
                     <div className="flex flex-col items-center gap-4 text-center">
-                        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-[#C13584] ring-1 ring-indigo-100"><Instagram className="h-6 w-6" /></span>
+                        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-brand ring-1 ring-brand/15"><Instagram className="h-6 w-6" /></span>
                         <div>
-                            <p className="text-sm font-black text-[#0F172A]">No account connected yet</p>
-                            <p className="mt-1 text-xs font-semibold text-[#64748B]">Connect your Instagram business account through Meta to start automating DMs.</p>
+                            <p className="text-sm font-semibold text-slate-900">No account connected yet</p>
+                            <p className="mt-1 text-xs font-semibold text-slate-500">Connect your Instagram business account through Meta to start automating DMs.</p>
                         </div>
                         <PrimaryButton onClick={onConnect}><Instagram className="h-4 w-4" /> Connect Instagram</PrimaryButton>
                     </div>
@@ -1551,7 +1546,7 @@ function Sidebar({
                 // Mobile: off-canvas drawer. Desktop (lg+): sticky in-flow rail, width toggles on collapse.
                 // overflow-y-auto scrolls the mobile drawer; lg:overflow-visible on desktop so the
                 // profile flyout (opens left-full, outside the rail) isn't clipped.
-                "fixed inset-y-0 left-0 z-[60] w-[288px] max-w-[85vw] overflow-y-auto rounded-r-[24px] border-r border-slate-200 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.18)] transition-transform duration-300 lg:sticky lg:inset-y-auto lg:left-auto lg:top-4 lg:z-30 lg:h-[calc(100vh-2rem)] lg:max-w-none lg:shrink-0 lg:translate-x-0 lg:overflow-visible lg:rounded-[26px] lg:border lg:border-white lg:shadow-[0_24px_70px_rgba(15,23,42,0.08)] lg:transition-[width] lg:duration-300",
+                "fixed inset-y-0 left-0 z-[60] w-[288px] max-w-[85vw] overflow-y-auto rounded-r-card border-r border-slate-200 bg-white shadow-overlay transition-transform duration-300 lg:sticky lg:inset-y-auto lg:left-auto lg:top-4 lg:z-30 lg:h-[calc(100vh-2rem)] lg:max-w-none lg:shrink-0 lg:translate-x-0 lg:overflow-visible lg:rounded-panel lg:border lg:border-white lg:shadow-overlay lg:transition-[width] lg:duration-300",
                 mobileOpen ? "translate-x-0" : "-translate-x-full",
                 collapsed ? "lg:w-[76px] lg:max-w-[76px]" : "lg:w-[272px] lg:max-w-[272px]"
             )}>
@@ -1560,7 +1555,7 @@ function Sidebar({
                 onClick={onToggleCollapse}
                 aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
                 title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-                className="absolute right-0 top-7 z-50 hidden h-6 w-6 translate-x-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-[0_4px_12px_rgba(15,23,42,0.12)] transition hover:text-[#C13584] lg:flex"
+                className="absolute right-0 top-7 z-50 hidden h-6 w-6 translate-x-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-rest transition hover:text-brand lg:flex"
             >
                 {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
             </button>
@@ -1568,22 +1563,16 @@ function Sidebar({
                 type="button"
                 onClick={onCloseMobile}
                 aria-label="Close menu"
-                className="absolute right-3 top-3 z-50 flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:text-[#C13584] lg:hidden"
+                className="absolute right-3 top-3 z-50 flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:text-brand lg:hidden"
             >
                 <X className="h-4 w-4" />
             </button>
             <div className="flex h-full min-h-0 flex-col p-3.5">
-                <Link to="/" className={cx("mb-3 flex items-center gap-2.5 rounded-2xl px-1 py-0.5", collapsed && "lg:justify-center lg:px-0")}>
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-gradient text-white shadow-[0_12px_26px_rgba(193,53,132,0.22)]">
-                        <svg width="19" height="19" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-                            <path d="M10 27 L19 13" stroke="white" strokeWidth="4" strokeLinecap="round" />
-                            <path d="M17 27 L26 13" stroke="white" strokeWidth="4" strokeLinecap="round" />
-                            <circle cx="29" cy="27" r="3" fill="#cfd1ff" />
-                        </svg>
-                    </span>
+                <Link to="/" className={cx("mb-3 flex items-center gap-2.5 rounded-card px-1 py-0.5", collapsed && "lg:justify-center lg:px-0")}>
+                    <BrandMark size={36} className="shrink-0" />
                     <span className={hideOnCollapse}>
-                        <span className="block text-[18px] font-black leading-5 tracking-tight text-[#0F172A]">DMGennie</span>
-                        <span className="mt-0.5 block text-[9px] font-black uppercase tracking-[0.18em] text-[#94A3B8]">Creator Dashboard</span>
+                        <span className="block text-lg font-bold leading-5 tracking-tight text-slate-900">DMGennie</span>
+                        <span className="mt-0.5 block text-2xs font-semibold uppercase tracking-[0.18em] text-slate-400">Creator Dashboard</span>
                     </span>
                 </Link>
 
@@ -1592,15 +1581,15 @@ function Sidebar({
                         type="button"
                         onClick={() => setProfilePanelOpen((open) => !open)}
                         title={collapsed ? (session?.user?.user_metadata?.full_name || session?.user?.email || handle) : undefined}
-                        className={cx("w-full rounded-[16px] border border-[#E5E7EB] bg-[#F8FAFC] px-2.5 py-2 text-left shadow-[0_1px_2px_rgba(15,23,42,0.025)] transition hover:border-indigo-200 hover:bg-white", collapsed && "lg:px-1.5")}
+                        className={cx("w-full rounded-card border border-slate-200 bg-slate-50 px-2.5 py-2 text-left shadow-rest transition hover:border-brand/25 hover:bg-white", collapsed && "lg:px-1.5")}
                     >
                         <div className={cx("flex items-center gap-2.5", collapsed && "lg:justify-center lg:gap-0")}>
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-fuchsia-500 to-orange-400 text-sm font-black text-white shadow-[0_8px_18px_rgba(217,70,239,0.12)]">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-orange-400 text-sm font-semibold text-white">
                                 {handle.replace("@", "").charAt(0).toUpperCase() || "D"}
                             </div>
                             <div className={cx("min-w-0 flex-1", hideOnCollapse)}>
                                 <div className="flex min-w-0 items-center gap-1.5 leading-4">
-                                    <span className="truncate text-[13px] font-black leading-4 text-[#0F172A]">{session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || handle}</span>
+                                    <span className="truncate text-sm font-semibold leading-4 text-slate-900">{session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || handle}</span>
                                     <span
                                         title={connected ? "Connected" : "Disconnected"}
                                         className={cx(
@@ -1611,7 +1600,7 @@ function Sidebar({
                                         <Power className="h-3.5 w-3.5 stroke-[3]" />
                                     </span>
                                 </div>
-                                <div className="truncate text-[11px] font-bold leading-4 text-[#64748B]">{session?.user?.email}</div>
+                                <div className="truncate text-2xs font-bold leading-4 text-slate-500">{session?.user?.email}</div>
                             </div>
                             <ChevronDown className={cx("h-4 w-4 shrink-0 text-slate-400 transition", profilePanelOpen && "rotate-180", hideOnCollapse)} />
                         </div>
@@ -1620,17 +1609,17 @@ function Sidebar({
                     {profilePanelOpen && (
                         <>
                             <button type="button" aria-hidden className="fixed inset-0 z-40 cursor-default" onClick={() => setProfilePanelOpen(false)} />
-                            <div className="absolute left-full top-0 z-50 ml-2 w-60 overflow-hidden rounded-[16px] border border-slate-100 bg-white p-1.5 shadow-[0_18px_50px_rgba(15,23,42,0.18)]">
+                            <div className="absolute left-full top-0 z-50 ml-2 w-60 overflow-hidden rounded-card border border-slate-100 bg-white p-1.5 shadow-raised">
                                 <button
                                     type="button"
                                     onClick={() => { setProfilePanelOpen(false); onNavigate("settings"); }}
-                                    className="flex w-full items-center gap-2.5 rounded-[12px] px-2.5 py-2 text-left text-[13px] font-bold text-[#0F172A] transition hover:bg-slate-50"
+                                    className="flex w-full items-center gap-2.5 rounded-control px-2.5 py-2 text-left text-sm font-bold text-slate-900 transition hover:bg-slate-50"
                                 >
-                                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 text-[#475569]"><User className="h-4 w-4" /></span>
+                                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 text-slate-600"><User className="h-4 w-4" /></span>
                                     View profile
                                 </button>
                                 {connected ? (
-                                    <div className="flex w-full items-center justify-between gap-2.5 rounded-[12px] px-2.5 py-2 text-left text-[13px] font-bold text-[#0F172A]">
+                                    <div className="flex w-full items-center justify-between gap-2.5 rounded-control px-2.5 py-2 text-left text-sm font-bold text-slate-900">
                                         <span className="flex items-center gap-2.5">
                                             <span className={cx("flex h-7 w-7 items-center justify-center rounded-full", botEnabled ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400")}><Power className="h-4 w-4" /></span>
                                             Automations {botEnabled ? "on" : "off"}
@@ -1641,9 +1630,9 @@ function Sidebar({
                                     <button
                                         type="button"
                                         onClick={() => { setProfilePanelOpen(false); onConnect(); }}
-                                        className="flex w-full items-center gap-2.5 rounded-[12px] px-2.5 py-2 text-left text-[13px] font-bold text-[#0F172A] transition hover:bg-slate-50"
+                                        className="flex w-full items-center gap-2.5 rounded-control px-2.5 py-2 text-left text-sm font-bold text-slate-900 transition hover:bg-slate-50"
                                     >
-                                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FBEAF3] text-[#C13584]"><Instagram className="h-4 w-4" /></span>
+                                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-soft text-brand"><Instagram className="h-4 w-4" /></span>
                                         Add Instagram account
                                     </button>
                                 )}
@@ -1660,14 +1649,14 @@ function Sidebar({
                             onClick={() => onNavigate(item.key)}
                             title={collapsed ? item.label : undefined}
                             className={cx(
-                                "flex min-h-[38px] w-full items-center gap-2.5 rounded-full px-3 text-left text-[14px] font-black transition-all",
+                                "flex min-h-[38px] w-full items-center gap-2.5 rounded-full px-3 text-left text-sm font-semibold transition-all",
                                 collapsed && "lg:justify-center lg:px-0",
                                 activeTab === item.key
-                                    ? "bg-[#0F172A] text-white shadow-[0_14px_30px_rgba(15,23,42,0.14)]"
-                                    : "text-[#475569] hover:bg-slate-50 hover:text-[#0F172A]"
+                                    ? "bg-slate-900 text-white shadow-rest"
+                                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                             )}
                         >
-                            <span className={cx("flex h-7 w-7 shrink-0 items-center justify-center rounded-full", activeTab === item.key ? "bg-white/10 text-white" : "bg-[#F1F5F9] text-[#475569]")}>
+                            <span className={cx("flex h-7 w-7 shrink-0 items-center justify-center rounded-full", activeTab === item.key ? "bg-white/10 text-white" : "bg-slate-100 text-slate-600")}>
                                 {item.icon}
                             </span>
                             <span className={hideOnCollapse}>{item.label}</span>
@@ -1683,7 +1672,7 @@ function Sidebar({
                         <button
                             onClick={onUpgrade}
                             title={collapsed ? "Upgrade to Pro" : undefined}
-                            className={cx("flex h-10 w-full items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-black", collapsed && "lg:px-0", goldCtaCls)}
+                            className={cx("flex h-10 w-full items-center justify-center gap-1.5 rounded-full px-3 text-sm font-semibold", collapsed && "lg:px-0", goldCtaCls)}
                         >
                             <Crown className={cx("h-4 w-4", goldCrownCls)} />
                             <span className={hideOnCollapse}>
@@ -1696,7 +1685,7 @@ function Sidebar({
                         </button>
                     )}
                     <div className={cx("flex gap-1.5", collapsed && "lg:flex-col lg:items-center")}>
-                        <button onClick={onLogout} title={collapsed ? "Logout" : undefined} className={cx("flex h-9 flex-1 items-center justify-center gap-2 rounded-full border border-[#E5E7EB] bg-white px-4 text-[13px] font-black text-[#475569] transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600", collapsed && "lg:px-0")}>
+                        <button onClick={onLogout} title={collapsed ? "Logout" : undefined} className={cx("flex h-9 flex-1 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600", collapsed && "lg:px-0")}>
                             <LogOut className="h-4 w-4" /> <span className={hideOnCollapse}>Logout</span>
                         </button>
                         <ThemeToggle className="h-9 w-9 shrink-0" />
@@ -1718,7 +1707,7 @@ function SidebarPlanCompact({ usage, accountPlan, proOffer, onUpgrade }: { usage
     const [expanded, setExpanded] = useState(isPro);
 
     return (
-        <div className="rounded-[16px] border border-[#E5E7EB] bg-[#F8FAFC] p-2.5">
+        <div className="rounded-card border border-slate-200 bg-slate-50 p-2.5">
             <button
                 type="button"
                 onClick={() => setExpanded((value) => !value)}
@@ -1726,11 +1715,11 @@ function SidebarPlanCompact({ usage, accountPlan, proOffer, onUpgrade }: { usage
                 aria-expanded={expanded}
             >
                 <div>
-                    <p className="text-[12px] font-black leading-4 text-[#0F172A]">{planLabel} plan</p>
-                    <p className="text-[10px] font-bold leading-3 text-[#64748B]">Plan & usage</p>
+                    <p className="text-xs font-semibold leading-4 text-slate-900">{planLabel} plan</p>
+                    <p className="text-2xs font-bold leading-3 text-slate-500">Plan & usage</p>
                 </div>
                 <span className="flex items-center gap-1.5">
-                    <span className={cx("inline-flex h-6 items-center rounded-full bg-white px-2 text-[10px] font-black ring-1", isPro ? "text-emerald-700 ring-emerald-100" : isPaymentPending ? "text-amber-700 ring-amber-100" : "text-[#64748B] ring-[#E5E7EB]")}>{planLabel}</span>
+                    <span className={cx("inline-flex h-6 items-center rounded-full bg-white px-2 text-2xs font-semibold ring-1", isPro ? "text-emerald-700 ring-emerald-100" : isPaymentPending ? "text-amber-700 ring-amber-100" : "text-slate-500 ring-slate-200")}>{planLabel}</span>
                     <ChevronDown className={cx("h-4 w-4 text-slate-400 transition-transform duration-200", expanded && "rotate-180")} />
                 </span>
             </button>
@@ -1748,18 +1737,18 @@ function SidebarPlanCompact({ usage, accountPlan, proOffer, onUpgrade }: { usage
                     </div>
 
                     {isPro ? (
-                        <div className="mt-2 rounded-[0.85rem] bg-emerald-50 px-2.5 py-2 text-[10.5px] font-bold leading-4 text-emerald-700 ring-1 ring-emerald-100">
-                            <span className="font-black">Pro active.</span> {renewalLabel ? `Renews on ${renewalLabel}.` : "All Pro features unlocked."}
+                        <div className="mt-2 rounded-control bg-emerald-50 px-2.5 py-2 text-2xs font-bold leading-4 text-emerald-700 ring-1 ring-emerald-100">
+                            <span className="font-bold">Pro active.</span> {renewalLabel ? `Renews on ${renewalLabel}.` : "All Pro features unlocked."}
                         </div>
                     ) : (
                         <>
-                            <p className="mt-2 text-[10.5px] font-bold leading-4 text-[#64748B]">
-                                <span className="font-black text-[#0F172A]">{isPaymentPending ? "Payment pending." : "Unlock Pro."}</span> {isPaymentPending ? "Complete payment to unlock Pro." : `${proOffer.eligible ? `First month ${formatPrice(proOffer.currency, proOffer.amount)}. ` : ""}More DMs, unlimited contacts & Pro tools.`}
+                            <p className="mt-2 text-2xs font-bold leading-4 text-slate-500">
+                                <span className="font-bold text-slate-900">{isPaymentPending ? "Payment pending." : "Unlock Pro."}</span> {isPaymentPending ? "Complete payment to unlock Pro." : `${proOffer.eligible ? `First month ${formatPrice(proOffer.currency, proOffer.amount)}. ` : ""}More DMs, unlimited contacts & Pro tools.`}
                             </p>
 
                             <button
                                 onClick={onUpgrade}
-                                className={cx("mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-full px-3 text-[12px] font-black", goldCtaCls)}
+                                className={cx("mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-full px-3 text-xs font-semibold", goldCtaCls)}
                             >
                                 <Crown className={cx("h-3.5 w-3.5", goldCrownCls)} />
                                 {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade now"}
@@ -1775,15 +1764,15 @@ function SidebarPlanCompact({ usage, accountPlan, proOffer, onUpgrade }: { usage
 function CompactUsageLine({ icon, label, value, progress }: { icon: ReactNode; label: string; value: string; progress: number }) {
     return (
         <div>
-            <div className="mb-1 flex items-center justify-between gap-2 text-[11px] font-bold text-[#64748B]">
+            <div className="mb-1 flex items-center justify-between gap-2 text-2xs font-bold text-slate-500">
                 <span className="inline-flex items-center gap-1.5">
-                    <span className="text-[#C13584]">{icon}</span>
+                    <span className="text-brand">{icon}</span>
                     {label}
                 </span>
-                <span className="font-black text-[#0F172A]">{value}</span>
+                <span className="font-bold text-slate-900">{value}</span>
             </div>
             <div className="h-1 rounded-full bg-white">
-                <div className="h-full rounded-full bg-[#C13584]" style={{ width: `${progress}%` }} />
+                <div className="h-full rounded-full bg-brand" style={{ width: `${progress}%` }} />
             </div>
         </div>
     );
@@ -1825,16 +1814,16 @@ function HomePage({
 
     return (
         <div className="space-y-4">
-            <section className="relative overflow-hidden rounded-[22px] border border-white bg-white p-4 shadow-[0_18px_48px_rgba(15,23,42,0.055)]">
-                <div className="pointer-events-none absolute -right-20 -top-28 h-64 w-64 rounded-full bg-[#C13584]/10 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-32 left-1/3 h-56 w-56 rounded-full bg-fuchsia-300/10 blur-3xl" />
+            <section className="relative overflow-hidden rounded-card border border-white bg-white p-4 shadow-raised">
+                <div className="pointer-events-none absolute -right-20 -top-28 h-64 w-64 rounded-full bg-brand/10 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-32 left-1/3 h-56 w-56 rounded-full bg-brand/5 blur-3xl" />
                 <div className="relative space-y-4">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[30px]">Welcome back, {ownerName} 👋</h1>
+                            <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">Welcome back, {ownerName} 👋</h1>
                             <TourReplayButton tourKey="home" />
                         </div>
-                        <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-[#64748B]">
+                        <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-slate-500">
                             Launch flows, monitor delivery, and turn Instagram comments into leads from one calm workspace.
                         </p>
                     </div>
@@ -1846,7 +1835,7 @@ function HomePage({
                     ) : (
                         <button
                             onClick={onUpgrade}
-                            className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-[0.9rem] px-5 text-sm font-black", goldCtaCls)}
+                            className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-control px-5 text-sm font-semibold", goldCtaCls)}
                         >
                             <Crown className={cx("h-4 w-4", goldCrownCls)} />
                             {accountPlan.subscriptionStatus === "payment_pending" ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}
@@ -1871,14 +1860,14 @@ function ProFeaturesShowcase({ onNavigate }: { onNavigate: (tab: Tab) => void })
         { title: "Pro automations", copy: "Lead capture, ask-for-follow, re-trigger flows.", icon: <Sparkles className="h-5 w-5" />, tab: "automations" as Tab },
     ];
     return (
-        <div className="rounded-[18px] border border-[#E8C56C]/60 bg-[linear-gradient(135deg,#FFFDF6_0%,#FFF7DA_55%,#FFFDF6_100%)] p-3.5">
+        <div className="rounded-card border border-gold/60 bg-[linear-gradient(135deg,#FFFDF6_0%,#FFF7DA_55%,#FFFDF6_100%)] p-3.5">
             <div className="mb-3 flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white ring-1 ring-[#E8C56C]/60">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white ring-1 ring-gold/60">
                     <Crown className={cx("h-4 w-4", goldCrownCls)} />
                 </span>
                 <div>
-                    <h3 className="text-sm font-black text-[#0F172A]">Your Pro features</h3>
-                    <p className="text-[11px] font-bold text-[#8A5D17]">Jump to advanced tools unlocked with your plan.</p>
+                    <h3 className="text-sm font-semibold text-slate-900">Your Pro features</h3>
+                    <p className="text-2xs font-bold text-gold-deep">Jump to advanced tools unlocked with your plan.</p>
                 </div>
             </div>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -1886,17 +1875,17 @@ function ProFeaturesShowcase({ onNavigate }: { onNavigate: (tab: Tab) => void })
                     <button
                         key={feature.title}
                         onClick={() => onNavigate(feature.tab)}
-                        className="group flex items-start gap-3 rounded-[14px] border border-white bg-white/85 p-3 text-left transition hover:-translate-y-0.5 hover:border-[#E8C56C]/80 hover:bg-white"
+                        className="group flex items-start gap-3 rounded-control border border-white bg-white/85 p-3 text-left transition hover:-translate-y-0.5 hover:border-gold/80 hover:bg-white"
                     >
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-[#FFF7DA] text-[#8A5D17] ring-1 ring-[#E8C56C]/50">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-control bg-gold-soft text-gold-deep ring-1 ring-gold/50">
                             {feature.icon}
                         </span>
                         <div className="min-w-0 flex-1">
-                            <p className="flex items-center gap-1 text-[13px] font-black text-[#0F172A]">
+                            <p className="flex items-center gap-1 text-sm font-semibold text-slate-900">
                                 {feature.title}
-                                <ArrowRight className="h-3.5 w-3.5 text-[#8A5D17] transition group-hover:translate-x-0.5" />
+                                <ArrowRight className="h-3.5 w-3.5 text-gold-deep transition group-hover:translate-x-0.5" />
                             </p>
-                            <p className="mt-0.5 text-[11px] font-semibold leading-4 text-[#64748B]">{feature.copy}</p>
+                            <p className="mt-0.5 text-2xs font-semibold leading-4 text-slate-500">{feature.copy}</p>
                         </div>
                     </button>
                 ))}
@@ -1920,17 +1909,17 @@ function HomeStartHereChecklist({ connected, activeTriggers, leadsCollected, onN
     if (allDone) return null;
 
     return (
-        <div className="rounded-[18px] border border-slate-100 bg-white/80 px-3.5 py-2.5 shadow-[0_8px_24px_rgba(15,23,42,0.04)] backdrop-blur">
+        <div className="rounded-card border border-slate-100 bg-white/80 px-3.5 py-2.5 shadow-rest backdrop-blur">
             <div className="flex flex-wrap items-center gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[0.75rem] bg-[#FBEAF3] text-[#C13584]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-control bg-brand-soft text-brand">
                     <CheckCircle2 className="h-4 w-4" />
                 </span>
                 <div className="min-w-0 shrink-0">
-                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#94A3B8]">Start Here</p>
-                    <p className="text-xs font-black text-[#0F172A]">{complete} of {steps.length} completed</p>
+                    <p className="text-2xs font-semibold uppercase tracking-[0.12em] text-slate-400">Start Here</p>
+                    <p className="text-xs font-semibold text-slate-900">{complete} of {steps.length} completed</p>
                 </div>
                 <div className="hidden h-1.5 w-24 shrink-0 overflow-hidden rounded-full bg-slate-100 sm:block">
-                    <div className="h-full rounded-full bg-[#C13584] transition-all duration-300" style={{ width: `${progress}%` }} />
+                    <div className="h-full rounded-full bg-brand transition-all duration-300" style={{ width: `${progress}%` }} />
                 </div>
 
                 <ul className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
@@ -1941,7 +1930,7 @@ function HomeStartHereChecklist({ connected, activeTriggers, leadsCollected, onN
                                 onClick={step.go}
                                 disabled={step.done}
                                 className={cx(
-                                    "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-black transition",
+                                    "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-2xs font-semibold transition",
                                     step.done ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100" : "bg-slate-50 text-slate-600 ring-1 ring-slate-100 hover:bg-slate-100"
                                 )}
                             >
@@ -1957,7 +1946,7 @@ function HomeStartHereChecklist({ connected, activeTriggers, leadsCollected, onN
                 <button
                     type="button"
                     onClick={() => (nextStep ?? steps[0]).go()}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-full bg-slate-950 px-3 py-1.5 text-[11px] font-black text-white transition hover:bg-slate-800"
+                    className="inline-flex shrink-0 items-center gap-1 rounded-full bg-slate-950 px-3 py-1.5 text-2xs font-semibold text-white transition hover:bg-slate-800"
                 >
                     Continue <ArrowRight className="h-3 w-3" />
                 </button>
@@ -1970,8 +1959,8 @@ function SectionHeading({ title, subtitle, action }: { title: string; subtitle?:
     return (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-                <h2 className="text-[18px] font-black tracking-tight text-[#0F172A]">{title}</h2>
-                {subtitle && <p className="mt-0.5 text-[13px] font-semibold leading-5 text-[#64748B]">{subtitle}</p>}
+                <h2 className="text-lg font-bold tracking-tight text-slate-900">{title}</h2>
+                {subtitle && <p className="mt-0.5 text-sm font-semibold leading-5 text-slate-500">{subtitle}</p>}
             </div>
             {action}
         </div>
@@ -1994,7 +1983,7 @@ function QuickActionGrid({
             <SectionHeading
                 title="Quick Actions"
                 subtitle="Choose the outcome you want, then launch the right Instagram automation."
-                action={<span className="inline-flex h-7 items-center rounded-full bg-white px-3 text-[11px] font-black text-[#64748B] ring-1 ring-slate-200">4 starter flows</span>}
+                action={<span className="inline-flex h-7 items-center rounded-full bg-white px-3 text-2xs font-semibold text-slate-500 ring-1 ring-slate-200">4 starter flows</span>}
             />
 
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -2005,18 +1994,18 @@ function QuickActionGrid({
                         key={action.title}
                         onClick={() => locked ? onUpgrade() : onNavigate("automations")}
                         className={cx(
-                            "group relative flex min-h-[132px] flex-col overflow-hidden rounded-[18px] bg-white p-4 text-left transition duration-200 hover:-translate-y-0.5",
+                            "group relative flex min-h-[132px] flex-col overflow-hidden rounded-card bg-white p-4 text-left transition duration-200 hover:-translate-y-0.5",
                             action.featured
-                                ? "border border-[#E8C56C]/70 bg-[linear-gradient(180deg,#FFFFFF_0%,#FFFDF7_100%)] shadow-[0_10px_24px_rgba(120,83,20,0.045)] hover:border-[#E8C56C]/80 hover:shadow-[0_15px_30px_rgba(120,83,20,0.09)]"
-                                : "border border-[#E5E7EB] shadow-[0_10px_24px_rgba(15,23,42,0.035)] hover:border-indigo-100 hover:shadow-[0_15px_30px_rgba(193,53,132,0.08)]",
-                            locked && "border-[#FDE68A] bg-[#FFFDF6]"
+                                ? "border border-gold/70 bg-[linear-gradient(180deg,#FFFFFF_0%,#FFFDF7_100%)] hover:border-gold/80"
+                                : "border border-slate-200 shadow-rest hover:border-brand/15",
+                            locked && "border-amber-200 bg-[#FFFDF6]"
                         )}
                     >
-                        <span className={cx("pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full blur-2xl transition group-hover:opacity-100", action.featured ? "bg-amber-200/20 opacity-50" : "bg-[#C13584]/10 opacity-40")} />
+                        <span className={cx("pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full blur-2xl transition group-hover:opacity-100", action.featured ? "bg-amber-200/20 opacity-50" : "bg-brand/10 opacity-40")} />
                         <div className="mb-3 flex items-start justify-between gap-3">
                             <span className={cx(
-                                "flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] transition",
-                                action.featured ? "bg-[#FFF7DA] text-[#9A6A1E] ring-1 ring-[#FDE68A]/70" : "bg-[#FBEAF3] text-[#C13584] group-hover:bg-[#C13584] group-hover:text-white"
+                                "flex h-10 w-10 shrink-0 items-center justify-center rounded-control transition",
+                                action.featured ? "bg-gold-soft text-[#9A6A1E] ring-1 ring-amber-200/70" : "bg-brand-soft text-brand group-hover:bg-brand group-hover:text-white"
                             )}>
                                 {action.icon}
                             </span>
@@ -2024,7 +2013,7 @@ function QuickActionGrid({
                             <span className="flex items-center gap-1.5">
                                 {action.badge && (
                                     <span className={cx(
-                                        "inline-flex h-5 items-center rounded-full px-2 text-[9px] font-black uppercase tracking-[0.06em] ring-1",
+                                        "inline-flex h-5 items-center rounded-full px-2 text-2xs font-semibold uppercase tracking-[0.06em] ring-1",
                                         action.badge === "Popular"
                                             ? "bg-orange-50 text-orange-600 ring-orange-100"
                                             : "bg-pink-50 text-pink-600 ring-pink-100"
@@ -2037,16 +2026,16 @@ function QuickActionGrid({
                         </div>
 
                         <div className="min-h-0 flex-1">
-                            <h3 className="text-[16px] font-black leading-5 tracking-tight text-[#0F172A]">{action.title}</h3>
-                            <p className="mt-1.5 line-clamp-2 text-[12px] font-semibold leading-5 text-[#64748B]">{action.copy}</p>
+                            <h3 className="text-base font-semibold leading-5 tracking-tight text-slate-900">{action.title}</h3>
+                            <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-5 text-slate-500">{action.copy}</p>
                         </div>
 
                         <div className="mt-3 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
                             <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                                <span className="inline-flex h-6 items-center rounded-full bg-slate-50 px-2 text-[10px] font-black text-slate-500 ring-1 ring-slate-100">{action.intent}</span>
-                                <span className={cx("inline-flex h-6 items-center rounded-full px-2 text-[10px] font-black ring-1", action.featured ? "bg-amber-50 text-amber-700 ring-amber-100" : "bg-indigo-50 text-[#C13584] ring-indigo-100")}>{action.setup}</span>
+                                <span className="inline-flex h-6 items-center rounded-full bg-slate-50 px-2 text-2xs font-semibold text-slate-500 ring-1 ring-slate-100">{action.intent}</span>
+                                <span className={cx("inline-flex h-6 items-center rounded-full px-2 text-2xs font-semibold ring-1", action.featured ? "bg-amber-50 text-amber-700 ring-amber-100" : "bg-brand-soft text-brand ring-brand/15")}>{action.setup}</span>
                             </div>
-                            <span className="inline-flex shrink-0 items-center gap-1.5 text-[12px] font-black text-[#C13584]">
+                            <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-semibold text-brand">
                                 {locked ? "Upgrade to Pro" : action.cta}
                                 {locked ? <Lock className="h-3.5 w-3.5" /> : <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />}
                             </span>
@@ -2076,8 +2065,8 @@ const METRIC_RANGES = [
 type MetricRangeKey = (typeof METRIC_RANGES)[number]["key"];
 
 const tonePalette: Record<string, { bg: string; text: string; stroke: string }> = {
-    indigo: { bg: "bg-indigo-50", text: "text-[#C13584]", stroke: "#C13584" },
-    purple: { bg: "bg-purple-50", text: "text-purple-600", stroke: "#A855F7" },
+    indigo: { bg: "bg-brand-soft", text: "text-brand", stroke: "#C13584" },
+    purple: { bg: "bg-brand-soft", text: "text-brand", stroke: "#A855F7" },
     green: { bg: "bg-emerald-50", text: "text-emerald-600", stroke: "#10B981" },
     blue: { bg: "bg-sky-50", text: "text-sky-600", stroke: "#0EA5E9" },
     amber: { bg: "bg-amber-50", text: "text-amber-600", stroke: "#F59E0B" },
@@ -2108,17 +2097,17 @@ function MetricGrid({ stats, leadsCollected, activity = [], accountCreatedAt }: 
     const currentRange = METRIC_RANGES.find((option) => option.key === range) ?? METRIC_RANGES[0];
 
     return (
-        <section data-tour="home-performance" className="overflow-visible rounded-[22px] border border-white bg-white p-5 shadow-[0_10px_28px_rgba(15,23,42,0.04)]">
+        <section data-tour="home-performance" className="overflow-visible rounded-card border border-white bg-white p-5 shadow-rest">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                    <h2 className="text-[18px] font-black tracking-tight text-[#0F172A]">Performance snapshot</h2>
-                    <p className="mt-0.5 text-[13px] font-semibold leading-5 text-[#64748B]">The numbers that matter most for your Instagram automation.</p>
+                    <h2 className="text-lg font-bold tracking-tight text-slate-900">Performance snapshot</h2>
+                    <p className="mt-0.5 text-sm font-semibold leading-5 text-slate-500">The numbers that matter most for your Instagram automation.</p>
                 </div>
                 <div className="relative">
                     <button
                         type="button"
                         onClick={() => setPickerOpen((value) => !value)}
-                        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-[12px] font-black text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
                         aria-haspopup="listbox"
                         aria-expanded={pickerOpen}
                     >
@@ -2129,7 +2118,7 @@ function MetricGrid({ stats, leadsCollected, activity = [], accountCreatedAt }: 
                     {pickerOpen && (
                         <>
                             <button type="button" aria-label="Close" className="fixed inset-0 z-30 cursor-default" onClick={() => setPickerOpen(false)} />
-                            <ul role="listbox" className="absolute bottom-full right-0 z-40 mb-1.5 w-44 overflow-hidden rounded-[14px] border border-slate-100 bg-white py-1 shadow-[0_-18px_42px_rgba(15,23,42,0.16)]">
+                            <ul role="listbox" className="absolute bottom-full right-0 z-40 mb-1.5 w-44 overflow-hidden rounded-control border border-slate-100 bg-white py-1 shadow-raised">
                                 {METRIC_RANGES.map((option) => {
                                     const disabled = option.days !== Number.POSITIVE_INFINITY && option.days > accountAgeDays;
                                     return (
@@ -2139,11 +2128,11 @@ function MetricGrid({ stats, leadsCollected, activity = [], accountCreatedAt }: 
                                                 disabled={disabled}
                                                 onClick={() => { if (!disabled) { setRange(option.key); setPickerOpen(false); } }}
                                                 className={cx(
-                                                    "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[12px] font-black transition",
+                                                    "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-xs font-semibold transition",
                                                     disabled
                                                         ? "cursor-not-allowed text-slate-300"
                                                         : range === option.key
-                                                            ? "bg-indigo-50 text-[#C13584]"
+                                                            ? "bg-brand-soft text-brand"
                                                             : "text-slate-700 hover:bg-slate-50"
                                                 )}
                                                 title={disabled ? "Range exceeds account age" : undefined}
@@ -2207,17 +2196,17 @@ function MetricCell({
         >
             <div title={metric.tooltip}>
                 <div className="mb-3 flex items-center justify-between">
-                    <span className={cx("flex h-11 w-11 items-center justify-center rounded-[0.9rem]", palette.bg, palette.text)}>
+                    <span className={cx("flex h-11 w-11 items-center justify-center rounded-control", palette.bg, palette.text)}>
                         {metric.icon}
                     </span>
                 </div>
-                <p className="text-[12px] font-black uppercase tracking-[0.08em] text-slate-400">{metric.label}</p>
-                <h3 className="mt-1 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{metric.value}</h3>
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{metric.label}</p>
+                <h3 className="mt-1 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">{metric.value}</h3>
             </div>
 
             {hovered && (
                 <div
-                    className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-3 w-[300px] max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-[16px] border border-slate-100 bg-white p-3.5 shadow-[0_24px_60px_rgba(15,23,42,0.18)]"
+                    className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-3 w-[300px] max-w-[calc(100vw-3rem)] -translate-x-1/2 rounded-card border border-slate-100 bg-white p-3.5 shadow-raised"
                     role="dialog"
                     aria-label={`${metric.label} details`}
                 >
@@ -2227,11 +2216,11 @@ function MetricCell({
                                 {metric.icon}
                             </span>
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">{rangeLabel}</p>
-                                <p className="text-[13px] font-black text-[#0F172A]">{metric.label}</p>
+                                <p className="text-2xs font-semibold uppercase tracking-[0.1em] text-slate-400">{rangeLabel}</p>
+                                <p className="text-sm font-semibold text-slate-900">{metric.label}</p>
                             </div>
                         </div>
-                        <p className="text-lg font-black text-slate-950">{metric.value}</p>
+                        <p className="text-lg font-bold text-slate-950">{metric.value}</p>
                     </div>
 
                     {/* Growth trend chart available on Pro in the Analytics tab. Hidden on home; code preserved. */}
@@ -2248,7 +2237,7 @@ function MetricCell({
                                     </LineChart>
                                 </ResponsiveContainer>
                             ) : (
-                                <div className="flex h-full items-center justify-center rounded-[10px] bg-slate-50 text-[11px] font-bold text-slate-400">
+                                <div className="flex h-full items-center justify-center rounded-control bg-slate-50 text-2xs font-bold text-slate-400">
                                     Trend history unavailable
                                 </div>
                             )}
@@ -2256,18 +2245,18 @@ function MetricCell({
                     )}
 
                     <div className="mt-3">
-                        <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Recent</p>
+                        <p className="text-2xs font-semibold uppercase tracking-[0.1em] text-slate-400">Recent</p>
                         {metric.entries.length ? (
                             <ul className="mt-1.5 space-y-1">
                                 {metric.entries.slice(0, 5).map((item) => (
-                                    <li key={item.id} className="flex items-center justify-between gap-2 rounded-[10px] bg-slate-50 px-2 py-1.5 text-[11px]">
-                                        <span className="min-w-0 truncate font-black text-slate-700">@{item.user}</span>
+                                    <li key={item.id} className="flex items-center justify-between gap-2 rounded-control bg-slate-50 px-2 py-1.5 text-2xs">
+                                        <span className="min-w-0 truncate font-bold text-slate-700">@{item.user}</span>
                                         <span className="shrink-0 font-bold text-slate-400">{item.time}</span>
                                     </li>
                                 ))}
                             </ul>
                         ) : (
-                            <p className="mt-1.5 rounded-[10px] bg-slate-50 px-2 py-2 text-center text-[11px] font-bold text-slate-400">No recent entries for this metric.</p>
+                            <p className="mt-1.5 rounded-control bg-slate-50 px-2 py-2 text-center text-2xs font-bold text-slate-400">No recent entries for this metric.</p>
                         )}
                     </div>
                 </div>
@@ -2387,7 +2376,7 @@ function QuickDock({ activity, onNavigate }: { activity: LogEntry[]; onNavigate:
                 onDragEnd={snapToNearestCorner}
                 whileDrag={{ scale: 1.05 }}
                 style={{ x, y, touchAction: "none" }}
-                className="fixed left-0 top-0 z-40 flex cursor-grab items-center gap-1 rounded-[14px] bg-[#0F172A] p-1 shadow-[0_18px_38px_rgba(15,23,42,0.28)] active:cursor-grabbing"
+                className="fixed left-0 top-0 z-40 flex cursor-grab items-center gap-1 rounded-control bg-slate-900 p-1 shadow-raised active:cursor-grabbing"
             >
                 <button
                     type="button"
@@ -2395,12 +2384,12 @@ function QuickDock({ activity, onNavigate }: { activity: LogEntry[]; onNavigate:
                     aria-label="Recent activity"
                     aria-haspopup="dialog"
                     aria-expanded={open}
-                    className="relative flex h-9 items-center gap-2 rounded-[10px] px-3 text-[12px] font-black text-white transition hover:bg-white/10"
+                    className="relative flex h-9 items-center gap-2 rounded-control px-3 text-xs font-semibold text-white transition hover:bg-white/10"
                 >
                     <Activity className="h-4 w-4" />
                     <span className="hidden sm:inline">Activity</span>
                     {unseenCount > 0 && (
-                        <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#EF4444] px-1 text-[10px] font-black text-white ring-2 ring-[#0F172A]">
+                        <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-2xs font-semibold text-white ring-2 ring-slate-900">
                             {formatActivityCount(unseenCount)}
                         </span>
                     )}
@@ -2416,12 +2405,12 @@ function QuickDock({ activity, onNavigate }: { activity: LogEntry[]; onNavigate:
                 description={`${formatActivityCount(activity.length)} events`}
                 // dmg-dash pulls in the dashboard dark-mode overrides (src/index.css) for the
                 // portaled rows; the bg override keeps the panel on the dashboard's navy, not stone.
-                className="dmg-dash dark:!bg-[#161d2e]"
+                className="dmg-dash dark:!bg-slate-900"
                 footer={
                     <button
                         type="button"
                         onClick={goToInbox}
-                        className="h-9 w-full rounded-[10px] bg-[#0F172A] text-[12px] font-black text-white transition hover:bg-slate-800"
+                        className="h-9 w-full rounded-control bg-slate-900 text-xs font-semibold text-white transition hover:bg-slate-800"
                     >
                         View inbox
                     </button>
@@ -2434,16 +2423,16 @@ function QuickDock({ activity, onNavigate }: { activity: LogEntry[]; onNavigate:
                                 <button
                                     type="button"
                                     onClick={goToInbox}
-                                    className="flex w-full items-start gap-2.5 rounded-[12px] border border-transparent bg-white px-2.5 py-2 text-left transition hover:border-slate-100 hover:bg-slate-50"
+                                    className="flex w-full items-start gap-2.5 rounded-control border border-transparent bg-white px-2.5 py-2 text-left transition hover:border-slate-100 hover:bg-slate-50"
                                 >
                                     <span className={cx("flex h-7 w-7 shrink-0 items-center justify-center rounded-full", item.status === "sent" ? "bg-emerald-50 text-emerald-600" : "bg-amber-50 text-amber-600")}>
                                         {item.status === "sent" ? <Send className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}
                                     </span>
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate text-[12px] font-black text-[#0F172A]">{item.status === "sent" ? "DM sent" : "Failed DM"} to {item.user}</p>
-                                        <p className="truncate text-[11px] font-semibold text-slate-500">Trigger: <span className="font-black text-slate-700">{item.trigger || item.keyword}</span></p>
+                                        <p className="truncate text-xs font-semibold text-slate-900">{item.status === "sent" ? "DM sent" : "Failed DM"} to {item.user}</p>
+                                        <p className="truncate text-2xs font-semibold text-slate-500">Trigger: <span className="font-bold text-slate-700">{item.trigger || item.keyword}</span></p>
                                     </div>
-                                    <span className="shrink-0 text-[10px] font-bold text-slate-400">{item.time}</span>
+                                    <span className="shrink-0 text-2xs font-bold text-slate-400">{item.time}</span>
                                 </button>
                             </li>
                         ))}
@@ -2451,7 +2440,7 @@ function QuickDock({ activity, onNavigate }: { activity: LogEntry[]; onNavigate:
                 ) : (
                     <div className="px-3 py-6 text-center">
                         <Activity className="mx-auto h-5 w-5 text-slate-300" />
-                        <p className="mt-2 text-[12px] font-bold text-slate-500">No recent activity yet.</p>
+                        <p className="mt-2 text-xs font-bold text-slate-500">No recent activity yet.</p>
                     </div>
                 )}
             </Drawer>
@@ -2614,17 +2603,17 @@ function AutomationsPage(props: {
         >
             {!props.accountPlan.isPro && <AutomationMiniUpgradeStrip onUpgrade={props.onUpgrade} proOffer={props.proOffer} />}
             {automationLimitReached && (
-                <div className="rounded-[18px] border border-amber-100 bg-amber-50/70 px-4 py-3 text-sm font-bold text-amber-800">
+                <div className="rounded-card border border-amber-100 bg-amber-50/70 px-4 py-3 text-sm font-bold text-amber-800">
                     You’ve reached your Starter automation limit. Upgrade to Pro to create more.
                 </div>
             )}
 
-            <section className="rounded-[20px] border border-white bg-white p-3.5 shadow-[0_14px_42px_rgba(15,23,42,0.045)]">
+            <section className="rounded-card border border-white bg-white p-3.5 shadow-raised">
                 <div className="grid gap-3 xl:grid-cols-[minmax(240px,1fr)_180px_160px_auto] xl:items-center">
                     <SearchBox value={props.search} onChange={props.onSearch} placeholder="Search automations..." />
                     <SelectBox value={triggerFilter} onChange={setTriggerFilter} options={["All triggers", "Post or Reel comment", "DM keyword", "Story reply", "Live comment"]} />
                     <SelectBox value={props.status} onChange={props.onStatus} options={["all", "live", "paused", "draft"]} />
-                    <div className="flex rounded-[0.95rem] border border-slate-200 bg-slate-50 p-1">
+                    <div className="flex rounded-control border border-slate-200 bg-slate-50 p-1">
                         {[
                             { key: "list" as const, label: "List", icon: <FileText className="h-3.5 w-3.5" /> },
                             { key: "grid" as const, label: "Grid", icon: <LayoutGrid className="h-3.5 w-3.5" /> },
@@ -2633,8 +2622,8 @@ function AutomationsPage(props: {
                                 key={item.key}
                                 onClick={() => setViewMode(item.key)}
                                 className={cx(
-                                    "inline-flex h-9 items-center gap-1.5 rounded-[0.75rem] px-3 text-xs font-black transition",
-                                    viewMode === item.key ? "bg-white text-[#0F172A] shadow-sm" : "text-[#64748B] hover:text-[#0F172A]"
+                                    "inline-flex h-9 items-center gap-1.5 rounded-control px-3 text-xs font-semibold transition",
+                                    viewMode === item.key ? "bg-white text-slate-900 shadow-rest" : "text-slate-500 hover:text-slate-900"
                                 )}
                             >
                                 {item.icon}
@@ -2648,28 +2637,28 @@ function AutomationsPage(props: {
             {props.flows.length > 0 && (
                 <Panel
                     title="Visual flows"
-                    action={<button onClick={() => props.onOpenFlowBuilder()} className="inline-flex items-center gap-1.5 text-xs font-black text-[#C13584] transition hover:text-[#ad2a75]"><Plus className="h-3.5 w-3.5" /> New flow</button>}
+                    action={<button onClick={() => props.onOpenFlowBuilder()} className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand transition hover:text-brand-hover"><Plus className="h-3.5 w-3.5" /> New flow</button>}
                 >
                     <div className="space-y-2.5">
                         {props.flows.map((flow) => (
-                            <div key={flow.id} className="flex items-center gap-3 rounded-[16px] border border-slate-100 bg-white p-3 shadow-[0_8px_24px_rgba(15,23,42,0.04)] transition hover:border-[#F2D8E8]">
-                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.85rem] bg-brand-gradient text-white">
+                            <div key={flow.id} className="flex items-center gap-3 rounded-card border border-slate-100 bg-white p-3 shadow-rest transition hover:border-brand/20">
+                                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-brand-gradient text-white">
                                     <Workflow className="h-5 w-5" />
                                 </span>
                                 <button onClick={() => props.onOpenFlowBuilder(flow.id)} className="min-w-0 flex-1 text-left">
-                                    <p className="truncate text-sm font-black text-[#0F172A]">{flow.name}</p>
-                                    <p className="mt-0.5 truncate text-[11px] font-semibold text-[#64748B]">
+                                    <p className="truncate text-sm font-semibold text-slate-900">{flow.name}</p>
+                                    <p className="mt-0.5 truncate text-2xs font-semibold text-slate-500">
                                         {flow.triggerType || "No trigger"} · {flow.nodeCount} block{flow.nodeCount === 1 ? "" : "s"}
                                     </p>
                                 </button>
-                                <span className={cx("hidden rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide sm:inline-flex", flow.enabled ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500")}>
+                                <span className={cx("hidden rounded-full px-2.5 py-1 text-2xs font-semibold uppercase tracking-wide sm:inline-flex", flow.enabled ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500")}>
                                     {flow.enabled ? "Live" : "Draft"}
                                 </span>
                                 <ToggleSwitch active={flow.enabled} onClick={() => props.onToggleFlow(flow.id)} label="Toggle flow" />
-                                <button onClick={() => props.onOpenFlowBuilder(flow.id)} className="flex h-9 w-9 items-center justify-center rounded-[0.7rem] text-slate-500 transition hover:bg-slate-50 hover:text-[#0F172A]" aria-label="Edit flow">
+                                <button onClick={() => props.onOpenFlowBuilder(flow.id)} className="flex h-9 w-9 items-center justify-center rounded-control text-slate-500 transition hover:bg-slate-50 hover:text-slate-900" aria-label="Edit flow">
                                     <PenLine className="h-4 w-4" />
                                 </button>
-                                <button onClick={() => setFlowDeleteTarget(flow)} className="flex h-9 w-9 items-center justify-center rounded-[0.7rem] text-slate-500 transition hover:bg-rose-50 hover:text-rose-600" aria-label="Delete flow">
+                                <button onClick={() => setFlowDeleteTarget(flow)} className="flex h-9 w-9 items-center justify-center rounded-control text-slate-500 transition hover:bg-rose-50 hover:text-rose-600" aria-label="Delete flow">
                                     <Trash2 className="h-4 w-4" />
                                 </button>
                             </div>
@@ -2681,21 +2670,21 @@ function AutomationsPage(props: {
             {flowDeleteTarget && (
                 <ModalShell onClose={() => setFlowDeleteTarget(null)}>
                     <div className="text-center">
-                        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-[1.15rem] bg-rose-50 text-rose-600 ring-1 ring-rose-100">
+                        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-card bg-rose-50 text-rose-600 ring-1 ring-rose-100">
                             <Trash2 className="h-6 w-6" />
                         </span>
-                        <h3 className="mt-4 text-lg font-black text-[#0F172A]">Delete “{flowDeleteTarget.name}”?</h3>
-                        <p className="mt-1.5 text-sm font-semibold text-[#64748B]">This removes the flow and its steps. This can’t be undone.</p>
+                        <h3 className="mt-4 text-lg font-bold text-slate-900">Delete “{flowDeleteTarget.name}”?</h3>
+                        <p className="mt-1.5 text-sm font-semibold text-slate-500">This removes the flow and its steps. This can’t be undone.</p>
                         <div className="mt-5 flex gap-2.5">
                             <button
                                 onClick={() => setFlowDeleteTarget(null)}
-                                className="flex flex-1 items-center justify-center rounded-[0.85rem] border border-slate-200 px-4 py-2.5 text-sm font-black text-[#0F172A] transition hover:bg-slate-50"
+                                className="flex flex-1 items-center justify-center rounded-control border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={() => { props.onDeleteFlow(flowDeleteTarget.id); setFlowDeleteTarget(null); }}
-                                className="flex flex-1 items-center justify-center gap-1.5 rounded-[0.85rem] bg-rose-600 px-4 py-2.5 text-sm font-black text-white transition hover:bg-rose-700"
+                                className="flex flex-1 items-center justify-center gap-1.5 rounded-control bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700"
                             >
                                 <Trash2 className="h-4 w-4" /> Delete flow
                             </button>
@@ -2704,7 +2693,7 @@ function AutomationsPage(props: {
                 </ModalShell>
             )}
 
-            <Panel title="Workflows" action={<button onClick={startCreation} className="inline-flex items-center gap-1.5 text-xs font-black text-[#C13584] transition hover:text-[#ad2a75]"><Plus className="h-3.5 w-3.5" /> New flow</button>}>
+            <Panel title="Workflows" action={<button onClick={startCreation} className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand transition hover:text-brand-hover"><Plus className="h-3.5 w-3.5" /> New flow</button>}>
                 {!hasAutomations ? (
                     <EmptyState icon={<Bot className="h-6 w-6" />} title="Create your first automation" copy="Turn Instagram comments, story replies, and DMs into automatic conversations. Pick a template or start from scratch." action="Create your first automation" onAction={startCreation} />
                 ) : visibleTriggers.length ? (
@@ -2766,53 +2755,53 @@ function AutomationCreationEntry({ onBack, onTemplate, onScratch, onFlow }: { on
                     <ArrowRight className="h-4 w-4 rotate-180" />
                 </button>
                 <div>
-                    <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[28px]">Create a new automation</h1>
+                    <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-[28px]">Create a new automation</h1>
                     <p className="mt-1 text-sm font-semibold text-slate-500">How would you like to start?</p>
                 </div>
             </div>
 
             <button
                 onClick={onFlow}
-                className="group flex w-full items-center gap-4 rounded-[24px] border border-[#F2D8E8] bg-gradient-to-r from-[#FBEAF3] to-[#EEF1FF] p-6 text-left shadow-[0_14px_40px_rgba(193,53,132,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_50px_rgba(193,53,132,0.14)]"
+                className="group flex w-full items-center gap-4 rounded-card border border-brand/20 bg-gradient-to-r from-brand-soft to-slate-100 p-6 text-left transition hover:-translate-y-0.5"
             >
-                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.1rem] bg-brand-gradient text-white">
+                <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-brand-gradient text-white">
                     <Workflow className="h-7 w-7" />
                 </span>
                 <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2">
-                        <h2 className="text-xl font-black text-[#0F172A]">Visual flow builder</h2>
-                        <span className="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-[#C13584] ring-1 ring-[#F2D8E8]">New</span>
+                        <h2 className="text-xl font-bold text-slate-900">Visual flow builder</h2>
+                        <span className="rounded-full bg-white/70 px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-brand ring-1 ring-brand/20">New</span>
                     </span>
-                    <p className="mt-1 text-sm font-semibold leading-6 text-[#64748B]">Design multi-step conversations on a canvas — messages, buttons, conditions and delays. The most powerful way to build.</p>
+                    <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">Design multi-step conversations on a canvas — messages, buttons, conditions and delays. The most powerful way to build.</p>
                 </span>
-                <ArrowRight className="hidden h-5 w-5 shrink-0 text-[#C13584] transition group-hover:translate-x-0.5 sm:block" />
+                <ArrowRight className="hidden h-5 w-5 shrink-0 text-brand transition group-hover:translate-x-0.5 sm:block" />
             </button>
 
             <div className="grid gap-4 sm:grid-cols-2">
                 <button
                     onClick={onTemplate}
-                    className="group flex flex-col items-start rounded-[24px] border border-slate-100 bg-white p-6 text-left shadow-[0_14px_40px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_22px_50px_rgba(193,53,132,0.12)]"
+                    className="group flex flex-col items-start rounded-card border border-slate-100 bg-white p-6 text-left shadow-raised transition hover:-translate-y-1 hover:border-brand/25"
                 >
-                    <span className="flex h-14 w-14 items-center justify-center rounded-[1.1rem] bg-[#FBEAF3] text-[#C13584]">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-card bg-brand-soft text-brand">
                         <Sparkles className="h-7 w-7" />
                     </span>
-                    <h2 className="mt-5 text-xl font-black text-[#0F172A]">Use a template</h2>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-[#64748B]">Pick a ready-made setup and we will fill in the details for you. Best if you are just getting started.</p>
-                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-black text-[#C13584]">
+                    <h2 className="mt-5 text-xl font-bold text-slate-900">Use a template</h2>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">Pick a ready-made setup and we will fill in the details for you. Best if you are just getting started.</p>
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand">
                         Browse templates <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                     </span>
                 </button>
 
                 <button
                     onClick={onScratch}
-                    className="group flex flex-col items-start rounded-[24px] border border-slate-100 bg-white p-6 text-left shadow-[0_14px_40px_rgba(15,23,42,0.05)] transition hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_22px_50px_rgba(193,53,132,0.12)]"
+                    className="group flex flex-col items-start rounded-card border border-slate-100 bg-white p-6 text-left shadow-raised transition hover:-translate-y-1 hover:border-brand/25"
                 >
-                    <span className="flex h-14 w-14 items-center justify-center rounded-[1.1rem] bg-slate-100 text-[#0F172A]">
+                    <span className="flex h-14 w-14 items-center justify-center rounded-card bg-slate-100 text-slate-900">
                         <Wand2 className="h-7 w-7" />
                     </span>
-                    <h2 className="mt-5 text-xl font-black text-[#0F172A]">Start from scratch</h2>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-[#64748B]">Build your automation step by step with a blank setup. Best if you know exactly what you want.</p>
-                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-black text-[#C13584]">
+                    <h2 className="mt-5 text-xl font-bold text-slate-900">Start from scratch</h2>
+                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">Build your automation step by step with a blank setup. Best if you know exactly what you want.</p>
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand">
                         Start building <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                     </span>
                 </button>
@@ -2850,7 +2839,7 @@ function AutomationTemplatePicker({
                         <ArrowRight className="h-4 w-4 rotate-180" />
                     </button>
                     <div>
-                        <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[28px]">Choose a template</h1>
+                        <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-[28px]">Choose a template</h1>
                         <p className="mt-1 text-sm font-semibold text-slate-500">Pick a starting point. You can change everything later.</p>
                     </div>
                 </div>
@@ -2860,17 +2849,17 @@ function AutomationTemplatePicker({
             <SearchBox value={query} onChange={setQuery} placeholder="Search templates..." />
 
             {matches.length === 0 ? (
-                <div className="rounded-[20px] border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
-                    <p className="text-sm font-black text-[#0F172A]">No templates match your search</p>
-                    <p className="mt-1 text-xs font-semibold text-[#64748B]">Try another keyword, or start from scratch.</p>
+                <div className="rounded-card border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
+                    <p className="text-sm font-semibold text-slate-900">No templates match your search</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-500">Try another keyword, or start from scratch.</p>
                 </div>
             ) : (
                 <div className="space-y-6">
                     {freeTemplates.length > 0 && (
                         <div>
                             <div className="mb-3 flex items-center gap-2">
-                                <h2 className="text-sm font-black uppercase tracking-[0.12em] text-slate-400">Free templates</h2>
-                                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-500">{freeTemplates.length}</span>
+                                <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">Free templates</h2>
+                                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-2xs font-semibold text-slate-500">{freeTemplates.length}</span>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 {freeTemplates.map((template) => (
@@ -2883,8 +2872,8 @@ function AutomationTemplatePicker({
                         <div>
                             <div className="mb-3 flex items-center gap-2">
                                 <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                                <h2 className="text-sm font-black uppercase tracking-[0.12em] text-[#8A5D17]">Pro templates</h2>
-                                <span className="rounded-full bg-[#FFF7DA] px-2 py-0.5 text-[10px] font-black text-[#8A5D17] ring-1 ring-[#E8C56C]/50">{proTemplates.length}</span>
+                                <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-gold-deep">Pro templates</h2>
+                                <span className="rounded-full bg-gold-soft px-2 py-0.5 text-2xs font-semibold text-gold-deep ring-1 ring-gold/50">{proTemplates.length}</span>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 {proTemplates.map((template) => (
@@ -2903,16 +2892,16 @@ function ConfirmAutomationDeleteModal({ trigger, onCancel, onConfirm }: { trigge
     return (
         <ModalShell onClose={onCancel}>
             <div className="text-center">
-                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-[1.15rem] bg-rose-50 text-rose-600 ring-1 ring-rose-100">
+                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-card bg-rose-50 text-rose-600 ring-1 ring-rose-100">
                     <Trash2 className="h-6 w-6" />
                 </span>
-                <h2 className="mt-5 text-2xl font-black text-[#0F172A]">Delete automation?</h2>
-                <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[#64748B]">
+                <h2 className="mt-5 text-2xl font-bold text-slate-900">Delete automation?</h2>
+                <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
                     Auto DM for “{trigger.keyword}” will be removed from this dashboard preview. This action cannot be undone here.
                 </p>
                 <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
                     <SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
-                    <button onClick={onConfirm} className="inline-flex h-11 items-center justify-center gap-2 rounded-[0.95rem] bg-rose-600 px-5 text-sm font-black text-white transition hover:bg-rose-700">
+                    <button onClick={onConfirm} className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-rose-600 px-5 text-sm font-semibold text-white transition hover:bg-rose-700">
                         <Trash2 className="h-4 w-4" /> Delete
                     </button>
                 </div>
@@ -2925,16 +2914,16 @@ function ConfirmInstagramDisconnectModal({ onCancel, onConfirm }: { onCancel: ()
     return (
         <ModalShell onClose={onCancel}>
             <div className="text-center">
-                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-[1.15rem] bg-amber-50 text-amber-600 ring-1 ring-amber-100">
+                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-card bg-amber-50 text-amber-600 ring-1 ring-amber-100">
                     <Instagram className="h-6 w-6" />
                 </span>
-                <h2 className="mt-5 text-2xl font-black text-[#0F172A]">Disconnect Instagram?</h2>
-                <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[#64748B]">
+                <h2 className="mt-5 text-2xl font-bold text-slate-900">Disconnect Instagram?</h2>
+                <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
                     DMGennie will stop sending automation messages until you reconnect this Instagram account.
                 </p>
                 <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
                     <SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
-                    <button onClick={onConfirm} className="inline-flex h-11 items-center justify-center gap-2 rounded-[0.95rem] bg-rose-600 px-5 text-sm font-black text-white transition hover:bg-rose-700">
+                    <button onClick={onConfirm} className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-rose-600 px-5 text-sm font-semibold text-white transition hover:bg-rose-700">
                         Disconnect
                     </button>
                 </div>
@@ -2948,16 +2937,16 @@ function UpgradeModal({ proOffer, onClose, onUpgrade }: { proOffer: ProOfferData
     return (
         <ModalShell onClose={onClose}>
             <div className="text-center">
-                <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.25rem] bg-[#FFF7DA] text-[#8A5D17] ring-1 ring-[#E8C56C]/50">
-                    <Crown className="h-8 w-8 fill-[#8A5D17]" />
+                <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-card bg-gold-soft text-gold-deep ring-1 ring-gold/50">
+                    <Crown className="h-8 w-8 fill-gold-deep" />
                 </span>
-                <h2 className="mt-5 text-2xl font-black text-[#0F172A]">Unlock Pro</h2>
-                <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[#64748B]">
+                <h2 className="mt-5 text-2xl font-bold text-slate-900">Unlock Pro</h2>
+                <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
                     Get 20,000 DMs, unlimited contacts, exports, and advanced analytics.
                 </p>
-                <div className="mx-auto mt-5 max-w-md rounded-[18px] border border-amber-100 bg-amber-50/70 p-3 text-left">
-                    <p className="text-sm font-black text-[#0F172A]">{isPaymentPending ? "Payment pending" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}</p>
-                    <p className="mt-1 text-xs font-bold leading-5 text-[#64748B]">
+                <div className="mx-auto mt-5 max-w-md rounded-card border border-amber-100 bg-amber-50/70 p-3 text-left">
+                    <p className="text-sm font-semibold text-slate-900">{isPaymentPending ? "Payment pending" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}</p>
+                    <p className="mt-1 text-xs font-bold leading-5 text-slate-500">
                         {isPaymentPending ? "Complete payment to unlock Pro features." : proOffer.eligible ? `First month only. Then ${formatPrice(proOffer.currency, proOffer.renewalMonthly)}/month.` : "Unlock higher DM limits and Pro-only workflows."}
                     </p>
                 </div>
@@ -2965,7 +2954,7 @@ function UpgradeModal({ proOffer, onClose, onUpgrade }: { proOffer: ProOfferData
                     <SecondaryButton onClick={onClose}>Maybe later</SecondaryButton>
                     <button
                         onClick={onUpgrade}
-                        className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-[0.9rem] px-5 text-sm font-black", goldCtaCls)}
+                        className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-control px-5 text-sm font-semibold", goldCtaCls)}
                     >
                         <Crown className={cx("h-4 w-4", goldCrownCls)} />
                         {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}
@@ -2979,18 +2968,18 @@ function UpgradeModal({ proOffer, onClose, onUpgrade }: { proOffer: ProOfferData
 function AutomationMiniUpgradeStrip({ onUpgrade, proOffer }: { onUpgrade: () => void; proOffer: ProOfferData }) {
     const isPaymentPending = proOffer.reason.toLowerCase().includes("payment pending");
     return (
-        <section className="rounded-[18px] border border-[#E8C56C]/70 bg-gradient-to-r from-[#FFFDF6] via-[#FFF7DA] to-[#FFFDF6] p-3.5 shadow-[0_12px_32px_rgba(120,83,20,0.07)]">
+        <section className="rounded-card border border-gold/70 bg-gradient-to-r from-[#FFFDF6] via-gold-soft to-[#FFFDF6] p-3.5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem] bg-white text-[#8A5D17] shadow-sm ring-1 ring-[#E8C56C]/50">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-white text-gold-deep shadow-rest ring-1 ring-gold/50">
                         <Sparkles className="h-5 w-5" />
                     </span>
                     <div>
-                        <h2 className="text-sm font-black text-[#0F172A]">Unlock Pro Power</h2>
-                        <p className="text-xs font-semibold text-[#8A5D17]">{isPaymentPending ? "Payment pending. Complete payment to unlock Pro." : proOffer.eligible ? `First month only. Then ${formatPrice(proOffer.currency, proOffer.renewalMonthly)}/month.` : "Get 20,000 DMs, exports, and advanced analytics."}</p>
+                        <h2 className="text-sm font-semibold text-slate-900">Unlock Pro Power</h2>
+                        <p className="text-xs font-semibold text-gold-deep">{isPaymentPending ? "Payment pending. Complete payment to unlock Pro." : proOffer.eligible ? `First month only. Then ${formatPrice(proOffer.currency, proOffer.renewalMonthly)}/month.` : "Get 20,000 DMs, exports, and advanced analytics."}</p>
                     </div>
                 </div>
-                <button onClick={onUpgrade} className={cx("inline-flex h-9 items-center justify-center gap-2 rounded-full px-4 text-xs font-black", goldCtaCls)}>
+                <button onClick={onUpgrade} className={cx("inline-flex h-9 items-center justify-center gap-2 rounded-full px-4 text-xs font-semibold", goldCtaCls)}>
                     <Crown className={cx("h-3.5 w-3.5", goldCrownCls)} />
                     {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}
                 </button>
@@ -3022,28 +3011,28 @@ function AutomationListRow({
     const modifiedLabel = trigger.modifiedAt ? new Date(trigger.modifiedAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short" }) : "Unknown";
 
     return (
-        <div className="grid gap-3 rounded-[18px] border border-slate-100 bg-white p-3.5 shadow-[0_8px_24px_rgba(15,23,42,0.025)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_16px_34px_rgba(193,53,132,0.07)] xl:grid-cols-[minmax(280px,1.4fr)_140px_120px_78px_78px_68px_84px_92px_auto] xl:items-center">
+        <div className="grid gap-3 rounded-card border border-slate-100 bg-white p-3.5 shadow-rest transition hover:-translate-y-0.5 hover:border-brand/15 xl:grid-cols-[minmax(280px,1.4fr)_140px_120px_78px_78px_68px_84px_92px_auto] xl:items-center">
             <div className="flex min-w-0 items-center gap-3">
-                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] bg-gradient-to-br from-[#FBEAF3] via-white to-[#F8EEFF] text-[#C13584] ring-1 ring-indigo-100">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand-soft via-white to-slate-100 text-brand ring-1 ring-brand/15">
                     <MessageCircle className="h-5 w-5" />
                 </span>
                 <div className="min-w-0">
-                    <h3 className="truncate text-sm font-black text-[#0F172A]">Auto DM for "{trigger.keyword}"</h3>
-                    <p className="mt-1 truncate text-xs font-semibold text-[#64748B]">{trigger.replyMessage}</p>
+                    <h3 className="truncate text-sm font-semibold text-slate-900">Auto DM for "{trigger.keyword}"</h3>
+                    <p className="mt-1 truncate text-xs font-semibold text-slate-500">{trigger.replyMessage}</p>
                 </div>
             </div>
             <AutomationDataPill label="Trigger" value={trigger.triggerType || "Comment keyword"} />
             <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">Keywords</p>
+                <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">Keywords</p>
                 <div className="mt-1 flex min-w-0 flex-wrap gap-1.5">
-                    <span className="rounded-full bg-[#FBEAF3] px-2 py-1 text-[10px] font-black text-[#C13584] ring-1 ring-indigo-100">+{trigger.keyword}</span>
+                    <span className="rounded-full bg-brand-soft px-2 py-1 text-2xs font-semibold text-brand ring-1 ring-brand/15">+{trigger.keyword}</span>
                 </div>
             </div>
             <AutomationDataPill label="DMs" value={dms.toLocaleString()} />
             <AutomationDataPill label="Clicks" value={clicks.toLocaleString()} />
             <AutomationDataPill label="CTR" value={`${ctr}%`} muted />
             <StatusBadge status={trigger.enabled ? "Live" : "Paused"} />
-            <span className="text-xs font-bold text-[#64748B]">{modifiedLabel}</span>
+            <span className="text-xs font-bold text-slate-500">{modifiedLabel}</span>
             <div className="flex justify-end gap-1.5">
                 <IconButton title={trigger.enabled ? "Pause automation" : "Resume automation"} onClick={onToggle}>{trigger.enabled ? <Pause className="h-4 w-4" /> : <Power className="h-4 w-4" />}</IconButton>
                 <IconButton title="Edit automation" onClick={onEdit}><PenLine className="h-4 w-4" /></IconButton>
@@ -3081,19 +3070,19 @@ function AutomationGridCard({
             tabIndex={0}
             onClick={onEdit}
             onKeyDown={(event) => event.key === "Enter" && onEdit()}
-            className="group flex min-h-[178px] flex-col rounded-[18px] border border-slate-100 bg-white p-4 text-left shadow-[0_10px_26px_rgba(15,23,42,0.035)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_16px_34px_rgba(193,53,132,0.08)]"
+            className="group flex min-h-[178px] flex-col rounded-card border border-slate-100 bg-white p-4 text-left shadow-rest transition hover:-translate-y-0.5 hover:border-brand/15"
         >
             <div className="mb-3 flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-[0.95rem] bg-[#FBEAF3] text-[#C13584]">
+                <span className="flex h-10 w-10 items-center justify-center rounded-control bg-brand-soft text-brand">
                     <MessageCircle className="h-5 w-5" />
                 </span>
                 <StatusBadge status={trigger.enabled ? "Live" : "Paused"} />
             </div>
-            <h3 className="text-sm font-black text-[#0F172A]">Auto DM for "{trigger.keyword}"</h3>
-            <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-5 text-[#64748B]">{trigger.replyMessage}</p>
+            <h3 className="text-sm font-semibold text-slate-900">Auto DM for "{trigger.keyword}"</h3>
+            <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-5 text-slate-500">{trigger.replyMessage}</p>
             <div className="mt-3 flex flex-wrap gap-1.5">
-                <span className="rounded-full bg-[#FBEAF3] px-2 py-1 text-[10px] font-black text-[#C13584] ring-1 ring-indigo-100">+{trigger.keyword}</span>
-                <span className="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-black text-slate-500 ring-1 ring-slate-100">{trigger.triggerType || "Comment keyword"}</span>
+                <span className="rounded-full bg-brand-soft px-2 py-1 text-2xs font-semibold text-brand ring-1 ring-brand/15">+{trigger.keyword}</span>
+                <span className="rounded-full bg-slate-50 px-2 py-1 text-2xs font-semibold text-slate-500 ring-1 ring-slate-100">{trigger.triggerType || "Comment keyword"}</span>
             </div>
             <div className="mt-auto grid grid-cols-3 gap-2 border-t border-slate-100 pt-3">
                 <AutomationDataPill label="DMs" value={dms.toLocaleString()} />
@@ -3101,11 +3090,11 @@ function AutomationGridCard({
                 <AutomationDataPill label="CTR" value={`${ctr}%`} muted />
             </div>
             <div className="mt-3 flex items-center justify-between">
-                <span className="text-xs font-black text-[#C13584]">Edit flow</span>
+                <span className="text-xs font-semibold text-brand">Edit flow</span>
                 <div className="flex gap-1">
-                    <button onClick={(event) => { event.stopPropagation(); onAnalytics(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600 transition hover:bg-slate-100">Analytics</button>
-                    <button onClick={(event) => { event.stopPropagation(); onDuplicate(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600 transition hover:bg-slate-100">Duplicate</button>
-                    <button onClick={(event) => { event.stopPropagation(); onToggle(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600 transition hover:bg-slate-100">
+                    <button onClick={(event) => { event.stopPropagation(); onAnalytics(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-2xs font-semibold text-slate-600 transition hover:bg-slate-100">Analytics</button>
+                    <button onClick={(event) => { event.stopPropagation(); onDuplicate(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-2xs font-semibold text-slate-600 transition hover:bg-slate-100">Duplicate</button>
+                    <button onClick={(event) => { event.stopPropagation(); onToggle(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-2xs font-semibold text-slate-600 transition hover:bg-slate-100">
                         {trigger.enabled ? "Pause" : "Resume"}
                     </button>
                 </div>
@@ -3117,8 +3106,8 @@ function AutomationGridCard({
 function AutomationDataPill({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
     return (
         <div className="min-w-0">
-            <p className="text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <p className={cx("mt-0.5 truncate text-xs font-black", muted ? "text-[#64748B]" : "text-[#0F172A]")}>{value}</p>
+            <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <p className={cx("mt-0.5 truncate text-xs font-semibold", muted ? "text-slate-500" : "text-slate-900")}>{value}</p>
         </div>
     );
 }
@@ -3133,23 +3122,23 @@ function TemplateCard({ template, accountPlan, onSelect, onUpgrade }: { template
             key={template.title}
             onClick={() => locked ? onUpgrade() : onSelect(template)}
             className={cx(
-                "group relative rounded-[18px] border bg-white p-4 text-left shadow-[0_8px_24px_rgba(15,23,42,0.025)] transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_16px_34px_rgba(193,53,132,0.08)]",
-                isAdvanced ? "border-[#FDE68A] bg-[#FFFDF6]" : "border-slate-100"
+                "group relative rounded-card border bg-white p-4 text-left shadow-rest transition hover:-translate-y-0.5 hover:border-brand/15",
+                isAdvanced ? "border-amber-200 bg-[#FFFDF6]" : "border-slate-100"
             )}
         >
             <div className="mb-3 flex items-start justify-between gap-3">
-                <span className={cx("flex h-10 w-10 items-center justify-center rounded-[0.9rem]", isAdvanced ? "bg-[#FFF7DA] text-[#8A5D17]" : "bg-[#FBEAF3] text-[#C13584]")}>{template.icon}</span>
+                <span className={cx("flex h-10 w-10 items-center justify-center rounded-control", isAdvanced ? "bg-gold-soft text-gold-deep" : "bg-brand-soft text-brand")}>{template.icon}</span>
                 <div className="flex gap-1.5">
                     {template.badge && <SmallBadge label={isAdvanced ? "Advanced" : template.badge} tone={isAdvanced ? "gold" : "purple"} />}
                     {locked && <SmallBadge label="Pro" tone="gold" />}
                 </div>
             </div>
-            <h3 className="text-sm font-black text-[#0F172A]">{template.title}</h3>
-            <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-5 text-[#64748B]">{template.description}</p>
-            {locked && <p className="mt-2 text-[11px] font-bold text-[#8A5D17]">Upgrade to Pro to use this template.</p>}
+            <h3 className="text-sm font-semibold text-slate-900">{template.title}</h3>
+            <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-5 text-slate-500">{template.description}</p>
+            {locked && <p className="mt-2 text-2xs font-bold text-gold-deep">Upgrade to Pro to use this template.</p>}
             <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                <span className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-500">{template.trigger}</span>
-                {locked ? <Lock className="h-4 w-4 text-[#8A5D17]" /> : <ArrowRight className="h-4 w-4 text-[#C13584] transition group-hover:translate-x-0.5" />}
+                <span className="rounded-full bg-slate-50 px-2.5 py-1 text-2xs font-semibold text-slate-500">{template.trigger}</span>
+                {locked ? <Lock className="h-4 w-4 text-gold-deep" /> : <ArrowRight className="h-4 w-4 text-brand transition group-hover:translate-x-0.5" />}
             </div>
         </button>
     );
@@ -3466,17 +3455,17 @@ function AutomationBuilder({
 
     return (
         <div className="space-y-4">
-            <section className="sticky top-3 z-20 rounded-[20px] border border-white bg-white/95 p-3 shadow-[0_16px_44px_rgba(15,23,42,0.07)] backdrop-blur">
+            <section className="sticky top-3 z-20 rounded-card border border-white bg-white/95 p-3 shadow-raised backdrop-blur">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex min-w-0 items-center gap-3">
                         <button onClick={onCancel} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-600 transition hover:bg-slate-50">
                             <ArrowRight className="h-4 w-4 rotate-180" />
                         </button>
                         <div className="min-w-0">
-                            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#94A3B8]">Automation builder</p>
+                            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-slate-400">Automation builder</p>
                             <input
                                 aria-label="Automation name"
-                                className="w-full max-w-[260px] truncate border-none bg-transparent text-lg font-black text-[#0F172A] outline-none"
+                                className="w-full max-w-[260px] truncate border-none bg-transparent text-lg font-bold text-slate-900 outline-none"
                                 value={automationName}
                                 onChange={(event) => { setAutomationName(event.target.value); setValidationErrors((prev) => { const next = { ...prev }; delete next.name; return next; }); }}
                             />
@@ -3490,15 +3479,15 @@ function AutomationBuilder({
                             <button
                                 onClick={toggleReTrigger}
                                 className={cx(
-                                    "inline-flex items-center gap-2 rounded-[1rem] border px-4 py-2.5 text-sm font-black transition hover:-translate-y-0.5",
-                                    reTriggerEnabled ? "border-indigo-200 bg-[#FBEAF3] text-[#C13584]" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                                    "inline-flex items-center gap-2 rounded-card border px-4 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5",
+                                    reTriggerEnabled ? "border-brand/25 bg-brand-soft text-brand" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                                 )}
                             >
                                 <RefreshCw className="h-4 w-4" /> Re-trigger{reTriggerEnabled ? " on" : ""}
                             </button>
                         ) : (
-                            <button onClick={toggleReTrigger} className={cx("inline-flex items-center gap-2 rounded-[1rem] px-4 py-2.5 text-sm font-black", goldCtaCls)}>
-                                <Crown className={cx("h-4 w-4", goldCrownCls)} /> Re-trigger <span className="rounded-full bg-white/40 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[0.08em]">Pro</span>
+                            <button onClick={toggleReTrigger} className={cx("inline-flex items-center gap-2 rounded-card px-4 py-2.5 text-sm font-semibold", goldCtaCls)}>
+                                <Crown className={cx("h-4 w-4", goldCrownCls)} /> Re-trigger <span className="rounded-full bg-white/40 px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-[0.08em]">Pro</span>
                             </button>
                         )}
                     </div>
@@ -3521,26 +3510,26 @@ function AutomationBuilder({
                             </div>
                         ) : (
                             <>
-                                <div className="flex items-center justify-between gap-3 rounded-[16px] border border-indigo-200 bg-[#FBEAF3] p-3.5">
+                                <div className="flex items-center justify-between gap-3 rounded-card border border-brand/25 bg-brand-soft p-3.5">
                                     <span className="flex min-w-0 items-center gap-3">
-                                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem] bg-white text-[#C13584]">{activeTrigger.icon}</span>
+                                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-white text-brand">{activeTrigger.icon}</span>
                                         <span className="min-w-0">
-                                            <span className="block text-sm font-black text-[#0F172A]">{activeTrigger.title}</span>
-                                            <span className="block truncate text-xs font-semibold text-[#64748B]">{activeTrigger.copy}</span>
+                                            <span className="block text-sm font-semibold text-slate-900">{activeTrigger.title}</span>
+                                            <span className="block truncate text-xs font-semibold text-slate-500">{activeTrigger.copy}</span>
                                         </span>
                                     </span>
-                                    <button onClick={() => setChangingTrigger(true)} className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-black text-[#C13584] ring-1 ring-indigo-100 transition hover:bg-indigo-50">Change</button>
+                                    <button onClick={() => setChangingTrigger(true)} className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-brand ring-1 ring-brand/15 transition hover:bg-brand-soft">Change</button>
                                 </div>
 
                                 {contentSource === "post" && (
-                                    <div className="mt-4 rounded-[18px] border border-slate-100 bg-slate-50/70 p-4">
+                                    <div className="mt-4 rounded-card border border-slate-100 bg-slate-50/70 p-4">
                                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                             <div>
-                                                <h3 className="text-sm font-black text-[#0F172A]">Which posts or reels?</h3>
-                                                <p className="text-xs font-semibold text-[#64748B]">Pick specific content, or listen across all posts & reels.</p>
+                                                <h3 className="text-sm font-semibold text-slate-900">Which posts or reels?</h3>
+                                                <p className="text-xs font-semibold text-slate-500">Pick specific content, or listen across all posts & reels.</p>
                                             </div>
                                             {connected && !mediaLoading && hasPosts && (
-                                                <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#C13584] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#ad2a75]">
+                                                <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-brand px-4 text-xs font-semibold text-white transition hover:-translate-y-0.5 hover:bg-brand-hover">
                                                     <ImageIcon className="h-3.5 w-3.5" /> Select posts
                                                 </button>
                                             )}
@@ -3563,14 +3552,14 @@ function AutomationBuilder({
 
                                 {contentSource === "story" && (
                                     <div className="mt-4 space-y-3">
-                                        <div className="rounded-[18px] border border-slate-100 bg-slate-50/70 p-4">
+                                        <div className="rounded-card border border-slate-100 bg-slate-50/70 p-4">
                                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                                 <div>
-                                                    <h3 className="text-sm font-black text-[#0F172A]">Which stories?</h3>
-                                                    <p className="text-xs font-semibold text-[#64748B]">Pick the active stories this automation should watch.</p>
+                                                    <h3 className="text-sm font-semibold text-slate-900">Which stories?</h3>
+                                                    <p className="text-xs font-semibold text-slate-500">Pick the active stories this automation should watch.</p>
                                                 </div>
                                                 {connected && !mediaLoading && hasStories && (
-                                                    <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-[#C13584] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#ad2a75]">
+                                                    <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-brand px-4 text-xs font-semibold text-white transition hover:-translate-y-0.5 hover:bg-brand-hover">
                                                         <ImageIcon className="h-3.5 w-3.5" /> Select stories
                                                     </button>
                                                 )}
@@ -3589,22 +3578,22 @@ function AutomationBuilder({
                                             )}
                                             <FieldPopup message={validationErrors.content} />
                                         </div>
-                                        <div className="rounded-[18px] border border-slate-100 bg-white p-4">
-                                            <h3 className="text-sm font-black text-[#0F172A]">How should it match?</h3>
+                                        <div className="rounded-card border border-slate-100 bg-white p-4">
+                                            <h3 className="text-sm font-semibold text-slate-900">How should it match?</h3>
                                             <div className="mt-3 grid gap-2 sm:grid-cols-2">
                                                 {["Any story reply", "Specific keyword in story reply", "Emoji/reaction reply", "Story mention"].map((item) => (
                                                     <TriggerSetupOption key={item} label={item} selected={storyReplyMode === item} onClick={() => setStoryReplyMode(item)} />
                                                 ))}
                                             </div>
-                                            <div className="mt-4 flex items-start justify-between gap-3 rounded-[14px] bg-slate-50 px-3 py-3">
+                                            <div className="mt-4 flex items-start justify-between gap-3 rounded-control bg-slate-50 px-3 py-3">
                                                 <span className="min-w-0">
-                                                    <span className="block text-sm font-black text-[#0F172A]">Remove automation when the story expires</span>
-                                                    <span className="block text-xs font-semibold text-[#64748B]">Recommended. Stories disappear after 24 hours.</span>
+                                                    <span className="block text-sm font-semibold text-slate-900">Remove automation when the story expires</span>
+                                                    <span className="block text-xs font-semibold text-slate-500">Recommended. Stories disappear after 24 hours.</span>
                                                 </span>
                                                 <ToggleSwitch active={storyExpirationEnabled} onClick={() => setStoryExpirationEnabled(!storyExpirationEnabled)} />
                                             </div>
                                             {!storyExpirationEnabled && (
-                                                <div className="mt-3 flex gap-2 rounded-[14px] border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs font-bold leading-5 text-amber-800">
+                                                <div className="mt-3 flex gap-2 rounded-control border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs font-bold leading-5 text-amber-800">
                                                     <AlertTriangle className="h-4 w-4 shrink-0" />
                                                     <span>Heads up: this story disappears after 24 hours. The automation will stay active, but the original story people replied to will no longer be visible.</span>
                                                 </div>
@@ -3614,9 +3603,9 @@ function AutomationBuilder({
                                 )}
 
                                 {contentSource === "live" && (
-                                    <div className="mt-4 rounded-[18px] border border-slate-100 bg-slate-50/70 p-4">
-                                        <h3 className="text-sm font-black text-[#0F172A]">Live comment trigger</h3>
-                                        <p className="text-xs font-semibold text-[#64748B]">No post to pick &mdash; this listens to comments during your next Instagram Live.</p>
+                                    <div className="mt-4 rounded-card border border-slate-100 bg-slate-50/70 p-4">
+                                        <h3 className="text-sm font-semibold text-slate-900">Live comment trigger</h3>
+                                        <p className="text-xs font-semibold text-slate-500">No post to pick &mdash; this listens to comments during your next Instagram Live.</p>
                                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
                                             {["Any live comment", "Specific live comment keyword"].map((item) => (
                                                 <TriggerSetupOption key={item} label={item} selected={liveCommentMode === item} onClick={() => setLiveCommentMode(item)} />
@@ -3626,13 +3615,13 @@ function AutomationBuilder({
                                 )}
 
                                 {contentSource === "dm" && (
-                                    <div className="mt-4 rounded-[18px] border border-[#E8C56C]/60 bg-[#FFFDF6] p-4">
+                                    <div className="mt-4 rounded-card border border-gold/60 bg-[#FFFDF6] p-4">
                                         <div className="flex items-center gap-2">
                                             <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                                            <h3 className="text-sm font-black text-[#0F172A]">DM keyword trigger</h3>
+                                            <h3 className="text-sm font-semibold text-slate-900">DM keyword trigger</h3>
                                             <SmallBadge label="Pro" tone="gold" />
                                         </div>
-                                        <p className="mt-1 text-xs font-semibold text-[#8A5D17]">Start a flow when someone sends a keyword in your DMs. Set your keywords below.</p>
+                                        <p className="mt-1 text-xs font-semibold text-gold-deep">Start a flow when someone sends a keyword in your DMs. Set your keywords below.</p>
                                     </div>
                                 )}
                             </>
@@ -3640,10 +3629,10 @@ function AutomationBuilder({
                     </BuilderCard>
 
                     {!hasTrigger && (
-                        <div className="rounded-[20px] border border-dashed border-slate-200 bg-slate-50/60 p-8 text-center">
-                            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[1rem] bg-white text-[#C13584] shadow-sm"><Sparkles className="h-6 w-6" /></span>
-                            <h3 className="mt-4 text-base font-black text-[#0F172A]">Pick a trigger to get started</h3>
-                            <p className="mx-auto mt-1.5 max-w-sm text-sm font-semibold leading-6 text-[#64748B]">Choose what starts your automation above. The rest of the setup appears once you select a trigger.</p>
+                        <div className="rounded-card border border-dashed border-slate-200 bg-slate-50/60 p-8 text-center">
+                            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-card bg-white text-brand shadow-rest"><Sparkles className="h-6 w-6" /></span>
+                            <h3 className="mt-4 text-base font-semibold text-slate-900">Pick a trigger to get started</h3>
+                            <p className="mx-auto mt-1.5 max-w-sm text-sm font-semibold leading-6 text-slate-500">Choose what starts your automation above. The rest of the setup appears once you select a trigger.</p>
                         </div>
                     )}
                     </div>)}
@@ -3657,9 +3646,9 @@ function AutomationBuilder({
                         </BuilderCard>
                     )}
                     {!keywordRequired && (
-                        <div className="rounded-[20px] border border-dashed border-slate-200 bg-slate-50/60 p-8 text-center">
-                            <h3 className="text-base font-black text-[#0F172A]">No keywords needed</h3>
-                            <p className="mx-auto mt-1.5 max-w-sm text-sm font-semibold leading-6 text-[#64748B]">This trigger responds to every matching interaction. Continue to write your message.</p>
+                        <div className="rounded-card border border-dashed border-slate-200 bg-slate-50/60 p-8 text-center">
+                            <h3 className="text-base font-semibold text-slate-900">No keywords needed</h3>
+                            <p className="mx-auto mt-1.5 max-w-sm text-sm font-semibold leading-6 text-slate-500">This trigger responds to every matching interaction. Continue to write your message.</p>
                         </div>
                     )}
 
@@ -3681,7 +3670,7 @@ function AutomationBuilder({
                     {/* Welcome DM */}
                     <BuilderCard title="Welcome DM" subtitle="The first message people receive. Leave it on for a friendly opener.">
                         <div className="mb-3 flex items-center justify-between gap-3">
-                            <p className="text-xs font-semibold text-[#64748B]">Turn off to skip straight to the main message.</p>
+                            <p className="text-xs font-semibold text-slate-500">Turn off to skip straight to the main message.</p>
                             <ToggleSwitch active={welcomeEnabled} onClick={() => setWelcomeEnabled(!welcomeEnabled)} />
                         </div>
                         <textarea className={`${inputCls} min-h-[64px] resize-none`} placeholder="Hey @username, thanks for commenting." value={welcomeDm} onChange={(event) => setWelcomeDm(event.target.value)} disabled={!welcomeEnabled} />
@@ -3691,16 +3680,16 @@ function AutomationBuilder({
                     <BuilderCard title="Main DM message" subtitle="The message that delivers your link or answer.">
                         <textarea ref={finalDmRef} className={`${inputCls} min-h-[130px] resize-none`} placeholder="Hey @username, here is the link you asked for." value={finalDm} onChange={(event) => { setFinalDm(event.target.value); setValidationErrors((prev) => { const next = { ...prev }; delete next.message; return next; }); }} />
                         <div className="mt-3 flex flex-wrap gap-2">
-                            <button onClick={() => insertFinalToken("@username")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-indigo-50 hover:text-[#C13584]">@username</button>
-                            <button onClick={() => insertFinalToken("first name")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-indigo-50 hover:text-[#C13584]">first name</button>
+                            <button onClick={() => insertFinalToken("@username")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-brand-soft hover:text-brand">@username</button>
+                            <button onClick={() => insertFinalToken("first name")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-brand-soft hover:text-brand">first name</button>
                         </div>
                         <FieldPopup message={validationErrors.message} />
 
-                        <div className="mt-4 rounded-[16px] border border-slate-100 bg-slate-50/70 p-3.5">
+                        <div className="mt-4 rounded-card border border-slate-100 bg-slate-50/70 p-3.5">
                             <div className="flex items-center justify-between gap-3">
                                 <div>
-                                    <h3 className="text-sm font-black text-[#0F172A]">Add Link <span className="text-[#64748B]">(Optional)</span></h3>
-                                    <p className="text-xs font-semibold text-[#64748B]">Shows as a tappable button inside the DM. Turn off if you don't need one.</p>
+                                    <h3 className="text-sm font-semibold text-slate-900">Add Link <span className="text-slate-500">(Optional)</span></h3>
+                                    <p className="text-xs font-semibold text-slate-500">Shows as a tappable button inside the DM. Turn off if you don't need one.</p>
                                 </div>
                                 <ToggleSwitch active={linkEnabled} onClick={() => { setLinkEnabled(!linkEnabled); setValidationErrors((prev) => { const next = { ...prev }; delete next.link; return next; }); }} />
                             </div>
@@ -3717,7 +3706,7 @@ function AutomationBuilder({
                     {/* Failed Message Protocol */}
                     <BuilderCard title="If a DM can't be delivered" subtitle="Sometimes Instagram blocks a DM (closed inbox, restrictions, etc.). Choose what DMGennie should try instead.">
                         <div className="mb-3 flex items-center justify-between gap-3">
-                            <p className="text-xs font-semibold text-[#64748B]">Turn on a fallback so you never miss a lead.</p>
+                            <p className="text-xs font-semibold text-slate-500">Turn on a fallback so you never miss a lead.</p>
                             <ToggleSwitch active={failedProtocolEnabled} onClick={() => setFailedProtocolEnabled(!failedProtocolEnabled)} />
                         </div>
                         {failedProtocolEnabled && (
@@ -3753,14 +3742,14 @@ function AutomationBuilder({
                                 onToggle={toggleFollowUp}
                             />
                             {followUpEnabled && accountPlan.featureAccess.autoReply && (
-                                <div className="space-y-2 rounded-[14px] bg-slate-50 p-3">
+                                <div className="space-y-2 rounded-control bg-slate-50 p-3">
                                     <div className="flex items-center gap-2">
-                                        <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-white px-2.5 text-[11px] font-black text-[#475569] ring-1 ring-slate-200">
+                                        <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-white px-2.5 text-2xs font-semibold text-slate-600 ring-1 ring-slate-200">
                                             <Clock className="h-3 w-3" /> Sent after {FOLLOW_UP_WINDOW_LABEL}
                                         </span>
                                     </div>
                                     <input className={inputCls} value={followUpMessage} onChange={(event) => setFollowUpMessage(event.target.value)} placeholder="Follow-up message" />
-                                    <p className="text-[10px] font-semibold leading-4 text-[#94A3B8]">{FOLLOW_UP_POLICY_NOTE}</p>
+                                    <p className="text-2xs font-semibold leading-4 text-slate-400">{FOLLOW_UP_POLICY_NOTE}</p>
                                 </div>
                             )}
                             <ProActionButton
@@ -3773,10 +3762,10 @@ function AutomationBuilder({
                             {responses.length > 0 && (
                                 <div className="space-y-1.5">
                                     {responses.map((response, index) => (
-                                        <div key={`${response.title}-${index}`} className="flex items-center justify-between gap-3 rounded-[14px] bg-slate-50 px-3 py-2.5">
+                                        <div key={`${response.title}-${index}`} className="flex items-center justify-between gap-3 rounded-control bg-slate-50 px-3 py-2.5">
                                             <span className="min-w-0">
-                                                <span className="block text-xs font-black text-[#0F172A]">{response.title}</span>
-                                                <span className="block truncate text-[11px] font-semibold text-[#64748B]">{response.summary}</span>
+                                                <span className="block text-xs font-semibold text-slate-900">{response.title}</span>
+                                                <span className="block truncate text-2xs font-semibold text-slate-500">{response.summary}</span>
                                             </span>
                                             <button onClick={() => setResponses((current) => current.filter((_, itemIndex) => itemIndex !== index))} className="text-slate-400 transition hover:text-rose-500"><Trash2 className="h-4 w-4" /></button>
                                         </div>
@@ -3867,14 +3856,14 @@ function AutomationBuilder({
             {duplicateWarning && (
                 <ModalShell onClose={() => setDuplicateWarning(null)}>
                     <div className="text-center">
-                        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-[1.15rem] bg-amber-50 text-amber-600 ring-1 ring-amber-100">
+                        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-card bg-amber-50 text-amber-600 ring-1 ring-amber-100">
                             <AlertTriangle className="h-6 w-6" />
                         </span>
-                        <h2 className="mt-5 text-2xl font-black text-[#0F172A]">Some content already has an automation</h2>
-                        <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[#64748B]">
+                        <h2 className="mt-5 text-2xl font-bold text-slate-900">Some content already has an automation</h2>
+                        <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
                             These already have an automation attached. You can still continue, but more than one automation may respond to the same people.
                         </p>
-                        <div className="mx-auto mt-3 max-w-md rounded-[14px] border border-amber-100 bg-amber-50/70 px-3 py-2 text-left text-xs font-bold text-amber-800">
+                        <div className="mx-auto mt-3 max-w-md rounded-control border border-amber-100 bg-amber-50/70 px-3 py-2 text-left text-xs font-bold text-amber-800">
                             {duplicateWarning.title}
                         </div>
                         <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
@@ -3891,13 +3880,13 @@ function AutomationBuilder({
                     animate={{ opacity: 1, x: 0, y: 0 }}
                     exit={{ opacity: 0, x: 40 }}
                     transition={{ duration: 0.22 }}
-                    className="fixed bottom-6 right-6 z-50 w-[330px] max-w-[calc(100vw-2rem)] rounded-[16px] border border-rose-200 bg-white p-4 shadow-[0_24px_60px_rgba(15,23,42,0.18)]"
+                    className="fixed bottom-6 right-6 z-50 w-[330px] max-w-[calc(100vw-2rem)] rounded-card border border-rose-200 bg-white p-4 shadow-raised"
                 >
                     <div className="flex items-start gap-2.5">
                         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600"><AlertTriangle className="h-4 w-4" /></span>
                         <div className="min-w-0">
-                            <p className="text-sm font-black text-[#0F172A]">A few things need attention</p>
-                            <p className="mt-0.5 text-xs font-semibold leading-5 text-[#64748B]">Please complete: {Object.keys(validationErrors).map((key) => errorSectionLabels[key]).filter(Boolean).join(", ")}.</p>
+                            <p className="text-sm font-semibold text-slate-900">A few things need attention</p>
+                            <p className="mt-0.5 text-xs font-semibold leading-5 text-slate-500">Please complete: {Object.keys(validationErrors).map((key) => errorSectionLabels[key]).filter(Boolean).join(", ")}.</p>
                         </div>
                     </div>
                 </motion.div>
@@ -3907,7 +3896,7 @@ function AutomationBuilder({
 }
 
 function SelectedContentChips({ titles, pool, visibleCount, onShowMore, onShowLess, onRemove }: { titles: string[]; pool: InstagramMedia[]; visibleCount: number; onShowMore: () => void; onShowLess: () => void; onRemove: (title: string) => void }) {
-    if (!titles.length) return <p className="mt-3 text-xs font-semibold text-[#64748B]">No content selected yet.</p>;
+    if (!titles.length) return <p className="mt-3 text-xs font-semibold text-slate-500">No content selected yet.</p>;
     const shown = titles.slice(0, visibleCount);
     const remaining = titles.length - shown.length;
     return (
@@ -3916,7 +3905,7 @@ function SelectedContentChips({ titles, pool, visibleCount, onShowMore, onShowLe
                 {shown.map((title) => {
                     const media = pool.find((item) => item.title === title);
                     return (
-                        <span key={title} className="inline-flex items-center gap-2 rounded-full bg-white px-2.5 py-1.5 text-xs font-black text-[#0F172A] ring-1 ring-slate-200">
+                        <span key={title} className="inline-flex items-center gap-2 rounded-full bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-900 ring-1 ring-slate-200">
                             <span className={cx("h-4 w-4 rounded-[5px] bg-gradient-to-br", media?.color || "from-slate-200 to-slate-300")} />
                             <span className="max-w-[160px] truncate">{title}</span>
                             <button onClick={() => onRemove(title)} className="text-slate-400 transition hover:text-rose-500" aria-label={`Remove ${title}`}><X className="h-3.5 w-3.5" /></button>
@@ -3924,11 +3913,11 @@ function SelectedContentChips({ titles, pool, visibleCount, onShowMore, onShowLe
                     );
                 })}
                 {remaining > 0 && (
-                    <button onClick={onShowMore} className="inline-flex items-center rounded-full bg-[#FBEAF3] px-3 py-1.5 text-xs font-black text-[#C13584] transition hover:bg-indigo-100">+{remaining} more</button>
+                    <button onClick={onShowMore} className="inline-flex items-center rounded-full bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-brand/15">+{remaining} more</button>
                 )}
             </div>
             {visibleCount > 3 && titles.length > 3 && (
-                <button onClick={onShowLess} className="mt-2 text-xs font-black text-[#C13584]">Show less</button>
+                <button onClick={onShowLess} className="mt-2 text-xs font-semibold text-brand">Show less</button>
             )}
         </div>
     );
@@ -3954,17 +3943,17 @@ function InlineReplySetup({ replies, onAdd, onRemove, suggestions = [] }: { repl
                     ))}
                 </div>
             ) : (
-                <p className="text-xs font-semibold text-[#64748B]">No public replies yet. Tap a suggestion or type your own below.</p>
+                <p className="text-xs font-semibold text-slate-500">No public replies yet. Tap a suggestion or type your own below.</p>
             )}
             {availableSuggestions.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                     {availableSuggestions.map((suggestion) => (
-                        <button key={suggestion} type="button" onClick={() => onAdd(suggestion)} className="inline-flex h-8 items-center rounded-full bg-white px-3 text-xs font-black text-[#C13584] ring-1 ring-indigo-100 transition hover:-translate-y-0.5 hover:bg-[#FBEAF3]">{suggestion}</button>
+                        <button key={suggestion} type="button" onClick={() => onAdd(suggestion)} className="inline-flex h-8 items-center rounded-full bg-white px-3 text-xs font-semibold text-brand ring-1 ring-brand/15 transition hover:-translate-y-0.5 hover:bg-brand-soft">{suggestion}</button>
                     ))}
                 </div>
             )}
             <input
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10"
+                className="w-full rounded-card border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none transition focus:border-brand/40 focus:ring-4 focus:ring-brand/10"
                 placeholder="Type a public reply and press Enter"
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
@@ -3987,16 +3976,16 @@ function FallbackMessageEditor({ messages, onChange }: { messages: string[]; onC
     return (
         <div className="space-y-2.5">
             {messages.map((message, index) => (
-                <div key={index} className="flex items-start gap-2 rounded-[16px] border border-slate-100 bg-white p-2.5">
+                <div key={index} className="flex items-start gap-2 rounded-card border border-slate-100 bg-white p-2.5">
                     <div className="flex flex-col pt-1">
                         <button onClick={() => move(index, -1)} disabled={index === 0} className="text-slate-300 transition hover:text-slate-500 disabled:opacity-30" aria-label="Move up"><ChevronDown className="h-3.5 w-3.5 rotate-180" /></button>
                         <button onClick={() => move(index, 1)} disabled={index === messages.length - 1} className="text-slate-300 transition hover:text-slate-500 disabled:opacity-30" aria-label="Move down"><ChevronDown className="h-3.5 w-3.5" /></button>
                     </div>
-                    <textarea className="min-h-[46px] flex-1 resize-none bg-transparent text-sm font-bold text-[#0F172A] outline-none" value={message} onChange={(event) => update(index, event.target.value)} placeholder="Fallback message" />
+                    <textarea className="min-h-[46px] flex-1 resize-none bg-transparent text-sm font-bold text-slate-900 outline-none" value={message} onChange={(event) => update(index, event.target.value)} placeholder="Fallback message" />
                     <button onClick={() => remove(index)} className="pt-1 text-slate-400 transition hover:text-rose-500" aria-label="Remove"><Trash2 className="h-4 w-4" /></button>
                 </div>
             ))}
-            <button onClick={() => onChange([...messages, ""])} className="flex h-11 w-full items-center justify-center gap-2 rounded-[16px] border border-dashed border-slate-200 text-sm font-black text-slate-500 transition hover:border-indigo-200 hover:text-[#C13584]">
+            <button onClick={() => onChange([...messages, ""])} className="flex h-11 w-full items-center justify-center gap-2 rounded-card border border-dashed border-slate-200 text-sm font-semibold text-slate-500 transition hover:border-brand/25 hover:text-brand">
                 <Plus className="h-4 w-4" /> Add fallback message
             </button>
         </div>
@@ -4009,13 +3998,13 @@ function MediaSelectorState({ connected, loading, isEmpty, kind, onConnect }: { 
     const label = kind === "story" ? "stories" : "posts or reels";
     if (!connected) {
         return (
-            <div className="mt-3 flex flex-col items-center gap-3 rounded-[16px] border border-dashed border-indigo-200 bg-[#FBEAF3]/50 px-4 py-6 text-center">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#C13584]"><Instagram className="h-5 w-5" /></span>
+            <div className="mt-3 flex flex-col items-center gap-3 rounded-card border border-dashed border-brand/25 bg-brand-soft/50 px-4 py-6 text-center">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-brand"><Instagram className="h-5 w-5" /></span>
                 <div>
-                    <p className="text-sm font-black text-[#0F172A]">Connect your Instagram account first</p>
-                    <p className="mt-0.5 text-xs font-semibold text-[#64748B]">You need a connected account before you can pick {label}.</p>
+                    <p className="text-sm font-semibold text-slate-900">Connect your Instagram account first</p>
+                    <p className="mt-0.5 text-xs font-semibold text-slate-500">You need a connected account before you can pick {label}.</p>
                 </div>
-                <button onClick={onConnect} className="inline-flex h-9 items-center gap-2 rounded-full bg-[#C13584] px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#ad2a75]">
+                <button onClick={onConnect} className="inline-flex h-9 items-center gap-2 rounded-full bg-brand px-4 text-xs font-semibold text-white transition hover:-translate-y-0.5 hover:bg-brand-hover">
                     <Instagram className="h-3.5 w-3.5" /> Connect account
                 </button>
             </div>
@@ -4023,17 +4012,17 @@ function MediaSelectorState({ connected, loading, isEmpty, kind, onConnect }: { 
     }
     if (loading) {
         return (
-            <div className="mt-3 flex items-center justify-center gap-2 rounded-[16px] border border-slate-100 bg-white px-4 py-6 text-sm font-bold text-slate-500">
+            <div className="mt-3 flex items-center justify-center gap-2 rounded-card border border-slate-100 bg-white px-4 py-6 text-sm font-bold text-slate-500">
                 <RefreshCw className="h-4 w-4 animate-spin" /> Loading your {label}…
             </div>
         );
     }
     if (isEmpty) {
         return (
-            <div className="mt-3 flex flex-col items-center gap-2 rounded-[16px] border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center">
+            <div className="mt-3 flex flex-col items-center gap-2 rounded-card border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center">
                 <ImageIcon className="h-7 w-7 text-slate-300" />
-                <p className="text-sm font-black text-[#0F172A]">No {kind === "story" ? "active stories" : "posts or reels"} yet</p>
-                <p className="text-xs font-semibold text-[#64748B]">{kind === "story" ? "Post a story on this account to use story-reply automations." : "Upload a post or reel on this account to select it here."}</p>
+                <p className="text-sm font-semibold text-slate-900">No {kind === "story" ? "active stories" : "posts or reels"} yet</p>
+                <p className="text-xs font-semibold text-slate-500">{kind === "story" ? "Post a story on this account to use story-reply automations." : "Upload a post or reel on this account to select it here."}</p>
             </div>
         );
     }
@@ -4043,18 +4032,18 @@ function MediaSelectorState({ connected, loading, isEmpty, kind, onConnect }: { 
 function ContentSelectCard({ media, kind, selected, occupied, onClick }: { media: InstagramMedia; kind: "post" | "story"; selected: boolean; occupied: boolean; onClick: () => void }) {
     const isAll = media.id === "all";
     return (
-        <button onClick={onClick} className={cx("group rounded-[16px] border p-2 text-left transition hover:-translate-y-0.5", selected ? "border-[#C13584] bg-[#FBEAF3]" : "border-slate-100 bg-white hover:border-indigo-100")}>
-            <div className={cx("relative flex h-28 items-center justify-center overflow-hidden rounded-[12px] bg-gradient-to-br", media.color)}>
+        <button onClick={onClick} className={cx("group rounded-card border p-2 text-left transition hover:-translate-y-0.5", selected ? "border-brand bg-brand-soft" : "border-slate-100 bg-white hover:border-brand/15")}>
+            <div className={cx("relative flex h-28 items-center justify-center overflow-hidden rounded-control bg-gradient-to-br", media.color)}>
                 {media.thumbnailUrl && !isAll && (
                     <img src={media.thumbnailUrl} alt={media.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
                 )}
                 <div className="absolute inset-0 bg-black/10" />
                 {isAll ? <LayoutGrid className="relative h-7 w-7 text-slate-500" /> : !media.thumbnailUrl && <Instagram className="relative h-7 w-7 text-white/90" />}
-                <span className="absolute right-1.5 top-1.5 rounded-full bg-black/30 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-[0.08em] text-white">{kind === "story" ? "Story" : media.type}</span>
-                {selected && <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[#C13584]"><Check className="h-3 w-3 stroke-[3]" /></span>}
+                <span className="absolute right-1.5 top-1.5 rounded-full bg-black/30 px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-[0.08em] text-white">{kind === "story" ? "Story" : media.type}</span>
+                {selected && <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-brand"><Check className="h-3 w-3 stroke-[3]" /></span>}
             </div>
-            <p className="mt-1.5 truncate text-[11px] font-black text-[#0F172A]">{media.title}</p>
-            <p className="truncate text-[10px] font-black uppercase tracking-[0.06em] text-slate-400">{isAll ? "All content" : media.metric}{occupied ? " · In use" : ""}</p>
+            <p className="mt-1.5 truncate text-2xs font-semibold text-slate-900">{media.title}</p>
+            <p className="truncate text-2xs font-semibold uppercase tracking-[0.06em] text-slate-400">{isAll ? "All content" : media.metric}{occupied ? " · In use" : ""}</p>
         </button>
     );
 }
@@ -4083,8 +4072,8 @@ function ContentSelectorModal({ kind, items, initialSelected, isOccupied, onClos
         <ModalShell onClose={onClose} wide>
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl font-black text-[#0F172A]">{kind === "story" ? "Select stories" : "Select posts or reels"}</h2>
-                    <p className="mt-1 text-sm font-semibold text-[#64748B]">Choose the content this automation should watch. You can pick more than one.</p>
+                    <h2 className="text-2xl font-bold text-slate-900">{kind === "story" ? "Select stories" : "Select posts or reels"}</h2>
+                    <p className="mt-1 text-sm font-semibold text-slate-500">Choose the content this automation should watch. You can pick more than one.</p>
                 </div>
                 <button onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50"><X className="h-4 w-4" /></button>
             </div>
@@ -4093,7 +4082,7 @@ function ContentSelectorModal({ kind, items, initialSelected, isOccupied, onClos
                 {filters.length > 1 && (
                     <div className="flex flex-wrap gap-2">
                         {filters.map((item) => (
-                            <button key={item} onClick={() => setFilter(item)} className={cx("rounded-full px-4 py-2 text-xs font-black transition", filter === item ? "bg-[#0F172A] text-white" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>{item}</button>
+                            <button key={item} onClick={() => setFilter(item)} className={cx("rounded-full px-4 py-2 text-xs font-semibold transition", filter === item ? "bg-slate-900 text-white" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>{item}</button>
                         ))}
                     </div>
                 )}
@@ -4105,15 +4094,15 @@ function ContentSelectorModal({ kind, items, initialSelected, isOccupied, onClos
                             ))}
                         </div>
                     ) : (
-                        <div className="rounded-[18px] border border-dashed border-slate-200 bg-slate-50 p-6 text-center">
+                        <div className="rounded-card border border-dashed border-slate-200 bg-slate-50 p-6 text-center">
                             <ImageIcon className="mx-auto h-8 w-8 text-slate-300" />
-                            <p className="mt-3 text-sm font-black text-[#0F172A]">Nothing found</p>
-                            <p className="mt-1 text-xs font-semibold text-[#64748B]">Try another search or filter.</p>
+                            <p className="mt-3 text-sm font-semibold text-slate-900">Nothing found</p>
+                            <p className="mt-1 text-xs font-semibold text-slate-500">Try another search or filter.</p>
                         </div>
                     )}
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                    <span className="text-xs font-black text-[#64748B]">{selected.length} selected</span>
+                    <span className="text-xs font-semibold text-slate-500">{selected.length} selected</span>
                     <div className="flex gap-2">
                         <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
                         <PrimaryButton onClick={() => onConfirm(selected)}>Confirm selection</PrimaryButton>
@@ -4129,20 +4118,20 @@ function TriggerOptionButton({ option, selected, onClick }: { option: { type: st
         <button
             onClick={onClick}
             className={cx(
-                "flex w-full items-center gap-3 rounded-[16px] border p-3.5 text-left transition hover:-translate-y-0.5",
+                "flex w-full items-center gap-3 rounded-card border p-3.5 text-left transition hover:-translate-y-0.5",
                 selected
-                    ? "border-[#C13584] bg-[#FBEAF3] shadow-[0_12px_28px_rgba(193,53,132,0.10)]"
+                    ? "border-brand bg-brand-soft"
                     : option.pro
-                        ? "border-[#E8C56C]/60 bg-[#FFFDF6] hover:bg-[#FFF9E8]"
-                        : "border-slate-100 bg-white hover:border-indigo-100 hover:bg-indigo-50/30"
+                        ? "border-gold/60 bg-[#FFFDF6] hover:bg-[#FFF9E8]"
+                        : "border-slate-100 bg-white hover:border-brand/15 hover:bg-brand-soft/30"
             )}
         >
-            <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.9rem]", selected ? "bg-white text-[#C13584]" : option.pro ? "bg-[#FFF7DA] text-[#8A5D17]" : "bg-slate-50 text-slate-500")}>{option.icon}</span>
+            <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center rounded-control", selected ? "bg-white text-brand" : option.pro ? "bg-gold-soft text-gold-deep" : "bg-slate-50 text-slate-500")}>{option.icon}</span>
             <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-2 text-sm font-black text-[#0F172A]">{option.title}{option.pro && <SmallBadge label="Pro" tone="gold" />}</span>
-                <span className="block truncate text-xs font-semibold text-[#64748B]">{option.copy}</span>
+                <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">{option.title}{option.pro && <SmallBadge label="Pro" tone="gold" />}</span>
+                <span className="block truncate text-xs font-semibold text-slate-500">{option.copy}</span>
             </span>
-            {selected ? <CheckCircle2 className="h-5 w-5 shrink-0 text-[#C13584]" /> : option.pro ? <Crown className={cx("h-4 w-4 shrink-0", goldCrownCls)} /> : <ChevronDown className="h-4 w-4 -rotate-90 shrink-0 text-slate-300" />}
+            {selected ? <CheckCircle2 className="h-5 w-5 shrink-0 text-brand" /> : option.pro ? <Crown className={cx("h-4 w-4 shrink-0", goldCrownCls)} /> : <ChevronDown className="h-4 w-4 -rotate-90 shrink-0 text-slate-300" />}
         </button>
     );
 }
@@ -4152,17 +4141,17 @@ function ProToggleCard({ icon, title, copy, active, locked, onToggle }: { icon: 
         <button
             onClick={onToggle}
             className={cx(
-                "flex w-full items-center gap-3 rounded-[16px] border p-3 text-left transition",
-                locked ? "border-[#E8C56C]/70 bg-[#FFFDF6] hover:bg-[#FFF9E8]" : active ? "border-indigo-200 bg-[#FBEAF3]" : "border-slate-100 bg-slate-50 hover:bg-white"
+                "flex w-full items-center gap-3 rounded-card border p-3 text-left transition",
+                locked ? "border-gold/70 bg-[#FFFDF6] hover:bg-[#FFF9E8]" : active ? "border-brand/25 bg-brand-soft" : "border-slate-100 bg-slate-50 hover:bg-white"
             )}
         >
-            <span className={cx("flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.85rem] ring-1", locked ? "bg-[#FFF7DA] text-[#8A5D17] ring-[#E8C56C]/40" : "bg-white text-[#C13584] ring-slate-100")}>{locked ? <Crown className={cx("h-4 w-4", goldCrownCls)} /> : icon}</span>
+            <span className={cx("flex h-9 w-9 shrink-0 items-center justify-center rounded-control ring-1", locked ? "bg-gold-soft text-gold-deep ring-gold/40" : "bg-white text-brand ring-slate-100")}>{locked ? <Crown className={cx("h-4 w-4", goldCrownCls)} /> : icon}</span>
             <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-2 text-sm font-black text-[#0F172A]">{title}{locked && <SmallBadge label="Pro" tone="gold" />}</span>
-                <span className="block text-xs font-semibold text-[#64748B]">{copy}</span>
+                <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">{title}{locked && <SmallBadge label="Pro" tone="gold" />}</span>
+                <span className="block text-xs font-semibold text-slate-500">{copy}</span>
             </span>
-            {locked ? <Lock className="h-4 w-4 shrink-0 text-[#8A5D17]" /> : (
-                <span className={cx("h-6 w-11 shrink-0 rounded-full p-0.5 transition", active ? "bg-[#C13584]" : "bg-slate-200")}><span className={cx("block h-5 w-5 rounded-full bg-white shadow transition", active && "translate-x-5")} /></span>
+            {locked ? <Lock className="h-4 w-4 shrink-0 text-gold-deep" /> : (
+                <span className={cx("h-6 w-11 shrink-0 rounded-full p-0.5 transition", active ? "bg-brand" : "bg-slate-200")}><span className={cx("block h-5 w-5 rounded-full bg-white shadow-rest transition", active && "translate-x-5")} /></span>
             )}
         </button>
     );
@@ -4173,22 +4162,22 @@ function ProActionButton({ icon, title, copy, locked, onClick }: { icon: ReactNo
         <button
             onClick={onClick}
             className={cx(
-                "flex w-full items-center gap-3 rounded-[16px] border p-3 text-left transition",
-                locked ? "border-[#E8C56C]/70 bg-[#FFFDF6] hover:bg-[#FFF9E8]" : "border-indigo-100 bg-[#FBEAF3]/40 hover:bg-[#FBEAF3]"
+                "flex w-full items-center gap-3 rounded-card border p-3 text-left transition",
+                locked ? "border-gold/70 bg-[#FFFDF6] hover:bg-[#FFF9E8]" : "border-brand/15 bg-brand-soft/40 hover:bg-brand-soft"
             )}
         >
-            <span className={cx("flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.85rem] ring-1", locked ? "bg-[#FFF7DA] text-[#8A5D17] ring-[#E8C56C]/40" : "bg-white text-[#C13584] ring-indigo-100")}>{locked ? <Crown className={cx("h-4 w-4", goldCrownCls)} /> : icon}</span>
+            <span className={cx("flex h-9 w-9 shrink-0 items-center justify-center rounded-control ring-1", locked ? "bg-gold-soft text-gold-deep ring-gold/40" : "bg-white text-brand ring-brand/15")}>{locked ? <Crown className={cx("h-4 w-4", goldCrownCls)} /> : icon}</span>
             <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-2 text-sm font-black text-[#0F172A]">{title}{locked && <SmallBadge label="Pro" tone="gold" />}</span>
-                <span className="block text-xs font-semibold text-[#64748B]">{copy}</span>
+                <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">{title}{locked && <SmallBadge label="Pro" tone="gold" />}</span>
+                <span className="block text-xs font-semibold text-slate-500">{copy}</span>
             </span>
-            {locked ? <Lock className="h-4 w-4 shrink-0 text-[#8A5D17]" /> : <Plus className="h-4 w-4 shrink-0 text-[#C13584]" />}
+            {locked ? <Lock className="h-4 w-4 shrink-0 text-gold-deep" /> : <Plus className="h-4 w-4 shrink-0 text-brand" />}
         </button>
     );
 }
 
 function DmBubble({ children, side }: { children: ReactNode; side: "left" | "right" }) {
-    return <div className={cx("max-w-[80%] rounded-[20px] px-3.5 py-2 text-[13px] font-semibold leading-5", side === "right" ? "ml-auto rounded-br-md bg-[#3797F0] text-white" : "mr-auto rounded-bl-md bg-[#EFEFEF] text-slate-900")}>{children}</div>;
+    return <div className={cx("max-w-[80%] rounded-card px-3.5 py-2 text-sm font-semibold leading-5", side === "right" ? "ml-auto rounded-br-control bg-[#3797F0] text-white" : "mr-auto rounded-bl-control bg-slate-100 text-slate-900")}>{children}</div>;
 }
 
 function InstagramDmPreview({
@@ -4250,28 +4239,28 @@ function InstagramDmPreview({
         <aside className="xl:sticky xl:top-24 xl:self-start xl:justify-self-end">
             <div className="mb-3 flex items-center justify-between">
                 <div>
-                    <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#94A3B8]">Live preview</p>
-                    <p className="text-sm font-black text-[#0F172A]">How your DM will look</p>
+                    <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-slate-400">Live preview</p>
+                    <p className="text-sm font-semibold text-slate-900">How your DM will look</p>
                 </div>
                 <SmallBadge label="Auto-synced" tone="green" />
             </div>
-            <div className="mx-auto w-full max-w-[330px] overflow-hidden rounded-[42px] border-[11px] border-slate-900 bg-white shadow-[0_30px_80px_rgba(15,23,42,0.22)]">
-                <div className="flex items-center justify-between bg-white px-6 pt-3 pb-1 text-[11px] font-black text-slate-900">
+            <div className="mx-auto w-full max-w-[330px] overflow-hidden rounded-[42px] border-[11px] border-slate-900 bg-white shadow-overlay">
+                <div className="flex items-center justify-between bg-white px-6 pt-3 pb-1 text-2xs font-semibold text-slate-900">
                     <span>9:41</span>
                     <span className="flex items-center gap-1"><span className="h-2.5 w-5 rounded-[3px] bg-slate-900/80" /></span>
                 </div>
                 <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-2.5">
                     <ArrowRight className="h-5 w-5 rotate-180 text-slate-900" />
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#C13584] to-[#F05A8A] text-sm font-black text-white">D</span>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand text-sm font-semibold text-white">D</span>
                     <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-black text-slate-900">{username.replace("@", "")}</p>
-                        <p className="text-[10px] font-bold text-slate-400">Active now</p>
+                        <p className="truncate text-sm font-semibold text-slate-900">{username.replace("@", "")}</p>
+                        <p className="text-2xs font-bold text-slate-400">Active now</p>
                     </div>
                     <Radio className="h-5 w-5 text-slate-300" />
                 </div>
                 <div className="flex items-center gap-2 bg-slate-50 px-4 py-2">
-                    <span className={cx("h-7 w-7 shrink-0 rounded-[8px] bg-gradient-to-br", contextMedia.color)} />
-                    <p className="truncate text-[11px] font-bold text-slate-500">{contextLabel}</p>
+                    <span className={cx("h-7 w-7 shrink-0 rounded-control bg-gradient-to-br", contextMedia.color)} />
+                    <p className="truncate text-2xs font-bold text-slate-500">{contextLabel}</p>
                 </div>
                 <div className="flex min-h-[470px] flex-col gap-2 bg-white px-3.5 py-4">
                     <DmBubble side="left">{incoming}</DmBubble>
@@ -4280,19 +4269,19 @@ function InstagramDmPreview({
                     {askEmailFirst && <DmBubble side="right">Drop your email and I&apos;ll send it right over.</DmBubble>}
                     <DmBubble side="right">{finalDm}</DmBubble>
                     {linkEnabled && (
-                        <div className="ml-auto w-[80%] overflow-hidden rounded-[18px] border border-slate-200">
+                        <div className="ml-auto w-[80%] overflow-hidden rounded-card border border-slate-200">
                             <div className={cx("h-20 bg-gradient-to-br", contextMedia.color)} />
                             <div className="bg-white px-3 py-2">
-                                <p className="truncate text-[10px] font-bold text-slate-400">{linkUrl || "https://dmgennie.in"}</p>
-                                <p className="truncate text-xs font-black text-[#0F172A]">{buttonText || "Open Link"}</p>
+                                <p className="truncate text-2xs font-bold text-slate-400">{linkUrl || "https://dmgennie.in"}</p>
+                                <p className="truncate text-xs font-semibold text-slate-900">{buttonText || "Open Link"}</p>
                             </div>
-                            <div className="border-t border-slate-100 bg-white py-2 text-center text-xs font-black text-[#3797F0]">{buttonText || "Open Link"}</div>
+                            <div className="border-t border-slate-100 bg-white py-2 text-center text-xs font-semibold text-[#3797F0]">{buttonText || "Open Link"}</div>
                         </div>
                     )}
                     {followUpEnabled && <DmBubble side="right">{followUpMessage}</DmBubble>}
                     <div className="mt-auto flex items-center justify-between rounded-full bg-slate-100 px-4 py-2.5">
                         <span className="text-xs font-semibold text-slate-400">Message...</span>
-                        <span className="text-xs font-black text-[#3797F0]">Send</span>
+                        <span className="text-xs font-semibold text-[#3797F0]">Send</span>
                     </div>
                 </div>
             </div>
@@ -4304,11 +4293,11 @@ function AutomationSuccessModal({ onClose }: { onClose: () => void }) {
     return (
         <ModalShell onClose={onClose}>
             <div className="text-center">
-                <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.25rem] bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
+                <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-card bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
                     <CheckCircle2 className="h-8 w-8" />
                 </span>
-                <h2 className="mt-5 text-2xl font-black text-[#0F172A]">Automation is live</h2>
-                <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-[#64748B]">DMGennie will now respond when your trigger is matched.</p>
+                <h2 className="mt-5 text-2xl font-bold text-slate-900">Automation is live</h2>
+                <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">DMGennie will now respond when your trigger is matched.</p>
                 <div className="mt-6 flex justify-center">
                     <PrimaryButton onClick={onClose}>View automation</PrimaryButton>
                 </div>
@@ -4320,7 +4309,7 @@ function AutomationSuccessModal({ onClose }: { onClose: () => void }) {
 function BuilderStepIndicator({ step, onStep }: { step: number; onStep: (step: number) => void }) {
     const steps = ["Trigger & content", "Keywords", "Final DM", "Review"];
     return (
-        <section className="rounded-[18px] border border-white bg-white p-3 shadow-[0_12px_34px_rgba(15,23,42,0.045)]">
+        <section className="rounded-card border border-white bg-white p-3 shadow-raised">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex flex-wrap gap-2">
                     {steps.map((item, index) => {
@@ -4328,14 +4317,14 @@ function BuilderStepIndicator({ step, onStep }: { step: number; onStep: (step: n
                         const active = step === number;
                         const done = step > number;
                         return (
-                            <button key={item} onClick={() => onStep(number)} className={cx("inline-flex h-10 items-center gap-2 rounded-full px-3 text-xs font-black transition", active ? "bg-[#C13584] text-white shadow-[0_10px_22px_rgba(193,53,132,0.18)]" : done ? "bg-emerald-50 text-emerald-700" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>
+                            <button key={item} onClick={() => onStep(number)} className={cx("inline-flex h-10 items-center gap-2 rounded-full px-3 text-xs font-semibold transition", active ? "bg-brand text-white" : done ? "bg-emerald-50 text-emerald-700" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>
                                 <span className={cx("flex h-5 w-5 items-center justify-center rounded-full", active ? "bg-white/20" : done ? "bg-emerald-100" : "bg-white")}>{done ? <Check className="h-3.5 w-3.5" /> : number}</span>
                                 {item}
                             </button>
                         );
                     })}
                 </div>
-                <span className="inline-flex h-8 w-fit items-center rounded-full bg-slate-50 px-3 text-xs font-black text-slate-500">{step}/4</span>
+                <span className="inline-flex h-8 w-fit items-center rounded-full bg-slate-50 px-3 text-xs font-semibold text-slate-500">{step}/4</span>
             </div>
         </section>
     );
@@ -4344,7 +4333,7 @@ function BuilderStepIndicator({ step, onStep }: { step: number; onStep: (step: n
 // Item 8: a pulsing box that tells the user what the current step needs next.
 function StepHint({ text, valid }: { text: string; valid: boolean }) {
     return (
-        <div className={cx("flex items-center gap-2 rounded-[14px] border px-3.5 py-2.5 text-sm font-black transition", valid ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "animate-pulse border-amber-200 bg-amber-50 text-amber-700")}>
+        <div className={cx("flex items-center gap-2 rounded-control border px-3.5 py-2.5 text-sm font-semibold transition", valid ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "animate-pulse border-amber-200 bg-amber-50 text-amber-700")}>
             {valid ? <Check className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
             <span>{text}</span>
         </div>
@@ -4355,13 +4344,13 @@ function StepHint({ text, valid }: { text: string; valid: boolean }) {
 function WizardNav({ step, maxStep, nextPulses, onBack, onNext, onSaveDraft, saving }: { step: number; maxStep: number; nextPulses: boolean; onBack: () => void; onNext: () => void; onSaveDraft?: () => void; saving?: boolean }) {
     const isLast = step >= maxStep;
     return (
-        <div className="sticky bottom-3 z-10 flex items-center justify-between gap-3 rounded-[18px] border border-white bg-white/95 p-3 shadow-[0_16px_44px_rgba(15,23,42,0.08)] backdrop-blur">
-            <button onClick={onBack} disabled={step <= 1} className="inline-flex h-11 items-center gap-1.5 rounded-[1rem] border border-slate-200 px-4 text-sm font-black text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">
+        <div className="sticky bottom-3 z-10 flex items-center justify-between gap-3 rounded-card border border-white bg-white/95 p-3 shadow-raised backdrop-blur">
+            <button onClick={onBack} disabled={step <= 1} className="inline-flex h-11 items-center gap-1.5 rounded-card border border-slate-200 px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">
                 <ArrowRight className="h-4 w-4 rotate-180" /> Back
             </button>
             <div className="flex items-center gap-2">
                 {onSaveDraft && <SecondaryButton onClick={onSaveDraft}>{saving ? "Saving..." : "Save Draft"}</SecondaryButton>}
-                <button onClick={onNext} className={cx("inline-flex h-11 items-center gap-1.5 rounded-[1rem] bg-[#C13584] px-5 text-sm font-black text-white transition hover:bg-[#ad2a75]", nextPulses && "animate-pulse ring-2 ring-[#C13584]/40 ring-offset-2")}>
+                <button onClick={onNext} className={cx("inline-flex h-11 items-center gap-1.5 rounded-card bg-brand px-5 text-sm font-semibold text-white transition hover:bg-brand-hover", nextPulses && "animate-pulse ring-2 ring-brand/40 ring-offset-2")}>
                     {isLast ? (<><Check className="h-4 w-4" /> Launch Automation</>) : (<>Continue <ArrowRight className="h-4 w-4" /></>)}
                 </button>
             </div>
@@ -4371,8 +4360,8 @@ function WizardNav({ step, maxStep, nextPulses, onBack, onNext, onSaveDraft, sav
 
 function ReviewLine({ label, value }: { label: string; value: string }) {
     return (
-        <div className="flex items-start justify-between gap-4 rounded-[12px] bg-slate-50 px-3.5 py-2.5">
-            <span className="shrink-0 text-xs font-black uppercase tracking-[0.08em] text-slate-400">{label}</span>
+        <div className="flex items-start justify-between gap-4 rounded-control bg-slate-50 px-3.5 py-2.5">
+            <span className="shrink-0 text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</span>
             <span className="min-w-0 flex-1 break-words text-right text-sm font-bold text-slate-700">{value}</span>
         </div>
     );
@@ -4382,7 +4371,7 @@ function ReviewLine({ label, value }: { label: string; value: string }) {
 function FieldPopup({ message }: { message?: string }) {
     if (!message) return null;
     return (
-        <div className="relative mt-2 inline-flex items-center gap-1.5 rounded-[10px] border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-600 shadow-sm">
+        <div className="relative mt-2 inline-flex items-center gap-1.5 rounded-control border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-600 shadow-rest">
             <span className="absolute -top-1.5 left-4 h-3 w-3 rotate-45 border-l border-t border-rose-200 bg-rose-50" />
             <AlertCircle className="h-3.5 w-3.5 shrink-0" />
             {message}
@@ -4392,10 +4381,10 @@ function FieldPopup({ message }: { message?: string }) {
 
 function BuilderCard({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
     return (
-        <section className="rounded-[22px] border border-white bg-white p-4 shadow-[0_16px_48px_rgba(15,23,42,0.05)] sm:p-5">
+        <section className="rounded-card border border-white bg-white p-4 shadow-raised sm:p-5">
             <div className="mb-4">
-                <h2 className="text-xl font-black tracking-tight text-[#0F172A]">{title}</h2>
-                <p className="mt-1 text-sm font-semibold text-[#64748B]">{subtitle}</p>
+                <h2 className="text-xl font-bold tracking-tight text-slate-900">{title}</h2>
+                <p className="mt-1 text-sm font-semibold text-slate-500">{subtitle}</p>
             </div>
             {children}
         </section>
@@ -4408,13 +4397,13 @@ function TriggerSetupOption({ label, selected, disabled, onClick }: { label: str
             disabled={disabled}
             onClick={onClick}
             className={cx(
-                "flex h-12 items-center justify-between rounded-[16px] border px-3 text-left text-xs font-black transition",
-                selected ? "border-[#C13584] bg-white text-[#0F172A] shadow-[0_10px_22px_rgba(193,53,132,0.08)]" : "border-slate-100 bg-white/70 text-[#64748B] hover:border-indigo-100 hover:bg-white",
+                "flex h-12 items-center justify-between rounded-card border px-3 text-left text-xs font-semibold transition",
+                selected ? "border-brand bg-white text-slate-900" : "border-slate-100 bg-white/70 text-slate-500 hover:border-brand/15 hover:bg-white",
                 disabled && "cursor-not-allowed opacity-50"
             )}
         >
             <span>{label}</span>
-            {disabled ? <SmallBadge label="Coming soon" tone="gray" /> : selected && <CheckCircle2 className="h-4 w-4 text-[#C13584]" />}
+            {disabled ? <SmallBadge label="Coming soon" tone="gray" /> : selected && <CheckCircle2 className="h-4 w-4 text-brand" />}
         </button>
     );
 }
@@ -4460,7 +4449,7 @@ function InlineKeywordSetup({
                 ))}
             </div>
             <input
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10 disabled:cursor-not-allowed"
+                className="w-full rounded-card border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold outline-none transition focus:border-brand/40 focus:ring-4 focus:ring-brand/10 disabled:cursor-not-allowed"
                 placeholder="Type a keyword and press Enter"
                 disabled={anyKeyword}
                 value={draftKeyword}
@@ -4473,7 +4462,7 @@ function InlineKeywordSetup({
                 }}
             />
             <ToggleMini label="Any keyword" active={anyKeyword} onClick={() => onAnyKeyword(!anyKeyword)} />
-            {anyKeyword && <p className="rounded-[14px] bg-indigo-50 px-3 py-2 text-xs font-bold text-[#C13584]">{helper}</p>}
+            {anyKeyword && <p className="rounded-control bg-brand-soft px-3 py-2 text-xs font-bold text-brand">{helper}</p>}
         </div>
     );
 }
@@ -4529,18 +4518,18 @@ function AddResponseModal({
         <ModalShell onClose={onClose}>
             <div className="flex items-start justify-between gap-3">
                 <div>
-                    <h2 className="text-2xl font-black text-[#0F172A]">Add Response</h2>
-                    <p className="mt-1 text-sm font-semibold text-[#64748B]">{selectedOption ? selectedOption.copy : "Choose a response type and configure it for this demo flow."}</p>
+                    <h2 className="text-2xl font-bold text-slate-900">Add Response</h2>
+                    <p className="mt-1 text-sm font-semibold text-slate-500">{selectedOption ? selectedOption.copy : "Choose a response type and configure it for this demo flow."}</p>
                 </div>
-                {selectedOption && <button onClick={() => setSelectedType(null)} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-500 transition hover:bg-slate-100">Back</button>}
+                {selectedOption && <button onClick={() => setSelectedType(null)} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-500 transition hover:bg-slate-100">Back</button>}
             </div>
             {!openingMessageEnabled && (
-                <div className="mt-4 rounded-[16px] border border-amber-100 bg-amber-50 p-3 text-xs font-bold leading-5 text-amber-800">
+                <div className="mt-4 rounded-card border border-amber-100 bg-amber-50 p-3 text-xs font-bold leading-5 text-amber-800">
                     Opening message is turned off. Some response types require it.
                 </div>
             )}
             {openingMessageEnabled && (
-                <div className="mt-4 rounded-[16px] border border-indigo-100 bg-indigo-50 p-3 text-xs font-bold leading-5 text-[#C13584]">
+                <div className="mt-4 rounded-card border border-brand/15 bg-brand-soft p-3 text-xs font-bold leading-5 text-brand">
                     Add one response at a time to keep your flow easy to understand.
                 </div>
             )}
@@ -4549,20 +4538,20 @@ function AddResponseModal({
                     {options.map((option) => {
                         const locked = !featureAccess[option.feature];
                         return (
-                        <button key={option.title} onClick={() => locked ? onUpgrade() : setSelectedType(option.id)} className={cx("flex w-full items-center gap-3 rounded-[16px] border bg-white p-3 text-left transition hover:border-indigo-100 hover:bg-indigo-50/30", locked ? "border-[#FDE68A] bg-[#FFFDF6]" : "border-slate-100")}>
-                            <span className="flex h-9 w-9 items-center justify-center rounded-[0.85rem] bg-slate-50 text-[#C13584]">{option.icon}</span>
+                        <button key={option.title} onClick={() => locked ? onUpgrade() : setSelectedType(option.id)} className={cx("flex w-full items-center gap-3 rounded-card border bg-white p-3 text-left transition hover:border-brand/15 hover:bg-brand-soft/30", locked ? "border-amber-200 bg-[#FFFDF6]" : "border-slate-100")}>
+                            <span className="flex h-9 w-9 items-center justify-center rounded-control bg-slate-50 text-brand">{option.icon}</span>
                             <span className="min-w-0 flex-1">
-                                <span className="flex items-center gap-2 text-sm font-black text-[#0F172A]">{option.title}<SmallBadge label={locked ? "Pro" : "Included"} tone={locked ? "gold" : "green"} /></span>
-                                <span className="block text-xs font-semibold text-[#64748B]">{option.copy}</span>
-                                {locked && <span className="mt-1 block text-[11px] font-bold text-[#8A5D17]">Upgrade to Pro to unlock this response.</span>}
+                                <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">{option.title}<SmallBadge label={locked ? "Pro" : "Included"} tone={locked ? "gold" : "green"} /></span>
+                                <span className="block text-xs font-semibold text-slate-500">{option.copy}</span>
+                                {locked && <span className="mt-1 block text-2xs font-bold text-gold-deep">Upgrade to Pro to unlock this response.</span>}
                             </span>
-                            {locked ? <Lock className="h-4 w-4 text-[#8A5D17]" /> : <ChevronDown className="h-4 w-4 -rotate-90 text-slate-300" />}
+                            {locked ? <Lock className="h-4 w-4 text-gold-deep" /> : <ChevronDown className="h-4 w-4 -rotate-90 text-slate-300" />}
                         </button>
                         );
                     })}
                 </div>
             ) : (
-                <div className="mt-4 space-y-3 rounded-[18px] border border-slate-100 bg-slate-50 p-4">
+                <div className="mt-4 space-y-3 rounded-card border border-slate-100 bg-slate-50 p-4">
                     {selectedOption.id === "follow" && (
                         <div>
                             <Label>Follow request message</Label>
@@ -4604,14 +4593,14 @@ function AddResponseModal({
                                 <Label>Lead fields</Label>
                                 <div className="flex flex-wrap gap-2">
                                     {["Name", "Email", "Phone", "Custom question"].map((field) => (
-                                        <button key={field} onClick={() => toggleLeadField(field)} className={cx("rounded-full px-3 py-2 text-xs font-black ring-1 transition", leadFields.includes(field) ? "bg-[#C13584] text-white ring-[#C13584]" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50")}>{field}</button>
+                                        <button key={field} onClick={() => toggleLeadField(field)} className={cx("rounded-full px-3 py-2 text-xs font-semibold ring-1 transition", leadFields.includes(field) ? "bg-brand text-white ring-brand" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50")}>{field}</button>
                                     ))}
                                 </div>
                             </div>
                             {leadFields.includes("Custom question") && <Field label="Custom question" value={customQuestion} onChange={setCustomQuestion} />}
                         </div>
                     )}
-                    <p className="text-xs font-bold text-[#64748B]">This setting is saved locally until backend support is connected.</p>
+                    <p className="text-xs font-bold text-slate-500">This setting is saved locally until backend support is connected.</p>
                 </div>
             )}
             <div className="mt-5 flex justify-end gap-2">
@@ -4623,7 +4612,7 @@ function AddResponseModal({
 }
 
 function KeywordChip({ children }: { children: ReactNode }) {
-    return <span className="inline-flex h-8 items-center rounded-full bg-[#FBEAF3] px-3 text-xs font-black text-[#C13584] ring-1 ring-indigo-100">{children}</span>;
+    return <span className="inline-flex h-8 items-center rounded-full bg-brand-soft px-3 text-xs font-semibold text-brand ring-1 ring-brand/15">{children}</span>;
 }
 
 function SuggestedKeywordButton({ keyword, selected, onClick }: { keyword: string; selected: boolean; onClick: () => void }) {
@@ -4631,8 +4620,8 @@ function SuggestedKeywordButton({ keyword, selected, onClick }: { keyword: strin
         <button
             onClick={onClick}
             className={cx(
-                "inline-flex h-8 items-center rounded-full px-3 text-xs font-black ring-1 transition hover:-translate-y-0.5",
-                selected ? "bg-[#C13584] text-white ring-[#C13584]" : "bg-white text-[#C13584] ring-indigo-100 hover:bg-[#FBEAF3]"
+                "inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold ring-1 transition hover:-translate-y-0.5",
+                selected ? "bg-brand text-white ring-brand" : "bg-white text-brand ring-brand/15 hover:bg-brand-soft"
             )}
         >
             +{keyword}
@@ -4642,9 +4631,9 @@ function SuggestedKeywordButton({ keyword, selected, onClick }: { keyword: strin
 
 function ToggleMini({ label, active, onClick }: { label: string; active: boolean; onClick?: () => void }) {
     return (
-        <button type="button" onClick={onClick} className="mt-3 flex w-full items-center justify-between rounded-[14px] bg-slate-50 px-3 py-2 text-left transition hover:bg-slate-100">
-            <span className="text-xs font-black text-slate-600">{label}</span>
-            <span className={cx("h-5 w-9 rounded-full p-0.5 transition", active ? "bg-[#C13584]" : "bg-slate-200")}>
+        <button type="button" onClick={onClick} className="mt-3 flex w-full items-center justify-between rounded-control bg-slate-50 px-3 py-2 text-left transition hover:bg-slate-100">
+            <span className="text-xs font-semibold text-slate-600">{label}</span>
+            <span className={cx("h-5 w-9 rounded-full p-0.5 transition", active ? "bg-brand" : "bg-slate-200")}>
                 <span className={cx("block h-4 w-4 rounded-full bg-white transition", active && "translate-x-4")} />
             </span>
         </button>
@@ -4653,20 +4642,20 @@ function ToggleMini({ label, active, onClick }: { label: string; active: boolean
 
 function ToggleSwitch({ active, onClick, label = "Toggle setting" }: { active: boolean; onClick: () => void; label?: string }) {
     return (
-        <button type="button" aria-label={label} onClick={onClick} className={cx("h-6 w-11 rounded-full p-0.5 transition", active ? "bg-[#C13584]" : "bg-slate-200")}>
-            <span className={cx("block h-5 w-5 rounded-full bg-white shadow transition", active && "translate-x-5")} />
+        <button type="button" aria-label={label} onClick={onClick} className={cx("h-6 w-11 rounded-full p-0.5 transition", active ? "bg-brand" : "bg-slate-200")}>
+            <span className={cx("block h-5 w-5 rounded-full bg-white shadow-rest transition", active && "translate-x-5")} />
         </button>
     );
 }
 
 function SmallBadge({ label, tone }: { label: string; tone: "purple" | "gold" | "green" | "gray" }) {
     const tones = {
-        purple: "bg-[#FBEAF3] text-[#C13584] ring-indigo-100",
-        gold: "bg-[#FFF7DA] text-[#8A5D17] ring-[#E8C56C]/50",
+        purple: "bg-brand-soft text-brand ring-brand/15",
+        gold: "bg-gold-soft text-gold-deep ring-gold/50",
         green: "bg-emerald-50 text-emerald-700 ring-emerald-100",
         gray: "bg-slate-100 text-slate-500 ring-slate-200",
     };
-    return <span className={cx("inline-flex h-5 items-center rounded-full px-2 text-[9px] font-black uppercase tracking-[0.08em] ring-1", tones[tone])}>{label}</span>;
+    return <span className={cx("inline-flex h-5 items-center rounded-full px-2 text-2xs font-semibold uppercase tracking-[0.08em] ring-1", tones[tone])}>{label}</span>;
 }
 
 function ModalShell({ children, onClose, wide }: { children: ReactNode; onClose: () => void; wide?: boolean }) {
@@ -4681,7 +4670,7 @@ function ModalShell({ children, onClose, wide }: { children: ReactNode; onClose:
     return (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/45 p-4 backdrop-blur-sm">
             <button aria-label="Close modal" className="fixed inset-0 cursor-default" onClick={onClose} />
-            <div className={cx("relative mx-auto my-8 rounded-[26px] border border-white bg-white p-5 shadow-[0_30px_90px_rgba(15,23,42,0.25)]", wide ? "max-w-5xl" : "max-w-3xl")}>
+            <div className={cx("relative mx-auto my-8 rounded-panel border border-white bg-white p-5 shadow-overlay", wide ? "max-w-5xl" : "max-w-3xl")}>
                 {children}
             </div>
         </div>
@@ -4899,7 +4888,7 @@ function ContactsPage({
                 {stats.map((stat) => <ContactStatCard key={stat.label} {...stat} />)}
             </div>
 
-            <section data-tour="contacts-filters" className="space-y-3 rounded-[18px] border border-white bg-white p-4 shadow-[0_16px_48px_rgba(15,23,42,0.05)]">
+            <section data-tour="contacts-filters" className="space-y-3 rounded-card border border-white bg-white p-4 shadow-raised">
                 <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
                     <SearchBox value={search} onChange={onSearch} placeholder="Search contacts by name, username, or email..." />
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-5">
@@ -4907,7 +4896,7 @@ function ContactsPage({
                         <ContactSelect value={relationshipFilter} onChange={setRelationshipFilter} options={["All relationships", "You Follow", "Follows You", "Mutual", "Unknown"]} />
                         <ContactSelect value={dateFilter} onChange={setDateFilter} options={["All dates", "Today", "This week", "This month"]} />
                         <ContactSelect value={emailFilter} onChange={setEmailFilter} options={["All emails", "Has email", "No email"]} />
-                        <button onClick={resetFilters} className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] border border-slate-200 bg-white px-3 text-sm font-black text-slate-600 transition hover:bg-slate-50">
+                        <button onClick={resetFilters} className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
                             <X className="h-4 w-4" />
                             Reset
                         </button>
@@ -4921,10 +4910,10 @@ function ContactsPage({
                                 key={item}
                                 onClick={() => setSegment(item)}
                                 className={cx(
-                                    "inline-flex h-8 items-center rounded-full px-3 text-xs font-black transition",
+                                    "inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold transition",
                                     segment === item
-                                        ? "bg-[#0F172A] text-white shadow-[0_8px_18px_rgba(15,23,42,0.16)]"
-                                        : "bg-slate-50 text-slate-600 ring-1 ring-slate-200 hover:bg-white hover:text-[#0F172A]"
+                                        ? "bg-slate-900 text-white shadow-rest"
+                                        : "bg-slate-50 text-slate-600 ring-1 ring-slate-200 hover:bg-white hover:text-slate-900"
                                 )}
                             >
                                 {item}
@@ -4937,14 +4926,14 @@ function ContactsPage({
                 </div>
 
                 {selectedCount > 0 && (
-                    <div className="flex flex-col gap-2 rounded-[1rem] border border-indigo-100 bg-[#FBEAF3] p-3 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-sm font-black text-[#C13584]">{selectedCount} contact{selectedCount === 1 ? "" : "s"} selected</p>
+                    <div className="flex flex-col gap-2 rounded-card border border-brand/15 bg-brand-soft p-3 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-sm font-semibold text-brand">{selectedCount} contact{selectedCount === 1 ? "" : "s"} selected</p>
                         <div className="flex flex-wrap gap-2">
-                            <button onClick={() => exportContacts("selected")} className="inline-flex h-9 items-center justify-center gap-2 rounded-[0.9rem] bg-[#C13584] px-3 text-xs font-black text-white transition hover:bg-[#ad2a75]">
+                            <button onClick={() => exportContacts("selected")} className="inline-flex h-9 items-center justify-center gap-2 rounded-control bg-brand px-3 text-xs font-semibold text-white transition hover:bg-brand-hover">
                                 {accountPlan.featureAccess.exportCsv ? <Download className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
                                 {accountPlan.featureAccess.exportCsv ? "Export selected" : "Upgrade to export"}
                             </button>
-                            <button onClick={() => setSelectedIds(new Set<string>())} className="inline-flex h-9 items-center justify-center rounded-[0.9rem] bg-white px-3 text-xs font-black text-slate-600 ring-1 ring-indigo-100 transition hover:bg-slate-50">
+                            <button onClick={() => setSelectedIds(new Set<string>())} className="inline-flex h-9 items-center justify-center rounded-control bg-white px-3 text-xs font-semibold text-slate-600 ring-1 ring-brand/15 transition hover:bg-slate-50">
                                 Clear selection
                             </button>
                         </div>
@@ -4952,13 +4941,13 @@ function ContactsPage({
                 )}
             </section>
 
-            <section data-tour="contacts-table" className="rounded-[18px] border border-white bg-white shadow-[0_16px_48px_rgba(15,23,42,0.05)]">
+            <section data-tour="contacts-table" className="rounded-card border border-white bg-white shadow-raised">
                 <div className="flex flex-col gap-2 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h2 className="text-lg font-black text-slate-950">Captured leads</h2>
+                        <h2 className="text-lg font-bold text-slate-950">Captured leads</h2>
                         <p className="text-sm font-semibold text-slate-500">A lightweight Instagram CRM for every lead DMGennie captures.</p>
                     </div>
-                    <button onClick={() => exportContacts("all")} className="inline-flex h-9 items-center justify-center gap-2 rounded-[0.9rem] bg-slate-50 px-3 text-xs font-black text-slate-600 ring-1 ring-slate-200 transition hover:bg-white">
+                    <button onClick={() => exportContacts("all")} className="inline-flex h-9 items-center justify-center gap-2 rounded-control bg-slate-50 px-3 text-xs font-semibold text-slate-600 ring-1 ring-slate-200 transition hover:bg-white">
                         {accountPlan.featureAccess.exportCsv ? <Download className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
                         {accountPlan.featureAccess.exportCsv ? "Export all" : "Upgrade to export"}
                     </button>
@@ -4995,13 +4984,13 @@ function ContactsPage({
                         <div className="hidden overflow-x-auto lg:block">
                             <table className="w-full min-w-[1040px] text-left">
                                 <thead>
-                                    <tr className="border-b border-slate-100 bg-slate-50/60 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">
+                                    <tr className="border-b border-slate-100 bg-slate-50/60 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">
                                         <th className="w-10 px-4 py-3">
                                             <input
                                                 type="checkbox"
                                                 checked={pageSelected}
                                                 onChange={toggleVisibleSelection}
-                                                className="h-4 w-4 rounded border-slate-300 text-[#C13584] focus:ring-[#C13584]"
+                                                className="h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand"
                                             />
                                         </th>
                                         {["Contact", "Email", "Source", "Relationship", "Tags", "Last Interaction", "Joined", "Actions"].map((head) => <th key={head} className="px-3 py-3">{head}</th>)}
@@ -5041,23 +5030,23 @@ function ContactsPage({
                                 <select
                                     value={rowsPerPage}
                                     onChange={(event) => setRowsPerPage(Number(event.target.value))}
-                                    className="h-9 rounded-[0.8rem] border border-slate-200 bg-white px-3 text-xs font-black text-slate-600 outline-none focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10"
+                                    className="h-9 rounded-control border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/10"
                                 >
                                     {[5, 10, 20].map((count) => <option key={count} value={count}>{count} rows</option>)}
                                 </select>
                                 <button
                                     disabled={currentPage <= 1}
                                     onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                                    className="inline-flex h-9 items-center gap-1 rounded-[0.8rem] border border-slate-200 bg-white px-3 text-xs font-black text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
+                                    className="inline-flex h-9 items-center gap-1 rounded-control border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
                                 >
                                     <ChevronLeft className="h-3.5 w-3.5" />
                                     Previous
                                 </button>
-                                <span className="rounded-full bg-slate-50 px-3 py-2 text-xs font-black text-slate-500 ring-1 ring-slate-200">Page {currentPage} of {totalPages}</span>
+                                <span className="rounded-full bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500 ring-1 ring-slate-200">Page {currentPage} of {totalPages}</span>
                                 <button
                                     disabled={currentPage >= totalPages}
                                     onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                                    className="inline-flex h-9 items-center gap-1 rounded-[0.8rem] border border-slate-200 bg-white px-3 text-xs font-black text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
+                                    className="inline-flex h-9 items-center gap-1 rounded-control border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
                                 >
                                     Next
                                     <ChevronRight className="h-3.5 w-3.5" />
@@ -5086,7 +5075,7 @@ function ContactsPage({
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 12 }}
-                        className="fixed bottom-5 right-5 z-50 rounded-[1rem] border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-[0_18px_48px_rgba(15,23,42,0.16)]"
+                        className="fixed bottom-5 right-5 z-50 rounded-card border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-raised"
                     >
                         {toastMessage}
                     </motion.div>
@@ -5098,21 +5087,21 @@ function ContactsPage({
 
 function ContactStatCard({ label, value, helper, icon, tone }: { label: string; value: string; helper: string; icon: ReactNode; tone: string }) {
     const tones: Record<string, string> = {
-        purple: "bg-[#FBEAF3] text-[#C13584]",
+        purple: "bg-brand-soft text-brand",
         green: "bg-emerald-50 text-emerald-600",
         blue: "bg-sky-50 text-sky-600",
-        indigo: "bg-violet-50 text-violet-600",
+        indigo: "bg-brand-soft text-brand",
         amber: "bg-amber-50 text-amber-600",
     };
 
     return (
-        <div className="rounded-[18px] border border-white bg-white p-3.5 shadow-[0_10px_28px_rgba(15,23,42,0.04)]">
+        <div className="rounded-card border border-white bg-white p-3.5 shadow-rest">
             <div className="mb-3 flex items-center justify-between">
-                <span className={cx("flex h-9 w-9 items-center justify-center rounded-[0.9rem]", tones[tone])}>{icon}</span>
-                <span className="rounded-full bg-slate-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">CRM</span>
+                <span className={cx("flex h-9 w-9 items-center justify-center rounded-control", tones[tone])}>{icon}</span>
+                <span className="rounded-full bg-slate-50 px-2 py-0.5 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">CRM</span>
             </div>
-            <p className="text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <h3 className="mt-1 text-xl font-black tracking-tight text-slate-950">{value}</h3>
+            <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <h3 className="mt-1 text-xl font-bold tracking-tight text-slate-950">{value}</h3>
             <p className="mt-1 text-xs font-bold text-slate-500">{helper}</p>
         </div>
     );
@@ -5123,7 +5112,7 @@ function ContactSelect({ value, onChange, options }: { value: string; onChange: 
         <select
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            className="h-11 rounded-[1rem] border border-slate-200 bg-white px-3 text-sm font-black text-slate-600 outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10"
+            className="h-11 rounded-card border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 outline-none transition focus:border-brand/40 focus:ring-4 focus:ring-brand/10"
         >
             {options.map((option) => <option key={option} value={option}>{option}</option>)}
         </select>
@@ -5137,9 +5126,9 @@ function contactTags(contact: ContactRecord): { label: string; tone: string }[] 
     if (hasCapturedEmail(contact)) tags.push({ label: "Lead", tone: "bg-emerald-50 text-emerald-700 ring-emerald-100" });
     const last = contact.lastInteractionAt || contact.joinedDate;
     if (isContactWithin(last, "Today")) tags.push({ label: "Active", tone: "bg-sky-50 text-sky-700 ring-sky-100" });
-    if (isContactWithin(contact.joinedDate, "This week")) tags.push({ label: "New", tone: "bg-violet-50 text-violet-700 ring-violet-100" });
+    if (isContactWithin(contact.joinedDate, "This week")) tags.push({ label: "New", tone: "bg-brand-soft text-brand-hover ring-brand/15" });
     if (contact.sourceType && contact.sourceType !== "Direct DM" && contact.sourceType !== "Unknown source") {
-        tags.push({ label: "Automated", tone: "bg-[#FBEAF3] text-[#C13584] ring-indigo-100" });
+        tags.push({ label: "Automated", tone: "bg-brand-soft text-brand ring-brand/15" });
     }
     if (!tags.length) tags.push({ label: "Contact", tone: "bg-slate-100 text-slate-500 ring-slate-200" });
     return tags.slice(0, 3);
@@ -5149,7 +5138,7 @@ function ContactTags({ contact }: { contact: ContactRecord }) {
     return (
         <div className="flex max-w-[170px] flex-wrap gap-1">
             {contactTags(contact).map((tag) => (
-                <span key={tag.label} className={cx("inline-flex h-5 items-center rounded-full px-2 text-[9px] font-black uppercase tracking-[0.05em] ring-1", tag.tone)}>{tag.label}</span>
+                <span key={tag.label} className={cx("inline-flex h-5 items-center rounded-full px-2 text-2xs font-semibold uppercase tracking-[0.05em] ring-1", tag.tone)}>{tag.label}</span>
             ))}
         </div>
     );
@@ -5175,14 +5164,14 @@ function ContactTableRow({
                     type="checkbox"
                     checked={selected}
                     onChange={onSelect}
-                    className="h-4 w-4 rounded border-slate-300 text-[#C13584] focus:ring-[#C13584]"
+                    className="h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand"
                 />
             </td>
             <td className="px-3 py-4">
                 <ContactIdentity contact={contact} />
             </td>
             <td className="px-3 py-4">
-                <p className={cx("text-sm font-black", hasCapturedEmail(contact) ? "text-slate-700" : "text-slate-400")}>{safeText(contact.email, "No email captured")}</p>
+                <p className={cx("text-sm font-semibold", hasCapturedEmail(contact) ? "text-slate-700" : "text-slate-400")}>{safeText(contact.email, "No email captured")}</p>
             </td>
             <td className="px-3 py-4">
                 <div className="max-w-[190px]">
@@ -5219,14 +5208,14 @@ function ContactMobileCard({
     onCopyEmail: () => void;
 }) {
     return (
-        <div className="rounded-[18px] border border-slate-100 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.035)]">
+        <div className="rounded-card border border-slate-100 bg-white p-4 shadow-rest">
             <div className="flex items-start justify-between gap-3">
                 <ContactIdentity contact={contact} />
                 <input
                     type="checkbox"
                     checked={selected}
                     onChange={onSelect}
-                    className="mt-1 h-4 w-4 rounded border-slate-300 text-[#C13584] focus:ring-[#C13584]"
+                    className="mt-1 h-4 w-4 rounded border-slate-300 text-brand focus:ring-brand"
                 />
             </div>
             <div className="mt-4 grid gap-3 text-sm">
@@ -5240,11 +5229,11 @@ function ContactMobileCard({
                 <ContactTags contact={contact} />
             </div>
             <div className="mt-4 flex gap-2">
-                <button onClick={onOpen} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-[0.9rem] bg-[#C13584] text-sm font-black text-white transition hover:bg-[#ad2a75]">
+                <button onClick={onOpen} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-control bg-brand text-sm font-semibold text-white transition hover:bg-brand-hover">
                     <Eye className="h-4 w-4" />
                     View details
                 </button>
-                <button onClick={onCopyEmail} className="inline-flex h-10 w-10 items-center justify-center rounded-[0.9rem] border border-slate-200 text-slate-500 transition hover:bg-slate-50">
+                <button onClick={onCopyEmail} className="inline-flex h-10 w-10 items-center justify-center rounded-control border border-slate-200 text-slate-500 transition hover:bg-slate-50">
                     <Copy className="h-4 w-4" />
                 </button>
             </div>
@@ -5256,12 +5245,12 @@ function ContactIdentity({ contact }: { contact: ContactRecord }) {
     const initial = safeText(contact.name, contact.username).replace("@", "").charAt(0).toUpperCase() || "U";
     return (
         <div className="flex min-w-0 items-center gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1rem] bg-gradient-to-br from-[#C13584] to-[#B84C88] text-sm font-black text-white shadow-[0_10px_18px_rgba(193,53,132,0.18)]">
-                {contact.avatar ? <img src={contact.avatar} alt="" className="h-full w-full rounded-[1rem] object-cover" /> : initial}
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand to-brand-hover text-sm font-semibold text-white">
+                {contact.avatar ? <img src={contact.avatar} alt="" className="h-full w-full rounded-card object-cover" /> : initial}
             </span>
             <div className="min-w-0">
-                <p className="truncate text-sm font-black capitalize text-[#0F172A]">{safeText(contact.name, safeText(contact.username, "Unknown Instagram user"))}</p>
-                <p className="truncate text-xs font-bold text-[#64748B]">{safeText(contact.username, "Unknown Instagram user")}</p>
+                <p className="truncate text-sm font-semibold capitalize text-slate-900">{safeText(contact.name, safeText(contact.username, "Unknown Instagram user"))}</p>
+                <p className="truncate text-xs font-bold text-slate-500">{safeText(contact.username, "Unknown Instagram user")}</p>
             </div>
         </div>
     );
@@ -5270,8 +5259,8 @@ function ContactIdentity({ contact }: { contact: ContactRecord }) {
 function ContactInfoLine({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
     return (
         <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{label}</span>
-            <span className={cx("min-w-0 truncate text-right text-xs font-black", muted ? "text-slate-400" : "text-slate-700")}>{value}</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</span>
+            <span className={cx("min-w-0 truncate text-right text-xs font-semibold", muted ? "text-slate-400" : "text-slate-700")}>{value}</span>
         </div>
     );
 }
@@ -5280,24 +5269,24 @@ function SourcePill({ source }: { source: ContactRecord["sourceType"] }) {
     const tone = source === "Direct DM"
         ? "bg-sky-50 text-sky-700 ring-sky-100"
         : source === "Story reply"
-            ? "bg-fuchsia-50 text-fuchsia-700 ring-fuchsia-100"
+            ? "bg-brand-soft text-brand-hover ring-brand/15"
             : source === "Live comment"
                 ? "bg-rose-50 text-rose-700 ring-rose-100"
                 : source === "Unknown source"
                     ? "bg-slate-100 text-slate-500 ring-slate-200"
-                    : "bg-[#FBEAF3] text-[#C13584] ring-indigo-100";
-    return <span className={cx("inline-flex h-6 items-center rounded-full px-2.5 text-[10px] font-black uppercase tracking-[0.06em] ring-1", tone)}>{source}</span>;
+                    : "bg-brand-soft text-brand ring-brand/15";
+    return <span className={cx("inline-flex h-6 items-center rounded-full px-2.5 text-2xs font-semibold uppercase tracking-[0.06em] ring-1", tone)}>{source}</span>;
 }
 
 function RelationshipPill({ relationship }: { relationship: ContactRecord["relationship"] }) {
     const tone = relationship === "Mutual"
         ? "bg-emerald-50 text-emerald-700 ring-emerald-100"
         : relationship === "Follows You"
-            ? "bg-indigo-50 text-indigo-700 ring-indigo-100"
+            ? "bg-brand-soft text-brand-hover ring-brand/15"
             : relationship === "You Follow"
                 ? "bg-sky-50 text-sky-700 ring-sky-100"
                 : "bg-slate-100 text-slate-500 ring-slate-200";
-    return <span className={cx("inline-flex h-6 items-center rounded-full px-2.5 text-[10px] font-black uppercase tracking-[0.06em] ring-1", tone)}>{relationship}</span>;
+    return <span className={cx("inline-flex h-6 items-center rounded-full px-2.5 text-2xs font-semibold uppercase tracking-[0.06em] ring-1", tone)}>{relationship}</span>;
 }
 
 function ContactDetailDrawer({
@@ -5328,13 +5317,13 @@ function ContactDetailDrawer({
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", damping: 28, stiffness: 260 }}
-                className="absolute right-0 top-0 flex h-full w-full max-w-[440px] flex-col overflow-y-auto bg-white shadow-[0_28px_80px_rgba(15,23,42,0.22)] sm:rounded-l-[26px]"
+                className="absolute right-0 top-0 flex h-full w-full max-w-[440px] flex-col overflow-y-auto bg-white shadow-overlay sm:rounded-l-panel"
             >
                 <div className="sticky top-0 z-10 border-b border-slate-100 bg-white/90 p-5 backdrop-blur">
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#C13584]">Contact details</p>
-                            <h2 className="mt-1 text-2xl font-black tracking-tight text-[#0F172A]">{safeText(contact.name, contact.username)}</h2>
+                            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-brand">Contact details</p>
+                            <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">{safeText(contact.name, contact.username)}</h2>
                         </div>
                         <button onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-950">
                             <X className="h-4 w-4" />
@@ -5343,7 +5332,7 @@ function ContactDetailDrawer({
                 </div>
 
                 <div className="space-y-4 p-5">
-                    <div className="rounded-[20px] border border-slate-100 bg-slate-50/70 p-4">
+                    <div className="rounded-card border border-slate-100 bg-slate-50/70 p-4">
                         <ContactIdentity contact={contact} />
                         <div className="mt-4 flex flex-wrap gap-2">
                             <RelationshipPill relationship={contact.relationship} />
@@ -5351,7 +5340,7 @@ function ContactDetailDrawer({
                         </div>
                     </div>
 
-                    <div className="grid gap-3 rounded-[20px] border border-slate-100 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.025)]">
+                    <div className="grid gap-3 rounded-card border border-slate-100 bg-white p-4 shadow-rest">
                         <DrawerInfo label="Instagram username" value={safeText(contact.username, "Unknown Instagram user")} />
                         <DrawerInfo label="Email" value={safeText(contact.email, "No email captured")} muted={!hasCapturedEmail(contact)} />
                         <DrawerInfo label="Source" value={safeText(contact.source, "Unknown source")} />
@@ -5359,26 +5348,26 @@ function ContactDetailDrawer({
                         <DrawerInfo label="Last interaction" value={safeText(contact.lastInteractionLabel, "Unknown")} />
                     </div>
 
-                    <div className="rounded-[20px] border border-slate-100 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.025)]">
-                        <h3 className="text-sm font-black text-[#0F172A]">Captured data</h3>
+                    <div className="rounded-card border border-slate-100 bg-white p-4 shadow-rest">
+                        <h3 className="text-sm font-semibold text-slate-900">Captured data</h3>
                         <div className="mt-3 grid gap-2">
                             {contact.capturedFields.map((field) => (
-                                <div key={field.label} className="flex items-center justify-between gap-3 rounded-[0.9rem] bg-slate-50 px-3 py-2">
-                                    <span className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{field.label}</span>
-                                    <span className="min-w-0 truncate text-right text-xs font-black text-slate-700">{safeText(field.value, "Unknown")}</span>
+                                <div key={field.label} className="flex items-center justify-between gap-3 rounded-control bg-slate-50 px-3 py-2">
+                                    <span className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{field.label}</span>
+                                    <span className="min-w-0 truncate text-right text-xs font-semibold text-slate-700">{safeText(field.value, "Unknown")}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <div className="rounded-[20px] border border-slate-100 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.025)]">
-                        <h3 className="text-sm font-black text-[#0F172A]">Recent activity</h3>
+                    <div className="rounded-card border border-slate-100 bg-white p-4 shadow-rest">
+                        <h3 className="text-sm font-semibold text-slate-900">Recent activity</h3>
                         <div className="mt-4 space-y-4">
                             {contact.timeline.map((item, index) => (
                                 <div key={`${item.label}-${index}`} className="flex gap-3">
                                     <span className={cx("mt-1 h-2.5 w-2.5 shrink-0 rounded-full", contactTimelineTone(item.tone))} />
                                     <div>
-                                        <p className="text-sm font-black text-slate-800">{item.label}</p>
+                                        <p className="text-sm font-semibold text-slate-800">{item.label}</p>
                                         <p className="mt-0.5 text-xs font-bold text-slate-400">{item.time}</p>
                                     </div>
                                 </div>
@@ -5387,20 +5376,20 @@ function ContactDetailDrawer({
                     </div>
 
                     <div className="grid gap-2">
-                        <button onClick={onCopyUsername} className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] border border-slate-200 bg-white text-sm font-black text-slate-700 transition hover:bg-slate-50">
+                        <button onClick={onCopyUsername} className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                             <Copy className="h-4 w-4" />
                             Copy username
                         </button>
-                        <button onClick={onCopyEmail} className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] border border-slate-200 bg-white text-sm font-black text-slate-700 transition hover:bg-slate-50">
+                        <button onClick={onCopyEmail} className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
                             <Mail className="h-4 w-4" />
                             Copy email
                         </button>
-                        <button onClick={onExport} className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] bg-[#C13584] text-sm font-black text-white transition hover:bg-[#ad2a75]">
+                        <button onClick={onExport} className="inline-flex h-11 items-center justify-center gap-2 rounded-card bg-brand text-sm font-semibold text-white transition hover:bg-brand-hover">
                             <Download className="h-4 w-4" />
                             Export contact
                         </button>
                         {contact.profileUrl && (
-                            <a href={contact.profileUrl} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] bg-slate-950 text-sm font-black text-white transition hover:bg-slate-800">
+                            <a href={contact.profileUrl} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-card bg-slate-950 text-sm font-semibold text-white transition hover:bg-slate-800">
                                 <ExternalLink className="h-4 w-4" />
                                 Open Instagram profile
                             </a>
@@ -5415,8 +5404,8 @@ function ContactDetailDrawer({
 function DrawerInfo({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
     return (
         <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{label}</span>
-            <span className={cx("min-w-0 truncate text-right text-sm font-black", muted ? "text-slate-400" : "text-slate-700")}>{value}</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</span>
+            <span className={cx("min-w-0 truncate text-right text-sm font-semibold", muted ? "text-slate-400" : "text-slate-700")}>{value}</span>
         </div>
     );
 }
@@ -5461,7 +5450,7 @@ function csvEscape(value: string) {
 
 function contactTimelineTone(tone: "purple" | "green" | "amber" | "slate") {
     const tones = {
-        purple: "bg-[#C13584]",
+        purple: "bg-brand",
         green: "bg-emerald-500",
         amber: "bg-amber-500",
         slate: "bg-slate-400",
@@ -5472,18 +5461,18 @@ function contactTimelineTone(tone: "purple" | "green" | "amber" | "slate") {
 function InboxPage({ activity }: { activity: LogEntry[] }) {
     return (
         <PageShell title="Inbox" subtitle="A unified conversation inbox for Instagram DMs is coming soon." tourKey="inbox">
-            <section className="relative overflow-hidden rounded-[24px] border border-white bg-white p-6 shadow-[0_18px_54px_rgba(15,23,42,0.06)] sm:p-8">
-                <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#C13584]/10 blur-3xl" />
-                <div className="pointer-events-none absolute -bottom-24 left-10 h-52 w-52 rounded-full bg-fuchsia-200/20 blur-3xl" />
+            <section className="relative overflow-hidden rounded-card border border-white bg-white p-6 shadow-raised sm:p-8">
+                <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-brand/10 blur-3xl" />
+                <div className="pointer-events-none absolute -bottom-24 left-10 h-52 w-52 rounded-full bg-brand/5 blur-3xl" />
                 <div className="relative mx-auto flex max-w-2xl flex-col items-center text-center">
-                    <span className="inline-flex h-8 items-center rounded-full bg-[#FBEAF3] px-3 text-[11px] font-black uppercase tracking-[0.12em] text-[#C13584] ring-1 ring-indigo-100">
+                    <span className="inline-flex h-8 items-center rounded-full bg-brand-soft px-3 text-2xs font-semibold uppercase tracking-[0.12em] text-brand ring-1 ring-brand/15">
                         Coming soon
                     </span>
-                    <span className="mt-6 flex h-16 w-16 items-center justify-center rounded-[22px] bg-slate-950 text-white shadow-[0_18px_38px_rgba(15,23,42,0.18)]">
+                    <span className="mt-6 flex h-16 w-16 items-center justify-center rounded-card bg-slate-950 text-white shadow-raised">
                         <Inbox className="h-7 w-7" />
                     </span>
-                    <h2 className="mt-5 text-2xl font-black tracking-tight text-[#0F172A] sm:text-3xl">DMGennie Inbox is being prepared</h2>
-                    <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-[#64748B]">
+                    <h2 className="mt-5 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">DMGennie Inbox is being prepared</h2>
+                    <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-500">
                         Soon you will be able to see Instagram conversations, automation replies, lead captures, and follow-ups in one clean workspace.
                     </p>
 
@@ -5493,21 +5482,21 @@ function InboxPage({ activity }: { activity: LogEntry[] }) {
                             { label: "Automation history", icon: <Bot className="h-4 w-4" /> },
                             { label: "Lead follow-ups", icon: <UserPlus className="h-4 w-4" /> },
                         ].map((item) => (
-                            <div key={item.label} className="rounded-[18px] border border-slate-100 bg-slate-50/70 p-3 text-left">
-                                <span className="flex h-9 w-9 items-center justify-center rounded-[0.9rem] bg-white text-[#C13584] shadow-sm ring-1 ring-slate-100">
+                            <div key={item.label} className="rounded-card border border-slate-100 bg-slate-50/70 p-3 text-left">
+                                <span className="flex h-9 w-9 items-center justify-center rounded-control bg-white text-brand shadow-rest ring-1 ring-slate-100">
                                     {item.icon}
                                 </span>
-                                <p className="mt-3 text-sm font-black text-[#0F172A]">{item.label}</p>
+                                <p className="mt-3 text-sm font-semibold text-slate-900">{item.label}</p>
                             </div>
                         ))}
                     </div>
 
                     <div className="mt-7 flex flex-col gap-2 sm:flex-row">
-                        <Link to="/pricing" className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] bg-[#C13584] px-4 text-sm font-black text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:bg-[#ad2a75]">
+                        <Link to="/pricing" className="inline-flex h-11 items-center justify-center gap-2 rounded-card bg-brand px-4 text-sm font-semibold text-white shadow-raised transition hover:-translate-y-0.5 hover:bg-brand-hover">
                             <Crown className="h-4 w-4" />
                             Get ready with Pro
                         </Link>
-                        <button className="inline-flex h-11 items-center justify-center gap-2 rounded-[1rem] border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50">
+                        <button className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50">
                             <Bell className="h-4 w-4" />
                             Notify me
                         </button>
@@ -5728,7 +5717,7 @@ function AnalyticsPage({
                 </div>
             }
         >
-            <div data-tour="analytics-tabs" className="flex gap-2 overflow-x-auto rounded-[18px] border border-white bg-white p-1.5 shadow-[0_14px_42px_rgba(15,23,42,0.04)]">
+            <div data-tour="analytics-tabs" className="flex gap-2 overflow-x-auto rounded-card border border-white bg-white p-1.5 shadow-raised">
                 {(["Performance", "Activity Log", "Account Performance", "Audience Insights"] as AnalyticsTab[]).map((tab) => (
                     <button
                         key={tab}
@@ -5741,8 +5730,8 @@ function AnalyticsPage({
                             setActiveTab(tab);
                         }}
                         className={cx(
-                            "whitespace-nowrap rounded-[0.95rem] px-4 py-2.5 text-sm font-black transition",
-                            activeTab === tab ? "bg-slate-950 text-white shadow-lg shadow-slate-950/10" : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
+                            "whitespace-nowrap rounded-control px-4 py-2.5 text-sm font-semibold transition",
+                            activeTab === tab ? "bg-slate-950 text-white shadow-raised" : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
                         )}
                     >
                         <span className="inline-flex items-center gap-2">{tab}{analyticsLocked && tab !== "Performance" && <Lock className="h-3.5 w-3.5" />}</span>
@@ -5790,7 +5779,7 @@ function AnalyticsPage({
                                 <div className="hidden overflow-x-auto lg:block">
                                     <table className="w-full min-w-[900px] text-left">
                                         <thead>
-                                            <tr className="border-b border-slate-100 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">
+                                            <tr className="border-b border-slate-100 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">
                                                 <th className="px-3 py-3">Automation</th>
                                                 <th className="px-3 py-3">Trigger</th>
                                                 <th className="px-3 py-3">Keywords</th>
@@ -5805,12 +5794,12 @@ function AnalyticsPage({
                                         </thead>
                                         <tbody className="divide-y divide-slate-100">
                                             {visibleAutomationRows.map((row) => (
-                                                <tr key={row.id} onClick={() => setSelectedAutomation(row)} className="cursor-pointer transition hover:bg-[#F8FAFC]">
+                                                <tr key={row.id} onClick={() => setSelectedAutomation(row)} className="cursor-pointer transition hover:bg-slate-50">
                                                     <td className="px-3 py-4">
                                                         <div className="flex items-center gap-3">
-                                                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1rem] bg-[#FBEAF3] text-[#C13584]"><Bot className="h-5 w-5" /></span>
+                                                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-card bg-brand-soft text-brand"><Bot className="h-5 w-5" /></span>
                                                             <span className="min-w-0">
-                                                                <span className="block truncate text-sm font-black text-slate-950">{row.name}</span>
+                                                                <span className="block truncate text-sm font-semibold text-slate-950">{row.name}</span>
                                                                 <span className="block max-w-[260px] truncate text-xs font-semibold text-slate-500">{row.description}</span>
                                                             </span>
                                                         </div>
@@ -5818,15 +5807,15 @@ function AnalyticsPage({
                                                     <td className="px-3 py-4 text-sm font-bold text-slate-600">{row.trigger}</td>
                                                     <td className="px-3 py-4">
                                                         <div className="flex flex-wrap gap-1.5">
-                                                            {row.keywords.map((keyword) => <span key={keyword} className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black text-slate-600">+{keyword}</span>)}
+                                                            {row.keywords.map((keyword) => <span key={keyword} className="rounded-full bg-slate-100 px-2 py-1 text-2xs font-semibold text-slate-600">+{keyword}</span>)}
                                                         </div>
                                                     </td>
                                                     <AnalyticsNumberCell value={row.dms} />
                                                     <AnalyticsNumberCell value={row.clicks} />
-                                                    <td className="px-3 py-4 text-right text-sm font-black text-slate-700">{row.ctr}%</td>
+                                                    <td className="px-3 py-4 text-right text-sm font-semibold text-slate-700">{row.ctr}%</td>
                                                     <AnalyticsNumberCell value={row.leads} />
-                                                    <td className="px-3 py-4 text-right text-sm font-black text-emerald-600">{row.deliveryRate}%</td>
-                                                    <td className={cx("px-3 py-4 text-right text-sm font-black", row.failed ? "text-rose-600" : "text-slate-400")}>{formatMetric(row.failed)}</td>
+                                                    <td className="px-3 py-4 text-right text-sm font-semibold text-emerald-600">{row.deliveryRate}%</td>
+                                                    <td className={cx("px-3 py-4 text-right text-sm font-semibold", row.failed ? "text-rose-600" : "text-slate-400")}>{formatMetric(row.failed)}</td>
                                                     <td className="px-3 py-4"><StatusBadge status={row.status} /></td>
                                                 </tr>
                                             ))}
@@ -5835,10 +5824,10 @@ function AnalyticsPage({
                                 </div>
                                 <div className="grid gap-3 lg:hidden">
                                     {visibleAutomationRows.map((row) => (
-                                        <button key={row.id} onClick={() => setSelectedAutomation(row)} className="rounded-[18px] border border-slate-100 bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+                                        <button key={row.id} onClick={() => setSelectedAutomation(row)} className="rounded-card border border-slate-100 bg-white p-4 text-left shadow-rest transition hover:-translate-y-0.5 hover:shadow-rest">
                                             <div className="flex items-start justify-between gap-3">
                                                 <div>
-                                                    <p className="font-black text-slate-950">{row.name}</p>
+                                                    <p className="font-bold text-slate-950">{row.name}</p>
                                                     <p className="mt-1 text-sm font-semibold text-slate-500">{row.trigger}</p>
                                                 </div>
                                                 <StatusBadge status={row.status} />
@@ -5870,7 +5859,7 @@ function AnalyticsPage({
                             <div className="grid gap-3">
                                 {visibleContentRows.slice(0, 5).map((row) => <ContentPerformanceCard key={row.id} row={row} />)}
                                 {visibleContentRows.length > 5 && (
-                                    <button onClick={() => showToast("More content performance will load as Instagram sync grows.")} className="mx-auto mt-1 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-50">Load More</button>
+                                    <button onClick={() => showToast("More content performance will load as Instagram sync grows.")} className="mx-auto mt-1 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Load More</button>
                                 )}
                             </div>
                         ) : (
@@ -5930,11 +5919,11 @@ function AnalyticsPage({
                     <div className="grid gap-4 xl:grid-cols-2">
                         <AnalyticsChartCard title="Follower growth" range={rangeLabel} data={trendData} primaryKey="followers" primaryColor="#C13584" secondaryKey="leads" secondaryColor="#10B981" emptyText="Follower data is unavailable for this period" />
                         <Panel title="Account insights availability">
-                            <div className="rounded-[18px] border border-amber-100 bg-amber-50/70 p-4">
+                            <div className="rounded-card border border-amber-100 bg-amber-50/70 p-4">
                                 <div className="flex gap-3">
-                                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] bg-white text-amber-600 shadow-sm"><AlertTriangle className="h-5 w-5" /></span>
+                                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-card bg-white text-amber-600 shadow-rest"><AlertTriangle className="h-5 w-5" /></span>
                                     <div>
-                                        <h3 className="font-black text-slate-950">Account insights unavailable</h3>
+                                        <h3 className="font-bold text-slate-950">Account insights unavailable</h3>
                                         <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Instagram may require additional permissions or enough account activity to show deeper account-level insights.</p>
                                         <div className="mt-4 flex flex-wrap gap-2">
                                             <SecondaryButton><RefreshCw className="h-4 w-4" /> Check permissions</SecondaryButton>
@@ -5983,11 +5972,11 @@ function AnalyticsPage({
                             {audienceRows.filter((row) => row.comments >= 2).length ? (
                                 <div className="space-y-3">
                                     {audienceRows.filter((row) => row.comments >= 2).slice(0, 4).map((row) => (
-                                        <div key={row.id} className="rounded-[18px] border border-slate-100 bg-slate-50/70 p-3">
+                                        <div key={row.id} className="rounded-card border border-slate-100 bg-slate-50/70 p-3">
                                             <div className="flex items-center gap-3">
                                                 <FallbackAvatar value={row.username} />
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="truncate text-sm font-black text-slate-950">{row.username}</p>
+                                                    <p className="truncate text-sm font-semibold text-slate-950">{row.username}</p>
                                                     <p className="text-xs font-semibold text-slate-500">{row.comments} comments this period</p>
                                                 </div>
                                                 <SmallBadge label="Superfan" tone="gold" />
@@ -6022,7 +6011,7 @@ function AnalyticsPage({
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 12 }}
-                        className="fixed bottom-5 right-5 z-[70] rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white shadow-2xl"
+                        className="fixed bottom-5 right-5 z-[70] rounded-card bg-slate-950 px-4 py-3 text-sm font-semibold text-white shadow-overlay"
                     >
                         {toastMessage}
                     </motion.div>
@@ -6034,19 +6023,19 @@ function AnalyticsPage({
 
 function AnalyticsMetricCard({ icon, label, value, change, tone }: { icon: ReactNode; label: string; value: string; change: string; tone: "purple" | "green" | "blue" | "amber" }) {
     const tones = {
-        purple: "bg-[#FBEAF3] text-[#C13584]",
+        purple: "bg-brand-soft text-brand",
         green: "bg-emerald-50 text-emerald-600",
         blue: "bg-sky-50 text-sky-600",
         amber: "bg-amber-50 text-amber-600",
     };
     return (
-        <div className="rounded-[18px] border border-white bg-white p-4 shadow-[0_12px_34px_rgba(15,23,42,0.045)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_44px_rgba(15,23,42,0.07)]">
+        <div className="rounded-card border border-white bg-white p-4 shadow-raised transition hover:-translate-y-0.5 hover:shadow-raised">
             <div className="flex items-start justify-between gap-3">
-                <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem]", tones[tone])}>{icon}</span>
-                <span className="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">Live</span>
+                <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center rounded-card", tones[tone])}>{icon}</span>
+                <span className="rounded-full bg-slate-50 px-2 py-1 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">Live</span>
             </div>
-            <p className="mt-4 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <h3 className="mt-1 text-2xl font-black tracking-tight text-slate-950">{value}</h3>
+            <p className="mt-4 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <h3 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">{value}</h3>
             <p className="mt-1 text-xs font-bold text-slate-500">{change}</p>
         </div>
     );
@@ -6055,17 +6044,17 @@ function AnalyticsMetricCard({ icon, label, value, change, tone }: { icon: React
 function ProLockPanel({ title, copy, cta, onUpgrade }: { title: string; copy: string; cta: string; onUpgrade: () => void }) {
     return (
         <Panel>
-            <div className="flex flex-col gap-4 rounded-[20px] border border-[#FDE68A] bg-[#FFFDF6] p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 rounded-card border border-amber-200 bg-[#FFFDF6] p-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex gap-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[1rem] bg-white text-[#8A5D17] shadow-sm ring-1 ring-[#E8C56C]/50">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-card bg-white text-gold-deep shadow-rest ring-1 ring-gold/50">
                         <Lock className="h-5 w-5" />
                     </span>
                     <div>
-                        <h3 className="text-base font-black text-[#0F172A]">{title}</h3>
-                        <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-[#64748B]">{copy}</p>
+                        <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+                        <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-slate-500">{copy}</p>
                     </div>
                 </div>
-                <button onClick={onUpgrade} className={cx("inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full px-4 text-sm font-black", goldCtaCls)}>
+                <button onClick={onUpgrade} className={cx("inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold", goldCtaCls)}>
                     <Crown className={cx("h-4 w-4", goldCrownCls)} />
                     {cta}
                 </button>
@@ -6097,7 +6086,7 @@ function AnalyticsChartCard({
     return (
         <Panel
             title={title}
-            action={<span className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-500">{range}</span>}
+            action={<span className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-500">{range}</span>}
         >
             {hasData ? (
                 <div className="h-[280px]">
@@ -6120,30 +6109,30 @@ function AnalyticsChartCard({
 }
 
 function AnalyticsNumberCell({ value }: { value: number }) {
-    return <td className="px-3 py-4 text-right text-sm font-black text-slate-700">{formatMetric(value)}</td>;
+    return <td className="px-3 py-4 text-right text-sm font-semibold text-slate-700">{formatMetric(value)}</td>;
 }
 
 function CompactStat({ label, value }: { label: string; value: string }) {
     return (
-        <div className="rounded-[14px] bg-slate-50 p-2">
-            <p className="text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <p className="mt-0.5 text-sm font-black text-slate-950">{value}</p>
+        <div className="rounded-control bg-slate-50 p-2">
+            <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <p className="mt-0.5 text-sm font-semibold text-slate-950">{value}</p>
         </div>
     );
 }
 
 function ContentPerformanceCard({ row }: { row: ContentPerformanceRow }) {
     return (
-        <div className="grid gap-3 rounded-[18px] border border-slate-100 bg-white p-3 transition hover:-translate-y-0.5 hover:border-indigo-100 hover:shadow-[0_14px_36px_rgba(15,23,42,0.06)] md:grid-cols-[minmax(0,1.35fr)_repeat(6,minmax(72px,0.5fr))] md:items-center">
+        <div className="grid gap-3 rounded-card border border-slate-100 bg-white p-3 transition hover:-translate-y-0.5 hover:border-brand/15 hover:shadow-raised md:grid-cols-[minmax(0,1.35fr)_repeat(6,minmax(72px,0.5fr))] md:items-center">
             <div className="flex min-w-0 items-center gap-3">
-                <div className={cx("h-14 w-14 shrink-0 rounded-[1rem] bg-gradient-to-br shadow-inner", row.color)} />
+                <div className={cx("h-14 w-14 shrink-0 rounded-card bg-gradient-to-br shadow-inner", row.color)} />
                 <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                        <p className="truncate text-sm font-black text-slate-950">{row.title}</p>
+                        <p className="truncate text-sm font-semibold text-slate-950">{row.title}</p>
                         <SmallBadge label={row.type} tone={row.type === "Reel" ? "purple" : row.type === "Carousel" ? "gold" : "gray"} />
                     </div>
                     <p className="mt-1 line-clamp-1 text-xs font-semibold text-slate-500">{row.caption}</p>
-                    <p className="mt-1 text-[11px] font-black text-slate-400">{row.metric}</p>
+                    <p className="mt-1 text-2xs font-semibold text-slate-400">{row.metric}</p>
                 </div>
             </div>
             <MiniMetric label="Comments" value={formatMetric(row.comments)} />
@@ -6158,9 +6147,9 @@ function ContentPerformanceCard({ row }: { row: ContentPerformanceRow }) {
 
 function MiniMetric({ label, value }: { label: string; value: string }) {
     return (
-        <div className="rounded-[14px] bg-slate-50 px-3 py-2 text-left md:text-center">
-            <p className="text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <p className="mt-0.5 text-sm font-black text-slate-800">{value}</p>
+        <div className="rounded-control bg-slate-50 px-3 py-2 text-left md:text-center">
+            <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <p className="mt-0.5 text-sm font-semibold text-slate-800">{value}</p>
         </div>
     );
 }
@@ -6179,11 +6168,11 @@ function GeographicDistributionCard() {
 
 function InsightRow({ icon, title, value, copy }: { icon: ReactNode; title: string; value: string; copy: string }) {
     return (
-        <div className="flex items-center gap-3 rounded-[18px] border border-slate-100 bg-slate-50/70 p-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem] bg-white text-[#C13584] shadow-sm">{icon}</span>
+        <div className="flex items-center gap-3 rounded-card border border-slate-100 bg-slate-50/70 p-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-card bg-white text-brand shadow-rest">{icon}</span>
             <div className="min-w-0 flex-1">
-                <p className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{title}</p>
-                <p className="mt-1 truncate text-sm font-black text-slate-950">{value}</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{title}</p>
+                <p className="mt-1 truncate text-sm font-semibold text-slate-950">{value}</p>
                 <p className="mt-0.5 text-xs font-semibold text-slate-500">{copy}</p>
             </div>
         </div>
@@ -6203,14 +6192,14 @@ function FailedDmHelpCard() {
         "Message blocked by Instagram",
     ];
     return (
-        <div className="rounded-[18px] border border-amber-100 bg-amber-50/70 p-4">
+        <div className="rounded-card border border-amber-100 bg-amber-50/70 p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                    <h3 className="font-black text-slate-950">Troubleshooting Failed DMs</h3>
+                    <h3 className="font-bold text-slate-950">Troubleshooting Failed DMs</h3>
                     <p className="mt-1 text-sm font-semibold text-slate-600">Common reasons and what DMGennie can help you review.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    {reasons.map((reason) => <span key={reason} className="rounded-full bg-white px-3 py-1.5 text-xs font-black text-amber-700 ring-1 ring-amber-100">{reason}</span>)}
+                    {reasons.map((reason) => <span key={reason} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 ring-1 ring-amber-100">{reason}</span>)}
                 </div>
             </div>
         </div>
@@ -6220,22 +6209,22 @@ function FailedDmHelpCard() {
 function ActivityEventRow({ event, onCopy, onRetry }: { event: AnalyticsActivityEvent; onCopy: () => void; onRetry: () => void }) {
     const config = activityConfig(event.type);
     return (
-        <div className="rounded-[18px] border border-slate-100 bg-white p-3 transition hover:bg-slate-50">
+        <div className="rounded-card border border-slate-100 bg-white p-3 transition hover:bg-slate-50">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div className="flex min-w-0 items-start gap-3">
-                    <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center rounded-[1rem]", config.className)}>{config.icon}</span>
+                    <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center rounded-card", config.className)}>{config.icon}</span>
                     <div className="min-w-0">
-                        <p className="text-sm font-black text-slate-950">{event.type} <span className="font-bold text-slate-500">to</span> {event.user}</p>
+                        <p className="text-sm font-semibold text-slate-950">{event.type} <span className="font-bold text-slate-500">to</span> {event.user}</p>
                         <p className="mt-1 text-xs font-semibold text-slate-500">{event.automation} · keyword +{event.keyword} · {event.timestamp}</p>
                         {event.errorReason && (
-                            <p className="mt-2 rounded-[12px] bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700">
+                            <p className="mt-2 rounded-control bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700">
                                 {event.errorReason}. {event.suggestedFix}
                             </p>
                         )}
                     </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                    <span className={cx("rounded-full px-2.5 py-1 text-xs font-black", event.status === "Failed" ? "bg-rose-50 text-rose-700" : event.status === "Captured" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600")}>{event.status}</span>
+                    <span className={cx("rounded-full px-2.5 py-1 text-xs font-semibold", event.status === "Failed" ? "bg-rose-50 text-rose-700" : event.status === "Captured" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600")}>{event.status}</span>
                     {event.status === "Failed" && <SecondaryButton onClick={onRetry}><RefreshCw className="h-4 w-4" /> Retry</SecondaryButton>}
                     <IconButton title="Copy event" onClick={onCopy}><Copy className="h-4 w-4" /></IconButton>
                 </div>
@@ -6246,20 +6235,20 @@ function ActivityEventRow({ event, onCopy, onRetry }: { event: AnalyticsActivity
 
 function CompactInsight({ label, value }: { label: string; value: string }) {
     return (
-        <div className="rounded-[18px] border border-slate-100 bg-slate-50/70 p-3">
-            <p className="text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <p className="mt-1 text-xl font-black text-slate-950">{value}</p>
+        <div className="rounded-card border border-slate-100 bg-slate-50/70 p-3">
+            <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <p className="mt-1 text-xl font-bold text-slate-950">{value}</p>
         </div>
     );
 }
 
 function AudienceRow({ row }: { row: AudienceUserRow }) {
     return (
-        <div className="flex flex-col gap-3 rounded-[18px] border border-slate-100 bg-white p-3 transition hover:bg-slate-50 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 rounded-card border border-slate-100 bg-white p-3 transition hover:bg-slate-50 md:flex-row md:items-center md:justify-between">
             <div className="flex min-w-0 items-center gap-3">
                 <FallbackAvatar value={row.username} />
                 <div className="min-w-0">
-                    <p className="truncate text-sm font-black text-slate-950">{row.username}</p>
+                    <p className="truncate text-sm font-semibold text-slate-950">{row.username}</p>
                     <p className="truncate text-xs font-semibold text-slate-500">{row.name} · top keyword +{row.topKeyword}</p>
                 </div>
             </div>
@@ -6275,7 +6264,7 @@ function AudienceRow({ row }: { row: AudienceUserRow }) {
 function FallbackAvatar({ value }: { value: string }) {
     const initial = safeText(value, "D").replace("@", "").charAt(0).toUpperCase() || "D";
     return (
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#C13584] to-[#B83280] text-sm font-black text-white shadow-sm">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-hover text-sm font-semibold text-white shadow-rest">
             {initial}
         </span>
     );
@@ -6302,20 +6291,20 @@ function AutomationAnalyticsDrawer({
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 420, opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="absolute right-0 top-0 h-full w-full max-w-[440px] overflow-y-auto bg-white p-5 shadow-2xl"
+                className="absolute right-0 top-0 h-full w-full max-w-[440px] overflow-y-auto bg-white p-5 shadow-overlay"
             >
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <p className="text-xs font-black uppercase tracking-[0.1em] text-slate-400">Automation analytics</p>
-                        <h2 className="mt-1 text-2xl font-black text-slate-950">{row.name}</h2>
+                        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-400">Automation analytics</p>
+                        <h2 className="mt-1 text-2xl font-bold text-slate-950">{row.name}</h2>
                     </div>
                     <IconButton title="Close" onClick={onClose}><X className="h-5 w-5" /></IconButton>
                 </div>
 
-                <div className="mt-5 rounded-[20px] border border-slate-100 bg-slate-50/70 p-4">
+                <div className="mt-5 rounded-card border border-slate-100 bg-slate-50/70 p-4">
                     <div className="flex items-center justify-between">
                         <StatusBadge status={row.status} />
-                        <span className="text-xs font-black text-slate-400">{row.lastActivity}</span>
+                        <span className="text-xs font-semibold text-slate-400">{row.lastActivity}</span>
                     </div>
                     <p className="mt-4 text-sm font-semibold leading-6 text-slate-600">{row.description}</p>
                 </div>
@@ -6329,15 +6318,15 @@ function AutomationAnalyticsDrawer({
                     <CompactStat label="Delivery" value={`${row.deliveryRate}%`} />
                 </div>
 
-                <div className="mt-4 space-y-3 rounded-[20px] border border-slate-100 p-4">
+                <div className="mt-4 space-y-3 rounded-card border border-slate-100 p-4">
                     <AnalyticsDetailRow label="Trigger type" value={row.trigger} />
                     <AnalyticsDetailRow label="Selected content" value={row.selectedContent} />
                     <AnalyticsDetailRow label="Keywords" value={row.keywords.map((keyword) => `+${keyword}`).join(", ") || "Any keyword"} />
                     <AnalyticsDetailRow label="Last modified" value={row.modified} />
                 </div>
 
-                <div className="mt-4 rounded-[20px] border border-slate-100 p-4">
-                    <h3 className="font-black text-slate-950">Mini timeline</h3>
+                <div className="mt-4 rounded-card border border-slate-100 p-4">
+                    <h3 className="font-bold text-slate-950">Mini timeline</h3>
                     <div className="mt-4 space-y-3">
                         <TimelineMini label="DM sent" value={formatMetric(row.dms)} tone="purple" />
                         <TimelineMini label="Link clicked" value={formatMetric(row.clicks)} tone="blue" />
@@ -6359,15 +6348,15 @@ function AutomationAnalyticsDrawer({
 function AnalyticsDetailRow({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex items-start justify-between gap-4">
-            <span className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{label}</span>
-            <span className="max-w-[220px] text-right text-sm font-black text-slate-700">{safeText(value)}</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</span>
+            <span className="max-w-[220px] text-right text-sm font-semibold text-slate-700">{safeText(value)}</span>
         </div>
     );
 }
 
 function TimelineMini({ label, value, tone }: { label: string; value: string; tone: "purple" | "blue" | "green" | "red" }) {
     const tones = {
-        purple: "bg-[#C13584]",
+        purple: "bg-brand",
         blue: "bg-sky-500",
         green: "bg-emerald-500",
         red: "bg-rose-500",
@@ -6376,7 +6365,7 @@ function TimelineMini({ label, value, tone }: { label: string; value: string; to
         <div className="flex items-center gap-3">
             <span className={cx("h-2.5 w-2.5 rounded-full", tones[tone])} />
             <span className="flex-1 text-sm font-bold text-slate-600">{label}</span>
-            <span className="text-sm font-black text-slate-950">{value}</span>
+            <span className="text-sm font-semibold text-slate-950">{value}</span>
         </div>
     );
 }
@@ -6385,7 +6374,7 @@ function activityConfig(type: AnalyticsActivityEvent["type"]) {
     if (type === "Link clicked") return { icon: <MousePointerClick className="h-5 w-5" />, className: "bg-sky-50 text-sky-600" };
     if (type === "Lead captured") return { icon: <UserPlus className="h-5 w-5" />, className: "bg-emerald-50 text-emerald-600" };
     if (type === "Failed DM") return { icon: <AlertTriangle className="h-5 w-5" />, className: "bg-rose-50 text-rose-600" };
-    return { icon: <Send className="h-5 w-5" />, className: "bg-[#FBEAF3] text-[#C13584]" };
+    return { icon: <Send className="h-5 w-5" />, className: "bg-brand-soft text-brand" };
 }
 
 function buildAutomationAnalyticsRows(triggers: Trigger[], stats: Stats, leadsCollected: number, deliveryRate: number | null): AnalyticsAutomationRow[] {
@@ -6965,7 +6954,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
             tourKey="referral"
             action={
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex h-9 items-center rounded-full border border-emerald-100 bg-emerald-50 px-3 text-xs font-black text-emerald-700">25% recurring commission</span>
+                    <span className="inline-flex h-9 items-center rounded-full border border-emerald-100 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700">25% recurring commission</span>
                     <SecondaryButton onClick={() => setPublicPreviewOpen(true)}><ExternalLink className="h-4 w-4" /> View public page</SecondaryButton>
                 </div>
             }
@@ -6992,15 +6981,15 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                     <ReferralMetricCard icon={<UserPlus className="h-4 w-4" />} label="Paying Referrals" value={formatMetric(payingReferrals)} helper="Converted accounts" tone="purple" />
                 </div>
 
-                <div className="flex gap-2 overflow-x-auto rounded-[18px] border border-slate-200 bg-white p-2 shadow-[0_12px_34px_rgba(15,23,42,0.04)]">
+                <div className="flex gap-2 overflow-x-auto rounded-card border border-slate-200 bg-white p-2 shadow-raised">
                     {referralTabs.map((tab) => (
                         <button
                             key={tab}
                             type="button"
                             onClick={() => setActiveTab(tab)}
                             className={cx(
-                                "whitespace-nowrap rounded-[14px] px-4 py-2 text-sm font-black transition",
-                                activeTab === tab ? "bg-slate-950 text-white shadow-sm" : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
+                                "whitespace-nowrap rounded-control px-4 py-2 text-sm font-semibold transition",
+                                activeTab === tab ? "bg-slate-950 text-white shadow-rest" : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
                             )}
                         >
                             {tab}
@@ -7033,7 +7022,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                                         key={filter}
                                         type="button"
                                         onClick={() => setUserFilter(filter)}
-                                        className={cx("rounded-full px-3 py-2 text-xs font-black transition", userFilter === filter ? "bg-[#C13584] text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200")}
+                                        className={cx("rounded-full px-3 py-2 text-xs font-semibold transition", userFilter === filter ? "bg-brand text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200")}
                                     >
                                         {filter}
                                     </button>
@@ -7071,16 +7060,16 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                 <ModalShell onClose={() => setPublicPreviewOpen(false)}>
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <h3 className="text-2xl font-black text-slate-950">Referral page preview</h3>
+                            <h3 className="text-2xl font-bold text-slate-950">Referral page preview</h3>
                             <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">This is how your referral link will look to users. Public referral routing can open this URL once the public page is connected.</p>
                         </div>
                         <IconButton title="Close" onClick={() => setPublicPreviewOpen(false)}><X className="h-5 w-5" /></IconButton>
                     </div>
-                    <div className="mt-5 rounded-[22px] border border-slate-200 bg-gradient-to-br from-indigo-50 to-rose-50 p-5">
-                        <p className="text-xs font-black uppercase tracking-[0.12em] text-[#C13584]">DMGennie referral</p>
-                        <h4 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Automate Instagram DMs from comments</h4>
-                        <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-600">You were invited with referral code <span className="font-black text-slate-950">{referralCode}</span>. Start free, then upgrade when you are ready.</p>
-                        <div className="mt-4 rounded-2xl bg-white p-3 text-sm font-black text-slate-700">{referralLink}</div>
+                    <div className="mt-5 rounded-card border border-slate-200 bg-gradient-to-br from-brand-soft to-rose-50 p-5">
+                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand">DMGennie referral</p>
+                        <h4 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">Automate Instagram DMs from comments</h4>
+                        <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-600">You were invited with referral code <span className="font-bold text-slate-950">{referralCode}</span>. Start free, then upgrade when you are ready.</p>
+                        <div className="mt-4 rounded-card bg-white p-3 text-sm font-semibold text-slate-700">{referralLink}</div>
                     </div>
                 </ModalShell>
             )}
@@ -7089,18 +7078,18 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                 <ModalShell onClose={() => setPayoutMethodOpen(false)}>
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <h3 className="text-2xl font-black text-slate-950">Add payout method</h3>
+                            <h3 className="text-2xl font-bold text-slate-950">Add payout method</h3>
                             <p className="mt-2 text-sm font-semibold text-slate-500">Add UPI or bank details to withdraw verified earnings.</p>
                         </div>
                         <IconButton title="Close" onClick={() => setPayoutMethodOpen(false)}><X className="h-5 w-5" /></IconButton>
                     </div>
-                    <div className="mt-5 grid gap-2 rounded-[18px] bg-slate-50 p-1 sm:grid-cols-2">
+                    <div className="mt-5 grid gap-2 rounded-card bg-slate-50 p-1 sm:grid-cols-2">
                         {(["UPI", "Bank Transfer"] as PayoutMethodType[]).map((type) => (
                             <button
                                 key={type}
                                 type="button"
                                 onClick={() => setPayoutDraft((draft) => ({ ...draft, type }))}
-                                className={cx("rounded-[15px] px-4 py-2.5 text-sm font-black transition", payoutDraft.type === type ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-950")}
+                                className={cx("rounded-control px-4 py-2.5 text-sm font-semibold transition", payoutDraft.type === type ? "bg-white text-slate-950 shadow-rest" : "text-slate-500 hover:text-slate-950")}
                             >
                                 {type}
                             </button>
@@ -7119,7 +7108,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                             </div>
                         )}
                     </div>
-                    <div className="mt-5 rounded-2xl border border-amber-100 bg-amber-50 p-4 text-sm font-semibold leading-6 text-amber-800">
+                    <div className="mt-5 rounded-card border border-amber-100 bg-amber-50 p-4 text-sm font-semibold leading-6 text-amber-800">
                         Payout details should be saved and verified by backend. Bank account numbers are masked after saving.
                     </div>
                     <div className="mt-5 flex justify-end gap-2">
@@ -7133,7 +7122,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                 <ModalShell onClose={() => setPayoutRequestOpen(false)}>
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <h3 className="text-2xl font-black text-slate-950">Request payout</h3>
+                            <h3 className="text-2xl font-bold text-slate-950">Request payout</h3>
                             <p className="mt-2 text-sm font-semibold text-slate-500">Confirm your withdrawal request. Manual UPI / bank transfer is processed within 5 business days.</p>
                         </div>
                         <IconButton title="Close" onClick={() => setPayoutRequestOpen(false)}><X className="h-5 w-5" /></IconButton>
@@ -7171,19 +7160,19 @@ function ReferralHeroCard({
 }) {
     const { session } = useAuth();
     return (
-        <section className="overflow-hidden rounded-[22px] border border-white bg-white shadow-[0_18px_55px_rgba(15,23,42,0.06)]">
-            <div className="bg-gradient-to-br from-slate-950 via-[#405DE6] to-[#C13584] p-5 text-white sm:p-6">
+        <section className="overflow-hidden rounded-card border border-white bg-white shadow-raised">
+            <div className="bg-gradient-to-br from-slate-950 via-[#405DE6] to-brand p-5 text-white sm:p-6">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                        <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-white/75">Partner program</span>
-                        <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">Share DMGennie. Earn 25%.</h2>
+                        <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-2xs font-semibold uppercase tracking-[0.12em] text-white/75">Partner program</span>
+                        <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">Share DMGennie. Earn 25%.</h2>
                         <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-white/70">Invite creators to DMGennie and earn 25% commission when they upgrade after their trial.</p>
                     </div>
-                    <div className="rounded-[20px] border border-white/15 bg-white/10 p-4 backdrop-blur">
+                    <div className="rounded-card border border-white/15 bg-white/10 p-4 backdrop-blur">
                         <div className="flex items-center gap-3">
                             <FallbackAvatar value="@dmgennie.in" />
                             <div>
-                                <p className="text-sm font-black">{session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || 'Creator'}</p>
+                                <p className="text-sm font-semibold">{session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || 'Creator'}</p>
                                 <p className="text-xs font-semibold text-white/60">Code: {referralCode}</p>
                             </div>
                         </div>
@@ -7193,7 +7182,7 @@ function ReferralHeroCard({
             <div className="p-5 sm:p-6">
                 <Label>Referral link</Label>
                 <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
-                    <div className="min-w-0 rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-black text-slate-700">{referralLink}</div>
+                    <div className="min-w-0 rounded-card border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">{referralLink}</div>
                     <PrimaryButton onClick={onCopyLink}><Copy className="h-4 w-4" /> Copy Link</PrimaryButton>
                     <SecondaryButton onClick={onCopyCode}><Hash className="h-4 w-4" /> Copy Code</SecondaryButton>
                 </div>
@@ -7220,10 +7209,10 @@ function HowReferralWorks() {
         <Panel title="How it works">
             <div className="space-y-3">
                 {steps.map(([title, copy], index) => (
-                    <div key={title} className="flex gap-3 rounded-[18px] border border-slate-100 bg-slate-50/70 p-3">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-[#C13584] shadow-sm">{index + 1}</span>
+                    <div key={title} className="flex gap-3 rounded-card border border-slate-100 bg-slate-50/70 p-3">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-xs font-semibold text-brand shadow-rest">{index + 1}</span>
                         <div>
-                            <h3 className="text-sm font-black text-slate-950">{title}</h3>
+                            <h3 className="text-sm font-semibold text-slate-950">{title}</h3>
                             <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">{copy}</p>
                         </div>
                     </div>
@@ -7235,16 +7224,16 @@ function HowReferralWorks() {
 
 function ReferralMetricCard({ icon, label, value, helper, tone }: { icon: ReactNode; label: string; value: string; helper: string; tone: "purple" | "gold" | "green" | "gray" }) {
     const tones = {
-        purple: "bg-indigo-50 text-[#C13584]",
+        purple: "bg-brand-soft text-brand",
         gold: "bg-amber-50 text-amber-700",
         green: "bg-emerald-50 text-emerald-700",
         gray: "bg-slate-100 text-slate-600",
     };
     return (
-        <div className="rounded-[18px] border border-white bg-white p-4 shadow-[0_14px_38px_rgba(15,23,42,0.05)]">
-            <span className={cx("flex h-9 w-9 items-center justify-center rounded-[14px]", tones[tone])}>{icon}</span>
-            <p className="mt-3 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <p className="mt-1 text-2xl font-black text-slate-950">{value}</p>
+        <div className="rounded-card border border-white bg-white p-4 shadow-raised">
+            <span className={cx("flex h-9 w-9 items-center justify-center rounded-control", tones[tone])}>{icon}</span>
+            <p className="mt-3 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <p className="mt-1 text-2xl font-bold text-slate-950">{value}</p>
             <p className="mt-1 text-xs font-semibold text-slate-500">{helper}</p>
         </div>
     );
@@ -7254,14 +7243,14 @@ function PayoutMethodPanel({ method, onAdd }: { method: PayoutMethodRecord | nul
     return (
         <Panel title="Payout Method" action={<SecondaryButton onClick={onAdd}>{method ? "Update method" : "Add Payout Method"}</SecondaryButton>}>
             {method ? (
-                <div className="rounded-[20px] border border-emerald-100 bg-emerald-50/50 p-4">
+                <div className="rounded-card border border-emerald-100 bg-emerald-50/50 p-4">
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <p className="text-sm font-black text-slate-950">{formatPayoutMethod(method)}</p>
+                            <p className="text-sm font-semibold text-slate-950">{formatPayoutMethod(method)}</p>
                             <p className="mt-1 text-xs font-semibold text-slate-500">Holder: {method.holderName}</p>
                             {method.ifsc && <p className="mt-1 text-xs font-semibold text-slate-500">IFSC: {method.ifsc}</p>}
                         </div>
-                        <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-emerald-700">{method.status}</span>
+                        <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-emerald-700">{method.status}</span>
                     </div>
                 </div>
             ) : (
@@ -7291,9 +7280,9 @@ function RequestPayoutPanel({
     const helper = withdrawableBalance < minimumPayoutAmount ? "Minimum ₹500 required to request payout." : !payoutMethod ? "Add payout method to request payout." : "Manual UPI / bank transfer within 5 business days.";
     return (
         <Panel title="Request Payout">
-            <div className="rounded-[20px] border border-slate-100 bg-slate-50/70 p-4">
-                <p className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">Withdrawable balance</p>
-                <p className="mt-2 text-4xl font-black text-slate-950">{formatCurrency(withdrawableBalance)}</p>
+            <div className="rounded-card border border-slate-100 bg-slate-50/70 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">Withdrawable balance</p>
+                <p className="mt-2 text-4xl font-bold text-slate-950">{formatCurrency(withdrawableBalance)}</p>
                 <div className="mt-4 grid gap-2">
                     <ReferralReviewRow label="Minimum payout" value="₹500" />
                     <ReferralReviewRow label="Payout method" value={payoutMethod ? formatPayoutMethod(payoutMethod) : "Not added"} />
@@ -7302,7 +7291,7 @@ function RequestPayoutPanel({
                 <button
                     type="button"
                     onClick={onRequest}
-                    className={cx("mt-5 inline-flex w-full items-center justify-center gap-2 rounded-[16px] px-4 py-3 text-sm font-black transition", canRequest ? "bg-[#C13584] text-white shadow-lg shadow-indigo-500/20 hover:bg-[#ad2a75]" : "bg-slate-200 text-slate-500 hover:bg-slate-300")}
+                    className={cx("mt-5 inline-flex w-full items-center justify-center gap-2 rounded-card px-4 py-3 text-sm font-semibold transition", canRequest ? "bg-brand text-white shadow-raised hover:bg-brand-hover" : "bg-slate-200 text-slate-500 hover:bg-slate-300")}
                 >
                     <CreditCard className="h-4 w-4" />
                     Request Payout
@@ -7319,9 +7308,9 @@ function ReferredUsersTable({ users, onCopyLink }: { users: ReferredUserRecord[]
     }
     return (
         <>
-            <div className="hidden overflow-x-auto rounded-[18px] border border-slate-100 md:block">
+            <div className="hidden overflow-x-auto rounded-card border border-slate-100 md:block">
                 <table className="min-w-[1040px] w-full text-left text-sm">
-                    <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">
+                    <thead className="bg-slate-50 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">
                         <tr>
                             {["User", "Signup Date", "Trial Status", "Subscription", "Plan", "First Payment", "Revenue", "Commission", "Status", "Last Activity"].map((heading) => <th key={heading} className="px-4 py-3">{heading}</th>)}
                         </tr>
@@ -7333,7 +7322,7 @@ function ReferredUsersTable({ users, onCopyLink }: { users: ReferredUserRecord[]
                                     <div className="flex items-center gap-3">
                                         <FallbackAvatar value={user.name} />
                                         <div>
-                                            <p className="font-black text-slate-950">{user.name}</p>
+                                            <p className="font-bold text-slate-950">{user.name}</p>
                                             <p className="text-xs font-semibold text-slate-500">{user.email}</p>
                                         </div>
                                     </div>
@@ -7341,10 +7330,10 @@ function ReferredUsersTable({ users, onCopyLink }: { users: ReferredUserRecord[]
                                 <td className="px-4 py-3 font-semibold text-slate-600">{user.signupDate}</td>
                                 <td className="px-4 py-3"><ReferralStatusPill status={user.trialStatus} /></td>
                                 <td className="px-4 py-3"><ReferralStatusPill status={user.subscriptionStatus} /></td>
-                                <td className="px-4 py-3 font-black text-slate-700">{user.plan}</td>
+                                <td className="px-4 py-3 font-bold text-slate-700">{user.plan}</td>
                                 <td className="px-4 py-3 font-semibold text-slate-600">{user.firstPaymentDate}</td>
-                                <td className="px-4 py-3 font-black text-slate-950">{formatCurrency(user.totalRevenue)}</td>
-                                <td className="px-4 py-3 font-black text-slate-950">{formatCurrency(user.commission)}</td>
+                                <td className="px-4 py-3 font-bold text-slate-950">{formatCurrency(user.totalRevenue)}</td>
+                                <td className="px-4 py-3 font-bold text-slate-950">{formatCurrency(user.commission)}</td>
                                 <td className="px-4 py-3"><ReferralStatusPill status={user.commissionStatus} /></td>
                                 <td className="px-4 py-3 font-semibold text-slate-500">{user.lastActivity}</td>
                             </tr>
@@ -7354,11 +7343,11 @@ function ReferredUsersTable({ users, onCopyLink }: { users: ReferredUserRecord[]
             </div>
             <div className="grid gap-3 md:hidden">
                 {users.map((user) => (
-                    <div key={user.id} className="rounded-[18px] border border-slate-100 bg-slate-50/70 p-4">
+                    <div key={user.id} className="rounded-card border border-slate-100 bg-slate-50/70 p-4">
                         <div className="flex items-center gap-3">
                             <FallbackAvatar value={user.name} />
                             <div>
-                                <p className="font-black text-slate-950">{user.name}</p>
+                                <p className="font-bold text-slate-950">{user.name}</p>
                                 <p className="text-xs font-semibold text-slate-500">{user.email}</p>
                             </div>
                         </div>
@@ -7380,9 +7369,9 @@ function CommissionHistoryTable({ commissions }: { commissions: CommissionRecord
         return <EmptyState icon={<CreditCard className="h-6 w-6" />} title="No commission yet" copy="You will see commission here when your referrals upgrade after their trial." />;
     }
     return (
-        <div className="overflow-x-auto rounded-[18px] border border-slate-100">
+        <div className="overflow-x-auto rounded-card border border-slate-100">
             <table className="min-w-[900px] w-full text-left text-sm">
-                <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">
+                <thead className="bg-slate-50 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">
                     <tr>
                         {["Date", "Referred User", "Plan", "Payment Amount", "Rate", "Commission", "Status", "Available On", "Reference"].map((heading) => <th key={heading} className="px-4 py-3">{heading}</th>)}
                     </tr>
@@ -7391,11 +7380,11 @@ function CommissionHistoryTable({ commissions }: { commissions: CommissionRecord
                     {commissions.map((row) => (
                         <tr key={row.id} className="transition hover:bg-slate-50/70">
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.date}</td>
-                            <td className="px-4 py-3 font-black text-slate-950">{row.referredUser}</td>
+                            <td className="px-4 py-3 font-bold text-slate-950">{row.referredUser}</td>
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.subscriptionPlan}</td>
-                            <td className="px-4 py-3 font-black text-slate-950">{formatCurrency(row.paymentAmount)}</td>
+                            <td className="px-4 py-3 font-bold text-slate-950">{formatCurrency(row.paymentAmount)}</td>
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.commissionRate}%</td>
-                            <td className="px-4 py-3 font-black text-slate-950">{formatCurrency(row.commissionAmount)}</td>
+                            <td className="px-4 py-3 font-bold text-slate-950">{formatCurrency(row.commissionAmount)}</td>
                             <td className="px-4 py-3"><ReferralStatusPill status={row.status} /></td>
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.availableOn}</td>
                             <td className="px-4 py-3 font-mono text-xs font-bold text-slate-500">{row.paymentId}</td>
@@ -7412,9 +7401,9 @@ function PayoutHistoryTable({ payouts }: { payouts: PayoutRecord[] }) {
         return <EmptyState icon={<Download className="h-6 w-6" />} title="No payouts yet" copy="Your payout history will appear here after your first withdrawal." />;
     }
     return (
-        <div className="overflow-x-auto rounded-[18px] border border-slate-100">
+        <div className="overflow-x-auto rounded-card border border-slate-100">
             <table className="min-w-[760px] w-full text-left text-sm">
-                <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">
+                <thead className="bg-slate-50 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">
                     <tr>
                         {["Requested Date", "Amount", "Payout Method", "Status", "Processed Date", "Reference ID"].map((heading) => <th key={heading} className="px-4 py-3">{heading}</th>)}
                     </tr>
@@ -7423,7 +7412,7 @@ function PayoutHistoryTable({ payouts }: { payouts: PayoutRecord[] }) {
                     {payouts.map((row) => (
                         <tr key={row.id} className="transition hover:bg-slate-50/70">
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.requestedDate}</td>
-                            <td className="px-4 py-3 font-black text-slate-950">{formatCurrency(row.amount)}</td>
+                            <td className="px-4 py-3 font-bold text-slate-950">{formatCurrency(row.amount)}</td>
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.payoutMethod}</td>
                             <td className="px-4 py-3"><ReferralStatusPill status={row.status} /></td>
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.processedDate}</td>
@@ -7456,10 +7445,10 @@ function ReferralFaq({ openIndex, onOpen }: { openIndex: number; onOpen: (index:
                         key={question}
                         type="button"
                         onClick={() => onOpen(openIndex === index ? -1 : index)}
-                        className="w-full rounded-[18px] border border-slate-100 bg-slate-50/60 p-4 text-left transition hover:bg-slate-50"
+                        className="w-full rounded-card border border-slate-100 bg-slate-50/60 p-4 text-left transition hover:bg-slate-50"
                     >
                         <div className="flex items-center justify-between gap-4">
-                            <h3 className="text-sm font-black text-slate-950">{question}</h3>
+                            <h3 className="text-sm font-semibold text-slate-950">{question}</h3>
                             <ChevronDown className={cx("h-4 w-4 text-slate-400 transition", openIndex === index && "rotate-180")} />
                         </div>
                         {openIndex === index && <p className="mt-3 text-sm font-semibold leading-6 text-slate-500">{answer}</p>}
@@ -7472,7 +7461,7 @@ function ReferralFaq({ openIndex, onOpen }: { openIndex: number; onOpen: (index:
 
 function ReferralShareButton({ icon, label, onClick }: { icon: ReactNode; label: string; onClick: () => void }) {
     return (
-        <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-[14px] border border-slate-200 bg-white px-3 py-2.5 text-xs font-black text-slate-700 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:bg-indigo-50 hover:text-[#C13584]">
+        <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-control border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-brand/25 hover:bg-brand-soft hover:text-brand">
             {icon}
             {label}
         </button>
@@ -7491,9 +7480,9 @@ function ReferralInput({ label, value, onChange, error, placeholder }: { label: 
 
 function ReferralReviewRow({ label, value }: { label: string; value: string }) {
     return (
-        <div className="flex items-center justify-between gap-4 rounded-[14px] bg-white px-3 py-2.5 text-sm">
+        <div className="flex items-center justify-between gap-4 rounded-control bg-white px-3 py-2.5 text-sm">
             <span className="font-bold text-slate-500">{label}</span>
-            <span className="text-right font-black text-slate-950">{value}</span>
+            <span className="text-right font-bold text-slate-950">{value}</span>
         </div>
     );
 }
@@ -7507,12 +7496,12 @@ function ReferralStatusPill({ status }: { status: string }) {
             : normalized.includes("refunded") || normalized.includes("reversed") || normalized.includes("failed") || normalized.includes("rejected") || normalized.includes("churned")
                 ? "bg-rose-50 text-rose-700 ring-rose-100"
                 : "bg-slate-100 text-slate-600 ring-slate-200";
-    return <span className={cx("inline-flex h-7 items-center rounded-full px-2.5 text-xs font-black ring-1", tone)}>{status}</span>;
+    return <span className={cx("inline-flex h-7 items-center rounded-full px-2.5 text-xs font-semibold ring-1", tone)}>{status}</span>;
 }
 
 function ReferralToast({ message }: { message: string }) {
     return (
-        <div className="fixed bottom-5 right-5 z-50 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-950 shadow-[0_18px_50px_rgba(15,23,42,0.18)]">
+        <div className="fixed bottom-5 right-5 z-50 rounded-card border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-950 shadow-raised">
             {message}
         </div>
     );
@@ -7730,8 +7719,8 @@ function SettingsPage(props: {
                                 key={item.key}
                                 onClick={() => props.onSettingsTab(item.key)}
                                 className={cx(
-                                    "flex min-w-max items-center gap-3 rounded-[1rem] px-4 py-2.5 text-left text-sm font-black transition lg:w-full",
-                                    props.settingsTab === item.key ? "bg-slate-950 text-white shadow-[0_10px_24px_rgba(15,23,42,0.14)]" : "text-slate-600 hover:bg-slate-50"
+                                    "flex min-w-max items-center gap-3 rounded-card px-4 py-2.5 text-left text-sm font-semibold transition lg:w-full",
+                                    props.settingsTab === item.key ? "bg-slate-950 text-white shadow-rest" : "text-slate-600 hover:bg-slate-50"
                                 )}
                             >
                                 {item.icon}
@@ -7741,12 +7730,12 @@ function SettingsPage(props: {
                     </div>
                 </Panel>
                 <div className="space-y-4">
-                    <Panel title={menu.find((item) => item.key === props.settingsTab)?.label || "Settings"} action={props.saved ? <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Saved</span> : undefined}>
+                    <Panel title={menu.find((item) => item.key === props.settingsTab)?.label || "Settings"} action={props.saved ? <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Saved</span> : undefined}>
                     {props.settingsTab === "profile" && (
                         <div className="space-y-5">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                 <div>
-                                    <h3 className="text-base font-black text-slate-950">Personal Information</h3>
+                                    <h3 className="text-base font-semibold text-slate-950">Personal Information</h3>
                                     <p className="mt-1 text-sm font-semibold text-slate-500">View and manage your basic account details.</p>
                                 </div>
                                 {!editingProfile && (
@@ -7757,16 +7746,16 @@ function SettingsPage(props: {
                             </div>
 
                             {!editingProfile ? (
-                                <div className="rounded-[1.25rem] border border-slate-100 bg-slate-50/70 p-4">
+                                <div className="rounded-card border border-slate-100 bg-slate-50/70 p-4">
                                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.1rem] bg-gradient-to-br from-[#C13584] to-[#D9468B] text-lg font-black text-white">
+                                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand to-brand-hover text-lg font-bold text-white">
                                             {(profileSaved.fullName || "Creator").charAt(0).toUpperCase()}
                                         </span>
                                         <div className="min-w-0 flex-1">
-                                            <h3 className="truncate text-lg font-black text-slate-950">{profileSaved.fullName || "Creator"}</h3>
+                                            <h3 className="truncate text-lg font-bold text-slate-950">{profileSaved.fullName || "Creator"}</h3>
                                             <p className="mt-1 truncate text-sm font-semibold text-slate-500">{profileSaved.email || "No email available"}</p>
                                         </div>
-                                        <span className="inline-flex h-7 w-fit items-center rounded-full bg-emerald-50 px-3 text-xs font-black text-emerald-700 ring-1 ring-emerald-100">Active account</span>
+                                        <span className="inline-flex h-7 w-fit items-center rounded-full bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100">Active account</span>
                                     </div>
                                     <div className="mt-5 grid gap-3 md:grid-cols-3">
                                         <SettingsInfoTile label="Full name" value={profileSaved.fullName || "Creator"} />
@@ -7776,7 +7765,7 @@ function SettingsPage(props: {
                                     <p className="mt-4 text-xs font-semibold text-slate-500">Email changes are handled by support for account safety.</p>
                                 </div>
                             ) : (
-                                <div className="rounded-[1.25rem] border border-slate-100 bg-white p-4">
+                                <div className="rounded-card border border-slate-100 bg-white p-4">
                                     <div className="grid gap-4 md:grid-cols-2">
                                         <Field label="Full Name" value={profileDraft.fullName} onChange={(value) => setProfileDraft({ ...profileDraft, fullName: value })} />
                                         <Field label="Email address" value={profileDraft.email} onChange={() => {}} readOnly helper="To change your email, please contact support." />
@@ -7799,22 +7788,22 @@ function SettingsPage(props: {
                         <div className="space-y-5">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                 <div>
-                                    <h3 className="text-base font-black text-slate-950">Instagram Connections</h3>
+                                    <h3 className="text-base font-semibold text-slate-950">Instagram Connections</h3>
                                     <p className="mt-1 text-sm font-semibold text-slate-500">Manage your connected Instagram account for DM automation.</p>
                                 </div>
                             </div>
                             {props.connected ? (
-                                <div className="rounded-[1.35rem] border border-slate-100 bg-white p-4 shadow-sm">
+                                <div className="rounded-card border border-slate-100 bg-white p-4 shadow-rest">
                                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                         <div className="flex min-w-0 items-center gap-4">
-                                            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.1rem] bg-gradient-to-br from-[#C13584] to-[#D9468B] text-lg font-black text-white shadow-sm">
+                                            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand to-brand-hover text-lg font-bold text-white shadow-rest">
                                                 {cleanHandle.charAt(0).toUpperCase() || "D"}
                                             </span>
                                             <div className="min-w-0">
                                                 <div className="flex flex-wrap items-center gap-2">
-                                                    <h3 className="truncate font-black text-slate-950">{handle}</h3>
-                                                    <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-emerald-50 px-2 text-[11px] font-black text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Connected</span>
-                                                    <span className="inline-flex h-6 items-center rounded-full bg-indigo-50 px-2 text-[11px] font-black text-[#C13584]">Meta API Active</span>
+                                                    <h3 className="truncate font-bold text-slate-950">{handle}</h3>
+                                                    <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-emerald-50 px-2 text-2xs font-semibold text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Connected</span>
+                                                    <span className="inline-flex h-6 items-center rounded-full bg-brand-soft px-2 text-2xs font-semibold text-brand">Meta API Active</span>
                                                 </div>
                                                 <p className="mt-1 text-sm font-semibold text-slate-500">{typeof props.stats.followers === "number" ? `${formatMetric(props.stats.followers)} followers` : "Followers unavailable"} · Refresh to sync latest data</p>
                                                 <p className="mt-1 text-xs font-semibold text-slate-400">Connected through secure Meta OAuth. No Instagram password stored.</p>
@@ -7835,16 +7824,16 @@ function SettingsPage(props: {
                                     onAction={props.onConnect}
                                 />
                             )}
-                            <p className="px-1 text-xs font-semibold text-slate-400">Need to manage multiple Instagram accounts? That's available on Enterprise — <a href="mailto:support@dmgennie.in?subject=DMGennie%20Enterprise%20Plan" className="font-black text-slate-600 underline">contact us</a>.</p>
+                            <p className="px-1 text-xs font-semibold text-slate-400">Need to manage multiple Instagram accounts? That's available on Enterprise — <a href="mailto:support@dmgennie.in?subject=DMGennie%20Enterprise%20Plan" className="font-bold text-slate-600 underline">contact us</a>.</p>
                         </div>
                     )}
                     {props.settingsTab === "billing" && (
                         <div className="space-y-4">
-                            <div className="rounded-[1.35rem] border border-slate-100 bg-white p-5 shadow-sm">
+                            <div className="rounded-card border border-slate-100 bg-white p-5 shadow-rest">
                                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                                     <div>
-                                        <span className="inline-flex h-7 items-center rounded-full bg-slate-100 px-3 text-xs font-black text-slate-700">Starter</span>
-                                        <h3 className="mt-3 text-xl font-black text-slate-950">Plan & Usage</h3>
+                                        <span className="inline-flex h-7 items-center rounded-full bg-slate-100 px-3 text-xs font-semibold text-slate-700">Starter</span>
+                                        <h3 className="mt-3 text-xl font-bold text-slate-950">Plan & Usage</h3>
                                         <p className="mt-1 text-sm font-semibold text-slate-500">Your current plan, limits, and billing actions in one place.</p>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
@@ -7857,37 +7846,37 @@ function SettingsPage(props: {
                                     <UsageMiniCard title="Contacts" value={formatUsage(contactsUsed, contactsLimit)} progress={contactsProgress} />
                                     <UsageMiniCard title="IG Accounts" value={`${props.connected ? 1 : 0} / 1`} progress={props.connected ? 100 : 1} />
                                 </div>
-                                <div className="mt-5 rounded-[1rem] border border-emerald-100 bg-emerald-50/60 p-4">
+                                <div className="mt-5 rounded-card border border-emerald-100 bg-emerald-50/60 p-4">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                         <div>
-                                            <h3 className="font-black text-slate-950">Subscription status</h3>
+                                            <h3 className="font-bold text-slate-950">Subscription status</h3>
                                             <p className="mt-1 text-sm font-semibold text-slate-500">Trial active · No active paid subscription yet.</p>
                                         </div>
-                                        <button type="button" onClick={openPricing} className="inline-flex h-10 items-center justify-center rounded-[0.9rem] bg-white px-4 text-sm font-black text-emerald-700 ring-1 ring-emerald-100 transition hover:-translate-y-0.5">
+                                        <button type="button" onClick={openPricing} className="inline-flex h-10 items-center justify-center rounded-control bg-white px-4 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-100 transition hover:-translate-y-0.5">
                                             Activate Subscription
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                            <div className="rounded-[1.25rem] border border-dashed border-slate-200 bg-slate-50/80 p-5 text-center">
-                                <h3 className="font-black text-slate-950">No invoices found yet.</h3>
+                            <div className="rounded-card border border-dashed border-slate-200 bg-slate-50/80 p-5 text-center">
+                                <h3 className="font-bold text-slate-950">No invoices found yet.</h3>
                                 <p className="mt-1 text-sm font-semibold text-slate-500">Invoices will appear here after your first paid subscription payment.</p>
                             </div>
                         </div>
                     )}
                     {props.settingsTab === "security" && (
                         <div className="space-y-5">
-                            <div className="rounded-[1.25rem] border border-emerald-100 bg-emerald-50/60 p-5">
+                            <div className="rounded-card border border-emerald-100 bg-emerald-50/60 p-5">
                                 <div className="flex items-start gap-3">
                                     <ShieldCheck className="mt-1 h-6 w-6 shrink-0 text-emerald-600" />
                                     <div>
-                                        <h3 className="font-black text-slate-950">Secure OAuth Authentication</h3>
+                                        <h3 className="font-bold text-slate-950">Secure OAuth Authentication</h3>
                                         <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">DMGennie uses official Meta OAuth for Instagram and never stores Instagram passwords.</p>
                                     </div>
                                 </div>
                             </div>
-                            <div className="rounded-[1.25rem] border border-slate-100 bg-white p-4">
-                                <h3 className="font-black text-slate-950">Password</h3>
+                            <div className="rounded-card border border-slate-100 bg-white p-4">
+                                <h3 className="font-bold text-slate-950">Password</h3>
                                 <p className="mt-1 text-sm font-semibold text-slate-500">Update your DMGennie account password for email login.</p>
                                 <div className="mt-4 grid gap-4 md:grid-cols-3">
                                     <Field label="Current password" type="password" value={passwordDraft.current} onChange={(value) => setPasswordDraft({ ...passwordDraft, current: value })} />
@@ -7900,10 +7889,10 @@ function SettingsPage(props: {
                                     </PrimaryButton>
                                 </div>
                             </div>
-                            <div className="rounded-[1.25rem] border border-rose-100 bg-rose-50/50 p-5">
+                            <div className="rounded-card border border-rose-100 bg-rose-50/50 p-5">
                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                     <div>
-                                        <h3 className="font-black text-rose-700">Danger Zone</h3>
+                                        <h3 className="font-bold text-rose-700">Danger Zone</h3>
                                         <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Permanently delete your DMGennie account and all its data after re-confirming your identity. This cannot be undone.</p>
                                     </div>
                                     <DangerButton onClick={() => setDeleteOpen(true)}><Trash2 className="h-4 w-4" /> Delete DMGennie Account</DangerButton>
@@ -7931,12 +7920,12 @@ function SettingsPage(props: {
                 <ModalShell onClose={resetDeleteAccountFlow}>
                     <div>
                         <div className="text-center">
-                            <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-[1.15rem] bg-rose-50 text-rose-600 ring-1 ring-rose-100">
+                            <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-card bg-rose-50 text-rose-600 ring-1 ring-rose-100">
                             <AlertTriangle className="h-6 w-6" />
                             </span>
-                            <h2 className="mt-5 text-2xl font-black text-slate-950">Delete DMGennie Account?</h2>
+                            <h2 className="mt-5 text-2xl font-bold text-slate-950">Delete DMGennie Account?</h2>
                             <p className="mx-auto mt-2 max-w-lg text-sm font-semibold leading-6 text-slate-500">
-                                This permanently deletes <span className="font-black text-slate-700">{profileSaved.email || "your account"}</span> and all its automations, contacts, and activity. This cannot be undone.
+                                This permanently deletes <span className="font-bold text-slate-700">{profileSaved.email || "your account"}</span> and all its automations, contacts, and activity. This cannot be undone.
                             </p>
                         </div>
                         <div className="mx-auto mt-6 max-w-md space-y-4">
@@ -7945,8 +7934,8 @@ function SettingsPage(props: {
                             ) : (
                                 <Field label="Confirm your email" value={deleteConfirm} onChange={(value) => { setDeleteConfirm(value); setDeleteError(""); }} placeholder={props.ownerEmail || "you@example.com"} helper="Type your account email exactly to confirm." />
                             )}
-                            {deleteError && <p className="rounded-[1rem] border border-rose-100 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-700">{deleteError}</p>}
-                            <div className="rounded-[1rem] border border-amber-100 bg-amber-50 px-3 py-2 text-xs font-semibold leading-5 text-amber-800">
+                            {deleteError && <p className="rounded-card border border-rose-100 bg-rose-50 px-3 py-2 text-sm font-bold text-rose-700">{deleteError}</p>}
+                            <div className="rounded-card border border-amber-100 bg-amber-50 px-3 py-2 text-xs font-semibold leading-5 text-amber-800">
                                 Deletion is permanent and immediate. Make sure you have exported anything you need first.
                             </div>
                         </div>
@@ -7956,7 +7945,7 @@ function SettingsPage(props: {
                                 type="button"
                                 disabled={deletingAccount || (deleteHasPassword ? !deletePassword.trim() : !deleteConfirm.trim())}
                                 onClick={requestAccountDeletion}
-                                className="inline-flex h-11 items-center justify-center gap-2 rounded-[0.95rem] bg-rose-600 px-5 text-sm font-black text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-rose-600 px-5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {deletingAccount ? <><RefreshCw className="h-4 w-4 animate-spin" /> Deleting...</> : <><Trash2 className="h-4 w-4" /> Delete account</>}
                             </button>
@@ -8093,7 +8082,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
         ["Why did a DM fail?", "Usually due to privacy or closed DMs."],
     ];
 
-    const sectionLabel = "block text-[16px] font-[900] uppercase tracking-tighter text-slate-950 mb-4 ml-1";
+    const sectionLabel = "block text-base font-semibold uppercase tracking-tighter text-slate-950 mb-4 ml-1";
 
     return (
         <div className="w-full max-w-[1500px] mx-auto">
@@ -8101,13 +8090,13 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                 {/* ERROR ALERT - PROFESSIONAL DESIGN */}
                 {showErrorAlert && (
                     <div className="fixed top-6 right-6 z-[100] animate-in slide-in-from-top-2 fade-in duration-300">
-                        <div className="bg-white rounded-2xl border-2 border-red-200 shadow-xl shadow-red-500/10 p-5 max-w-sm">
+                        <div className="bg-white rounded-card border-2 border-red-200 shadow-overlay shadow-red-500/10 p-5 max-w-sm">
                             <div className="flex items-start gap-4">
                                 <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
                                     <AlertCircle className="h-5 w-5 text-red-600" />
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="text-sm font-black text-slate-950 mb-1">Please Complete All Fields</h4>
+                                    <h4 className="text-sm font-semibold text-slate-950 mb-1">Please Complete All Fields</h4>
                                     <p className="text-xs font-medium text-slate-500">Make sure all required fields are filled in before submitting.</p>
                                 </div>
                                 <button 
@@ -8124,13 +8113,13 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                 {/* SUCCESS MODAL - PROFESSIONAL DESIGN */}
                 {submitSuccess && (
                     <div className="fixed inset-0 flex items-center justify-center z-[100] bg-black/20 backdrop-blur-sm">
-                        <div className="bg-white rounded-3xl p-10 shadow-2xl animate-in fade-in zoom-in duration-300 max-w-sm">
+                        <div className="bg-white rounded-card p-10 shadow-overlay animate-in fade-in zoom-in duration-300 max-w-sm">
                             <div className="flex flex-col items-center gap-5">
                                 <div className="h-20 w-20 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center">
                                     <Check className="h-10 w-10 text-emerald-600" />
                                 </div>
                                 <div className="text-center">
-                                    <h3 className="text-2xl font-black text-slate-950 mb-2">Message Sent!</h3>
+                                    <h3 className="text-2xl font-bold text-slate-950 mb-2">Message Sent!</h3>
                                     <p className="text-sm font-medium text-slate-500">Your message has been submitted successfully. We'll get back to you soon!</p>
                                 </div>
                             </div>
@@ -8141,14 +8130,14 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                 <form onSubmit={handleSubmit} className="mt-4 grid gap-8 lg:grid-cols-[1fr_360px] items-stretch w-full min-h-[600px]">
                     
                     {/* LEFT SIDE: STRETCHED & VALIDATED CONTACT FORM */}
-                    <div className="rounded-[2.5rem] border border-slate-100 bg-white p-10 shadow-[0_15px_50px_rgba(0,0,0,0.02)] flex flex-col justify-between w-full">
+                    <div className="rounded-[2.5rem] border border-slate-100 bg-white p-10 shadow-raised flex flex-col justify-between w-full">
                         <div className="w-full">
                             <div className="flex items-center justify-between mb-10">
                                 <div>
-                                    <h2 className="text-4xl font-[900] uppercase tracking-tighter text-slate-950">Contact Us</h2>
+                                    <h2 className="text-4xl font-bold uppercase tracking-tighter text-slate-950">Contact Us</h2>
                                     <p className="mt-1 text-base font-medium text-slate-400">We'd love to hear from you.</p>
                                 </div>
-                                <a href="tel:+910000000000" className="flex items-center gap-2 rounded-full border-2 border-slate-950 px-8 py-2.5 text-xs font-black uppercase tracking-widest hover:bg-slate-950 hover:text-white transition-all">
+                                <a href="tel:+910000000000" className="flex items-center gap-2 rounded-full border-2 border-slate-950 px-8 py-2.5 text-xs font-semibold uppercase tracking-widest hover:bg-slate-950 hover:text-white transition-all">
                                     <Headphones className="h-4 w-4" /> Call Us
                                 </a>
                             </div>
@@ -8158,7 +8147,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                 <div className="space-y-8">
                                     <div>
                                         <label className={sectionLabel}>Select a Topic</label>
-                                        <div className={`relative border-b-2 pb-2 focus-within:border-indigo-600 transition-all duration-200 ${errors.includes('topic') ? 'border-red-500 border-b-2' : 'border-slate-950'}`}>
+                                        <div className={`relative border-b-2 pb-2 focus-within:border-brand transition-all duration-200 ${errors.includes('topic') ? 'border-red-500 border-b-2' : 'border-slate-950'}`}>
                                             <select 
                                                 name="topic"
                                                 value={formData.topic}
@@ -8178,7 +8167,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
 
                                     <div>
                                         <label className={sectionLabel}>Your Message</label>
-                                        <div className={`rounded-2xl border-2 p-4 focus-within:border-indigo-600 focus-within:bg-white transition-all duration-200 ${errors.includes('message') ? 'border-red-300 bg-red-50/30' : 'border-slate-100 bg-slate-50/30 focus-within:border-slate-950'}`}>
+                                        <div className={`rounded-card border-2 p-4 focus-within:border-brand focus-within:bg-white transition-all duration-200 ${errors.includes('message') ? 'border-red-300 bg-red-50/30' : 'border-slate-100 bg-slate-50/30 focus-within:border-slate-950'}`}>
                                             <textarea 
                                                 name="message"
                                                 value={formData.message}
@@ -8193,18 +8182,18 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                     {/* FIXED RECAPTCHA - CLICK ANYWHERE ON THIS BOX */}
                                     <div 
                                         onClick={handleCaptcha}
-                                        className={`flex items-center justify-between gap-4 rounded border-2 p-3 w-[300px] shadow-sm select-none cursor-pointer transition-all duration-200 ${errors.includes('captcha') ? 'border-red-300 bg-red-50' : 'border-[#d3d3d3] bg-[#f9f9f9] hover:bg-[#f5f5f5]'}`}
+                                        className={`flex items-center justify-between gap-4 rounded border-2 p-3 w-[300px] shadow-rest select-none cursor-pointer transition-all duration-200 ${errors.includes('captcha') ? 'border-red-300 bg-red-50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100'}`}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <div className="h-7 w-7 rounded-[2px] border-2 border-[#c1c1c1] bg-white transition-all flex items-center justify-center overflow-hidden">
-                                                {captchaStatus === 'loading' && <RefreshCw className="h-5 w-5 text-indigo-600 animate-spin" />}
+                                            <div className="h-7 w-7 rounded-[2px] border-2 border-slate-300 bg-white transition-all flex items-center justify-center overflow-hidden">
+                                                {captchaStatus === 'loading' && <RefreshCw className="h-5 w-5 text-brand animate-spin" />}
                                                 {captchaStatus === 'checked' && <Check className="h-6 w-6 text-emerald-600 stroke-[4px]" />}
                                             </div>
-                                            <span className="text-[14px] font-normal text-[#222]">I'm not a robot</span>
+                                            <span className="text-sm font-normal text-[#222]">I'm not a robot</span>
                                         </div>
                                         <div className="flex flex-col items-center opacity-80">
                                             <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="recaptcha" className="h-8 w-8" />
-                                            <span className="text-[8px] text-[#555] mt-0.5 font-medium">reCAPTCHA</span>
+                                            <span className="text-2xs text-[#555] mt-0.5 font-medium">reCAPTCHA</span>
                                         </div>
                                     </div>
                                 </div>
@@ -8216,14 +8205,14 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                         <div className="grid grid-cols-2 gap-y-5 gap-x-8">
                                             {["Creator", "Partner", "Media", "Other"].map((option  ) => (
                                                 <label key={option} className="flex items-center gap-3 cursor-pointer group">
-                                                    <div className={`relative flex h-5 w-5 items-center justify-center rounded-md border-2 bg-white transition-all duration-200 group-hover:border-indigo-500 ${errors.includes('userType') ? 'border-red-400' : 'border-slate-300'}`}>
+                                                    <div className={`relative flex h-5 w-5 items-center justify-center rounded-control border-2 bg-white transition-all duration-200 group-hover:border-brand ${errors.includes('userType') ? 'border-red-400' : 'border-slate-300'}`}>
                                                         <input 
                                                             type="checkbox" 
                                                             checked={formData.userType.includes(option)}
                                                             onChange={() => handleCheckboxChange(option)}
                                                             className="peer absolute h-full w-full opacity-0 cursor-pointer" 
                                                         />
-                                                        <div className="h-2.5 w-2.5 rounded-sm bg-indigo-600 opacity-0 peer-checked:opacity-100 transition-all scale-50 peer-checked:scale-100 shadow-sm"></div>
+                                                        <div className="h-2.5 w-2.5 rounded-control bg-brand opacity-0 peer-checked:opacity-100 transition-all scale-50 peer-checked:scale-100 shadow-rest"></div>
                                                     </div>
                                                     <span className="text-sm font-bold text-slate-500 group-hover:text-slate-950 transition-colors">{option}</span>
                                                 </label>
@@ -8242,7 +8231,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                                     required 
                                                     type="text" 
                                                     placeholder="First Name" 
-                                                    className={`w-full rounded-xl border-2 bg-slate-50/30 p-3.5 text-sm font-medium text-slate-600 outline-none focus:bg-white transition-all duration-200 ${errors.includes('firstName') ? 'border-red-300 focus:border-red-400' : 'border-slate-100 focus:border-slate-950'}`} 
+                                                    className={`w-full rounded-control border-2 bg-slate-50/30 p-3.5 text-sm font-medium text-slate-600 outline-none focus:bg-white transition-all duration-200 ${errors.includes('firstName') ? 'border-red-300 focus:border-red-400' : 'border-slate-100 focus:border-slate-950'}`} 
                                                 />
                                             </div>
                                             <div>
@@ -8253,7 +8242,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                                     required 
                                                     type="text" 
                                                     placeholder="Last Name" 
-                                                    className={`w-full rounded-xl border-2 bg-slate-50/30 p-3.5 text-sm font-medium text-slate-600 outline-none focus:bg-white transition-all duration-200 ${errors.includes('lastName') ? 'border-red-300 focus:border-red-400' : 'border-slate-100 focus:border-slate-950'}`} 
+                                                    className={`w-full rounded-control border-2 bg-slate-50/30 p-3.5 text-sm font-medium text-slate-600 outline-none focus:bg-white transition-all duration-200 ${errors.includes('lastName') ? 'border-red-300 focus:border-red-400' : 'border-slate-100 focus:border-slate-950'}`} 
                                                 />
                                             </div>
                                         </div>
@@ -8265,7 +8254,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                                 required 
                                                 type="email" 
                                                 placeholder="Email Address" 
-                                                className={`w-full rounded-xl border-2 bg-slate-50/30 p-3.5 text-sm font-medium text-slate-600 outline-none focus:bg-white transition-all duration-200 ${errors.includes('email') ? 'border-red-300 focus:border-red-400' : 'border-slate-100 focus:border-slate-950'}`} 
+                                                className={`w-full rounded-control border-2 bg-slate-50/30 p-3.5 text-sm font-medium text-slate-600 outline-none focus:bg-white transition-all duration-200 ${errors.includes('email') ? 'border-red-300 focus:border-red-400' : 'border-slate-100 focus:border-slate-950'}`} 
                                             />
                                         </div>
                                         <div>
@@ -8276,7 +8265,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                                 required 
                                                 type="tel" 
                                                 placeholder="Phone Number" 
-                                                className={`w-full rounded-xl border-2 bg-slate-50/30 p-3.5 text-sm font-medium text-slate-600 outline-none focus:bg-white transition-all duration-200 ${errors.includes('phone') ? 'border-red-300 focus:border-red-400' : 'border-slate-100 focus:border-slate-950'}`} 
+                                                className={`w-full rounded-control border-2 bg-slate-50/30 p-3.5 text-sm font-medium text-slate-600 outline-none focus:bg-white transition-all duration-200 ${errors.includes('phone') ? 'border-red-300 focus:border-red-400' : 'border-slate-100 focus:border-slate-950'}`} 
                                             />
                                         </div>
                                     </div>
@@ -8289,11 +8278,11 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                             <button 
                                 type="button" 
                                 onClick={handleCancel}
-                                className="px-12 py-4 rounded-2xl bg-slate-50 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-95"
+                                className="px-12 py-4 rounded-card bg-slate-50 text-slate-500 font-semibold uppercase tracking-widest text-2xs hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-95"
                             >
                                 Cancel
                             </button>
-                            <button type="submit" className="px-28 py-5 rounded-2xl bg-[#C13584] text-white font-black uppercase tracking-widest text-[11px] shadow-xl shadow-indigo-500/20 hover:translate-y-[-2px] hover:brightness-105 transition-all active:scale-95 flex items-center gap-3">
+                            <button type="submit" className="px-28 py-5 rounded-card bg-brand text-white font-semibold uppercase tracking-widest text-2xs shadow-overlay hover:translate-y-[-2px] hover:brightness-105 transition-all active:scale-95 flex items-center gap-3">
                                 Submit Message
                                 <Send className="h-5 w-5 opacity-80" />
                             </button>
@@ -8303,16 +8292,16 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                     {/* RIGHT SIDE: FAQ (HALF) + SUPPORT JOURNEY (HALF) */}
                     <div className="flex flex-col gap-6 h-full relative">
                         {/* FAQ SECTION - HALF HEIGHT */}
-                        <div className={`rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.01)] flex-1 flex flex-col transition-all duration-300 ${showAllFaqs ? 'blur-sm opacity-50 pointer-events-none' : ''}`}>
+                        <div className={`rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-raised flex-1 flex flex-col transition-all duration-300 ${showAllFaqs ? 'blur-sm opacity-50 pointer-events-none' : ''}`}>
                             <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-lg font-black text-slate-950 flex items-center gap-3">
-                                    <CircleHelp className="h-5 w-5 text-[#C13584]" />
+                                <h3 className="text-lg font-bold text-slate-950 flex items-center gap-3">
+                                    <CircleHelp className="h-5 w-5 text-brand" />
                                     Quick FAQ
                                 </h3>
                                 <button 
                                     type="button"
                                     onClick={() => setShowAllFaqs(true)}
-                                    className="text-[12px] font-black uppercase tracking-widest text-[#C13584] hover:text-[#4A3FD5] hover:bg-indigo-50 px-4 py-2 rounded-full transition-all"
+                                    className="text-xs font-semibold uppercase tracking-widest text-brand hover:text-brand-hover hover:bg-brand-soft px-4 py-2 rounded-full transition-all"
                                 >
                                     See More
                                 </button>
@@ -8320,64 +8309,64 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                             <div className="space-y-6 flex-1 overflow-y-auto">
                                 {faqs.slice(0, 2).map(([question, answer], index) => (
                                     <div key={index} className="group cursor-default pb-4 border-b border-slate-100 last:border-0">
-                                        <h4 className="text-[14px] font-black text-slate-950 mb-1.5 group-hover:text-[#C13584] transition-colors leading-tight">{question}</h4>
-                                        <p className="text-[12px] font-bold leading-relaxed text-slate-400 group-hover:text-slate-600 transition-colors">{answer}</p>
+                                        <h4 className="text-sm font-semibold text-slate-950 mb-1.5 group-hover:text-brand transition-colors leading-tight">{question}</h4>
+                                        <p className="text-xs font-bold leading-relaxed text-slate-400 group-hover:text-slate-600 transition-colors">{answer}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
                         {/* SUPPORT JOURNEY SECTION - HALF HEIGHT */}
-                        <div className={`rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-[0_10px_40px_rgba(0,0,0,0.01)] flex-1 flex flex-col justify-between transition-all duration-300 ${showAllFaqs ? 'blur-sm opacity-50 pointer-events-none' : ''}`}>
+                        <div className={`rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-raised flex-1 flex flex-col justify-between transition-all duration-300 ${showAllFaqs ? 'blur-sm opacity-50 pointer-events-none' : ''}`}>
                             <div>
-                                <h3 className="text-lg font-black text-slate-950 mb-8 flex items-center gap-3 text-center justify-center">
-                                    <span className="text-[#C13584]">Support Journey</span>
+                                <h3 className="text-lg font-bold text-slate-950 mb-8 flex items-center gap-3 text-center justify-center">
+                                    <span className="text-brand">Support Journey</span>
                                 </h3>
                                 <div className="flex flex-col items-center gap-6 relative flex-1 justify-center">
-                                    <div className="absolute top-0 bottom-0 w-[2px] bg-gradient-to-b from-indigo-200 via-indigo-300 to-indigo-200"></div>
+                                    <div className="absolute top-0 bottom-0 w-[2px] bg-gradient-to-b from-brand/25 via-brand/40 to-brand/25"></div>
                                     
                                     <div className="relative z-10 flex flex-col items-center text-center">
-                                        <div className="h-8 w-8 rounded-full bg-indigo-50 flex items-center justify-center border-2 border-indigo-200 text-indigo-600 shadow-lg shadow-indigo-200/50">
+                                        <div className="h-8 w-8 rounded-full bg-brand-soft flex items-center justify-center border-2 border-brand/25 text-brand shadow-raised">
                                             <Send className="h-3.5 w-3.5" />
                                         </div>
-                                        <p className="mt-2 text-[11px] font-black uppercase text-slate-950">Sent</p>
+                                        <p className="mt-2 text-2xs font-semibold uppercase text-slate-950">Sent</p>
                                     </div>
                                     
                                     <div className="relative z-10 flex flex-col items-center text-center">
-                                        <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center border-2 border-amber-200 text-amber-600 shadow-lg shadow-amber-200/50 animate-pulse">
+                                        <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center border-2 border-amber-200 text-amber-600 shadow-raised animate-pulse">
                                             <RefreshCw className="h-3.5 w-3.5" />
                                         </div>
-                                        <p className="mt-2 text-[11px] font-black uppercase text-slate-950">Review</p>
+                                        <p className="mt-2 text-2xs font-semibold uppercase text-slate-950">Review</p>
                                     </div>
                                     
                                     <div className="relative z-10 flex flex-col items-center text-center">
-                                        <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center border-2 border-emerald-200 text-emerald-600 shadow-lg shadow-emerald-200/50">
+                                        <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center border-2 border-emerald-200 text-emerald-600 shadow-raised">
                                             <Check className="h-3.5 w-3.5" />
                                         </div>
-                                        <p className="mt-2 text-[11px] font-black uppercase text-slate-950">Solved</p>
+                                        <p className="mt-2 text-2xs font-semibold uppercase text-slate-950">Solved</p>
                                     </div>
                                 </div>
                             </div>
                             
                             <div className="mt-6 pt-6 border-t border-slate-100 flex justify-center gap-6">
-                                <Mail className="h-5 w-5 text-slate-300 hover:text-[#C13584] cursor-pointer transition-all hover:scale-125" />
-                                <MessageCircle className="h-5 w-5 text-slate-300 hover:text-[#C13584] cursor-pointer transition-all hover:scale-125" />
-                                <Instagram className="h-5 w-5 text-slate-300 hover:text-[#C13584] cursor-pointer transition-all hover:scale-125" />
+                                <Mail className="h-5 w-5 text-slate-300 hover:text-brand cursor-pointer transition-all hover:scale-125" />
+                                <MessageCircle className="h-5 w-5 text-slate-300 hover:text-brand cursor-pointer transition-all hover:scale-125" />
+                                <Instagram className="h-5 w-5 text-slate-300 hover:text-brand cursor-pointer transition-all hover:scale-125" />
                             </div>
                         </div>
 
                         {/* ALL FAQs MODAL OVERLAY */}
                         {showAllFaqs && (
-                            <div className="absolute inset-0 rounded-[2.5rem] bg-white/95 backdrop-blur-md p-8 shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col z-50 animate-in fade-in duration-300">
+                            <div className="absolute inset-0 rounded-[2.5rem] bg-white/95 backdrop-blur-md p-8 shadow-raised flex flex-col z-50 animate-in fade-in duration-300">
                                 <div className="flex items-center justify-between mb-6">
-                                    <h3 className="text-lg font-black text-slate-950 flex items-center gap-3">
-                                        <CircleHelp className="h-5 w-5 text-[#C13584]" />
+                                    <h3 className="text-lg font-bold text-slate-950 flex items-center gap-3">
+                                        <CircleHelp className="h-5 w-5 text-brand" />
                                         All FAQs
                                     </h3>
                                     <button
                                         type="button"
                                         onClick={() => setShowAllFaqs(false)}
-                                        className="text-[12px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-950 px-4 py-2 rounded-full hover:bg-slate-100 transition-all"
+                                        className="text-xs font-semibold uppercase tracking-widest text-slate-500 hover:text-slate-950 px-4 py-2 rounded-full hover:bg-slate-100 transition-all"
                                     >
                                         Close
                                     </button>
@@ -8385,8 +8374,8 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                 <div className="space-y-6 overflow-y-auto flex-1 pr-2">
                                     {faqs.map(([question, answer], index) => (
                                         <div key={index} className="group cursor-default pb-4 border-b border-slate-100 last:border-0">
-                                            <h4 className="text-[14px] font-black text-slate-950 mb-1.5 group-hover:text-[#C13584] transition-colors leading-tight">{question}</h4>
-                                            <p className="text-[12px] font-bold leading-relaxed text-slate-400 group-hover:text-slate-600 transition-colors">{answer}</p>
+                                            <h4 className="text-sm font-semibold text-slate-950 mb-1.5 group-hover:text-brand transition-colors leading-tight">{question}</h4>
+                                            <p className="text-xs font-bold leading-relaxed text-slate-400 group-hover:text-slate-600 transition-colors">{answer}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -8406,7 +8395,7 @@ function PageShell({ title, subtitle, action, tourKey, children }: { title: stri
             <header data-tour="page-header" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:pr-28">
                 <div>
                     <div className="flex items-center gap-2">
-                        <h1 className="text-[28px] font-black tracking-tight text-slate-950 sm:text-[32px]">{title}</h1>
+                        <h1 className="text-[28px] font-bold tracking-tight text-slate-950 sm:text-[32px]">{title}</h1>
                         {tourKey && <TourReplayButton tourKey={tourKey} />}
                     </div>
                     <p className="mt-1 text-sm font-semibold text-slate-500">{subtitle}</p>
@@ -8425,7 +8414,7 @@ function TourReplayButton({ tourKey }: { tourKey: string }) {
             onClick={() => startTour(tourKey, true)}
             title="Replay tutorial"
             aria-label="Replay tutorial"
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-[#C13584] hover:text-[#C13584]"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:border-brand hover:text-brand"
         >
             <CircleHelp className="h-4 w-4" />
         </button>
@@ -8434,10 +8423,10 @@ function TourReplayButton({ tourKey }: { tourKey: string }) {
 
 function Panel({ title, action, children }: { title?: string; action?: ReactNode; children?: ReactNode }) {
     return (
-        <section className="rounded-[18px] border border-white bg-white p-4 shadow-[0_16px_48px_rgba(15,23,42,0.05)] sm:p-5">
+        <section className="rounded-card border border-white bg-white p-4 shadow-raised sm:p-5">
             {(title || action) && (
                 <div className="mb-4 flex items-center justify-between gap-4">
-                    {title && <h2 className="text-lg font-black text-slate-950">{title}</h2>}
+                    {title && <h2 className="text-lg font-bold text-slate-950">{title}</h2>}
                     {action}
                 </div>
             )}
@@ -8453,7 +8442,7 @@ function PrimaryButton({ children, onClick, compact, disabled }: { children: Rea
             onClick={onClick}
             disabled={disabled}
             className={cx(
-                "inline-flex items-center justify-center gap-2 rounded-[1rem] bg-[#C13584] text-sm font-black text-white shadow-lg shadow-indigo-500/20 transition hover:-translate-y-0.5 hover:bg-[#ad2a75] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0",
+                "inline-flex items-center justify-center gap-2 rounded-card bg-brand text-sm font-semibold text-white shadow-raised transition hover:-translate-y-0.5 hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0",
                 compact ? "px-3.5 py-2" : "px-4 py-2.5"
             )}
         >
@@ -8463,25 +8452,25 @@ function PrimaryButton({ children, onClick, compact, disabled }: { children: Rea
 }
 
 function SecondaryButton({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
-    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-[1rem] border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50">{children}</button>;
+    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50">{children}</button>;
 }
 
 function DangerButton({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
-    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-[1rem] border border-rose-200 bg-white px-4 py-2.5 text-sm font-black text-rose-600 transition hover:-translate-y-0.5 hover:bg-rose-50">{children}</button>;
+    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-card border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-600 transition hover:-translate-y-0.5 hover:bg-rose-50">{children}</button>;
 }
 
 function SearchBox({ value, onChange, placeholder, compact = false }: { value: string; onChange: (value: string) => void; placeholder: string; compact?: boolean }) {
     return (
         <label className={cx("relative block", compact && "min-w-[220px]")}>
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="w-full rounded-[1rem] border border-slate-200 bg-white py-2.5 pl-11 pr-4 text-sm font-bold outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10" />
+            <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="w-full rounded-card border border-slate-200 bg-white py-2.5 pl-11 pr-4 text-sm font-bold outline-none transition focus:border-brand/40 focus:ring-4 focus:ring-brand/10" />
         </label>
     );
 }
 
 function SelectBox({ value, onChange, options }: { value: string; onChange: (value: string) => void; options: string[] }) {
     return (
-        <select value={value} onChange={(e) => onChange(e.target.value)} className="rounded-[1rem] border border-slate-200 bg-white px-4 py-2.5 text-sm font-black capitalize text-slate-700 outline-none transition focus:border-indigo-300 focus:ring-4 focus:ring-indigo-500/10">
+        <select value={value} onChange={(e) => onChange(e.target.value)} className="rounded-card border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold capitalize text-slate-700 outline-none transition focus:border-brand/40 focus:ring-4 focus:ring-brand/10">
             {options.map((option) => <option key={option} value={option}>{option}</option>)}
         </select>
     );
@@ -8489,26 +8478,26 @@ function SelectBox({ value, onChange, options }: { value: string; onChange: (val
 
 function StatusBadge({ status }: { status: "Live" | "Paused" | "Draft" }) {
     const classes = status === "Live" ? "bg-emerald-50 text-emerald-700" : status === "Paused" ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-600";
-    return <span className={cx("inline-flex h-7 items-center rounded-full px-2.5 text-xs font-black", classes)}>{status}</span>;
+    return <span className={cx("inline-flex h-7 items-center rounded-full px-2.5 text-xs font-semibold", classes)}>{status}</span>;
 }
 
 function IconButton({ children, onClick, danger, title }: { children: ReactNode; onClick?: () => void; danger?: boolean; title?: string }) {
-    return <button type="button" title={title} aria-label={title || "Action"} onClick={onClick} className={cx("flex h-9 w-9 items-center justify-center rounded-xl transition", danger ? "text-rose-500 hover:bg-rose-50" : "text-slate-500 hover:bg-slate-100 hover:text-slate-950")}>{children}</button>;
+    return <button type="button" title={title} aria-label={title || "Action"} onClick={onClick} className={cx("flex h-9 w-9 items-center justify-center rounded-control transition", danger ? "text-rose-500 hover:bg-rose-50" : "text-slate-500 hover:bg-slate-100 hover:text-slate-950")}>{children}</button>;
 }
 
 function EmptyState({ icon, title, copy, action, onAction }: { icon: ReactNode; title: string; copy: string; action?: string; onAction?: () => void }) {
     return (
-        <div className="rounded-[1.25rem] border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center">
-            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-[1rem] bg-white text-indigo-600 shadow-sm">{icon}</span>
-            <h3 className="mt-4 text-lg font-black text-slate-950">{title}</h3>
+        <div className="rounded-card border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-card bg-white text-brand shadow-rest">{icon}</span>
+            <h3 className="mt-4 text-lg font-bold text-slate-950">{title}</h3>
             <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-6 text-slate-500">{copy}</p>
-            {action && <button type="button" onClick={onAction} className="mt-5 rounded-[1rem] bg-indigo-600 px-4 py-2.5 text-sm font-black text-white transition hover:bg-indigo-700">{action}</button>}
+            {action && <button type="button" onClick={onAction} className="mt-5 rounded-card bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-hover">{action}</button>}
         </div>
     );
 }
 
 function Label({ children }: { children: ReactNode }) {
-    return <label className="mb-1.5 block text-xs font-black uppercase tracking-[0.08em] text-slate-500">{children}</label>;
+    return <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{children}</label>;
 }
 
 function Field({
@@ -8549,22 +8538,22 @@ function Field({
 
 function SettingsInfoTile({ label, value }: { label: string; value: string }) {
     return (
-        <div className="rounded-[1rem] border border-white bg-white px-3.5 py-3 shadow-sm">
-            <p className="text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <p className="mt-1 truncate text-sm font-black text-slate-950">{value}</p>
+        <div className="rounded-card border border-white bg-white px-3.5 py-3 shadow-rest">
+            <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <p className="mt-1 truncate text-sm font-semibold text-slate-950">{value}</p>
         </div>
     );
 }
 
 function UsageMiniCard({ title, value, progress }: { title: string; value: string; progress: number }) {
     return (
-        <div className="rounded-[1.15rem] border border-slate-100 bg-slate-50/70 p-4">
+        <div className="rounded-card border border-slate-100 bg-slate-50/70 p-4">
             <div className="flex items-center justify-between gap-3">
-                <p className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{title}</p>
-                <span className="text-sm font-black text-slate-950">{value}</span>
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{title}</p>
+                <span className="text-sm font-semibold text-slate-950">{value}</span>
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
-                <div className="h-full rounded-full bg-[#C13584]" style={{ width: `${Math.min(100, Math.max(0, progress))}%` }} />
+                <div className="h-full rounded-full bg-brand" style={{ width: `${Math.min(100, Math.max(0, progress))}%` }} />
             </div>
         </div>
     );
@@ -8572,13 +8561,13 @@ function UsageMiniCard({ title, value, progress }: { title: string; value: strin
 
 function ToggleRow({ title, copy, active, onClick }: { title: string; copy: string; active: boolean; onClick: () => void }) {
     return (
-        <div className="flex items-center justify-between gap-4 rounded-3xl border border-slate-100 bg-slate-50 p-4">
+        <div className="flex items-center justify-between gap-4 rounded-card border border-slate-100 bg-slate-50 p-4">
             <div>
-                <h3 className="font-black">{title}</h3>
+                <h3 className="font-bold">{title}</h3>
                 <p className="mt-1 text-sm font-medium text-slate-500">{copy}</p>
             </div>
-            <button type="button" aria-label={`Toggle ${title}`} onClick={onClick} className={cx("relative h-7 w-12 rounded-full transition", active ? "bg-indigo-600" : "bg-slate-300")}>
-                <span className={cx("absolute top-1 h-5 w-5 rounded-full bg-white shadow transition", active ? "left-6" : "left-1")} />
+            <button type="button" aria-label={`Toggle ${title}`} onClick={onClick} className={cx("relative h-7 w-12 rounded-full transition", active ? "bg-brand" : "bg-slate-300")}>
+                <span className={cx("absolute top-1 h-5 w-5 rounded-full bg-white shadow-rest transition", active ? "left-6" : "left-1")} />
             </button>
         </div>
     );

@@ -53,16 +53,16 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
 
   if (status === 'denied') {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F7F7FB] px-5">
-        <div className="w-full max-w-md rounded-[24px] border border-[#E5E7EB] bg-white p-8 text-center shadow-[0_28px_80px_rgba(15,23,42,0.10)]">
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-[#C13584]">Access denied</p>
-          <h1 className="mt-3 text-3xl font-black tracking-tight text-[#0F172A]">Admin only</h1>
-          <p className="mt-3 text-sm leading-6 text-[#64748B]">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-5">
+        <div className="w-full max-w-md rounded-card border border-slate-200 bg-white p-8 text-center shadow-overlay">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">Access denied</p>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">Admin only</h1>
+          <p className="mt-3 text-sm leading-6 text-slate-500">
             This area is restricted to DMGennie admins. Your regular dashboard is still available.
           </p>
           <Link
             to="/dashboard"
-            className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-[#5B4DFF] px-6 text-sm font-black text-white transition hover:bg-[#4738E8]"
+            className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-brand px-6 text-sm font-semibold text-white transition hover:bg-brand-hover"
           >
             Back to Dashboard
           </Link>

@@ -17,7 +17,7 @@ export default function Privacy() {
           <div className="inline-flex items-center gap-2 bg-accent-blue/10 text-accent-blue text-sm font-semibold px-4 py-2 rounded-full mb-6">
             <Shield className="w-4 h-4" /> Privacy Policy
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Your Privacy Matters
           </h1>
           <p className="text-muted-foreground text-lg">
@@ -176,7 +176,7 @@ export default function Privacy() {
             <p className="text-muted-foreground leading-relaxed">
               If you have any questions or concerns about this Privacy Policy, please contact:
             </p>
-            <div className="mt-4 p-5 bg-card border border-border rounded-2xl">
+            <div className="mt-4 p-5 bg-card border border-border rounded-card">
               <p className="font-semibold text-foreground">DMGennie Support</p>
               <p className="text-muted-foreground mt-1">
                 Email:{' '}

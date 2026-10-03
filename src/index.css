@@ -29,14 +29,11 @@
   /* Simplified accent colors */
   --accent-blue: 64 93 230;
   --accent-emerald: 47 111 104;
-  --accent-purple: 193 53 132;
 
   /* Brand: Instagram magenta is the one accent. */
   --brand: 193 53 132;
   --brand-hover: 173 42 117;
   --brand-soft: 251 234 243;
-  --brand-blue: 64 93 230;
-  --brand-purple: 131 58 180;
   --brand-gradient: linear-gradient(45deg, #C13584 0%, #405DE6 100%);
   --ink: 15 23 42;
   --ink-muted: 100 116 139;
@@ -66,12 +63,9 @@
   --ring: 113 113 122;
 
   --accent-blue: 91 119 255;
-  --accent-purple: 225 48 108;
   --brand: 225 48 108;
   --brand-hover: 236 82 136;
   --brand-soft: 52 22 41;
-  --brand-blue: 91 119 255;
-  --brand-purple: 162 75 214;
   --brand-gradient: linear-gradient(45deg, #E1306C 0%, #5B77FF 100%);
   --ink: 250 250 250;
   --ink-muted: 161 161 170;
@@ -328,12 +322,11 @@ html {
 :root .dark .dmg-dash {
   color-scheme: dark;
 }
-.dark .dmg-dash,
-:where(.dark .dmg-dash) [class~="bg-[#F7F5FF]"] { background-color: #0b0f19; }
+.dark .dmg-dash { background-color: #0b0f19; }
 /* Root text color (the .dmg-dash element itself carries text-slate-950) */
 .dark .dmg-dash { color: #cbd4e3; }
 
-/* Surfaces */
+/* Surfaces (brand-soft / gold-soft are tokens or have their own rule) */
 :where(.dark .dmg-dash) [class~="bg-white"],
 :where(.dark .dmg-dash) [class~="bg-white/70"],
 :where(.dark .dmg-dash) [class~="bg-white/80"],
@@ -350,45 +343,33 @@ html {
 :where(.dark .dmg-dash) [class~="bg-slate-50/80"],
 :where(.dark .dmg-dash) [class~="hover:bg-slate-50"]:hover,
 :where(.dark .dmg-dash) [class~="hover:bg-slate-50/70"]:hover,
-:where(.dark .dmg-dash) [class~="hover:bg-slate-50/80"]:hover,
-:where(.dark .dmg-dash) [class~="bg-[#F8FAFC]"],
-:where(.dark .dmg-dash) [class~="hover:bg-[#F8FAFC]"]:hover { background-color: #1b2233; }
+:where(.dark .dmg-dash) [class~="hover:bg-slate-50/80"]:hover { background-color: #1b2233; }
 :where(.dark .dmg-dash) [class~="bg-slate-100"],
 :where(.dark .dmg-dash) [class~="hover:bg-slate-100"]:hover,
 :where(.dark .dmg-dash) [class~="bg-slate-200"],
-:where(.dark .dmg-dash) [class~="hover:bg-slate-200"]:hover,
-:where(.dark .dmg-dash) [class~="bg-[#F1F5F9]"] { background-color: #232c40; }
+:where(.dark .dmg-dash) [class~="hover:bg-slate-200"]:hover { background-color: #232c40; }
 :where(.dark .dmg-dash) [class~="hover:bg-slate-800"]:hover,
+:where(.dark .dmg-dash) [class~="bg-slate-900"],
 :where(.dark .dmg-dash) [class~="bg-slate-950"],
-:where(.dark .dmg-dash) [class~="hover:bg-slate-950"]:hover,
-:where(.dark .dmg-dash) [class~="bg-[#0F172A]"] { background-color: #2a3450; }
-/* Brand-soft pink chips → translucent brand tint */
-:where(.dark .dmg-dash) [class~="bg-[#FBEAF3]"],
-:where(.dark .dmg-dash) [class~="bg-[#FBEAF3]/40"],
-:where(.dark .dmg-dash) [class~="bg-[#FBEAF3]/50"],
-:where(.dark .dmg-dash) [class~="hover:bg-[#FBEAF3]"]:hover { background-color: rgba(193, 53, 132, 0.16); }
+:where(.dark .dmg-dash) [class~="hover:bg-slate-950"]:hover { background-color: #2a3450; }
 
 /* Text */
 :where(.dark .dmg-dash) .group:hover [class~="group-hover:text-slate-950"],
 :where(.dark .dmg-dash) [class~="hover:text-slate-950"]:hover,
 :where(.dark .dmg-dash) [class~="text-slate-950"],
+:where(.dark .dmg-dash) [class~="hover:text-slate-900"]:hover,
 :where(.dark .dmg-dash) [class~="text-slate-900"],
-:where(.dark .dmg-dash) [class~="text-slate-800"],
-:where(.dark .dmg-dash) [class~="hover:text-[#0F172A]"]:hover,
-:where(.dark .dmg-dash) [class~="text-[#0F172A]"] { color: #e8ecf5; }
+:where(.dark .dmg-dash) [class~="text-slate-800"] { color: #e8ecf5; }
 :where(.dark .dmg-dash) [class~="text-slate-700"],
 :where(.dark .dmg-dash) .group:hover [class~="group-hover:text-slate-600"],
 :where(.dark .dmg-dash) [class~="hover:text-slate-600"]:hover,
-:where(.dark .dmg-dash) [class~="text-slate-600"],
-:where(.dark .dmg-dash) [class~="text-[#475569]"] { color: #cbd4e3; }
+:where(.dark .dmg-dash) [class~="text-slate-600"] { color: #cbd4e3; }
 :where(.dark .dmg-dash) [class~="hover:text-slate-500"]:hover,
 :where(.dark .dmg-dash) [class~="text-slate-500"],
 :where(.dark .dmg-dash) [class~="placeholder:text-slate-400"]::placeholder,
 :where(.dark .dmg-dash) [class~="text-slate-400"],
 :where(.dark .dmg-dash) [class~="placeholder:text-slate-300"]::placeholder,
-:where(.dark .dmg-dash) [class~="text-slate-300"],
-:where(.dark .dmg-dash) [class~="text-[#64748B]"],
-:where(.dark .dmg-dash) [class~="text-[#94A3B8]"] { color: #8b96ab; }
+:where(.dark .dmg-dash) [class~="text-slate-300"] { color: #8b96ab; }
 
 /* Borders / rings */
 :where(.dark .dmg-dash) [class~="border-slate-100"],
@@ -398,8 +379,7 @@ html {
 :where(.dark .dmg-dash) [class~="border-slate-300"],
 :where(.dark .dmg-dash) [class~="hover:border-slate-300"]:hover,
 :where(.dark .dmg-dash) [class~="border-white"],
-:where(.dark .dmg-dash) [class~="lg:border-white"],
-:where(.dark .dmg-dash) [class~="border-[#E5E7EB]"] { border-color: rgba(148, 163, 184, 0.18); }
+:where(.dark .dmg-dash) [class~="lg:border-white"] { border-color: rgba(148, 163, 184, 0.18); }
 :where(.dark .dmg-dash) [class~="ring-slate-100"],
 :where(.dark .dmg-dash) [class~="ring-slate-200"] { --tw-ring-color: rgba(148, 163, 184, 0.18); }
 
@@ -409,13 +389,9 @@ html {
 .dark .dmg-dash [class~="bg-emerald-50"] { background-color: rgba(16, 185, 129, 0.16); }
 .dark .dmg-dash [class~="bg-green-50"]   { background-color: rgba(34, 197, 94, 0.16); }
 .dark .dmg-dash [class~="bg-teal-50"]    { background-color: rgba(20, 184, 166, 0.16); }
-.dark .dmg-dash [class~="bg-indigo-50"]  { background-color: rgba(99, 102, 241, 0.16); }
 .dark .dmg-dash [class~="bg-blue-50"]    { background-color: rgba(59, 130, 246, 0.16); }
 .dark .dmg-dash [class~="bg-sky-50"]     { background-color: rgba(14, 165, 233, 0.16); }
 .dark .dmg-dash [class~="bg-cyan-50"]    { background-color: rgba(6, 182, 212, 0.16); }
-.dark .dmg-dash [class~="bg-violet-50"]  { background-color: rgba(139, 92, 246, 0.16); }
-.dark .dmg-dash [class~="bg-purple-50"]  { background-color: rgba(168, 85, 247, 0.16); }
-.dark .dmg-dash [class~="bg-fuchsia-50"] { background-color: rgba(217, 70, 239, 0.16); }
 .dark .dmg-dash [class~="bg-pink-50"]    { background-color: rgba(236, 72, 153, 0.16); }
 .dark .dmg-dash [class~="bg-rose-50"]    { background-color: rgba(244, 63, 94, 0.16); }
 .dark .dmg-dash [class~="bg-red-50"]     { background-color: rgba(239, 68, 68, 0.16); }
@@ -431,14 +407,14 @@ html {
   background-image: none !important;
   background-color: rgba(232, 197, 108, 0.10);
 }
-.dark .dmg-dash [class~="bg-[#FFF7DA]"] { background-color: rgba(232, 197, 108, 0.16); }
-:where(.dark .dmg-dash) [class~="text-[#8A5D17]"],
+.dark .dmg-dash [class~="bg-gold-soft"] { background-color: rgba(232, 197, 108, 0.16); }
+:where(.dark .dmg-dash) [class~="text-gold-deep"],
 :where(.dark .dmg-dash) [class~="text-[#9A6A1E]"],
 :where(.dark .dmg-dash) [class~="text-[#6F4B12]"] { color: #e8c56c; }
-:where(.dark .dmg-dash) [class~="border-[#E8C56C]/60"],
-:where(.dark .dmg-dash) [class~="border-[#E8C56C]/70"],
-:where(.dark .dmg-dash) [class~="hover:border-[#E8C56C]/80"]:hover,
-:where(.dark .dmg-dash) [class~="border-[#FDE68A]"] { border-color: rgba(232, 197, 108, 0.35); }
+:where(.dark .dmg-dash) [class~="border-gold/60"],
+:where(.dark .dmg-dash) [class~="border-gold/70"],
+:where(.dark .dmg-dash) [class~="hover:border-gold/80"]:hover,
+:where(.dark .dmg-dash) [class~="border-amber-200"] { border-color: rgba(232, 197, 108, 0.35); }
 
 /* Keep brand magenta, white text, colored status chips, and gradients as authored —
    they read fine on the dark surfaces above. */
@@ -448,16 +424,15 @@ html {
  * dashboard block: the footer hardcodes many light hex link/text/chip colors.
  * ponytail: token swap per element is the proper fix; this is ~6 rules instead of ~30 edits.
  */
-:where(.dark footer) [class~="text-[#665d66]"],
-:where(.dark footer) [class~="text-[#756b73]"],
-:where(.dark footer) [class~="text-[#5e5660]"],
-:where(.dark footer) [class~="text-[#8d7f87]"] { color: #97a1b5; }
-:where(.dark footer) [class~="hover:text-[#151119]"]:hover,
-:where(.dark footer) [class~="text-[#151119]"] { color: #e2e8f0; }
+:where(.dark footer) [class~="text-slate-600"],
+:where(.dark footer) [class~="text-slate-500"] { color: #97a1b5; }
+:where(.dark footer) [class~="hover:text-slate-900"]:hover,
+:where(.dark footer) [class~="text-slate-900"] { color: #e2e8f0; }
 :where(.dark footer) [class~="bg-white/55"],
 :where(.dark footer) [class~="bg-white/58"] { background-color: rgba(255, 255, 255, 0.06); }
 :where(.dark footer) [class~="border-white/80"],
-:where(.dark footer) [class~="border-[#e2d2d8]"] { border-color: rgba(255, 255, 255, 0.12); }
+:where(.dark footer) [class~="border-slate-200"],
+:where(.dark footer) [class~="border-slate-300"] { border-color: rgba(255, 255, 255, 0.12); }
 
 /*
  * Pricing dark mode — scoped to #pricing. Target the NON-highlight card's specific
@@ -466,13 +441,11 @@ html {
  */
 :where(.dark #pricing) [class~="bg-white/86"],
 :where(.dark #pricing) [class~="bg-white/75"] { background-color: #161d2e; }
-:where(.dark #pricing) [class~="text-[#151119]"] { color: #e8ecf5; }
-:where(.dark #pricing) [class~="text-[#6a6168]"],
-:where(.dark #pricing) [class~="text-[#7a7279]"],
-:where(.dark #pricing) [class~="text-[#7b727a]"] { color: #97a1b5; }
+:where(.dark #pricing) [class~="text-slate-900"],
+:where(.dark #pricing) [class~="text-slate-700"] { color: #e8ecf5; }
+:where(.dark #pricing) [class~="text-slate-500"],
+:where(.dark #pricing) [class~="text-slate-400"] { color: #97a1b5; }
 :where(.dark #pricing) [class~="border-white/80"] { border-color: rgba(255, 255, 255, 0.12); }
-:where(.dark #pricing) [class~="bg-[#f3eefe]"],
-:where(.dark #pricing) [class~="bg-[#f5f3ff]"] { background-color: rgba(193, 53, 132, 0.16); }
 
 /* Shared surface helpers — dark variants so every consumer (Hero, auth, cards) adapts. */
 .dark .premium-gradient {
@@ -511,11 +484,14 @@ html {
 :where(.dark .dmg-auth) [class~="border-white/80"],
 :where(.dark .dmg-auth) [class~="border-white/[0.055]"],
 :where(.dark .dmg-auth) [class~="border-white/[0.06]"],
-:where(.dark .dmg-auth) [class~="border-[#ece7f9]"] { border-color: rgba(255, 255, 255, 0.12); }
-:where(.dark .dmg-auth) [class~="hover:text-[#151119]"]:hover,
-:where(.dark .dmg-auth) [class~="text-[#151119]"] { color: #e8ecf5; }
-:where(.dark .dmg-auth) [class~="text-[#6f6570]"],
-:where(.dark .dmg-auth) [class~="text-[#756b73]"] { color: #97a1b5; }
+:where(.dark .dmg-auth) [class~="border-slate-200"],
+:where(.dark .dmg-auth) [class~="border-slate-300"] { border-color: rgba(255, 255, 255, 0.12); }
+:where(.dark .dmg-auth) [class~="hover:text-slate-900"]:hover,
+:where(.dark .dmg-auth) [class~="text-slate-900"] { color: #e8ecf5; }
+:where(.dark .dmg-auth) [class~="text-slate-600"],
+:where(.dark .dmg-auth) [class~="text-slate-500"],
+:where(.dark .dmg-auth) [class~="placeholder:text-slate-400"]::placeholder,
+:where(.dark .dmg-auth) [class~="text-slate-400"] { color: #97a1b5; }
 
 /*
  * React Flow (visual flow builder) — theme the library's built-in chrome for dark mode.

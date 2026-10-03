@@ -25,7 +25,7 @@ export default function RefundPolicy() {
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-accent-blue/10 px-4 py-2 text-sm font-semibold text-accent-blue">
             <FileText className="h-4 w-4" /> Return and Refund Policy
           </div>
-          <h1 className="mb-4 text-4xl font-extrabold text-foreground md:text-5xl">
+          <h1 className="mb-4 text-4xl font-bold text-foreground md:text-5xl">
             Return and Refund Policy
           </h1>
           <p className="text-lg text-muted-foreground">
@@ -86,14 +86,14 @@ export default function RefundPolicy() {
                 href={`https://wa.me/${whatsappNumber.replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-2xl border border-border bg-card p-5 font-semibold text-foreground transition hover:border-accent-blue/30 hover:bg-white"
+                className="flex items-center gap-3 rounded-card border border-border bg-card p-5 font-semibold text-foreground transition hover:border-accent-blue/30 hover:bg-white"
               >
                 <MessageCircle className="h-5 w-5 text-accent-blue" />
                 WhatsApp: {whatsappNumber}
               </a>
               <a
                 href={`mailto:${supportEmail}`}
-                className="flex items-center gap-3 rounded-2xl border border-border bg-card p-5 font-semibold text-foreground transition hover:border-accent-blue/30 hover:bg-white"
+                className="flex items-center gap-3 rounded-card border border-border bg-card p-5 font-semibold text-foreground transition hover:border-accent-blue/30 hover:bg-white"
               >
                 <Mail className="h-5 w-5 text-accent-blue" />
                 {supportEmail}
@@ -119,7 +119,7 @@ export default function RefundPolicy() {
 
           <section>
             <h2 className="mb-3 text-2xl font-bold text-foreground">8. Contact</h2>
-            <div className="rounded-2xl border border-border bg-card p-5">
+            <div className="rounded-card border border-border bg-card p-5">
               <p className="font-semibold text-foreground">DMGennie Support</p>
               <p className="mt-1 text-muted-foreground">
                 Email:{' '}

@@ -17,7 +17,7 @@ export function TrustSection() {
           <img
             src="/brand-assets/meta-tech-provider-section.png"
             alt="Safe and compliant Meta Tech Provider section for official Instagram API automation"
-            className="block w-full rounded-[2rem] object-contain shadow-[0_30px_90px_rgba(21,17,25,0.10)] sm:rounded-[2.5rem] lg:rounded-[3rem]"
+            className="block w-full rounded-panel object-contain shadow-overlay sm:rounded-[2.5rem] lg:rounded-[3rem]"
             loading="lazy"
           />
         </motion.div>

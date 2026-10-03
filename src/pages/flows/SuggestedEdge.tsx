@@ -12,7 +12,7 @@ export function SuggestedEdge({ id, sourceX, sourceY, targetX, targetY, sourcePo
       <EdgeLabelRenderer>
         <button
           onClick={(e) => { e.stopPropagation(); onAccept?.(); }}
-          className="nodrag nopan pointer-events-auto absolute flex animate-pulse items-center gap-1 rounded-full bg-[#C13584] px-2 py-1 text-[10px] font-bold text-white shadow-md"
+          className="nodrag nopan pointer-events-auto absolute flex animate-pulse items-center gap-1 rounded-full bg-brand px-2 py-1 text-2xs font-bold text-white shadow-rest"
           style={{ transform: `translate(-50%,-50%) translate(${labelX}px,${labelY}px)` }}
         >
           <Check className="h-3 w-3" /> Connect

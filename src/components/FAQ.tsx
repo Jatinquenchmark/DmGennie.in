@@ -36,14 +36,14 @@ export function FAQ() {
       <div className="container mx-auto px-6 sm:px-8 lg:px-12">
         <div className="text-center mb-16">
           <span className="text-sm font-semibold text-muted-foreground mb-4 block">FAQs</span>
-          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight text-foreground">
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-foreground">
             All Questions Answered
           </h2>
         </div>
 
         <div className="max-w-3xl mx-auto space-y-4">
           {faqs.map((faq, index) => (
-            <div key={index} className="bg-card clean-border rounded-2xl overflow-hidden subtle-shadow">
+            <div key={index} className="bg-card clean-border rounded-card overflow-hidden subtle-shadow">
               <button
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
                 className="w-full px-6 py-5 flex items-center justify-between text-left cursor-pointer"
