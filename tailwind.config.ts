@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-import defaultTheme from "tailwindcss/defaultTheme";
 
 // Colours are "R G B" channel vars (src/index.css) so opacity modifiers like bg-card/80 work.
 const token = (name: string) => `rgb(var(--${name}) / <alpha-value>)`;
@@ -21,9 +20,6 @@ export default {
       },
     },
     extend: {
-      fontFamily: {
-        sans: ['"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
-      },
       // Floor for UI text: uppercase micro-labels only. Everything else uses xs and up.
       fontSize: {
         '2xs': ['11px', '16px'],
