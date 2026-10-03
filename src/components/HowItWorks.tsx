@@ -15,8 +15,8 @@ export function HowItWorks() {
     <section id="how-it-works" className="relative bg-muted py-16 sm:py-20 lg:py-24">
       <div className="container mx-auto px-6 sm:px-8 lg:px-12">
         <div className="mb-16 text-center">
-          <div className="mb-5 text-sm font-semibold uppercase tracking-[0.18em] text-accent-blue">How it works</div>
-          <h2 className="text-4xl font-bold leading-tight text-foreground sm:text-5xl lg:text-6xl">
+          <div className="mb-5 text-sm font-black uppercase tracking-[0.18em] text-accent-blue">How it works</div>
+          <h2 className="text-4xl font-black leading-tight text-foreground sm:text-5xl lg:text-6xl">
             3 Easy Steps, <span className="text-accent-blue">Unlimited</span> Possibilities
           </h2>
         </div>
@@ -34,13 +34,13 @@ export function HowItWorks() {
                   viewport={{ once: true }}
                   className="text-center"
                 >
-                  <div className="mb-7 inline-flex rounded-control bg-accent-blue px-4 py-1.5 text-sm font-semibold uppercase tracking-wide text-white">
+                  <div className="mb-7 inline-flex rounded-control bg-accent-blue px-4 py-1.5 text-sm font-black uppercase tracking-wide text-white">
                     Step {step.number}
                   </div>
                   <div className="mx-auto mb-7 flex h-16 w-16 items-center justify-center text-accent-blue">
                     <Icon className="h-12 w-12 stroke-[1.8]" />
                   </div>
-                  <h3 className="mb-4 text-3xl font-bold text-foreground">{step.title}</h3>
+                  <h3 className="mb-4 text-3xl font-black text-foreground">{step.title}</h3>
                   <p className="mx-auto max-w-xs text-lg leading-relaxed text-muted-foreground">{step.description}</p>
                 </motion.div>
 

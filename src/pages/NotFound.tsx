@@ -20,10 +20,10 @@ export default function NotFound() {
         {/* Logo */}
         <Link to="/" className="inline-flex items-center gap-2.5 mb-12 group">
           <BrandMark size={32} />
-          <span className="text-xl font-bold tracking-tight text-foreground transition-colors group-hover:text-brand">DMGennie</span>
+          <span className="text-xl font-extrabold tracking-tight text-foreground transition-colors group-hover:text-brand">DMGennie</span>
         </Link>
 
-        <div className="text-8xl font-bold text-accent-blue/20 mb-4 select-none">404</div>
+        <div className="text-8xl font-extrabold text-accent-blue/20 mb-4 select-none">404</div>
         <h1 className="text-2xl font-bold text-foreground mb-3">Page Not Found</h1>
         <p className="text-muted-foreground mb-8 leading-relaxed">
           The page you're looking for doesn't exist or may have been moved.

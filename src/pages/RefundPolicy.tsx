@@ -25,7 +25,7 @@ export default function RefundPolicy() {
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-accent-blue/10 px-4 py-2 text-sm font-semibold text-accent-blue">
             <FileText className="h-4 w-4" /> Return and Refund Policy
           </div>
-          <h1 className="mb-4 text-4xl font-bold text-foreground md:text-5xl">
+          <h1 className="mb-4 text-4xl font-extrabold text-foreground md:text-5xl">
             Return and Refund Policy
           </h1>
           <p className="text-lg text-muted-foreground">

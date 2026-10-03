@@ -52,7 +52,7 @@ function ReferralLogo() {
   return (
     <Link to="/" className="inline-flex items-center gap-2.5">
       <BrandMark size={32} />
-      <span className="text-xl font-bold tracking-tight text-slate-900">DMGennie</span>
+      <span className="text-xl font-black tracking-tight text-slate-900">DMGennie</span>
     </Link>
   )
 }
@@ -74,7 +74,7 @@ export default function Referral() {
           </nav>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Link to="/signup" className="rounded-control bg-brand px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover">
+            <Link to="/signup" className="rounded-control bg-brand px-5 py-2.5 text-sm font-black text-white transition-colors hover:bg-brand-hover">
               Join Program
             </Link>
           </div>
@@ -86,22 +86,22 @@ export default function Referral() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_12%,rgba(193,53,132,0.14),transparent_30%),radial-gradient(circle_at_80%_32%,rgba(64,93,230,0.12),transparent_30%),linear-gradient(180deg,#fff,rgba(248,241,243,0.78))]" />
           <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.78fr_1.1fr]">
             <div>
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/70 px-4 py-2 text-sm font-semibold uppercase tracking-[0.16em] text-brand shadow-rest backdrop-blur">
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/80 bg-white/70 px-4 py-2 text-sm font-black uppercase tracking-[0.16em] text-brand shadow-rest backdrop-blur">
                 <Sparkles className="h-4 w-4" />
                 Partner Program
               </div>
-              <h1 className="max-w-3xl text-5xl font-bold leading-[0.96] tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
+              <h1 className="max-w-3xl text-5xl font-black leading-[0.96] tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
                 Earn commission by sharing DMGennie
               </h1>
               <p className="mt-7 max-w-2xl text-xl font-medium leading-relaxed text-slate-600">
                 Refer creators and businesses to DMGennie and earn recurring commission when they grow with Instagram DM automation.
               </p>
               <div className="mt-9 flex flex-wrap gap-4">
-                <Link to="/signup" className="inline-flex items-center gap-2 rounded-control bg-brand px-7 py-4 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-brand-hover">
+                <Link to="/signup" className="inline-flex items-center gap-2 rounded-control bg-brand px-7 py-4 text-base font-black text-white transition-all hover:-translate-y-0.5 hover:bg-brand-hover">
                   Become a Partner
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <a href="#how-referrals-work" className="inline-flex items-center gap-2 rounded-control border border-white/80 bg-white/70 px-7 py-4 text-base font-semibold text-slate-900 shadow-rest backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white">
+                <a href="#how-referrals-work" className="inline-flex items-center gap-2 rounded-control border border-white/80 bg-white/70 px-7 py-4 text-base font-black text-slate-900 shadow-rest backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white">
                   See How It Works
                 </a>
               </div>
@@ -120,8 +120,8 @@ export default function Referral() {
                     <Handshake className="h-5 w-5 text-[#f0c7a6]" />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Golden partner</div>
-                    <div className="text-sm font-semibold text-slate-900">25% recurring</div>
+                    <div className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">Golden partner</div>
+                    <div className="text-sm font-black text-slate-900">25% recurring</div>
                   </div>
                 </div>
               </div>
@@ -133,8 +133,8 @@ export default function Referral() {
               <div className="rounded-panel bg-[linear-gradient(155deg,#AD2A75_0%,#C13584_58%,#E1306C_100%)] p-7 text-white">
                 <div className="mb-8 flex items-center justify-between">
                   <div>
-                    <div className="text-sm font-semibold uppercase tracking-[0.16em] text-white/58">Commission</div>
-                    <div className="mt-3 text-6xl font-bold tracking-tight">25%</div>
+                    <div className="text-sm font-black uppercase tracking-[0.16em] text-white/58">Commission</div>
+                    <div className="mt-3 text-6xl font-black tracking-tight">25%</div>
                     <div className="mt-2 text-lg font-bold text-white/72">recurring revenue share</div>
                   </div>
                   <div className="rounded-card border border-white/15 bg-white/12 p-4 backdrop-blur">
@@ -147,7 +147,7 @@ export default function Referral() {
                     <span>Your referral link</span>
                     <Copy className="h-4 w-4 text-[#f0c7a6]" />
                   </div>
-                  <div className="truncate rounded-control bg-white px-4 py-3 text-sm font-semibold text-brand">
+                  <div className="truncate rounded-control bg-white px-4 py-3 text-sm font-black text-brand">
                     dmgennie.in/ref/partner
                   </div>
                 </div>
@@ -156,11 +156,11 @@ export default function Referral() {
               <div className="rounded-panel border border-slate-200 bg-white p-6">
                 <div className="mb-5 flex items-center justify-between gap-4">
                   <div>
-                    <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-brand">
+                    <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.16em] text-brand">
                       <Calculator className="h-4 w-4" />
                       Earnings Calculator
                     </div>
-                    <div className="mt-2 text-2xl font-bold text-slate-900">
+                    <div className="mt-2 text-2xl font-black text-slate-900">
                       {formatRupees(monthlyEstimate)} / month
                     </div>
                     <div className="text-sm font-bold text-slate-500">
@@ -168,8 +168,8 @@ export default function Referral() {
                     </div>
                   </div>
                   <div className="rounded-card bg-white px-4 py-3 text-center shadow-rest">
-                    <div className="text-3xl font-bold text-slate-900">{referralCount}</div>
-                    <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">referrals</div>
+                    <div className="text-3xl font-black text-slate-900">{referralCount}</div>
+                    <div className="text-xs font-black uppercase tracking-[0.12em] text-slate-500">referrals</div>
                   </div>
                 </div>
 
@@ -200,7 +200,7 @@ export default function Referral() {
                         <div className="text-sm font-bold text-slate-500">{item.creators} paid referrals</div>
                         <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">{item.label}</div>
                       </div>
-                      <div className="text-2xl font-bold text-slate-900">{item.value}</div>
+                      <div className="text-2xl font-black text-slate-900">{item.value}</div>
                     </button>
                   ))}
                 </div>
@@ -215,8 +215,8 @@ export default function Referral() {
         <section id="how-referrals-work" className="bg-white px-6 py-20 sm:px-8 lg:px-12">
           <div className="mx-auto max-w-7xl">
             <div className="mx-auto mb-12 max-w-3xl text-center">
-              <div className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-brand">How It Works</div>
-              <h2 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">Three simple steps</h2>
+              <div className="mb-4 text-sm font-black uppercase tracking-[0.18em] text-brand">How It Works</div>
+              <h2 className="text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">Three simple steps</h2>
             </div>
             <div className="grid gap-6 md:grid-cols-3">
               {steps.map((step, index) => {
@@ -227,9 +227,9 @@ export default function Referral() {
                       <div className="flex h-12 w-12 items-center justify-center rounded-card bg-brand text-white">
                         <Icon className="h-5 w-5" />
                       </div>
-                      <span className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-400">Step {index + 1}</span>
+                      <span className="text-sm font-black uppercase tracking-[0.16em] text-slate-400">Step {index + 1}</span>
                     </div>
-                    <h3 className="text-2xl font-bold text-slate-900">{step.title}</h3>
+                    <h3 className="text-2xl font-black text-slate-900">{step.title}</h3>
                     <p className="mt-3 text-base font-medium leading-relaxed text-slate-600">{step.text}</p>
                   </div>
                 )
@@ -242,8 +242,8 @@ export default function Referral() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_30%,rgba(193,53,132,0.10),transparent_28%),radial-gradient(circle_at_78%_30%,rgba(64,93,230,0.10),transparent_28%)]" />
           <div className="relative mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.85fr_1fr]">
             <div>
-              <div className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-brand">Why Partners Like It</div>
-              <h2 className="text-4xl font-bold leading-tight text-slate-900 sm:text-5xl">
+              <div className="mb-4 text-sm font-black uppercase tracking-[0.18em] text-brand">Why Partners Like It</div>
+              <h2 className="text-4xl font-black leading-tight text-slate-900 sm:text-5xl">
                 A clean commission program for creator tools
               </h2>
               <p className="mt-5 text-lg font-medium leading-relaxed text-slate-600">
@@ -273,14 +273,14 @@ export default function Referral() {
                   <div className="mb-10 inline-flex h-14 w-14 items-center justify-center rounded-card border border-white/15 bg-white/12 backdrop-blur">
                     <Handshake className="h-7 w-7 text-[#f0c7a6]" />
                   </div>
-                  <div className="text-sm font-semibold uppercase tracking-[0.18em] text-white/55">Partner Program</div>
-                  <div className="mt-4 text-6xl font-bold tracking-tight">25%</div>
+                  <div className="text-sm font-black uppercase tracking-[0.18em] text-white/55">Partner Program</div>
+                  <div className="mt-4 text-6xl font-black tracking-tight">25%</div>
                   <div className="mt-2 text-lg font-bold text-white/70">recurring commission</div>
                 </div>
               </div>
 
               <div>
-                <h2 className="text-4xl font-bold leading-tight tracking-tight text-slate-900 sm:text-5xl">
+                <h2 className="text-4xl font-black leading-tight tracking-tight text-slate-900 sm:text-5xl">
                   Ready to become a DMGennie partner?
                 </h2>
                 <p className="mt-5 max-w-2xl text-lg font-medium leading-relaxed text-slate-600">
@@ -288,16 +288,16 @@ export default function Referral() {
                 </p>
                 <div className="mt-7 flex flex-wrap gap-3">
                   {['Fast approval', 'Monthly payouts', 'Creator-friendly offer'].map((item) => (
-                    <span key={item} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-brand">
+                    <span key={item} className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-black text-brand">
                       {item}
                     </span>
                   ))}
                 </div>
                 <div className="mt-8 flex flex-wrap gap-4">
-                  <Link to="/signup" className="rounded-control bg-brand px-7 py-4 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-brand-hover">
+                  <Link to="/signup" className="rounded-control bg-brand px-7 py-4 text-base font-black text-white transition-all hover:-translate-y-0.5 hover:bg-brand-hover">
                     Apply Now
                   </Link>
-                  <a href="mailto:support@dmgennie.in" className="inline-flex items-center gap-2 rounded-control border border-slate-200 bg-white px-7 py-4 text-base font-semibold text-slate-900 shadow-rest transition-all hover:-translate-y-0.5 hover:border-brand/30">
+                  <a href="mailto:support@dmgennie.in" className="inline-flex items-center gap-2 rounded-control border border-slate-200 bg-white px-7 py-4 text-base font-black text-slate-900 shadow-rest transition-all hover:-translate-y-0.5 hover:border-brand/30">
                     <Mail className="h-4 w-4 text-brand" />
                     Contact Us
                   </a>

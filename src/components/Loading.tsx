@@ -50,8 +50,8 @@ export function LoadingCard({
     >
       <DMGennieLoadingMark />
       <div className="mt-6">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-brand">DMGennie</p>
-        <h1 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
+        <p className="text-sm font-black uppercase tracking-[0.24em] text-brand">DMGennie</p>
+        <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-900">{title}</h1>
         <p className="mt-3 text-sm leading-6 text-slate-500">{subtitle}</p>
         {detail ? (
           <p className="mt-4 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-xs font-bold text-slate-500">
@@ -126,13 +126,13 @@ export function ErrorState({
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-card bg-slate-100 text-red-500">
           <AlertTriangle className="h-6 w-6" />
         </div>
-        <h1 className="mt-5 text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
+        <h1 className="mt-5 text-2xl font-black tracking-tight text-slate-900">{title}</h1>
         <p className="mt-3 text-sm leading-6 text-slate-500">{text}</p>
         {onRetry ? (
           <button
             type="button"
             onClick={onRetry}
-            className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-brand-hover"
+            className="mt-6 inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand px-6 text-sm font-black text-white transition hover:-translate-y-0.5 hover:bg-brand-hover"
           >
             <RefreshCw className="h-4 w-4" />
             {retryLabel}

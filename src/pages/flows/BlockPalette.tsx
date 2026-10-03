@@ -25,7 +25,7 @@ export function BlockPalette() {
             </span>
             <span className="min-w-0">
               <span className="block text-sm font-bold text-foreground">{block.label}</span>
-              <span className="block truncate text-2xs text-muted-foreground">{block.description}</span>
+              <span className="block truncate text-[11px] text-muted-foreground">{block.description}</span>
             </span>
           </div>
         );

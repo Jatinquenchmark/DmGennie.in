@@ -20,10 +20,6 @@ export default {
       },
     },
     extend: {
-      // Floor for UI text: uppercase micro-labels only. Everything else uses xs and up.
-      fontSize: {
-        '2xs': ['11px', '16px'],
-      },
       // Steps used across the app (bg-white/72 etc.) that Tailwind v3 doesn't ship.
       opacity: {
         12: '0.12',

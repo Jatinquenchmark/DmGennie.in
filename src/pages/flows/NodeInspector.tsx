@@ -47,7 +47,7 @@ export function NodeInspector({
         </span>
         <div className="min-w-0">
           <p className="text-sm font-bold text-foreground">{spec.label}</p>
-          <p className="truncate text-2xs text-muted-foreground">{spec.description}</p>
+          <p className="truncate text-[11px] text-muted-foreground">{spec.description}</p>
         </div>
       </div>
 

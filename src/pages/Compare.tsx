@@ -129,8 +129,8 @@ export default function Compare() {
       <div className="premium-gradient min-h-screen text-foreground">
         <PageHeader />
         <main className="mx-auto max-w-4xl px-6 pb-20 pt-36 text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">Compare</p>
-          <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">Comparison not found</h1>
+          <p className="text-sm font-black uppercase tracking-[0.2em] text-brand">Compare</p>
+          <h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl">Comparison not found</h1>
           <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">Choose one of the available DMGennie comparisons below.</p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             {compareLinks.map((item) => (
@@ -166,8 +166,8 @@ export default function Compare() {
           </div>
 
           <div className="mx-auto max-w-5xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-brand">Platform Comparison</p>
-            <h1 className="mt-7 text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-6xl">
+            <p className="text-sm font-black uppercase tracking-[0.22em] text-brand">Platform Comparison</p>
+            <h1 className="mt-7 text-4xl font-black leading-tight tracking-tight text-foreground sm:text-6xl">
               DMGennie vs {page.name}
             </h1>
             <p className="mx-auto mt-6 max-w-4xl text-lg font-medium leading-8 text-muted-foreground sm:text-xl">
@@ -183,7 +183,7 @@ export default function Compare() {
                 <Link
                   key={item.slug}
                   to={`/compare/${item.slug}`}
-                  className={`rounded-full border px-4 py-2 text-sm font-semibold transition-all ${
+                  className={`rounded-full border px-4 py-2 text-sm font-black transition-all ${
                     active
                       ? 'border-brand bg-brand text-white'
                       : 'border-border bg-card/66 text-muted-foreground shadow-rest backdrop-blur hover:-translate-y-0.5 hover:text-brand'
@@ -198,21 +198,21 @@ export default function Compare() {
           <div className="mx-auto mt-16 max-w-6xl overflow-x-auto rounded-panel border border-border bg-card/74 backdrop-blur-xl">
             <div className="min-w-[760px]">
               <div className="grid grid-cols-[1.2fr_1fr_1fr] bg-card/80">
-                <div className="px-7 py-7 text-2xl font-bold text-foreground">Features</div>
+                <div className="px-7 py-7 text-2xl font-black text-foreground">Features</div>
                 <div className="border-x border-border bg-card/72 px-7 py-7 text-center">
-                  <div className="inline-flex items-center gap-2 text-2xl font-bold">
+                  <div className="inline-flex items-center gap-2 text-2xl font-black">
                     DMGennie
                     <Medal className="h-5 w-5 text-brand" />
                   </div>
-                  <div className="mt-2 text-xs font-semibold uppercase tracking-wider text-brand">Best for creators</div>
+                  <div className="mt-2 text-xs font-black uppercase tracking-wider text-brand">Best for creators</div>
                 </div>
-                <div className="px-7 py-7 text-center text-2xl font-bold text-foreground">{page.name}</div>
+                <div className="px-7 py-7 text-center text-2xl font-black text-foreground">{page.name}</div>
               </div>
 
               <div className="divide-y divide-border">
                 <div className="grid grid-cols-[1.2fr_1fr_1fr] items-center">
                   <div className="px-7 py-5 text-lg font-bold">Cost to send 25,000 DMs</div>
-                  <div className="border-x border-border px-7 py-5 text-center text-xl font-bold text-brand">$0+</div>
+                  <div className="border-x border-border px-7 py-5 text-center text-xl font-black text-brand">$0+</div>
                   <div className="px-7 py-5 text-center text-xl font-bold text-muted-foreground">{page.price}</div>
                 </div>
 
@@ -241,14 +241,14 @@ export default function Compare() {
                 <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-control bg-brand/10 text-brand">
                   {item.icon}
                 </div>
-                <h3 className="text-lg font-bold">{item.title}</h3>
+                <h3 className="text-lg font-black">{item.title}</h3>
                 <p className="mt-2 text-sm font-medium leading-relaxed text-muted-foreground">{item.text}</p>
               </div>
             ))}
           </div>
 
           <div className="mx-auto mt-16 max-w-4xl rounded-panel border border-border bg-card/68 p-8 text-center backdrop-blur-xl sm:p-10">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Get started with DMGennie for free</h2>
+            <h2 className="text-3xl font-black tracking-tight text-foreground sm:text-4xl">Get started with DMGennie for free</h2>
             <p className="mx-auto mt-3 max-w-2xl text-lg font-medium text-muted-foreground">Create your account and launch your first automation in minutes.</p>
             <Link to="/signup" className="premium-button mt-8 inline-flex rounded-control px-9 py-4 text-lg font-bold text-white transition-all hover:-translate-y-0.5">
               Create Free Account

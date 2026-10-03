@@ -128,8 +128,8 @@ export default function AdminDashboard() {
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xl font-bold tracking-tight">DMGennie</p>
-              <p className="text-2xs font-semibold uppercase tracking-[0.22em] text-slate-400">Admin Console</p>
+              <p className="text-xl font-black tracking-tight">DMGennie</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-slate-400">Admin Console</p>
             </div>
           </div>
 
@@ -138,7 +138,7 @@ export default function AdminDashboard() {
               <Link
                 key={item.key}
                 to={item.path}
-                className={`flex h-11 items-center gap-3 rounded-card px-3 text-sm font-semibold transition ${
+                className={`flex h-11 items-center gap-3 rounded-card px-3 text-sm font-black transition ${
                   section === item.key
                     ? 'bg-slate-900 text-white shadow-rest'
                     : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
@@ -151,13 +151,13 @@ export default function AdminDashboard() {
           </nav>
 
           <div className="mt-auto pt-8">
-            <Link to="/dashboard" className="flex h-10 items-center justify-center rounded-card border border-slate-200 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+            <Link to="/dashboard" className="flex h-10 items-center justify-center rounded-card border border-slate-200 text-sm font-black text-slate-600 transition hover:bg-slate-50">
               Back to App
             </Link>
             <button
               type="button"
               onClick={handleLogout}
-              className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-card bg-emerald-500 text-sm font-semibold text-white transition hover:bg-emerald-600"
+              className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-card bg-emerald-500 text-sm font-black text-white transition hover:bg-emerald-600"
             >
               <LogOut className="h-4 w-4" />
               Logout
@@ -168,16 +168,16 @@ export default function AdminDashboard() {
         <main className="min-w-0 flex-1">
           <header className="flex flex-col gap-4 rounded-card border border-white bg-white p-5 shadow-raised sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">Secure Admin</p>
-              <h1 className="mt-2 text-3xl font-bold tracking-tight capitalize">{section === 'overview' ? 'Admin Overview' : section}</h1>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-brand">Secure Admin</p>
+              <h1 className="mt-2 text-3xl font-black tracking-tight capitalize">{section === 'overview' ? 'Admin Overview' : section}</h1>
               <p className="mt-1 text-sm font-semibold text-slate-500">Manage users, automations, contacts, billing, and platform health.</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button onClick={loadData} className="inline-flex h-10 items-center gap-2 rounded-card border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+              <button onClick={loadData} className="inline-flex h-10 items-center gap-2 rounded-card border border-slate-200 bg-white px-4 text-sm font-black text-slate-600 transition hover:bg-slate-50">
                 <RefreshCw className="h-4 w-4" />
                 Refresh
               </button>
-              <Link to="/dashboard" className="inline-flex h-10 items-center rounded-card bg-brand px-4 text-sm font-semibold text-white transition hover:bg-brand-hover">
+              <Link to="/dashboard" className="inline-flex h-10 items-center rounded-card bg-brand px-4 text-sm font-black text-white transition hover:bg-brand-hover">
                 Back to App
               </Link>
             </div>
@@ -247,8 +247,8 @@ function Metric({ label, value, helper, icon }: { label: string; value: string; 
     <div className="rounded-card border border-white bg-white p-5 shadow-raised">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">{label}</p>
-          <p className="mt-3 text-3xl font-bold tracking-tight">{value}</p>
+          <p className="text-xs font-black uppercase tracking-[0.1em] text-slate-500">{label}</p>
+          <p className="mt-3 text-3xl font-black tracking-tight">{value}</p>
           <p className="mt-1 text-sm font-semibold text-slate-500">{helper}</p>
         </div>
         <span className="flex h-11 w-11 items-center justify-center rounded-card bg-brand-soft text-brand">{icon}</span>
@@ -306,7 +306,7 @@ function UsersPage({ data, search, setSearch, authFetch, onRefresh }: any) {
     <Panel title="User management" action={<TableControls search={search} setSearch={setSearch} onExport={() => downloadCsv('dmgennie-admin-users.csv', users)} />}>
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1080px] text-left text-sm">
-          <thead className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
+          <thead className="text-xs font-black uppercase tracking-[0.08em] text-slate-500">
             <tr>
               <th className="px-3 py-3">User</th>
               <th className="px-3 py-3">Role</th>
@@ -426,7 +426,7 @@ function Panel({ title, action, children }: { title: string; action?: ReactNode;
   return (
     <section className="rounded-card border border-white bg-white p-5 shadow-raised">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-bold">{title}</h2>
+        <h2 className="text-lg font-black">{title}</h2>
         {action}
       </div>
       {children}
@@ -440,7 +440,7 @@ function SimpleTable({ rows }: { rows: Array<Record<string, any>> }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[760px] text-left text-sm">
-        <thead className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">
+        <thead className="text-xs font-black uppercase tracking-[0.08em] text-slate-500">
           <tr>{headers.map((header) => <th key={header} className="px-3 py-3">{header}</th>)}</tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
@@ -462,7 +462,7 @@ function TableControls({ search, setSearch, onExport }: { search: string; setSea
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search..." className="h-10 rounded-card border border-slate-200 bg-white pl-9 pr-3 text-sm font-bold outline-none focus:ring-4 focus:ring-brand/10" />
       </label>
-      <button onClick={onExport} className="inline-flex h-10 items-center justify-center gap-2 rounded-card border border-slate-200 px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+      <button onClick={onExport} className="inline-flex h-10 items-center justify-center gap-2 rounded-card border border-slate-200 px-4 text-sm font-black text-slate-600 transition hover:bg-slate-50">
         <Download className="h-4 w-4" />
         Export
       </button>
@@ -476,14 +476,14 @@ function Badge({ children, tone }: { children: ReactNode; tone: 'green' | 'purpl
     purple: 'bg-brand-soft text-brand',
     gray: 'bg-slate-100 text-slate-600',
   }
-  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${classes[tone]}`}>{children}</span>
+  return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-black ${classes[tone]}`}>{children}</span>
 }
 
 function InfoTile({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-card border border-slate-200 bg-slate-50 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{label}</p>
-      <p className="mt-2 text-sm font-semibold">{value}</p>
+      <p className="text-xs font-black uppercase tracking-[0.08em] text-slate-500">{label}</p>
+      <p className="mt-2 text-sm font-black">{value}</p>
     </div>
   )
 }

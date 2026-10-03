@@ -42,7 +42,7 @@ export default function DeleteData() {
           <div className="inline-flex items-center gap-2 bg-red-500/10 text-red-500 text-sm font-semibold px-4 py-2 rounded-full mb-6">
             <Trash2 className="w-4 h-4" /> Data Deletion
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4">
             Request Data Deletion
           </h1>
           <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl">

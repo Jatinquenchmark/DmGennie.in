@@ -172,8 +172,8 @@ export function Pricing() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_16%,rgba(193,53,132,0.10),transparent_30%),radial-gradient(circle_at_80%_72%,rgba(64,93,230,0.10),transparent_30%),linear-gradient(180deg,#fff,rgba(248,241,243,0.82)_100%)] dark:opacity-0" />
       <div className="container relative mx-auto px-6 sm:px-8 lg:px-12">
         <div className="mx-auto mb-10 max-w-3xl text-center">
-          <div className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-brand">Pricing</div>
-          <h2 className="text-4xl font-bold leading-tight text-slate-900 sm:text-5xl">
+          <div className="mb-4 text-sm font-black uppercase tracking-[0.18em] text-brand">Pricing</div>
+          <h2 className="text-4xl font-black leading-tight text-slate-900 sm:text-5xl">
             Simple pricing for serious growth
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg font-medium leading-relaxed text-slate-500">
@@ -210,7 +210,7 @@ export function Pricing() {
           >
             Annual
           </button>
-          <span className="rounded-control bg-brand-soft px-3 py-1 text-sm font-semibold text-brand">20% Off</span>
+          <span className="rounded-control bg-brand-soft px-3 py-1 text-sm font-black text-brand">20% Off</span>
         </div>
 
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-stretch gap-7 lg:grid-cols-3">
@@ -268,18 +268,18 @@ export function Pricing() {
               )}
 
               {plan.highlight && (
-                <div className="relative mx-auto mb-7 inline-flex items-center rounded-full border border-white/20 bg-white/14 px-5 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#f9dfb5] backdrop-blur">
+                <div className="relative mx-auto mb-7 inline-flex items-center rounded-full border border-white/20 bg-white/14 px-5 py-2 text-xs font-black uppercase tracking-[0.16em] text-[#f9dfb5] backdrop-blur">
                   {proActive ? 'Pro active' : paymentPending ? 'Payment pending' : (!session?.access_token || pricing.proIntroOffer.eligible) ? `Limited offer · ${fmt(introAmount)} first month` : 'Most Popular'}
                 </div>
               )}
               {!plan.highlight && <div className="mb-7 h-8" />}
 
               <div className="relative text-center">
-                <h3 className={`text-3xl font-bold ${plan.highlight ? 'text-white' : 'text-slate-900'}`}>
+                <h3 className={`text-3xl font-black ${plan.highlight ? 'text-white' : 'text-slate-900'}`}>
                   {plan.name}
                 </h3>
                 <div className="mt-8">
-                  <span className={`text-6xl font-bold tracking-tight sm:text-7xl ${
+                  <span className={`text-6xl font-black tracking-tight sm:text-7xl ${
                     plan.highlight ? 'text-white' : plan.name === 'Enterprise' ? 'text-5xl sm:text-6xl text-slate-900' : 'text-slate-900'
                   }`}>
                     {price}
@@ -292,8 +292,8 @@ export function Pricing() {
                 )}
                 {showIntroOffer && (
                   <div className="mt-3 inline-flex flex-wrap justify-center gap-2">
-                    <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-semibold text-[#f9dfb5] ring-1 ring-white/18">Limited offer</span>
-                    <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-semibold text-white ring-1 ring-white/18">{fmt(introAmount)} first month</span>
+                    <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-black text-[#f9dfb5] ring-1 ring-white/18">Limited offer</span>
+                    <span className="rounded-full bg-white/14 px-3 py-1 text-xs font-black text-white ring-1 ring-white/18">{fmt(introAmount)} first month</span>
                   </div>
                 )}
                 {plan.highlight && billing === 'yearly' && (
@@ -305,7 +305,7 @@ export function Pricing() {
                 <button
                   onClick={() => handlePlanCta(plan.name)}
                   disabled={(checkoutLoading && isPro) || proActive}
-                  className={`mt-12 w-full rounded-full px-6 py-4 text-base font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-70 ${
+                  className={`mt-12 w-full rounded-full px-6 py-4 text-base font-black transition-all disabled:cursor-not-allowed disabled:opacity-70 ${
                   plan.highlight
                     ? 'bg-white text-brand shadow-raised hover:bg-white'
                     : 'bg-brand text-white hover:bg-brand-hover'

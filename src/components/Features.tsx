@@ -64,11 +64,11 @@ export function Features() {
       <div className="container relative mx-auto px-6 sm:px-8 lg:px-12">
         <div className="relative mx-auto mb-16 max-w-5xl text-center sm:mb-18 lg:mb-20">
           <div className="pointer-events-none absolute left-1/2 top-2 h-60 w-[min(900px,92vw)] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(245,169,196,0.24),rgba(193,53,132,0.16)_42%,transparent_72%)] blur-3xl" />
-          <div className="relative mb-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.07] px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-white/62 shadow-raised backdrop-blur-xl">
+          <div className="relative mb-6 inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.07] px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-white/62 shadow-raised backdrop-blur-xl">
             <span className="h-1.5 w-1.5 rounded-full bg-[#f1bd51]" />
             All the features you need
           </div>
-          <h2 className="relative mx-auto max-w-5xl text-balance text-4xl font-bold leading-[0.96] tracking-tight text-white sm:text-5xl lg:text-7xl">
+          <h2 className="relative mx-auto max-w-5xl text-balance text-4xl font-black leading-[0.96] tracking-tight text-white sm:text-5xl lg:text-7xl">
             Unlock the Full Power of{' '}
             <span className="bg-gradient-to-r from-[#f5d8a8] via-[#fff7f0] to-brand/40 bg-clip-text text-transparent">
               Instagram
@@ -103,7 +103,7 @@ export function Features() {
                     <div className="flex h-full w-full items-center justify-center bg-white text-slate-900">
                       <div className="flex items-center gap-3 rounded-card border border-slate-200 bg-white px-5 py-4 shadow-rest">
                         <Sparkles className="h-8 w-8 text-brand" />
-                        <div className="text-2xl font-bold tracking-tight">DMGennie AI</div>
+                        <div className="text-2xl font-black tracking-tight">DMGennie AI</div>
                       </div>
                     </div>
                   )}
@@ -111,9 +111,9 @@ export function Features() {
                 </div>
                 <div className="min-h-[184px] px-4 pb-5 pt-5 sm:px-5 sm:pb-6">
                   <div className="mb-3 flex items-start justify-between gap-3">
-                    <h3 className="text-xl font-bold tracking-tight text-white">{feature.title}</h3>
+                    <h3 className="text-xl font-black tracking-tight text-white">{feature.title}</h3>
                     {feature.comingSoon && (
-                      <span className="rounded-full border border-[#f1bd51]/20 bg-[#f1bd51]/12 px-2.5 py-1 text-2xs font-semibold uppercase text-[#f1bd51]">Coming Soon</span>
+                      <span className="rounded-full border border-[#f1bd51]/20 bg-[#f1bd51]/12 px-2.5 py-1 text-[10px] font-black uppercase text-[#f1bd51]">Coming Soon</span>
                     )}
                   </div>
                   <p className="text-sm font-medium leading-relaxed text-white/60">{feature.description}</p>
@@ -125,7 +125,7 @@ export function Features() {
 
         <div className="mt-14 text-center">
           <Link to="/signup">
-            <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="rounded-control bg-white px-9 py-4 text-lg font-bold text-brand shadow-raised transition-all hover:-translate-y-0.5 hover:bg-white">
+            <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="rounded-control bg-white px-9 py-4 text-lg font-black text-brand shadow-raised transition-all hover:-translate-y-0.5 hover:bg-white">
               Start For Free
             </motion.button>
           </Link>

@@ -55,14 +55,14 @@ export default function AdminRoute({ children }: { children: React.ReactNode }) 
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50 px-5">
         <div className="w-full max-w-md rounded-card border border-slate-200 bg-white p-8 text-center shadow-overlay">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand">Access denied</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">Admin only</h1>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-brand">Access denied</p>
+          <h1 className="mt-3 text-3xl font-black tracking-tight text-slate-900">Admin only</h1>
           <p className="mt-3 text-sm leading-6 text-slate-500">
             This area is restricted to DMGennie admins. Your regular dashboard is still available.
           </p>
           <Link
             to="/dashboard"
-            className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-brand px-6 text-sm font-semibold text-white transition hover:bg-brand-hover"
+            className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-brand px-6 text-sm font-black text-white transition hover:bg-brand-hover"
           >
             Back to Dashboard
           </Link>

@@ -17,7 +17,7 @@ export default function Terms() {
           <div className="inline-flex items-center gap-2 bg-accent-blue/10 text-accent-blue text-sm font-semibold px-4 py-2 rounded-full mb-6">
             <FileText className="w-4 h-4" /> Terms of Service
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4">
             Terms of Service
           </h1>
           <p className="text-muted-foreground text-lg">

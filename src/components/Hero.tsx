@@ -49,7 +49,7 @@ export function Hero() {
           }`}>
             <motion.div whileHover={{ scale: 1.03 }} className="flex cursor-pointer items-center gap-2.5" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <BrandMark size={32} />
-              <span className="font-bold text-xl tracking-tight text-foreground">DMGennie</span>
+              <span className="font-black text-xl tracking-tight text-foreground">DMGennie</span>
             </motion.div>
 
             <div className="hidden items-center gap-8 md:flex">
@@ -58,7 +58,7 @@ export function Hero() {
                   <Link
                     key={item.label}
                     to={item.href}
-                    className="text-sm font-semibold text-slate-600 transition-colors hover:text-brand dark:text-slate-300 dark:hover:text-brand"
+                    className="text-sm font-black text-slate-600 transition-colors hover:text-brand dark:text-slate-300 dark:hover:text-brand"
                   >
                     {item.label}
                   </Link>
@@ -66,7 +66,7 @@ export function Hero() {
                   <a
                     key={item.label}
                     href={item.href}
-                    className="text-sm font-semibold text-slate-600 transition-colors hover:text-brand dark:text-slate-300 dark:hover:text-brand"
+                    className="text-sm font-black text-slate-600 transition-colors hover:text-brand dark:text-slate-300 dark:hover:text-brand"
                   >
                     {item.label}
                   </a>
@@ -77,7 +77,7 @@ export function Hero() {
             <div className="flex items-center space-x-3">
               <ThemeToggle />
               <Link to="/signup">
-                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="hidden rounded-control bg-brand px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand-hover sm:block">
+                <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="hidden rounded-control bg-brand px-5 py-2.5 text-sm font-black text-white transition-all hover:bg-brand-hover sm:block">
                   Get Started Free
                 </motion.button>
               </Link>
@@ -120,7 +120,7 @@ export function Hero() {
       {/* Hero Content */}
       <div className="relative z-10 mx-auto grid min-h-[calc(100vh-2rem)] max-w-[1440px] grid-cols-1 items-center gap-12 px-6 pb-16 pt-32 sm:px-8 sm:pb-20 sm:pt-36 lg:grid-cols-[minmax(0,1.02fr)_minmax(340px,0.88fr)] lg:gap-10 lg:px-12 xl:gap-16">
         <motion.div initial={{ opacity: 0, x: -42 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.9, delay: 0.45 }} className="mx-auto w-full max-w-[660px] text-center text-foreground lg:mx-0 lg:text-left">
-          <h1 className="mx-auto mb-6 max-w-[760px] text-4xl font-bold leading-[0.98] tracking-tight text-slate-900 dark:text-slate-50 sm:text-5xl md:text-6xl lg:mx-0 lg:max-w-[680px] xl:text-[4.55rem]">
+          <h1 className="mx-auto mb-6 max-w-[760px] text-4xl font-black leading-[0.98] tracking-tight text-slate-900 dark:text-slate-50 sm:text-5xl md:text-6xl lg:mx-0 lg:max-w-[680px] xl:text-[4.55rem]">
             Automate Instagram DMs from Comments
           </h1>
 
@@ -169,7 +169,7 @@ export function Hero() {
                       <span className="absolute -bottom-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-white bg-emerald-500" />
                     </div>
                     <div className="min-w-0">
-                      <div className="truncate text-base font-semibold text-gray-950">dmgennie.in</div>
+                      <div className="truncate text-base font-black text-gray-950">dmgennie.in</div>
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                         Automation active
@@ -181,7 +181,7 @@ export function Hero() {
                 <div className="min-h-[420px] bg-gradient-to-b from-white via-slate-50 to-slate-100 px-5 py-6 sm:min-h-[500px] xl:min-h-[540px]">
                   <div className="flex items-end gap-2">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand via-brand to-brand/40 p-[2px] shadow-rest">
-                      <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-2xs font-semibold text-accent-blue">
+                      <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-[11px] font-black text-accent-blue">
                         IG
                       </div>
                     </div>
@@ -193,7 +193,7 @@ export function Hero() {
                   <motion.div
                     animate={{ opacity: [0.65, 1, 0.65] }}
                     transition={{ duration: 2.5, repeat: Infinity }}
-                    className="my-6 flex items-center justify-end gap-2 text-2xs font-semibold uppercase tracking-wider text-slate-400"
+                    className="my-6 flex items-center justify-end gap-2 text-[10px] font-black uppercase tracking-wider text-slate-400"
                   >
                     <Sparkles className="h-4 w-4 text-accent-blue" />
                     DMGennie automated reply
@@ -214,18 +214,18 @@ export function Hero() {
                         <Link2 className="h-5 w-5" />
                       </div>
                       <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold text-slate-950">Growth Automation Guide</div>
+                        <div className="truncate text-sm font-black text-slate-950">Growth Automation Guide</div>
                         <div className="truncate text-xs font-medium text-slate-500">dmgennie.in/guide</div>
                       </div>
                     </div>
-                    <div className="mt-3 rounded-card bg-accent-blue px-4 py-2.5 text-center text-xs font-semibold text-white shadow-rest">
+                    <div className="mt-3 rounded-card bg-accent-blue px-4 py-2.5 text-center text-xs font-black text-white shadow-rest">
                       Open Guide
                     </div>
                   </motion.div>
 
                   <div className="mt-5 flex items-end gap-2 sm:mt-7">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand via-brand to-brand/40 p-[2px] shadow-rest">
-                      <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-2xs font-semibold text-accent-blue">
+                      <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-[11px] font-black text-accent-blue">
                         IG
                       </div>
                     </div>
@@ -249,7 +249,7 @@ export function Hero() {
               <div className="flex items-center gap-2">
                 <Zap className="h-4 w-4 text-accent-blue" />
                 <div>
-                  <div className="text-sm font-semibold text-slate-950">Keyword matched</div>
+                  <div className="text-sm font-black text-slate-950">Keyword matched</div>
                   <div className="text-xs font-semibold text-slate-500">Reply sent instantly</div>
                 </div>
               </div>
@@ -258,7 +258,7 @@ export function Hero() {
             <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 4, repeat: Infinity, delay: 0.6 }} className="glass-card absolute -left-2 bottom-28 hidden rounded-card px-4 py-3 sm:block">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                <span className="text-sm font-semibold text-slate-950">Lead captured</span>
+                <span className="text-sm font-black text-slate-950">Lead captured</span>
               </div>
             </motion.div>
           </div>

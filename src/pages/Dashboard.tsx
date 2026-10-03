@@ -1184,7 +1184,7 @@ export default function Dashboard({ preview = false }: { preview?: boolean } = {
             <header className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/90 px-4 py-2.5 backdrop-blur lg:hidden">
                 <Link to="/" className="flex items-center gap-2">
                     <BrandMark size={32} className="shrink-0" />
-                    <span className="text-base font-semibold tracking-tight text-slate-900">DMGennie</span>
+                    <span className="text-[16px] font-black tracking-tight text-slate-900">DMGennie</span>
                 </Link>
                 <div className="flex items-center gap-2">
                     <ThemeToggle className="h-10 w-10" />
@@ -1456,7 +1456,7 @@ function ConnectInstagramModal({ connected, handle, onConnect, onDisconnect, onC
         <ModalShell onClose={onClose}>
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-900">Instagram connection</h2>
+                    <h2 className="text-2xl font-black text-slate-900">Instagram connection</h2>
                     <p className="mt-1 text-sm font-semibold text-slate-500">Connect your Instagram business account to automate DMs.</p>
                 </div>
                 <button onClick={onClose} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50"><X className="h-4 w-4" /></button>
@@ -1466,7 +1466,7 @@ function ConnectInstagramModal({ connected, handle, onConnect, onDisconnect, onC
                     <div className="flex flex-col items-center gap-4 text-center">
                         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100"><Instagram className="h-6 w-6" /></span>
                         <div>
-                            <p className="text-sm font-semibold text-slate-900">{handle} is connected</p>
+                            <p className="text-sm font-black text-slate-900">{handle} is connected</p>
                             <p className="mt-1 text-xs font-semibold text-slate-500">Connected through secure Meta OAuth. No Instagram password is stored.</p>
                         </div>
                         {onDisconnect && (
@@ -1479,7 +1479,7 @@ function ConnectInstagramModal({ connected, handle, onConnect, onDisconnect, onC
                     <div className="flex flex-col items-center gap-4 text-center">
                         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-brand ring-1 ring-brand/15"><Instagram className="h-6 w-6" /></span>
                         <div>
-                            <p className="text-sm font-semibold text-slate-900">No account connected yet</p>
+                            <p className="text-sm font-black text-slate-900">No account connected yet</p>
                             <p className="mt-1 text-xs font-semibold text-slate-500">Connect your Instagram business account through Meta to start automating DMs.</p>
                         </div>
                         <PrimaryButton onClick={onConnect}><Instagram className="h-4 w-4" /> Connect Instagram</PrimaryButton>
@@ -1571,8 +1571,8 @@ function Sidebar({
                 <Link to="/" className={cx("mb-3 flex items-center gap-2.5 rounded-card px-1 py-0.5", collapsed && "lg:justify-center lg:px-0")}>
                     <BrandMark size={36} className="shrink-0" />
                     <span className={hideOnCollapse}>
-                        <span className="block text-lg font-bold leading-5 tracking-tight text-slate-900">DMGennie</span>
-                        <span className="mt-0.5 block text-2xs font-semibold uppercase tracking-[0.18em] text-slate-400">Creator Dashboard</span>
+                        <span className="block text-[18px] font-black leading-5 tracking-tight text-slate-900">DMGennie</span>
+                        <span className="mt-0.5 block text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">Creator Dashboard</span>
                     </span>
                 </Link>
 
@@ -1584,12 +1584,12 @@ function Sidebar({
                         className={cx("w-full rounded-card border border-slate-200 bg-slate-50 px-2.5 py-2 text-left shadow-rest transition hover:border-brand/25 hover:bg-white", collapsed && "lg:px-1.5")}
                     >
                         <div className={cx("flex items-center gap-2.5", collapsed && "lg:justify-center lg:gap-0")}>
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-orange-400 text-sm font-semibold text-white">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-orange-400 text-sm font-black text-white">
                                 {handle.replace("@", "").charAt(0).toUpperCase() || "D"}
                             </div>
                             <div className={cx("min-w-0 flex-1", hideOnCollapse)}>
                                 <div className="flex min-w-0 items-center gap-1.5 leading-4">
-                                    <span className="truncate text-sm font-semibold leading-4 text-slate-900">{session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || handle}</span>
+                                    <span className="truncate text-[13px] font-black leading-4 text-slate-900">{session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || handle}</span>
                                     <span
                                         title={connected ? "Connected" : "Disconnected"}
                                         className={cx(
@@ -1600,7 +1600,7 @@ function Sidebar({
                                         <Power className="h-3.5 w-3.5 stroke-[3]" />
                                     </span>
                                 </div>
-                                <div className="truncate text-2xs font-bold leading-4 text-slate-500">{session?.user?.email}</div>
+                                <div className="truncate text-[11px] font-bold leading-4 text-slate-500">{session?.user?.email}</div>
                             </div>
                             <ChevronDown className={cx("h-4 w-4 shrink-0 text-slate-400 transition", profilePanelOpen && "rotate-180", hideOnCollapse)} />
                         </div>
@@ -1613,13 +1613,13 @@ function Sidebar({
                                 <button
                                     type="button"
                                     onClick={() => { setProfilePanelOpen(false); onNavigate("settings"); }}
-                                    className="flex w-full items-center gap-2.5 rounded-control px-2.5 py-2 text-left text-sm font-bold text-slate-900 transition hover:bg-slate-50"
+                                    className="flex w-full items-center gap-2.5 rounded-control px-2.5 py-2 text-left text-[13px] font-bold text-slate-900 transition hover:bg-slate-50"
                                 >
                                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 text-slate-600"><User className="h-4 w-4" /></span>
                                     View profile
                                 </button>
                                 {connected ? (
-                                    <div className="flex w-full items-center justify-between gap-2.5 rounded-control px-2.5 py-2 text-left text-sm font-bold text-slate-900">
+                                    <div className="flex w-full items-center justify-between gap-2.5 rounded-control px-2.5 py-2 text-left text-[13px] font-bold text-slate-900">
                                         <span className="flex items-center gap-2.5">
                                             <span className={cx("flex h-7 w-7 items-center justify-center rounded-full", botEnabled ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400")}><Power className="h-4 w-4" /></span>
                                             Automations {botEnabled ? "on" : "off"}
@@ -1630,7 +1630,7 @@ function Sidebar({
                                     <button
                                         type="button"
                                         onClick={() => { setProfilePanelOpen(false); onConnect(); }}
-                                        className="flex w-full items-center gap-2.5 rounded-control px-2.5 py-2 text-left text-sm font-bold text-slate-900 transition hover:bg-slate-50"
+                                        className="flex w-full items-center gap-2.5 rounded-control px-2.5 py-2 text-left text-[13px] font-bold text-slate-900 transition hover:bg-slate-50"
                                     >
                                         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-soft text-brand"><Instagram className="h-4 w-4" /></span>
                                         Add Instagram account
@@ -1649,7 +1649,7 @@ function Sidebar({
                             onClick={() => onNavigate(item.key)}
                             title={collapsed ? item.label : undefined}
                             className={cx(
-                                "flex min-h-[38px] w-full items-center gap-2.5 rounded-full px-3 text-left text-sm font-semibold transition-all",
+                                "flex min-h-[38px] w-full items-center gap-2.5 rounded-full px-3 text-left text-[14px] font-black transition-all",
                                 collapsed && "lg:justify-center lg:px-0",
                                 activeTab === item.key
                                     ? "bg-slate-900 text-white shadow-rest"
@@ -1672,7 +1672,7 @@ function Sidebar({
                         <button
                             onClick={onUpgrade}
                             title={collapsed ? "Upgrade to Pro" : undefined}
-                            className={cx("flex h-10 w-full items-center justify-center gap-1.5 rounded-full px-3 text-sm font-semibold", collapsed && "lg:px-0", goldCtaCls)}
+                            className={cx("flex h-10 w-full items-center justify-center gap-1.5 rounded-full px-3 text-[13px] font-black", collapsed && "lg:px-0", goldCtaCls)}
                         >
                             <Crown className={cx("h-4 w-4", goldCrownCls)} />
                             <span className={hideOnCollapse}>
@@ -1685,7 +1685,7 @@ function Sidebar({
                         </button>
                     )}
                     <div className={cx("flex gap-1.5", collapsed && "lg:flex-col lg:items-center")}>
-                        <button onClick={onLogout} title={collapsed ? "Logout" : undefined} className={cx("flex h-9 flex-1 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600", collapsed && "lg:px-0")}>
+                        <button onClick={onLogout} title={collapsed ? "Logout" : undefined} className={cx("flex h-9 flex-1 items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 text-[13px] font-black text-slate-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600", collapsed && "lg:px-0")}>
                             <LogOut className="h-4 w-4" /> <span className={hideOnCollapse}>Logout</span>
                         </button>
                         <ThemeToggle className="h-9 w-9 shrink-0" />
@@ -1715,11 +1715,11 @@ function SidebarPlanCompact({ usage, accountPlan, proOffer, onUpgrade }: { usage
                 aria-expanded={expanded}
             >
                 <div>
-                    <p className="text-xs font-semibold leading-4 text-slate-900">{planLabel} plan</p>
-                    <p className="text-2xs font-bold leading-3 text-slate-500">Plan & usage</p>
+                    <p className="text-[12px] font-black leading-4 text-slate-900">{planLabel} plan</p>
+                    <p className="text-[10px] font-bold leading-3 text-slate-500">Plan & usage</p>
                 </div>
                 <span className="flex items-center gap-1.5">
-                    <span className={cx("inline-flex h-6 items-center rounded-full bg-white px-2 text-2xs font-semibold ring-1", isPro ? "text-emerald-700 ring-emerald-100" : isPaymentPending ? "text-amber-700 ring-amber-100" : "text-slate-500 ring-slate-200")}>{planLabel}</span>
+                    <span className={cx("inline-flex h-6 items-center rounded-full bg-white px-2 text-[10px] font-black ring-1", isPro ? "text-emerald-700 ring-emerald-100" : isPaymentPending ? "text-amber-700 ring-amber-100" : "text-slate-500 ring-slate-200")}>{planLabel}</span>
                     <ChevronDown className={cx("h-4 w-4 text-slate-400 transition-transform duration-200", expanded && "rotate-180")} />
                 </span>
             </button>
@@ -1737,18 +1737,18 @@ function SidebarPlanCompact({ usage, accountPlan, proOffer, onUpgrade }: { usage
                     </div>
 
                     {isPro ? (
-                        <div className="mt-2 rounded-control bg-emerald-50 px-2.5 py-2 text-2xs font-bold leading-4 text-emerald-700 ring-1 ring-emerald-100">
-                            <span className="font-bold">Pro active.</span> {renewalLabel ? `Renews on ${renewalLabel}.` : "All Pro features unlocked."}
+                        <div className="mt-2 rounded-control bg-emerald-50 px-2.5 py-2 text-[10.5px] font-bold leading-4 text-emerald-700 ring-1 ring-emerald-100">
+                            <span className="font-black">Pro active.</span> {renewalLabel ? `Renews on ${renewalLabel}.` : "All Pro features unlocked."}
                         </div>
                     ) : (
                         <>
-                            <p className="mt-2 text-2xs font-bold leading-4 text-slate-500">
-                                <span className="font-bold text-slate-900">{isPaymentPending ? "Payment pending." : "Unlock Pro."}</span> {isPaymentPending ? "Complete payment to unlock Pro." : `${proOffer.eligible ? `First month ${formatPrice(proOffer.currency, proOffer.amount)}. ` : ""}More DMs, unlimited contacts & Pro tools.`}
+                            <p className="mt-2 text-[10.5px] font-bold leading-4 text-slate-500">
+                                <span className="font-black text-slate-900">{isPaymentPending ? "Payment pending." : "Unlock Pro."}</span> {isPaymentPending ? "Complete payment to unlock Pro." : `${proOffer.eligible ? `First month ${formatPrice(proOffer.currency, proOffer.amount)}. ` : ""}More DMs, unlimited contacts & Pro tools.`}
                             </p>
 
                             <button
                                 onClick={onUpgrade}
-                                className={cx("mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-full px-3 text-xs font-semibold", goldCtaCls)}
+                                className={cx("mt-2 flex h-8 w-full items-center justify-center gap-1.5 rounded-full px-3 text-[12px] font-black", goldCtaCls)}
                             >
                                 <Crown className={cx("h-3.5 w-3.5", goldCrownCls)} />
                                 {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade now"}
@@ -1764,12 +1764,12 @@ function SidebarPlanCompact({ usage, accountPlan, proOffer, onUpgrade }: { usage
 function CompactUsageLine({ icon, label, value, progress }: { icon: ReactNode; label: string; value: string; progress: number }) {
     return (
         <div>
-            <div className="mb-1 flex items-center justify-between gap-2 text-2xs font-bold text-slate-500">
+            <div className="mb-1 flex items-center justify-between gap-2 text-[11px] font-bold text-slate-500">
                 <span className="inline-flex items-center gap-1.5">
                     <span className="text-brand">{icon}</span>
                     {label}
                 </span>
-                <span className="font-bold text-slate-900">{value}</span>
+                <span className="font-black text-slate-900">{value}</span>
             </div>
             <div className="h-1 rounded-full bg-white">
                 <div className="h-full rounded-full bg-brand" style={{ width: `${progress}%` }} />
@@ -1820,7 +1820,7 @@ function HomePage({
                 <div className="relative space-y-4">
                     <div>
                         <div className="flex items-center gap-2">
-                            <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">Welcome back, {ownerName} 👋</h1>
+                            <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[30px]">Welcome back, {ownerName} 👋</h1>
                             <TourReplayButton tourKey="home" />
                         </div>
                         <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-slate-500">
@@ -1835,7 +1835,7 @@ function HomePage({
                     ) : (
                         <button
                             onClick={onUpgrade}
-                            className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-control px-5 text-sm font-semibold", goldCtaCls)}
+                            className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-control px-5 text-sm font-black", goldCtaCls)}
                         >
                             <Crown className={cx("h-4 w-4", goldCrownCls)} />
                             {accountPlan.subscriptionStatus === "payment_pending" ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}
@@ -1866,8 +1866,8 @@ function ProFeaturesShowcase({ onNavigate }: { onNavigate: (tab: Tab) => void })
                     <Crown className={cx("h-4 w-4", goldCrownCls)} />
                 </span>
                 <div>
-                    <h3 className="text-sm font-semibold text-slate-900">Your Pro features</h3>
-                    <p className="text-2xs font-bold text-gold-deep">Jump to advanced tools unlocked with your plan.</p>
+                    <h3 className="text-sm font-black text-slate-900">Your Pro features</h3>
+                    <p className="text-[11px] font-bold text-gold-deep">Jump to advanced tools unlocked with your plan.</p>
                 </div>
             </div>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -1881,11 +1881,11 @@ function ProFeaturesShowcase({ onNavigate }: { onNavigate: (tab: Tab) => void })
                             {feature.icon}
                         </span>
                         <div className="min-w-0 flex-1">
-                            <p className="flex items-center gap-1 text-sm font-semibold text-slate-900">
+                            <p className="flex items-center gap-1 text-[13px] font-black text-slate-900">
                                 {feature.title}
                                 <ArrowRight className="h-3.5 w-3.5 text-gold-deep transition group-hover:translate-x-0.5" />
                             </p>
-                            <p className="mt-0.5 text-2xs font-semibold leading-4 text-slate-500">{feature.copy}</p>
+                            <p className="mt-0.5 text-[11px] font-semibold leading-4 text-slate-500">{feature.copy}</p>
                         </div>
                     </button>
                 ))}
@@ -1915,8 +1915,8 @@ function HomeStartHereChecklist({ connected, activeTriggers, leadsCollected, onN
                     <CheckCircle2 className="h-4 w-4" />
                 </span>
                 <div className="min-w-0 shrink-0">
-                    <p className="text-2xs font-semibold uppercase tracking-[0.12em] text-slate-400">Start Here</p>
-                    <p className="text-xs font-semibold text-slate-900">{complete} of {steps.length} completed</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">Start Here</p>
+                    <p className="text-xs font-black text-slate-900">{complete} of {steps.length} completed</p>
                 </div>
                 <div className="hidden h-1.5 w-24 shrink-0 overflow-hidden rounded-full bg-slate-100 sm:block">
                     <div className="h-full rounded-full bg-brand transition-all duration-300" style={{ width: `${progress}%` }} />
@@ -1930,7 +1930,7 @@ function HomeStartHereChecklist({ connected, activeTriggers, leadsCollected, onN
                                 onClick={step.go}
                                 disabled={step.done}
                                 className={cx(
-                                    "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-2xs font-semibold transition",
+                                    "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-black transition",
                                     step.done ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100" : "bg-slate-50 text-slate-600 ring-1 ring-slate-100 hover:bg-slate-100"
                                 )}
                             >
@@ -1946,7 +1946,7 @@ function HomeStartHereChecklist({ connected, activeTriggers, leadsCollected, onN
                 <button
                     type="button"
                     onClick={() => (nextStep ?? steps[0]).go()}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-full bg-slate-950 px-3 py-1.5 text-2xs font-semibold text-white transition hover:bg-slate-800"
+                    className="inline-flex shrink-0 items-center gap-1 rounded-full bg-slate-950 px-3 py-1.5 text-[11px] font-black text-white transition hover:bg-slate-800"
                 >
                     Continue <ArrowRight className="h-3 w-3" />
                 </button>
@@ -1959,8 +1959,8 @@ function SectionHeading({ title, subtitle, action }: { title: string; subtitle?:
     return (
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-                <h2 className="text-lg font-bold tracking-tight text-slate-900">{title}</h2>
-                {subtitle && <p className="mt-0.5 text-sm font-semibold leading-5 text-slate-500">{subtitle}</p>}
+                <h2 className="text-[18px] font-black tracking-tight text-slate-900">{title}</h2>
+                {subtitle && <p className="mt-0.5 text-[13px] font-semibold leading-5 text-slate-500">{subtitle}</p>}
             </div>
             {action}
         </div>
@@ -1983,7 +1983,7 @@ function QuickActionGrid({
             <SectionHeading
                 title="Quick Actions"
                 subtitle="Choose the outcome you want, then launch the right Instagram automation."
-                action={<span className="inline-flex h-7 items-center rounded-full bg-white px-3 text-2xs font-semibold text-slate-500 ring-1 ring-slate-200">4 starter flows</span>}
+                action={<span className="inline-flex h-7 items-center rounded-full bg-white px-3 text-[11px] font-black text-slate-500 ring-1 ring-slate-200">4 starter flows</span>}
             />
 
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -2013,7 +2013,7 @@ function QuickActionGrid({
                             <span className="flex items-center gap-1.5">
                                 {action.badge && (
                                     <span className={cx(
-                                        "inline-flex h-5 items-center rounded-full px-2 text-2xs font-semibold uppercase tracking-[0.06em] ring-1",
+                                        "inline-flex h-5 items-center rounded-full px-2 text-[9px] font-black uppercase tracking-[0.06em] ring-1",
                                         action.badge === "Popular"
                                             ? "bg-orange-50 text-orange-600 ring-orange-100"
                                             : "bg-pink-50 text-pink-600 ring-pink-100"
@@ -2026,16 +2026,16 @@ function QuickActionGrid({
                         </div>
 
                         <div className="min-h-0 flex-1">
-                            <h3 className="text-base font-semibold leading-5 tracking-tight text-slate-900">{action.title}</h3>
-                            <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-5 text-slate-500">{action.copy}</p>
+                            <h3 className="text-[16px] font-black leading-5 tracking-tight text-slate-900">{action.title}</h3>
+                            <p className="mt-1.5 line-clamp-2 text-[12px] font-semibold leading-5 text-slate-500">{action.copy}</p>
                         </div>
 
                         <div className="mt-3 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
                             <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                                <span className="inline-flex h-6 items-center rounded-full bg-slate-50 px-2 text-2xs font-semibold text-slate-500 ring-1 ring-slate-100">{action.intent}</span>
-                                <span className={cx("inline-flex h-6 items-center rounded-full px-2 text-2xs font-semibold ring-1", action.featured ? "bg-amber-50 text-amber-700 ring-amber-100" : "bg-brand-soft text-brand ring-brand/15")}>{action.setup}</span>
+                                <span className="inline-flex h-6 items-center rounded-full bg-slate-50 px-2 text-[10px] font-black text-slate-500 ring-1 ring-slate-100">{action.intent}</span>
+                                <span className={cx("inline-flex h-6 items-center rounded-full px-2 text-[10px] font-black ring-1", action.featured ? "bg-amber-50 text-amber-700 ring-amber-100" : "bg-brand-soft text-brand ring-brand/15")}>{action.setup}</span>
                             </div>
-                            <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-semibold text-brand">
+                            <span className="inline-flex shrink-0 items-center gap-1.5 text-[12px] font-black text-brand">
                                 {locked ? "Upgrade to Pro" : action.cta}
                                 {locked ? <Lock className="h-3.5 w-3.5" /> : <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />}
                             </span>
@@ -2100,14 +2100,14 @@ function MetricGrid({ stats, leadsCollected, activity = [], accountCreatedAt }: 
         <section data-tour="home-performance" className="overflow-visible rounded-card border border-white bg-white p-5 shadow-rest">
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                    <h2 className="text-lg font-bold tracking-tight text-slate-900">Performance snapshot</h2>
-                    <p className="mt-0.5 text-sm font-semibold leading-5 text-slate-500">The numbers that matter most for your Instagram automation.</p>
+                    <h2 className="text-[18px] font-black tracking-tight text-slate-900">Performance snapshot</h2>
+                    <p className="mt-0.5 text-[13px] font-semibold leading-5 text-slate-500">The numbers that matter most for your Instagram automation.</p>
                 </div>
                 <div className="relative">
                     <button
                         type="button"
                         onClick={() => setPickerOpen((value) => !value)}
-                        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-[12px] font-black text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
                         aria-haspopup="listbox"
                         aria-expanded={pickerOpen}
                     >
@@ -2128,7 +2128,7 @@ function MetricGrid({ stats, leadsCollected, activity = [], accountCreatedAt }: 
                                                 disabled={disabled}
                                                 onClick={() => { if (!disabled) { setRange(option.key); setPickerOpen(false); } }}
                                                 className={cx(
-                                                    "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-xs font-semibold transition",
+                                                    "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[12px] font-black transition",
                                                     disabled
                                                         ? "cursor-not-allowed text-slate-300"
                                                         : range === option.key
@@ -2200,8 +2200,8 @@ function MetricCell({
                         {metric.icon}
                     </span>
                 </div>
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{metric.label}</p>
-                <h3 className="mt-1 text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">{metric.value}</h3>
+                <p className="text-[12px] font-black uppercase tracking-[0.08em] text-slate-400">{metric.label}</p>
+                <h3 className="mt-1 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">{metric.value}</h3>
             </div>
 
             {hovered && (
@@ -2216,11 +2216,11 @@ function MetricCell({
                                 {metric.icon}
                             </span>
                             <div>
-                                <p className="text-2xs font-semibold uppercase tracking-[0.1em] text-slate-400">{rangeLabel}</p>
-                                <p className="text-sm font-semibold text-slate-900">{metric.label}</p>
+                                <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">{rangeLabel}</p>
+                                <p className="text-[13px] font-black text-slate-900">{metric.label}</p>
                             </div>
                         </div>
-                        <p className="text-lg font-bold text-slate-950">{metric.value}</p>
+                        <p className="text-lg font-black text-slate-950">{metric.value}</p>
                     </div>
 
                     {/* Growth trend chart available on Pro in the Analytics tab. Hidden on home; code preserved. */}
@@ -2237,7 +2237,7 @@ function MetricCell({
                                     </LineChart>
                                 </ResponsiveContainer>
                             ) : (
-                                <div className="flex h-full items-center justify-center rounded-control bg-slate-50 text-2xs font-bold text-slate-400">
+                                <div className="flex h-full items-center justify-center rounded-control bg-slate-50 text-[11px] font-bold text-slate-400">
                                     Trend history unavailable
                                 </div>
                             )}
@@ -2245,18 +2245,18 @@ function MetricCell({
                     )}
 
                     <div className="mt-3">
-                        <p className="text-2xs font-semibold uppercase tracking-[0.1em] text-slate-400">Recent</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Recent</p>
                         {metric.entries.length ? (
                             <ul className="mt-1.5 space-y-1">
                                 {metric.entries.slice(0, 5).map((item) => (
-                                    <li key={item.id} className="flex items-center justify-between gap-2 rounded-control bg-slate-50 px-2 py-1.5 text-2xs">
-                                        <span className="min-w-0 truncate font-bold text-slate-700">@{item.user}</span>
+                                    <li key={item.id} className="flex items-center justify-between gap-2 rounded-control bg-slate-50 px-2 py-1.5 text-[11px]">
+                                        <span className="min-w-0 truncate font-black text-slate-700">@{item.user}</span>
                                         <span className="shrink-0 font-bold text-slate-400">{item.time}</span>
                                     </li>
                                 ))}
                             </ul>
                         ) : (
-                            <p className="mt-1.5 rounded-control bg-slate-50 px-2 py-2 text-center text-2xs font-bold text-slate-400">No recent entries for this metric.</p>
+                            <p className="mt-1.5 rounded-control bg-slate-50 px-2 py-2 text-center text-[11px] font-bold text-slate-400">No recent entries for this metric.</p>
                         )}
                     </div>
                 </div>
@@ -2384,12 +2384,12 @@ function QuickDock({ activity, onNavigate }: { activity: LogEntry[]; onNavigate:
                     aria-label="Recent activity"
                     aria-haspopup="dialog"
                     aria-expanded={open}
-                    className="relative flex h-9 items-center gap-2 rounded-control px-3 text-xs font-semibold text-white transition hover:bg-white/10"
+                    className="relative flex h-9 items-center gap-2 rounded-control px-3 text-[12px] font-black text-white transition hover:bg-white/10"
                 >
                     <Activity className="h-4 w-4" />
                     <span className="hidden sm:inline">Activity</span>
                     {unseenCount > 0 && (
-                        <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-2xs font-semibold text-white ring-2 ring-slate-900">
+                        <span className="absolute -right-1.5 -top-1.5 inline-flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-black text-white ring-2 ring-slate-900">
                             {formatActivityCount(unseenCount)}
                         </span>
                     )}
@@ -2410,7 +2410,7 @@ function QuickDock({ activity, onNavigate }: { activity: LogEntry[]; onNavigate:
                     <button
                         type="button"
                         onClick={goToInbox}
-                        className="h-9 w-full rounded-control bg-slate-900 text-xs font-semibold text-white transition hover:bg-slate-800"
+                        className="h-9 w-full rounded-control bg-slate-900 text-[12px] font-black text-white transition hover:bg-slate-800"
                     >
                         View inbox
                     </button>
@@ -2429,10 +2429,10 @@ function QuickDock({ activity, onNavigate }: { activity: LogEntry[]; onNavigate:
                                         {item.status === "sent" ? <Send className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}
                                     </span>
                                     <div className="min-w-0 flex-1">
-                                        <p className="truncate text-xs font-semibold text-slate-900">{item.status === "sent" ? "DM sent" : "Failed DM"} to {item.user}</p>
-                                        <p className="truncate text-2xs font-semibold text-slate-500">Trigger: <span className="font-bold text-slate-700">{item.trigger || item.keyword}</span></p>
+                                        <p className="truncate text-[12px] font-black text-slate-900">{item.status === "sent" ? "DM sent" : "Failed DM"} to {item.user}</p>
+                                        <p className="truncate text-[11px] font-semibold text-slate-500">Trigger: <span className="font-black text-slate-700">{item.trigger || item.keyword}</span></p>
                                     </div>
-                                    <span className="shrink-0 text-2xs font-bold text-slate-400">{item.time}</span>
+                                    <span className="shrink-0 text-[10px] font-bold text-slate-400">{item.time}</span>
                                 </button>
                             </li>
                         ))}
@@ -2440,7 +2440,7 @@ function QuickDock({ activity, onNavigate }: { activity: LogEntry[]; onNavigate:
                 ) : (
                     <div className="px-3 py-6 text-center">
                         <Activity className="mx-auto h-5 w-5 text-slate-300" />
-                        <p className="mt-2 text-xs font-bold text-slate-500">No recent activity yet.</p>
+                        <p className="mt-2 text-[12px] font-bold text-slate-500">No recent activity yet.</p>
                     </div>
                 )}
             </Drawer>
@@ -2622,7 +2622,7 @@ function AutomationsPage(props: {
                                 key={item.key}
                                 onClick={() => setViewMode(item.key)}
                                 className={cx(
-                                    "inline-flex h-9 items-center gap-1.5 rounded-control px-3 text-xs font-semibold transition",
+                                    "inline-flex h-9 items-center gap-1.5 rounded-control px-3 text-xs font-black transition",
                                     viewMode === item.key ? "bg-white text-slate-900 shadow-rest" : "text-slate-500 hover:text-slate-900"
                                 )}
                             >
@@ -2637,7 +2637,7 @@ function AutomationsPage(props: {
             {props.flows.length > 0 && (
                 <Panel
                     title="Visual flows"
-                    action={<button onClick={() => props.onOpenFlowBuilder()} className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand transition hover:text-brand-hover"><Plus className="h-3.5 w-3.5" /> New flow</button>}
+                    action={<button onClick={() => props.onOpenFlowBuilder()} className="inline-flex items-center gap-1.5 text-xs font-black text-brand transition hover:text-brand-hover"><Plus className="h-3.5 w-3.5" /> New flow</button>}
                 >
                     <div className="space-y-2.5">
                         {props.flows.map((flow) => (
@@ -2646,12 +2646,12 @@ function AutomationsPage(props: {
                                     <Workflow className="h-5 w-5" />
                                 </span>
                                 <button onClick={() => props.onOpenFlowBuilder(flow.id)} className="min-w-0 flex-1 text-left">
-                                    <p className="truncate text-sm font-semibold text-slate-900">{flow.name}</p>
-                                    <p className="mt-0.5 truncate text-2xs font-semibold text-slate-500">
+                                    <p className="truncate text-sm font-black text-slate-900">{flow.name}</p>
+                                    <p className="mt-0.5 truncate text-[11px] font-semibold text-slate-500">
                                         {flow.triggerType || "No trigger"} · {flow.nodeCount} block{flow.nodeCount === 1 ? "" : "s"}
                                     </p>
                                 </button>
-                                <span className={cx("hidden rounded-full px-2.5 py-1 text-2xs font-semibold uppercase tracking-wide sm:inline-flex", flow.enabled ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500")}>
+                                <span className={cx("hidden rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide sm:inline-flex", flow.enabled ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500")}>
                                     {flow.enabled ? "Live" : "Draft"}
                                 </span>
                                 <ToggleSwitch active={flow.enabled} onClick={() => props.onToggleFlow(flow.id)} label="Toggle flow" />
@@ -2673,18 +2673,18 @@ function AutomationsPage(props: {
                         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-card bg-rose-50 text-rose-600 ring-1 ring-rose-100">
                             <Trash2 className="h-6 w-6" />
                         </span>
-                        <h3 className="mt-4 text-lg font-bold text-slate-900">Delete “{flowDeleteTarget.name}”?</h3>
+                        <h3 className="mt-4 text-lg font-black text-slate-900">Delete “{flowDeleteTarget.name}”?</h3>
                         <p className="mt-1.5 text-sm font-semibold text-slate-500">This removes the flow and its steps. This can’t be undone.</p>
                         <div className="mt-5 flex gap-2.5">
                             <button
                                 onClick={() => setFlowDeleteTarget(null)}
-                                className="flex flex-1 items-center justify-center rounded-control border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
+                                className="flex flex-1 items-center justify-center rounded-control border border-slate-200 px-4 py-2.5 text-sm font-black text-slate-900 transition hover:bg-slate-50"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={() => { props.onDeleteFlow(flowDeleteTarget.id); setFlowDeleteTarget(null); }}
-                                className="flex flex-1 items-center justify-center gap-1.5 rounded-control bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-700"
+                                className="flex flex-1 items-center justify-center gap-1.5 rounded-control bg-rose-600 px-4 py-2.5 text-sm font-black text-white transition hover:bg-rose-700"
                             >
                                 <Trash2 className="h-4 w-4" /> Delete flow
                             </button>
@@ -2693,7 +2693,7 @@ function AutomationsPage(props: {
                 </ModalShell>
             )}
 
-            <Panel title="Workflows" action={<button onClick={startCreation} className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand transition hover:text-brand-hover"><Plus className="h-3.5 w-3.5" /> New flow</button>}>
+            <Panel title="Workflows" action={<button onClick={startCreation} className="inline-flex items-center gap-1.5 text-xs font-black text-brand transition hover:text-brand-hover"><Plus className="h-3.5 w-3.5" /> New flow</button>}>
                 {!hasAutomations ? (
                     <EmptyState icon={<Bot className="h-6 w-6" />} title="Create your first automation" copy="Turn Instagram comments, story replies, and DMs into automatic conversations. Pick a template or start from scratch." action="Create your first automation" onAction={startCreation} />
                 ) : visibleTriggers.length ? (
@@ -2755,7 +2755,7 @@ function AutomationCreationEntry({ onBack, onTemplate, onScratch, onFlow }: { on
                     <ArrowRight className="h-4 w-4 rotate-180" />
                 </button>
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-[28px]">Create a new automation</h1>
+                    <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[28px]">Create a new automation</h1>
                     <p className="mt-1 text-sm font-semibold text-slate-500">How would you like to start?</p>
                 </div>
             </div>
@@ -2769,8 +2769,8 @@ function AutomationCreationEntry({ onBack, onTemplate, onScratch, onFlow }: { on
                 </span>
                 <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2">
-                        <h2 className="text-xl font-bold text-slate-900">Visual flow builder</h2>
-                        <span className="rounded-full bg-white/70 px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-brand ring-1 ring-brand/20">New</span>
+                        <h2 className="text-xl font-black text-slate-900">Visual flow builder</h2>
+                        <span className="rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-brand ring-1 ring-brand/20">New</span>
                     </span>
                     <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">Design multi-step conversations on a canvas — messages, buttons, conditions and delays. The most powerful way to build.</p>
                 </span>
@@ -2785,9 +2785,9 @@ function AutomationCreationEntry({ onBack, onTemplate, onScratch, onFlow }: { on
                     <span className="flex h-14 w-14 items-center justify-center rounded-card bg-brand-soft text-brand">
                         <Sparkles className="h-7 w-7" />
                     </span>
-                    <h2 className="mt-5 text-xl font-bold text-slate-900">Use a template</h2>
+                    <h2 className="mt-5 text-xl font-black text-slate-900">Use a template</h2>
                     <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">Pick a ready-made setup and we will fill in the details for you. Best if you are just getting started.</p>
-                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand">
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-black text-brand">
                         Browse templates <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                     </span>
                 </button>
@@ -2799,9 +2799,9 @@ function AutomationCreationEntry({ onBack, onTemplate, onScratch, onFlow }: { on
                     <span className="flex h-14 w-14 items-center justify-center rounded-card bg-slate-100 text-slate-900">
                         <Wand2 className="h-7 w-7" />
                     </span>
-                    <h2 className="mt-5 text-xl font-bold text-slate-900">Start from scratch</h2>
+                    <h2 className="mt-5 text-xl font-black text-slate-900">Start from scratch</h2>
                     <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">Build your automation step by step with a blank setup. Best if you know exactly what you want.</p>
-                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand">
+                    <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-black text-brand">
                         Start building <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                     </span>
                 </button>
@@ -2839,7 +2839,7 @@ function AutomationTemplatePicker({
                         <ArrowRight className="h-4 w-4 rotate-180" />
                     </button>
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-[28px]">Choose a template</h1>
+                        <h1 className="text-[24px] font-black tracking-tight text-slate-950 sm:text-[28px]">Choose a template</h1>
                         <p className="mt-1 text-sm font-semibold text-slate-500">Pick a starting point. You can change everything later.</p>
                     </div>
                 </div>
@@ -2850,7 +2850,7 @@ function AutomationTemplatePicker({
 
             {matches.length === 0 ? (
                 <div className="rounded-card border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
-                    <p className="text-sm font-semibold text-slate-900">No templates match your search</p>
+                    <p className="text-sm font-black text-slate-900">No templates match your search</p>
                     <p className="mt-1 text-xs font-semibold text-slate-500">Try another keyword, or start from scratch.</p>
                 </div>
             ) : (
@@ -2858,8 +2858,8 @@ function AutomationTemplatePicker({
                     {freeTemplates.length > 0 && (
                         <div>
                             <div className="mb-3 flex items-center gap-2">
-                                <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-400">Free templates</h2>
-                                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-2xs font-semibold text-slate-500">{freeTemplates.length}</span>
+                                <h2 className="text-sm font-black uppercase tracking-[0.12em] text-slate-400">Free templates</h2>
+                                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-500">{freeTemplates.length}</span>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 {freeTemplates.map((template) => (
@@ -2872,8 +2872,8 @@ function AutomationTemplatePicker({
                         <div>
                             <div className="mb-3 flex items-center gap-2">
                                 <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                                <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-gold-deep">Pro templates</h2>
-                                <span className="rounded-full bg-gold-soft px-2 py-0.5 text-2xs font-semibold text-gold-deep ring-1 ring-gold/50">{proTemplates.length}</span>
+                                <h2 className="text-sm font-black uppercase tracking-[0.12em] text-gold-deep">Pro templates</h2>
+                                <span className="rounded-full bg-gold-soft px-2 py-0.5 text-[10px] font-black text-gold-deep ring-1 ring-gold/50">{proTemplates.length}</span>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 {proTemplates.map((template) => (
@@ -2895,13 +2895,13 @@ function ConfirmAutomationDeleteModal({ trigger, onCancel, onConfirm }: { trigge
                 <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-card bg-rose-50 text-rose-600 ring-1 ring-rose-100">
                     <Trash2 className="h-6 w-6" />
                 </span>
-                <h2 className="mt-5 text-2xl font-bold text-slate-900">Delete automation?</h2>
+                <h2 className="mt-5 text-2xl font-black text-slate-900">Delete automation?</h2>
                 <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
                     Auto DM for “{trigger.keyword}” will be removed from this dashboard preview. This action cannot be undone here.
                 </p>
                 <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
                     <SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
-                    <button onClick={onConfirm} className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-rose-600 px-5 text-sm font-semibold text-white transition hover:bg-rose-700">
+                    <button onClick={onConfirm} className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-rose-600 px-5 text-sm font-black text-white transition hover:bg-rose-700">
                         <Trash2 className="h-4 w-4" /> Delete
                     </button>
                 </div>
@@ -2917,13 +2917,13 @@ function ConfirmInstagramDisconnectModal({ onCancel, onConfirm }: { onCancel: ()
                 <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-card bg-amber-50 text-amber-600 ring-1 ring-amber-100">
                     <Instagram className="h-6 w-6" />
                 </span>
-                <h2 className="mt-5 text-2xl font-bold text-slate-900">Disconnect Instagram?</h2>
+                <h2 className="mt-5 text-2xl font-black text-slate-900">Disconnect Instagram?</h2>
                 <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
                     DMGennie will stop sending automation messages until you reconnect this Instagram account.
                 </p>
                 <div className="mt-6 flex flex-col-reverse justify-center gap-2 sm:flex-row">
                     <SecondaryButton onClick={onCancel}>Cancel</SecondaryButton>
-                    <button onClick={onConfirm} className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-rose-600 px-5 text-sm font-semibold text-white transition hover:bg-rose-700">
+                    <button onClick={onConfirm} className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-rose-600 px-5 text-sm font-black text-white transition hover:bg-rose-700">
                         Disconnect
                     </button>
                 </div>
@@ -2940,12 +2940,12 @@ function UpgradeModal({ proOffer, onClose, onUpgrade }: { proOffer: ProOfferData
                 <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-card bg-gold-soft text-gold-deep ring-1 ring-gold/50">
                     <Crown className="h-8 w-8 fill-gold-deep" />
                 </span>
-                <h2 className="mt-5 text-2xl font-bold text-slate-900">Unlock Pro</h2>
+                <h2 className="mt-5 text-2xl font-black text-slate-900">Unlock Pro</h2>
                 <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
                     Get 20,000 DMs, unlimited contacts, exports, and advanced analytics.
                 </p>
                 <div className="mx-auto mt-5 max-w-md rounded-card border border-amber-100 bg-amber-50/70 p-3 text-left">
-                    <p className="text-sm font-semibold text-slate-900">{isPaymentPending ? "Payment pending" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}</p>
+                    <p className="text-sm font-black text-slate-900">{isPaymentPending ? "Payment pending" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}</p>
                     <p className="mt-1 text-xs font-bold leading-5 text-slate-500">
                         {isPaymentPending ? "Complete payment to unlock Pro features." : proOffer.eligible ? `First month only. Then ${formatPrice(proOffer.currency, proOffer.renewalMonthly)}/month.` : "Unlock higher DM limits and Pro-only workflows."}
                     </p>
@@ -2954,7 +2954,7 @@ function UpgradeModal({ proOffer, onClose, onUpgrade }: { proOffer: ProOfferData
                     <SecondaryButton onClick={onClose}>Maybe later</SecondaryButton>
                     <button
                         onClick={onUpgrade}
-                        className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-control px-5 text-sm font-semibold", goldCtaCls)}
+                        className={cx("inline-flex h-11 items-center justify-center gap-2 rounded-control px-5 text-sm font-black", goldCtaCls)}
                     >
                         <Crown className={cx("h-4 w-4", goldCrownCls)} />
                         {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}
@@ -2975,11 +2975,11 @@ function AutomationMiniUpgradeStrip({ onUpgrade, proOffer }: { onUpgrade: () => 
                         <Sparkles className="h-5 w-5" />
                     </span>
                     <div>
-                        <h2 className="text-sm font-semibold text-slate-900">Unlock Pro Power</h2>
+                        <h2 className="text-sm font-black text-slate-900">Unlock Pro Power</h2>
                         <p className="text-xs font-semibold text-gold-deep">{isPaymentPending ? "Payment pending. Complete payment to unlock Pro." : proOffer.eligible ? `First month only. Then ${formatPrice(proOffer.currency, proOffer.renewalMonthly)}/month.` : "Get 20,000 DMs, exports, and advanced analytics."}</p>
                     </div>
                 </div>
-                <button onClick={onUpgrade} className={cx("inline-flex h-9 items-center justify-center gap-2 rounded-full px-4 text-xs font-semibold", goldCtaCls)}>
+                <button onClick={onUpgrade} className={cx("inline-flex h-9 items-center justify-center gap-2 rounded-full px-4 text-xs font-black", goldCtaCls)}>
                     <Crown className={cx("h-3.5 w-3.5", goldCrownCls)} />
                     {isPaymentPending ? "Complete payment" : proOffer.eligible ? `Start Pro for ${formatPrice(proOffer.currency, proOffer.amount)}` : "Upgrade to Pro"}
                 </button>
@@ -3017,15 +3017,15 @@ function AutomationListRow({
                     <MessageCircle className="h-5 w-5" />
                 </span>
                 <div className="min-w-0">
-                    <h3 className="truncate text-sm font-semibold text-slate-900">Auto DM for "{trigger.keyword}"</h3>
+                    <h3 className="truncate text-sm font-black text-slate-900">Auto DM for "{trigger.keyword}"</h3>
                     <p className="mt-1 truncate text-xs font-semibold text-slate-500">{trigger.replyMessage}</p>
                 </div>
             </div>
             <AutomationDataPill label="Trigger" value={trigger.triggerType || "Comment keyword"} />
             <div className="min-w-0">
-                <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">Keywords</p>
+                <p className="text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">Keywords</p>
                 <div className="mt-1 flex min-w-0 flex-wrap gap-1.5">
-                    <span className="rounded-full bg-brand-soft px-2 py-1 text-2xs font-semibold text-brand ring-1 ring-brand/15">+{trigger.keyword}</span>
+                    <span className="rounded-full bg-brand-soft px-2 py-1 text-[10px] font-black text-brand ring-1 ring-brand/15">+{trigger.keyword}</span>
                 </div>
             </div>
             <AutomationDataPill label="DMs" value={dms.toLocaleString()} />
@@ -3078,11 +3078,11 @@ function AutomationGridCard({
                 </span>
                 <StatusBadge status={trigger.enabled ? "Live" : "Paused"} />
             </div>
-            <h3 className="text-sm font-semibold text-slate-900">Auto DM for "{trigger.keyword}"</h3>
+            <h3 className="text-sm font-black text-slate-900">Auto DM for "{trigger.keyword}"</h3>
             <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-5 text-slate-500">{trigger.replyMessage}</p>
             <div className="mt-3 flex flex-wrap gap-1.5">
-                <span className="rounded-full bg-brand-soft px-2 py-1 text-2xs font-semibold text-brand ring-1 ring-brand/15">+{trigger.keyword}</span>
-                <span className="rounded-full bg-slate-50 px-2 py-1 text-2xs font-semibold text-slate-500 ring-1 ring-slate-100">{trigger.triggerType || "Comment keyword"}</span>
+                <span className="rounded-full bg-brand-soft px-2 py-1 text-[10px] font-black text-brand ring-1 ring-brand/15">+{trigger.keyword}</span>
+                <span className="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-black text-slate-500 ring-1 ring-slate-100">{trigger.triggerType || "Comment keyword"}</span>
             </div>
             <div className="mt-auto grid grid-cols-3 gap-2 border-t border-slate-100 pt-3">
                 <AutomationDataPill label="DMs" value={dms.toLocaleString()} />
@@ -3090,11 +3090,11 @@ function AutomationGridCard({
                 <AutomationDataPill label="CTR" value={`${ctr}%`} muted />
             </div>
             <div className="mt-3 flex items-center justify-between">
-                <span className="text-xs font-semibold text-brand">Edit flow</span>
+                <span className="text-xs font-black text-brand">Edit flow</span>
                 <div className="flex gap-1">
-                    <button onClick={(event) => { event.stopPropagation(); onAnalytics(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-2xs font-semibold text-slate-600 transition hover:bg-slate-100">Analytics</button>
-                    <button onClick={(event) => { event.stopPropagation(); onDuplicate(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-2xs font-semibold text-slate-600 transition hover:bg-slate-100">Duplicate</button>
-                    <button onClick={(event) => { event.stopPropagation(); onToggle(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-2xs font-semibold text-slate-600 transition hover:bg-slate-100">
+                    <button onClick={(event) => { event.stopPropagation(); onAnalytics(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600 transition hover:bg-slate-100">Analytics</button>
+                    <button onClick={(event) => { event.stopPropagation(); onDuplicate(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600 transition hover:bg-slate-100">Duplicate</button>
+                    <button onClick={(event) => { event.stopPropagation(); onToggle(); }} className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-600 transition hover:bg-slate-100">
                         {trigger.enabled ? "Pause" : "Resume"}
                     </button>
                 </div>
@@ -3106,8 +3106,8 @@ function AutomationGridCard({
 function AutomationDataPill({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
     return (
         <div className="min-w-0">
-            <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <p className={cx("mt-0.5 truncate text-xs font-semibold", muted ? "text-slate-500" : "text-slate-900")}>{value}</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <p className={cx("mt-0.5 truncate text-xs font-black", muted ? "text-slate-500" : "text-slate-900")}>{value}</p>
         </div>
     );
 }
@@ -3133,11 +3133,11 @@ function TemplateCard({ template, accountPlan, onSelect, onUpgrade }: { template
                     {locked && <SmallBadge label="Pro" tone="gold" />}
                 </div>
             </div>
-            <h3 className="text-sm font-semibold text-slate-900">{template.title}</h3>
+            <h3 className="text-sm font-black text-slate-900">{template.title}</h3>
             <p className="mt-1.5 line-clamp-2 text-xs font-semibold leading-5 text-slate-500">{template.description}</p>
-            {locked && <p className="mt-2 text-2xs font-bold text-gold-deep">Upgrade to Pro to use this template.</p>}
+            {locked && <p className="mt-2 text-[11px] font-bold text-gold-deep">Upgrade to Pro to use this template.</p>}
             <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
-                <span className="rounded-full bg-slate-50 px-2.5 py-1 text-2xs font-semibold text-slate-500">{template.trigger}</span>
+                <span className="rounded-full bg-slate-50 px-2.5 py-1 text-[11px] font-black text-slate-500">{template.trigger}</span>
                 {locked ? <Lock className="h-4 w-4 text-gold-deep" /> : <ArrowRight className="h-4 w-4 text-brand transition group-hover:translate-x-0.5" />}
             </div>
         </button>
@@ -3462,10 +3462,10 @@ function AutomationBuilder({
                             <ArrowRight className="h-4 w-4 rotate-180" />
                         </button>
                         <div className="min-w-0">
-                            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-slate-400">Automation builder</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">Automation builder</p>
                             <input
                                 aria-label="Automation name"
-                                className="w-full max-w-[260px] truncate border-none bg-transparent text-lg font-bold text-slate-900 outline-none"
+                                className="w-full max-w-[260px] truncate border-none bg-transparent text-lg font-black text-slate-900 outline-none"
                                 value={automationName}
                                 onChange={(event) => { setAutomationName(event.target.value); setValidationErrors((prev) => { const next = { ...prev }; delete next.name; return next; }); }}
                             />
@@ -3479,15 +3479,15 @@ function AutomationBuilder({
                             <button
                                 onClick={toggleReTrigger}
                                 className={cx(
-                                    "inline-flex items-center gap-2 rounded-card border px-4 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5",
+                                    "inline-flex items-center gap-2 rounded-card border px-4 py-2.5 text-sm font-black transition hover:-translate-y-0.5",
                                     reTriggerEnabled ? "border-brand/25 bg-brand-soft text-brand" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
                                 )}
                             >
                                 <RefreshCw className="h-4 w-4" /> Re-trigger{reTriggerEnabled ? " on" : ""}
                             </button>
                         ) : (
-                            <button onClick={toggleReTrigger} className={cx("inline-flex items-center gap-2 rounded-card px-4 py-2.5 text-sm font-semibold", goldCtaCls)}>
-                                <Crown className={cx("h-4 w-4", goldCrownCls)} /> Re-trigger <span className="rounded-full bg-white/40 px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-[0.08em]">Pro</span>
+                            <button onClick={toggleReTrigger} className={cx("inline-flex items-center gap-2 rounded-card px-4 py-2.5 text-sm font-black", goldCtaCls)}>
+                                <Crown className={cx("h-4 w-4", goldCrownCls)} /> Re-trigger <span className="rounded-full bg-white/40 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-[0.08em]">Pro</span>
                             </button>
                         )}
                     </div>
@@ -3514,22 +3514,22 @@ function AutomationBuilder({
                                     <span className="flex min-w-0 items-center gap-3">
                                         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-white text-brand">{activeTrigger.icon}</span>
                                         <span className="min-w-0">
-                                            <span className="block text-sm font-semibold text-slate-900">{activeTrigger.title}</span>
+                                            <span className="block text-sm font-black text-slate-900">{activeTrigger.title}</span>
                                             <span className="block truncate text-xs font-semibold text-slate-500">{activeTrigger.copy}</span>
                                         </span>
                                     </span>
-                                    <button onClick={() => setChangingTrigger(true)} className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-brand ring-1 ring-brand/15 transition hover:bg-brand-soft">Change</button>
+                                    <button onClick={() => setChangingTrigger(true)} className="shrink-0 rounded-full bg-white px-3 py-1.5 text-xs font-black text-brand ring-1 ring-brand/15 transition hover:bg-brand-soft">Change</button>
                                 </div>
 
                                 {contentSource === "post" && (
                                     <div className="mt-4 rounded-card border border-slate-100 bg-slate-50/70 p-4">
                                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                             <div>
-                                                <h3 className="text-sm font-semibold text-slate-900">Which posts or reels?</h3>
+                                                <h3 className="text-sm font-black text-slate-900">Which posts or reels?</h3>
                                                 <p className="text-xs font-semibold text-slate-500">Pick specific content, or listen across all posts & reels.</p>
                                             </div>
                                             {connected && !mediaLoading && hasPosts && (
-                                                <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-brand px-4 text-xs font-semibold text-white transition hover:-translate-y-0.5 hover:bg-brand-hover">
+                                                <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-brand px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-brand-hover">
                                                     <ImageIcon className="h-3.5 w-3.5" /> Select posts
                                                 </button>
                                             )}
@@ -3555,11 +3555,11 @@ function AutomationBuilder({
                                         <div className="rounded-card border border-slate-100 bg-slate-50/70 p-4">
                                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                                 <div>
-                                                    <h3 className="text-sm font-semibold text-slate-900">Which stories?</h3>
+                                                    <h3 className="text-sm font-black text-slate-900">Which stories?</h3>
                                                     <p className="text-xs font-semibold text-slate-500">Pick the active stories this automation should watch.</p>
                                                 </div>
                                                 {connected && !mediaLoading && hasStories && (
-                                                    <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-brand px-4 text-xs font-semibold text-white transition hover:-translate-y-0.5 hover:bg-brand-hover">
+                                                    <button onClick={() => setContentModalOpen(true)} className="inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-brand px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-brand-hover">
                                                         <ImageIcon className="h-3.5 w-3.5" /> Select stories
                                                     </button>
                                                 )}
@@ -3579,7 +3579,7 @@ function AutomationBuilder({
                                             <FieldPopup message={validationErrors.content} />
                                         </div>
                                         <div className="rounded-card border border-slate-100 bg-white p-4">
-                                            <h3 className="text-sm font-semibold text-slate-900">How should it match?</h3>
+                                            <h3 className="text-sm font-black text-slate-900">How should it match?</h3>
                                             <div className="mt-3 grid gap-2 sm:grid-cols-2">
                                                 {["Any story reply", "Specific keyword in story reply", "Emoji/reaction reply", "Story mention"].map((item) => (
                                                     <TriggerSetupOption key={item} label={item} selected={storyReplyMode === item} onClick={() => setStoryReplyMode(item)} />
@@ -3587,7 +3587,7 @@ function AutomationBuilder({
                                             </div>
                                             <div className="mt-4 flex items-start justify-between gap-3 rounded-control bg-slate-50 px-3 py-3">
                                                 <span className="min-w-0">
-                                                    <span className="block text-sm font-semibold text-slate-900">Remove automation when the story expires</span>
+                                                    <span className="block text-sm font-black text-slate-900">Remove automation when the story expires</span>
                                                     <span className="block text-xs font-semibold text-slate-500">Recommended. Stories disappear after 24 hours.</span>
                                                 </span>
                                                 <ToggleSwitch active={storyExpirationEnabled} onClick={() => setStoryExpirationEnabled(!storyExpirationEnabled)} />
@@ -3604,7 +3604,7 @@ function AutomationBuilder({
 
                                 {contentSource === "live" && (
                                     <div className="mt-4 rounded-card border border-slate-100 bg-slate-50/70 p-4">
-                                        <h3 className="text-sm font-semibold text-slate-900">Live comment trigger</h3>
+                                        <h3 className="text-sm font-black text-slate-900">Live comment trigger</h3>
                                         <p className="text-xs font-semibold text-slate-500">No post to pick &mdash; this listens to comments during your next Instagram Live.</p>
                                         <div className="mt-3 grid gap-2 sm:grid-cols-2">
                                             {["Any live comment", "Specific live comment keyword"].map((item) => (
@@ -3618,7 +3618,7 @@ function AutomationBuilder({
                                     <div className="mt-4 rounded-card border border-gold/60 bg-[#FFFDF6] p-4">
                                         <div className="flex items-center gap-2">
                                             <Crown className={cx("h-4 w-4", goldCrownCls)} />
-                                            <h3 className="text-sm font-semibold text-slate-900">DM keyword trigger</h3>
+                                            <h3 className="text-sm font-black text-slate-900">DM keyword trigger</h3>
                                             <SmallBadge label="Pro" tone="gold" />
                                         </div>
                                         <p className="mt-1 text-xs font-semibold text-gold-deep">Start a flow when someone sends a keyword in your DMs. Set your keywords below.</p>
@@ -3631,7 +3631,7 @@ function AutomationBuilder({
                     {!hasTrigger && (
                         <div className="rounded-card border border-dashed border-slate-200 bg-slate-50/60 p-8 text-center">
                             <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-card bg-white text-brand shadow-rest"><Sparkles className="h-6 w-6" /></span>
-                            <h3 className="mt-4 text-base font-semibold text-slate-900">Pick a trigger to get started</h3>
+                            <h3 className="mt-4 text-base font-black text-slate-900">Pick a trigger to get started</h3>
                             <p className="mx-auto mt-1.5 max-w-sm text-sm font-semibold leading-6 text-slate-500">Choose what starts your automation above. The rest of the setup appears once you select a trigger.</p>
                         </div>
                     )}
@@ -3647,7 +3647,7 @@ function AutomationBuilder({
                     )}
                     {!keywordRequired && (
                         <div className="rounded-card border border-dashed border-slate-200 bg-slate-50/60 p-8 text-center">
-                            <h3 className="text-base font-semibold text-slate-900">No keywords needed</h3>
+                            <h3 className="text-base font-black text-slate-900">No keywords needed</h3>
                             <p className="mx-auto mt-1.5 max-w-sm text-sm font-semibold leading-6 text-slate-500">This trigger responds to every matching interaction. Continue to write your message.</p>
                         </div>
                     )}
@@ -3680,15 +3680,15 @@ function AutomationBuilder({
                     <BuilderCard title="Main DM message" subtitle="The message that delivers your link or answer.">
                         <textarea ref={finalDmRef} className={`${inputCls} min-h-[130px] resize-none`} placeholder="Hey @username, here is the link you asked for." value={finalDm} onChange={(event) => { setFinalDm(event.target.value); setValidationErrors((prev) => { const next = { ...prev }; delete next.message; return next; }); }} />
                         <div className="mt-3 flex flex-wrap gap-2">
-                            <button onClick={() => insertFinalToken("@username")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-brand-soft hover:text-brand">@username</button>
-                            <button onClick={() => insertFinalToken("first name")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-brand-soft hover:text-brand">first name</button>
+                            <button onClick={() => insertFinalToken("@username")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-brand-soft hover:text-brand">@username</button>
+                            <button onClick={() => insertFinalToken("first name")} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-600 transition hover:bg-brand-soft hover:text-brand">first name</button>
                         </div>
                         <FieldPopup message={validationErrors.message} />
 
                         <div className="mt-4 rounded-card border border-slate-100 bg-slate-50/70 p-3.5">
                             <div className="flex items-center justify-between gap-3">
                                 <div>
-                                    <h3 className="text-sm font-semibold text-slate-900">Add Link <span className="text-slate-500">(Optional)</span></h3>
+                                    <h3 className="text-sm font-black text-slate-900">Add Link <span className="text-slate-500">(Optional)</span></h3>
                                     <p className="text-xs font-semibold text-slate-500">Shows as a tappable button inside the DM. Turn off if you don't need one.</p>
                                 </div>
                                 <ToggleSwitch active={linkEnabled} onClick={() => { setLinkEnabled(!linkEnabled); setValidationErrors((prev) => { const next = { ...prev }; delete next.link; return next; }); }} />
@@ -3744,12 +3744,12 @@ function AutomationBuilder({
                             {followUpEnabled && accountPlan.featureAccess.autoReply && (
                                 <div className="space-y-2 rounded-control bg-slate-50 p-3">
                                     <div className="flex items-center gap-2">
-                                        <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-white px-2.5 text-2xs font-semibold text-slate-600 ring-1 ring-slate-200">
+                                        <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-white px-2.5 text-[11px] font-black text-slate-600 ring-1 ring-slate-200">
                                             <Clock className="h-3 w-3" /> Sent after {FOLLOW_UP_WINDOW_LABEL}
                                         </span>
                                     </div>
                                     <input className={inputCls} value={followUpMessage} onChange={(event) => setFollowUpMessage(event.target.value)} placeholder="Follow-up message" />
-                                    <p className="text-2xs font-semibold leading-4 text-slate-400">{FOLLOW_UP_POLICY_NOTE}</p>
+                                    <p className="text-[10px] font-semibold leading-4 text-slate-400">{FOLLOW_UP_POLICY_NOTE}</p>
                                 </div>
                             )}
                             <ProActionButton
@@ -3764,8 +3764,8 @@ function AutomationBuilder({
                                     {responses.map((response, index) => (
                                         <div key={`${response.title}-${index}`} className="flex items-center justify-between gap-3 rounded-control bg-slate-50 px-3 py-2.5">
                                             <span className="min-w-0">
-                                                <span className="block text-xs font-semibold text-slate-900">{response.title}</span>
-                                                <span className="block truncate text-2xs font-semibold text-slate-500">{response.summary}</span>
+                                                <span className="block text-xs font-black text-slate-900">{response.title}</span>
+                                                <span className="block truncate text-[11px] font-semibold text-slate-500">{response.summary}</span>
                                             </span>
                                             <button onClick={() => setResponses((current) => current.filter((_, itemIndex) => itemIndex !== index))} className="text-slate-400 transition hover:text-rose-500"><Trash2 className="h-4 w-4" /></button>
                                         </div>
@@ -3859,7 +3859,7 @@ function AutomationBuilder({
                         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-card bg-amber-50 text-amber-600 ring-1 ring-amber-100">
                             <AlertTriangle className="h-6 w-6" />
                         </span>
-                        <h2 className="mt-5 text-2xl font-bold text-slate-900">Some content already has an automation</h2>
+                        <h2 className="mt-5 text-2xl font-black text-slate-900">Some content already has an automation</h2>
                         <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">
                             These already have an automation attached. You can still continue, but more than one automation may respond to the same people.
                         </p>
@@ -3885,7 +3885,7 @@ function AutomationBuilder({
                     <div className="flex items-start gap-2.5">
                         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rose-50 text-rose-600"><AlertTriangle className="h-4 w-4" /></span>
                         <div className="min-w-0">
-                            <p className="text-sm font-semibold text-slate-900">A few things need attention</p>
+                            <p className="text-sm font-black text-slate-900">A few things need attention</p>
                             <p className="mt-0.5 text-xs font-semibold leading-5 text-slate-500">Please complete: {Object.keys(validationErrors).map((key) => errorSectionLabels[key]).filter(Boolean).join(", ")}.</p>
                         </div>
                     </div>
@@ -3905,7 +3905,7 @@ function SelectedContentChips({ titles, pool, visibleCount, onShowMore, onShowLe
                 {shown.map((title) => {
                     const media = pool.find((item) => item.title === title);
                     return (
-                        <span key={title} className="inline-flex items-center gap-2 rounded-full bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-900 ring-1 ring-slate-200">
+                        <span key={title} className="inline-flex items-center gap-2 rounded-full bg-white px-2.5 py-1.5 text-xs font-black text-slate-900 ring-1 ring-slate-200">
                             <span className={cx("h-4 w-4 rounded-[5px] bg-gradient-to-br", media?.color || "from-slate-200 to-slate-300")} />
                             <span className="max-w-[160px] truncate">{title}</span>
                             <button onClick={() => onRemove(title)} className="text-slate-400 transition hover:text-rose-500" aria-label={`Remove ${title}`}><X className="h-3.5 w-3.5" /></button>
@@ -3913,11 +3913,11 @@ function SelectedContentChips({ titles, pool, visibleCount, onShowMore, onShowLe
                     );
                 })}
                 {remaining > 0 && (
-                    <button onClick={onShowMore} className="inline-flex items-center rounded-full bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand transition hover:bg-brand/15">+{remaining} more</button>
+                    <button onClick={onShowMore} className="inline-flex items-center rounded-full bg-brand-soft px-3 py-1.5 text-xs font-black text-brand transition hover:bg-brand/15">+{remaining} more</button>
                 )}
             </div>
             {visibleCount > 3 && titles.length > 3 && (
-                <button onClick={onShowLess} className="mt-2 text-xs font-semibold text-brand">Show less</button>
+                <button onClick={onShowLess} className="mt-2 text-xs font-black text-brand">Show less</button>
             )}
         </div>
     );
@@ -3948,7 +3948,7 @@ function InlineReplySetup({ replies, onAdd, onRemove, suggestions = [] }: { repl
             {availableSuggestions.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                     {availableSuggestions.map((suggestion) => (
-                        <button key={suggestion} type="button" onClick={() => onAdd(suggestion)} className="inline-flex h-8 items-center rounded-full bg-white px-3 text-xs font-semibold text-brand ring-1 ring-brand/15 transition hover:-translate-y-0.5 hover:bg-brand-soft">{suggestion}</button>
+                        <button key={suggestion} type="button" onClick={() => onAdd(suggestion)} className="inline-flex h-8 items-center rounded-full bg-white px-3 text-xs font-black text-brand ring-1 ring-brand/15 transition hover:-translate-y-0.5 hover:bg-brand-soft">{suggestion}</button>
                     ))}
                 </div>
             )}
@@ -3985,7 +3985,7 @@ function FallbackMessageEditor({ messages, onChange }: { messages: string[]; onC
                     <button onClick={() => remove(index)} className="pt-1 text-slate-400 transition hover:text-rose-500" aria-label="Remove"><Trash2 className="h-4 w-4" /></button>
                 </div>
             ))}
-            <button onClick={() => onChange([...messages, ""])} className="flex h-11 w-full items-center justify-center gap-2 rounded-card border border-dashed border-slate-200 text-sm font-semibold text-slate-500 transition hover:border-brand/25 hover:text-brand">
+            <button onClick={() => onChange([...messages, ""])} className="flex h-11 w-full items-center justify-center gap-2 rounded-card border border-dashed border-slate-200 text-sm font-black text-slate-500 transition hover:border-brand/25 hover:text-brand">
                 <Plus className="h-4 w-4" /> Add fallback message
             </button>
         </div>
@@ -4001,10 +4001,10 @@ function MediaSelectorState({ connected, loading, isEmpty, kind, onConnect }: { 
             <div className="mt-3 flex flex-col items-center gap-3 rounded-card border border-dashed border-brand/25 bg-brand-soft/50 px-4 py-6 text-center">
                 <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-brand"><Instagram className="h-5 w-5" /></span>
                 <div>
-                    <p className="text-sm font-semibold text-slate-900">Connect your Instagram account first</p>
+                    <p className="text-sm font-black text-slate-900">Connect your Instagram account first</p>
                     <p className="mt-0.5 text-xs font-semibold text-slate-500">You need a connected account before you can pick {label}.</p>
                 </div>
-                <button onClick={onConnect} className="inline-flex h-9 items-center gap-2 rounded-full bg-brand px-4 text-xs font-semibold text-white transition hover:-translate-y-0.5 hover:bg-brand-hover">
+                <button onClick={onConnect} className="inline-flex h-9 items-center gap-2 rounded-full bg-brand px-4 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-brand-hover">
                     <Instagram className="h-3.5 w-3.5" /> Connect account
                 </button>
             </div>
@@ -4021,7 +4021,7 @@ function MediaSelectorState({ connected, loading, isEmpty, kind, onConnect }: { 
         return (
             <div className="mt-3 flex flex-col items-center gap-2 rounded-card border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center">
                 <ImageIcon className="h-7 w-7 text-slate-300" />
-                <p className="text-sm font-semibold text-slate-900">No {kind === "story" ? "active stories" : "posts or reels"} yet</p>
+                <p className="text-sm font-black text-slate-900">No {kind === "story" ? "active stories" : "posts or reels"} yet</p>
                 <p className="text-xs font-semibold text-slate-500">{kind === "story" ? "Post a story on this account to use story-reply automations." : "Upload a post or reel on this account to select it here."}</p>
             </div>
         );
@@ -4039,11 +4039,11 @@ function ContentSelectCard({ media, kind, selected, occupied, onClick }: { media
                 )}
                 <div className="absolute inset-0 bg-black/10" />
                 {isAll ? <LayoutGrid className="relative h-7 w-7 text-slate-500" /> : !media.thumbnailUrl && <Instagram className="relative h-7 w-7 text-white/90" />}
-                <span className="absolute right-1.5 top-1.5 rounded-full bg-black/30 px-1.5 py-0.5 text-2xs font-semibold uppercase tracking-[0.08em] text-white">{kind === "story" ? "Story" : media.type}</span>
+                <span className="absolute right-1.5 top-1.5 rounded-full bg-black/30 px-1.5 py-0.5 text-[8px] font-black uppercase tracking-[0.08em] text-white">{kind === "story" ? "Story" : media.type}</span>
                 {selected && <span className="absolute left-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-white text-brand"><Check className="h-3 w-3 stroke-[3]" /></span>}
             </div>
-            <p className="mt-1.5 truncate text-2xs font-semibold text-slate-900">{media.title}</p>
-            <p className="truncate text-2xs font-semibold uppercase tracking-[0.06em] text-slate-400">{isAll ? "All content" : media.metric}{occupied ? " · In use" : ""}</p>
+            <p className="mt-1.5 truncate text-[11px] font-black text-slate-900">{media.title}</p>
+            <p className="truncate text-[10px] font-black uppercase tracking-[0.06em] text-slate-400">{isAll ? "All content" : media.metric}{occupied ? " · In use" : ""}</p>
         </button>
     );
 }
@@ -4072,7 +4072,7 @@ function ContentSelectorModal({ kind, items, initialSelected, isOccupied, onClos
         <ModalShell onClose={onClose} wide>
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-900">{kind === "story" ? "Select stories" : "Select posts or reels"}</h2>
+                    <h2 className="text-2xl font-black text-slate-900">{kind === "story" ? "Select stories" : "Select posts or reels"}</h2>
                     <p className="mt-1 text-sm font-semibold text-slate-500">Choose the content this automation should watch. You can pick more than one.</p>
                 </div>
                 <button onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50"><X className="h-4 w-4" /></button>
@@ -4082,7 +4082,7 @@ function ContentSelectorModal({ kind, items, initialSelected, isOccupied, onClos
                 {filters.length > 1 && (
                     <div className="flex flex-wrap gap-2">
                         {filters.map((item) => (
-                            <button key={item} onClick={() => setFilter(item)} className={cx("rounded-full px-4 py-2 text-xs font-semibold transition", filter === item ? "bg-slate-900 text-white" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>{item}</button>
+                            <button key={item} onClick={() => setFilter(item)} className={cx("rounded-full px-4 py-2 text-xs font-black transition", filter === item ? "bg-slate-900 text-white" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>{item}</button>
                         ))}
                     </div>
                 )}
@@ -4096,13 +4096,13 @@ function ContentSelectorModal({ kind, items, initialSelected, isOccupied, onClos
                     ) : (
                         <div className="rounded-card border border-dashed border-slate-200 bg-slate-50 p-6 text-center">
                             <ImageIcon className="mx-auto h-8 w-8 text-slate-300" />
-                            <p className="mt-3 text-sm font-semibold text-slate-900">Nothing found</p>
+                            <p className="mt-3 text-sm font-black text-slate-900">Nothing found</p>
                             <p className="mt-1 text-xs font-semibold text-slate-500">Try another search or filter.</p>
                         </div>
                     )}
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                    <span className="text-xs font-semibold text-slate-500">{selected.length} selected</span>
+                    <span className="text-xs font-black text-slate-500">{selected.length} selected</span>
                     <div className="flex gap-2">
                         <SecondaryButton onClick={onClose}>Cancel</SecondaryButton>
                         <PrimaryButton onClick={() => onConfirm(selected)}>Confirm selection</PrimaryButton>
@@ -4128,7 +4128,7 @@ function TriggerOptionButton({ option, selected, onClick }: { option: { type: st
         >
             <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center rounded-control", selected ? "bg-white text-brand" : option.pro ? "bg-gold-soft text-gold-deep" : "bg-slate-50 text-slate-500")}>{option.icon}</span>
             <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">{option.title}{option.pro && <SmallBadge label="Pro" tone="gold" />}</span>
+                <span className="flex items-center gap-2 text-sm font-black text-slate-900">{option.title}{option.pro && <SmallBadge label="Pro" tone="gold" />}</span>
                 <span className="block truncate text-xs font-semibold text-slate-500">{option.copy}</span>
             </span>
             {selected ? <CheckCircle2 className="h-5 w-5 shrink-0 text-brand" /> : option.pro ? <Crown className={cx("h-4 w-4 shrink-0", goldCrownCls)} /> : <ChevronDown className="h-4 w-4 -rotate-90 shrink-0 text-slate-300" />}
@@ -4147,7 +4147,7 @@ function ProToggleCard({ icon, title, copy, active, locked, onToggle }: { icon: 
         >
             <span className={cx("flex h-9 w-9 shrink-0 items-center justify-center rounded-control ring-1", locked ? "bg-gold-soft text-gold-deep ring-gold/40" : "bg-white text-brand ring-slate-100")}>{locked ? <Crown className={cx("h-4 w-4", goldCrownCls)} /> : icon}</span>
             <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">{title}{locked && <SmallBadge label="Pro" tone="gold" />}</span>
+                <span className="flex items-center gap-2 text-sm font-black text-slate-900">{title}{locked && <SmallBadge label="Pro" tone="gold" />}</span>
                 <span className="block text-xs font-semibold text-slate-500">{copy}</span>
             </span>
             {locked ? <Lock className="h-4 w-4 shrink-0 text-gold-deep" /> : (
@@ -4168,7 +4168,7 @@ function ProActionButton({ icon, title, copy, locked, onClick }: { icon: ReactNo
         >
             <span className={cx("flex h-9 w-9 shrink-0 items-center justify-center rounded-control ring-1", locked ? "bg-gold-soft text-gold-deep ring-gold/40" : "bg-white text-brand ring-brand/15")}>{locked ? <Crown className={cx("h-4 w-4", goldCrownCls)} /> : icon}</span>
             <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">{title}{locked && <SmallBadge label="Pro" tone="gold" />}</span>
+                <span className="flex items-center gap-2 text-sm font-black text-slate-900">{title}{locked && <SmallBadge label="Pro" tone="gold" />}</span>
                 <span className="block text-xs font-semibold text-slate-500">{copy}</span>
             </span>
             {locked ? <Lock className="h-4 w-4 shrink-0 text-gold-deep" /> : <Plus className="h-4 w-4 shrink-0 text-brand" />}
@@ -4177,7 +4177,7 @@ function ProActionButton({ icon, title, copy, locked, onClick }: { icon: ReactNo
 }
 
 function DmBubble({ children, side }: { children: ReactNode; side: "left" | "right" }) {
-    return <div className={cx("max-w-[80%] rounded-card px-3.5 py-2 text-sm font-semibold leading-5", side === "right" ? "ml-auto rounded-br-control bg-[#3797F0] text-white" : "mr-auto rounded-bl-control bg-slate-100 text-slate-900")}>{children}</div>;
+    return <div className={cx("max-w-[80%] rounded-card px-3.5 py-2 text-[13px] font-semibold leading-5", side === "right" ? "ml-auto rounded-br-control bg-[#3797F0] text-white" : "mr-auto rounded-bl-control bg-slate-100 text-slate-900")}>{children}</div>;
 }
 
 function InstagramDmPreview({
@@ -4239,28 +4239,28 @@ function InstagramDmPreview({
         <aside className="xl:sticky xl:top-24 xl:self-start xl:justify-self-end">
             <div className="mb-3 flex items-center justify-between">
                 <div>
-                    <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-slate-400">Live preview</p>
-                    <p className="text-sm font-semibold text-slate-900">How your DM will look</p>
+                    <p className="text-[11px] font-black uppercase tracking-[0.14em] text-slate-400">Live preview</p>
+                    <p className="text-sm font-black text-slate-900">How your DM will look</p>
                 </div>
                 <SmallBadge label="Auto-synced" tone="green" />
             </div>
             <div className="mx-auto w-full max-w-[330px] overflow-hidden rounded-[42px] border-[11px] border-slate-900 bg-white shadow-overlay">
-                <div className="flex items-center justify-between bg-white px-6 pt-3 pb-1 text-2xs font-semibold text-slate-900">
+                <div className="flex items-center justify-between bg-white px-6 pt-3 pb-1 text-[11px] font-black text-slate-900">
                     <span>9:41</span>
                     <span className="flex items-center gap-1"><span className="h-2.5 w-5 rounded-[3px] bg-slate-900/80" /></span>
                 </div>
                 <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-2.5">
                     <ArrowRight className="h-5 w-5 rotate-180 text-slate-900" />
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand text-sm font-semibold text-white">D</span>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand text-sm font-black text-white">D</span>
                     <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-slate-900">{username.replace("@", "")}</p>
-                        <p className="text-2xs font-bold text-slate-400">Active now</p>
+                        <p className="truncate text-sm font-black text-slate-900">{username.replace("@", "")}</p>
+                        <p className="text-[10px] font-bold text-slate-400">Active now</p>
                     </div>
                     <Radio className="h-5 w-5 text-slate-300" />
                 </div>
                 <div className="flex items-center gap-2 bg-slate-50 px-4 py-2">
                     <span className={cx("h-7 w-7 shrink-0 rounded-control bg-gradient-to-br", contextMedia.color)} />
-                    <p className="truncate text-2xs font-bold text-slate-500">{contextLabel}</p>
+                    <p className="truncate text-[11px] font-bold text-slate-500">{contextLabel}</p>
                 </div>
                 <div className="flex min-h-[470px] flex-col gap-2 bg-white px-3.5 py-4">
                     <DmBubble side="left">{incoming}</DmBubble>
@@ -4272,16 +4272,16 @@ function InstagramDmPreview({
                         <div className="ml-auto w-[80%] overflow-hidden rounded-card border border-slate-200">
                             <div className={cx("h-20 bg-gradient-to-br", contextMedia.color)} />
                             <div className="bg-white px-3 py-2">
-                                <p className="truncate text-2xs font-bold text-slate-400">{linkUrl || "https://dmgennie.in"}</p>
-                                <p className="truncate text-xs font-semibold text-slate-900">{buttonText || "Open Link"}</p>
+                                <p className="truncate text-[10px] font-bold text-slate-400">{linkUrl || "https://dmgennie.in"}</p>
+                                <p className="truncate text-xs font-black text-slate-900">{buttonText || "Open Link"}</p>
                             </div>
-                            <div className="border-t border-slate-100 bg-white py-2 text-center text-xs font-semibold text-[#3797F0]">{buttonText || "Open Link"}</div>
+                            <div className="border-t border-slate-100 bg-white py-2 text-center text-xs font-black text-[#3797F0]">{buttonText || "Open Link"}</div>
                         </div>
                     )}
                     {followUpEnabled && <DmBubble side="right">{followUpMessage}</DmBubble>}
                     <div className="mt-auto flex items-center justify-between rounded-full bg-slate-100 px-4 py-2.5">
                         <span className="text-xs font-semibold text-slate-400">Message...</span>
-                        <span className="text-xs font-semibold text-[#3797F0]">Send</span>
+                        <span className="text-xs font-black text-[#3797F0]">Send</span>
                     </div>
                 </div>
             </div>
@@ -4296,7 +4296,7 @@ function AutomationSuccessModal({ onClose }: { onClose: () => void }) {
                 <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-card bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
                     <CheckCircle2 className="h-8 w-8" />
                 </span>
-                <h2 className="mt-5 text-2xl font-bold text-slate-900">Automation is live</h2>
+                <h2 className="mt-5 text-2xl font-black text-slate-900">Automation is live</h2>
                 <p className="mx-auto mt-2 max-w-md text-sm font-semibold leading-6 text-slate-500">DMGennie will now respond when your trigger is matched.</p>
                 <div className="mt-6 flex justify-center">
                     <PrimaryButton onClick={onClose}>View automation</PrimaryButton>
@@ -4317,14 +4317,14 @@ function BuilderStepIndicator({ step, onStep }: { step: number; onStep: (step: n
                         const active = step === number;
                         const done = step > number;
                         return (
-                            <button key={item} onClick={() => onStep(number)} className={cx("inline-flex h-10 items-center gap-2 rounded-full px-3 text-xs font-semibold transition", active ? "bg-brand text-white" : done ? "bg-emerald-50 text-emerald-700" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>
+                            <button key={item} onClick={() => onStep(number)} className={cx("inline-flex h-10 items-center gap-2 rounded-full px-3 text-xs font-black transition", active ? "bg-brand text-white" : done ? "bg-emerald-50 text-emerald-700" : "bg-slate-50 text-slate-500 hover:bg-slate-100")}>
                                 <span className={cx("flex h-5 w-5 items-center justify-center rounded-full", active ? "bg-white/20" : done ? "bg-emerald-100" : "bg-white")}>{done ? <Check className="h-3.5 w-3.5" /> : number}</span>
                                 {item}
                             </button>
                         );
                     })}
                 </div>
-                <span className="inline-flex h-8 w-fit items-center rounded-full bg-slate-50 px-3 text-xs font-semibold text-slate-500">{step}/4</span>
+                <span className="inline-flex h-8 w-fit items-center rounded-full bg-slate-50 px-3 text-xs font-black text-slate-500">{step}/4</span>
             </div>
         </section>
     );
@@ -4333,7 +4333,7 @@ function BuilderStepIndicator({ step, onStep }: { step: number; onStep: (step: n
 // Item 8: a pulsing box that tells the user what the current step needs next.
 function StepHint({ text, valid }: { text: string; valid: boolean }) {
     return (
-        <div className={cx("flex items-center gap-2 rounded-control border px-3.5 py-2.5 text-sm font-semibold transition", valid ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "animate-pulse border-amber-200 bg-amber-50 text-amber-700")}>
+        <div className={cx("flex items-center gap-2 rounded-control border px-3.5 py-2.5 text-sm font-black transition", valid ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "animate-pulse border-amber-200 bg-amber-50 text-amber-700")}>
             {valid ? <Check className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
             <span>{text}</span>
         </div>
@@ -4345,12 +4345,12 @@ function WizardNav({ step, maxStep, nextPulses, onBack, onNext, onSaveDraft, sav
     const isLast = step >= maxStep;
     return (
         <div className="sticky bottom-3 z-10 flex items-center justify-between gap-3 rounded-card border border-white bg-white/95 p-3 shadow-raised backdrop-blur">
-            <button onClick={onBack} disabled={step <= 1} className="inline-flex h-11 items-center gap-1.5 rounded-card border border-slate-200 px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">
+            <button onClick={onBack} disabled={step <= 1} className="inline-flex h-11 items-center gap-1.5 rounded-card border border-slate-200 px-4 text-sm font-black text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40">
                 <ArrowRight className="h-4 w-4 rotate-180" /> Back
             </button>
             <div className="flex items-center gap-2">
                 {onSaveDraft && <SecondaryButton onClick={onSaveDraft}>{saving ? "Saving..." : "Save Draft"}</SecondaryButton>}
-                <button onClick={onNext} className={cx("inline-flex h-11 items-center gap-1.5 rounded-card bg-brand px-5 text-sm font-semibold text-white transition hover:bg-brand-hover", nextPulses && "animate-pulse ring-2 ring-brand/40 ring-offset-2")}>
+                <button onClick={onNext} className={cx("inline-flex h-11 items-center gap-1.5 rounded-card bg-brand px-5 text-sm font-black text-white transition hover:bg-brand-hover", nextPulses && "animate-pulse ring-2 ring-brand/40 ring-offset-2")}>
                     {isLast ? (<><Check className="h-4 w-4" /> Launch Automation</>) : (<>Continue <ArrowRight className="h-4 w-4" /></>)}
                 </button>
             </div>
@@ -4361,7 +4361,7 @@ function WizardNav({ step, maxStep, nextPulses, onBack, onNext, onSaveDraft, sav
 function ReviewLine({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex items-start justify-between gap-4 rounded-control bg-slate-50 px-3.5 py-2.5">
-            <span className="shrink-0 text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</span>
+            <span className="shrink-0 text-xs font-black uppercase tracking-[0.08em] text-slate-400">{label}</span>
             <span className="min-w-0 flex-1 break-words text-right text-sm font-bold text-slate-700">{value}</span>
         </div>
     );
@@ -4371,7 +4371,7 @@ function ReviewLine({ label, value }: { label: string; value: string }) {
 function FieldPopup({ message }: { message?: string }) {
     if (!message) return null;
     return (
-        <div className="relative mt-2 inline-flex items-center gap-1.5 rounded-control border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-600 shadow-rest">
+        <div className="relative mt-2 inline-flex items-center gap-1.5 rounded-control border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-black text-rose-600 shadow-rest">
             <span className="absolute -top-1.5 left-4 h-3 w-3 rotate-45 border-l border-t border-rose-200 bg-rose-50" />
             <AlertCircle className="h-3.5 w-3.5 shrink-0" />
             {message}
@@ -4383,7 +4383,7 @@ function BuilderCard({ title, subtitle, children }: { title: string; subtitle: s
     return (
         <section className="rounded-card border border-white bg-white p-4 shadow-raised sm:p-5">
             <div className="mb-4">
-                <h2 className="text-xl font-bold tracking-tight text-slate-900">{title}</h2>
+                <h2 className="text-xl font-black tracking-tight text-slate-900">{title}</h2>
                 <p className="mt-1 text-sm font-semibold text-slate-500">{subtitle}</p>
             </div>
             {children}
@@ -4397,7 +4397,7 @@ function TriggerSetupOption({ label, selected, disabled, onClick }: { label: str
             disabled={disabled}
             onClick={onClick}
             className={cx(
-                "flex h-12 items-center justify-between rounded-card border px-3 text-left text-xs font-semibold transition",
+                "flex h-12 items-center justify-between rounded-card border px-3 text-left text-xs font-black transition",
                 selected ? "border-brand bg-white text-slate-900" : "border-slate-100 bg-white/70 text-slate-500 hover:border-brand/15 hover:bg-white",
                 disabled && "cursor-not-allowed opacity-50"
             )}
@@ -4518,10 +4518,10 @@ function AddResponseModal({
         <ModalShell onClose={onClose}>
             <div className="flex items-start justify-between gap-3">
                 <div>
-                    <h2 className="text-2xl font-bold text-slate-900">Add Response</h2>
+                    <h2 className="text-2xl font-black text-slate-900">Add Response</h2>
                     <p className="mt-1 text-sm font-semibold text-slate-500">{selectedOption ? selectedOption.copy : "Choose a response type and configure it for this demo flow."}</p>
                 </div>
-                {selectedOption && <button onClick={() => setSelectedType(null)} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-500 transition hover:bg-slate-100">Back</button>}
+                {selectedOption && <button onClick={() => setSelectedType(null)} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-500 transition hover:bg-slate-100">Back</button>}
             </div>
             {!openingMessageEnabled && (
                 <div className="mt-4 rounded-card border border-amber-100 bg-amber-50 p-3 text-xs font-bold leading-5 text-amber-800">
@@ -4541,9 +4541,9 @@ function AddResponseModal({
                         <button key={option.title} onClick={() => locked ? onUpgrade() : setSelectedType(option.id)} className={cx("flex w-full items-center gap-3 rounded-card border bg-white p-3 text-left transition hover:border-brand/15 hover:bg-brand-soft/30", locked ? "border-amber-200 bg-[#FFFDF6]" : "border-slate-100")}>
                             <span className="flex h-9 w-9 items-center justify-center rounded-control bg-slate-50 text-brand">{option.icon}</span>
                             <span className="min-w-0 flex-1">
-                                <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">{option.title}<SmallBadge label={locked ? "Pro" : "Included"} tone={locked ? "gold" : "green"} /></span>
+                                <span className="flex items-center gap-2 text-sm font-black text-slate-900">{option.title}<SmallBadge label={locked ? "Pro" : "Included"} tone={locked ? "gold" : "green"} /></span>
                                 <span className="block text-xs font-semibold text-slate-500">{option.copy}</span>
-                                {locked && <span className="mt-1 block text-2xs font-bold text-gold-deep">Upgrade to Pro to unlock this response.</span>}
+                                {locked && <span className="mt-1 block text-[11px] font-bold text-gold-deep">Upgrade to Pro to unlock this response.</span>}
                             </span>
                             {locked ? <Lock className="h-4 w-4 text-gold-deep" /> : <ChevronDown className="h-4 w-4 -rotate-90 text-slate-300" />}
                         </button>
@@ -4593,7 +4593,7 @@ function AddResponseModal({
                                 <Label>Lead fields</Label>
                                 <div className="flex flex-wrap gap-2">
                                     {["Name", "Email", "Phone", "Custom question"].map((field) => (
-                                        <button key={field} onClick={() => toggleLeadField(field)} className={cx("rounded-full px-3 py-2 text-xs font-semibold ring-1 transition", leadFields.includes(field) ? "bg-brand text-white ring-brand" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50")}>{field}</button>
+                                        <button key={field} onClick={() => toggleLeadField(field)} className={cx("rounded-full px-3 py-2 text-xs font-black ring-1 transition", leadFields.includes(field) ? "bg-brand text-white ring-brand" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50")}>{field}</button>
                                     ))}
                                 </div>
                             </div>
@@ -4612,7 +4612,7 @@ function AddResponseModal({
 }
 
 function KeywordChip({ children }: { children: ReactNode }) {
-    return <span className="inline-flex h-8 items-center rounded-full bg-brand-soft px-3 text-xs font-semibold text-brand ring-1 ring-brand/15">{children}</span>;
+    return <span className="inline-flex h-8 items-center rounded-full bg-brand-soft px-3 text-xs font-black text-brand ring-1 ring-brand/15">{children}</span>;
 }
 
 function SuggestedKeywordButton({ keyword, selected, onClick }: { keyword: string; selected: boolean; onClick: () => void }) {
@@ -4620,7 +4620,7 @@ function SuggestedKeywordButton({ keyword, selected, onClick }: { keyword: strin
         <button
             onClick={onClick}
             className={cx(
-                "inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold ring-1 transition hover:-translate-y-0.5",
+                "inline-flex h-8 items-center rounded-full px-3 text-xs font-black ring-1 transition hover:-translate-y-0.5",
                 selected ? "bg-brand text-white ring-brand" : "bg-white text-brand ring-brand/15 hover:bg-brand-soft"
             )}
         >
@@ -4632,7 +4632,7 @@ function SuggestedKeywordButton({ keyword, selected, onClick }: { keyword: strin
 function ToggleMini({ label, active, onClick }: { label: string; active: boolean; onClick?: () => void }) {
     return (
         <button type="button" onClick={onClick} className="mt-3 flex w-full items-center justify-between rounded-control bg-slate-50 px-3 py-2 text-left transition hover:bg-slate-100">
-            <span className="text-xs font-semibold text-slate-600">{label}</span>
+            <span className="text-xs font-black text-slate-600">{label}</span>
             <span className={cx("h-5 w-9 rounded-full p-0.5 transition", active ? "bg-brand" : "bg-slate-200")}>
                 <span className={cx("block h-4 w-4 rounded-full bg-white transition", active && "translate-x-4")} />
             </span>
@@ -4655,7 +4655,7 @@ function SmallBadge({ label, tone }: { label: string; tone: "purple" | "gold" | 
         green: "bg-emerald-50 text-emerald-700 ring-emerald-100",
         gray: "bg-slate-100 text-slate-500 ring-slate-200",
     };
-    return <span className={cx("inline-flex h-5 items-center rounded-full px-2 text-2xs font-semibold uppercase tracking-[0.08em] ring-1", tones[tone])}>{label}</span>;
+    return <span className={cx("inline-flex h-5 items-center rounded-full px-2 text-[9px] font-black uppercase tracking-[0.08em] ring-1", tones[tone])}>{label}</span>;
 }
 
 function ModalShell({ children, onClose, wide }: { children: ReactNode; onClose: () => void; wide?: boolean }) {
@@ -4896,7 +4896,7 @@ function ContactsPage({
                         <ContactSelect value={relationshipFilter} onChange={setRelationshipFilter} options={["All relationships", "You Follow", "Follows You", "Mutual", "Unknown"]} />
                         <ContactSelect value={dateFilter} onChange={setDateFilter} options={["All dates", "Today", "This week", "This month"]} />
                         <ContactSelect value={emailFilter} onChange={setEmailFilter} options={["All emails", "Has email", "No email"]} />
-                        <button onClick={resetFilters} className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+                        <button onClick={resetFilters} className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-3 text-sm font-black text-slate-600 transition hover:bg-slate-50">
                             <X className="h-4 w-4" />
                             Reset
                         </button>
@@ -4910,7 +4910,7 @@ function ContactsPage({
                                 key={item}
                                 onClick={() => setSegment(item)}
                                 className={cx(
-                                    "inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold transition",
+                                    "inline-flex h-8 items-center rounded-full px-3 text-xs font-black transition",
                                     segment === item
                                         ? "bg-slate-900 text-white shadow-rest"
                                         : "bg-slate-50 text-slate-600 ring-1 ring-slate-200 hover:bg-white hover:text-slate-900"
@@ -4927,13 +4927,13 @@ function ContactsPage({
 
                 {selectedCount > 0 && (
                     <div className="flex flex-col gap-2 rounded-card border border-brand/15 bg-brand-soft p-3 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-sm font-semibold text-brand">{selectedCount} contact{selectedCount === 1 ? "" : "s"} selected</p>
+                        <p className="text-sm font-black text-brand">{selectedCount} contact{selectedCount === 1 ? "" : "s"} selected</p>
                         <div className="flex flex-wrap gap-2">
-                            <button onClick={() => exportContacts("selected")} className="inline-flex h-9 items-center justify-center gap-2 rounded-control bg-brand px-3 text-xs font-semibold text-white transition hover:bg-brand-hover">
+                            <button onClick={() => exportContacts("selected")} className="inline-flex h-9 items-center justify-center gap-2 rounded-control bg-brand px-3 text-xs font-black text-white transition hover:bg-brand-hover">
                                 {accountPlan.featureAccess.exportCsv ? <Download className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
                                 {accountPlan.featureAccess.exportCsv ? "Export selected" : "Upgrade to export"}
                             </button>
-                            <button onClick={() => setSelectedIds(new Set<string>())} className="inline-flex h-9 items-center justify-center rounded-control bg-white px-3 text-xs font-semibold text-slate-600 ring-1 ring-brand/15 transition hover:bg-slate-50">
+                            <button onClick={() => setSelectedIds(new Set<string>())} className="inline-flex h-9 items-center justify-center rounded-control bg-white px-3 text-xs font-black text-slate-600 ring-1 ring-brand/15 transition hover:bg-slate-50">
                                 Clear selection
                             </button>
                         </div>
@@ -4944,10 +4944,10 @@ function ContactsPage({
             <section data-tour="contacts-table" className="rounded-card border border-white bg-white shadow-raised">
                 <div className="flex flex-col gap-2 border-b border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h2 className="text-lg font-bold text-slate-950">Captured leads</h2>
+                        <h2 className="text-lg font-black text-slate-950">Captured leads</h2>
                         <p className="text-sm font-semibold text-slate-500">A lightweight Instagram CRM for every lead DMGennie captures.</p>
                     </div>
-                    <button onClick={() => exportContacts("all")} className="inline-flex h-9 items-center justify-center gap-2 rounded-control bg-slate-50 px-3 text-xs font-semibold text-slate-600 ring-1 ring-slate-200 transition hover:bg-white">
+                    <button onClick={() => exportContacts("all")} className="inline-flex h-9 items-center justify-center gap-2 rounded-control bg-slate-50 px-3 text-xs font-black text-slate-600 ring-1 ring-slate-200 transition hover:bg-white">
                         {accountPlan.featureAccess.exportCsv ? <Download className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
                         {accountPlan.featureAccess.exportCsv ? "Export all" : "Upgrade to export"}
                     </button>
@@ -4984,7 +4984,7 @@ function ContactsPage({
                         <div className="hidden overflow-x-auto lg:block">
                             <table className="w-full min-w-[1040px] text-left">
                                 <thead>
-                                    <tr className="border-b border-slate-100 bg-slate-50/60 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">
+                                    <tr className="border-b border-slate-100 bg-slate-50/60 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">
                                         <th className="w-10 px-4 py-3">
                                             <input
                                                 type="checkbox"
@@ -5030,23 +5030,23 @@ function ContactsPage({
                                 <select
                                     value={rowsPerPage}
                                     onChange={(event) => setRowsPerPage(Number(event.target.value))}
-                                    className="h-9 rounded-control border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/10"
+                                    className="h-9 rounded-control border border-slate-200 bg-white px-3 text-xs font-black text-slate-600 outline-none focus:border-brand/40 focus:ring-4 focus:ring-brand/10"
                                 >
                                     {[5, 10, 20].map((count) => <option key={count} value={count}>{count} rows</option>)}
                                 </select>
                                 <button
                                     disabled={currentPage <= 1}
                                     onClick={() => setPage((prev) => Math.max(1, prev - 1))}
-                                    className="inline-flex h-9 items-center gap-1 rounded-control border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
+                                    className="inline-flex h-9 items-center gap-1 rounded-control border border-slate-200 bg-white px-3 text-xs font-black text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
                                 >
                                     <ChevronLeft className="h-3.5 w-3.5" />
                                     Previous
                                 </button>
-                                <span className="rounded-full bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500 ring-1 ring-slate-200">Page {currentPage} of {totalPages}</span>
+                                <span className="rounded-full bg-slate-50 px-3 py-2 text-xs font-black text-slate-500 ring-1 ring-slate-200">Page {currentPage} of {totalPages}</span>
                                 <button
                                     disabled={currentPage >= totalPages}
                                     onClick={() => setPage((prev) => Math.min(totalPages, prev + 1))}
-                                    className="inline-flex h-9 items-center gap-1 rounded-control border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
+                                    className="inline-flex h-9 items-center gap-1 rounded-control border border-slate-200 bg-white px-3 text-xs font-black text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-45"
                                 >
                                     Next
                                     <ChevronRight className="h-3.5 w-3.5" />
@@ -5075,7 +5075,7 @@ function ContactsPage({
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 12 }}
-                        className="fixed bottom-5 right-5 z-50 rounded-card border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-raised"
+                        className="fixed bottom-5 right-5 z-50 rounded-card border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-800 shadow-raised"
                     >
                         {toastMessage}
                     </motion.div>
@@ -5098,10 +5098,10 @@ function ContactStatCard({ label, value, helper, icon, tone }: { label: string; 
         <div className="rounded-card border border-white bg-white p-3.5 shadow-rest">
             <div className="mb-3 flex items-center justify-between">
                 <span className={cx("flex h-9 w-9 items-center justify-center rounded-control", tones[tone])}>{icon}</span>
-                <span className="rounded-full bg-slate-50 px-2 py-0.5 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">CRM</span>
+                <span className="rounded-full bg-slate-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">CRM</span>
             </div>
-            <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <h3 className="mt-1 text-xl font-bold tracking-tight text-slate-950">{value}</h3>
+            <p className="text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <h3 className="mt-1 text-xl font-black tracking-tight text-slate-950">{value}</h3>
             <p className="mt-1 text-xs font-bold text-slate-500">{helper}</p>
         </div>
     );
@@ -5112,7 +5112,7 @@ function ContactSelect({ value, onChange, options }: { value: string; onChange: 
         <select
             value={value}
             onChange={(event) => onChange(event.target.value)}
-            className="h-11 rounded-card border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-600 outline-none transition focus:border-brand/40 focus:ring-4 focus:ring-brand/10"
+            className="h-11 rounded-card border border-slate-200 bg-white px-3 text-sm font-black text-slate-600 outline-none transition focus:border-brand/40 focus:ring-4 focus:ring-brand/10"
         >
             {options.map((option) => <option key={option} value={option}>{option}</option>)}
         </select>
@@ -5138,7 +5138,7 @@ function ContactTags({ contact }: { contact: ContactRecord }) {
     return (
         <div className="flex max-w-[170px] flex-wrap gap-1">
             {contactTags(contact).map((tag) => (
-                <span key={tag.label} className={cx("inline-flex h-5 items-center rounded-full px-2 text-2xs font-semibold uppercase tracking-[0.05em] ring-1", tag.tone)}>{tag.label}</span>
+                <span key={tag.label} className={cx("inline-flex h-5 items-center rounded-full px-2 text-[9px] font-black uppercase tracking-[0.05em] ring-1", tag.tone)}>{tag.label}</span>
             ))}
         </div>
     );
@@ -5171,7 +5171,7 @@ function ContactTableRow({
                 <ContactIdentity contact={contact} />
             </td>
             <td className="px-3 py-4">
-                <p className={cx("text-sm font-semibold", hasCapturedEmail(contact) ? "text-slate-700" : "text-slate-400")}>{safeText(contact.email, "No email captured")}</p>
+                <p className={cx("text-sm font-black", hasCapturedEmail(contact) ? "text-slate-700" : "text-slate-400")}>{safeText(contact.email, "No email captured")}</p>
             </td>
             <td className="px-3 py-4">
                 <div className="max-w-[190px]">
@@ -5229,7 +5229,7 @@ function ContactMobileCard({
                 <ContactTags contact={contact} />
             </div>
             <div className="mt-4 flex gap-2">
-                <button onClick={onOpen} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-control bg-brand text-sm font-semibold text-white transition hover:bg-brand-hover">
+                <button onClick={onOpen} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-control bg-brand text-sm font-black text-white transition hover:bg-brand-hover">
                     <Eye className="h-4 w-4" />
                     View details
                 </button>
@@ -5245,11 +5245,11 @@ function ContactIdentity({ contact }: { contact: ContactRecord }) {
     const initial = safeText(contact.name, contact.username).replace("@", "").charAt(0).toUpperCase() || "U";
     return (
         <div className="flex min-w-0 items-center gap-3">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand to-brand-hover text-sm font-semibold text-white">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand to-brand-hover text-sm font-black text-white">
                 {contact.avatar ? <img src={contact.avatar} alt="" className="h-full w-full rounded-card object-cover" /> : initial}
             </span>
             <div className="min-w-0">
-                <p className="truncate text-sm font-semibold capitalize text-slate-900">{safeText(contact.name, safeText(contact.username, "Unknown Instagram user"))}</p>
+                <p className="truncate text-sm font-black capitalize text-slate-900">{safeText(contact.name, safeText(contact.username, "Unknown Instagram user"))}</p>
                 <p className="truncate text-xs font-bold text-slate-500">{safeText(contact.username, "Unknown Instagram user")}</p>
             </div>
         </div>
@@ -5259,8 +5259,8 @@ function ContactIdentity({ contact }: { contact: ContactRecord }) {
 function ContactInfoLine({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
     return (
         <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</span>
-            <span className={cx("min-w-0 truncate text-right text-xs font-semibold", muted ? "text-slate-400" : "text-slate-700")}>{value}</span>
+            <span className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{label}</span>
+            <span className={cx("min-w-0 truncate text-right text-xs font-black", muted ? "text-slate-400" : "text-slate-700")}>{value}</span>
         </div>
     );
 }
@@ -5275,7 +5275,7 @@ function SourcePill({ source }: { source: ContactRecord["sourceType"] }) {
                 : source === "Unknown source"
                     ? "bg-slate-100 text-slate-500 ring-slate-200"
                     : "bg-brand-soft text-brand ring-brand/15";
-    return <span className={cx("inline-flex h-6 items-center rounded-full px-2.5 text-2xs font-semibold uppercase tracking-[0.06em] ring-1", tone)}>{source}</span>;
+    return <span className={cx("inline-flex h-6 items-center rounded-full px-2.5 text-[10px] font-black uppercase tracking-[0.06em] ring-1", tone)}>{source}</span>;
 }
 
 function RelationshipPill({ relationship }: { relationship: ContactRecord["relationship"] }) {
@@ -5286,7 +5286,7 @@ function RelationshipPill({ relationship }: { relationship: ContactRecord["relat
             : relationship === "You Follow"
                 ? "bg-sky-50 text-sky-700 ring-sky-100"
                 : "bg-slate-100 text-slate-500 ring-slate-200";
-    return <span className={cx("inline-flex h-6 items-center rounded-full px-2.5 text-2xs font-semibold uppercase tracking-[0.06em] ring-1", tone)}>{relationship}</span>;
+    return <span className={cx("inline-flex h-6 items-center rounded-full px-2.5 text-[10px] font-black uppercase tracking-[0.06em] ring-1", tone)}>{relationship}</span>;
 }
 
 function ContactDetailDrawer({
@@ -5322,8 +5322,8 @@ function ContactDetailDrawer({
                 <div className="sticky top-0 z-10 border-b border-slate-100 bg-white/90 p-5 backdrop-blur">
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-brand">Contact details</p>
-                            <h2 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">{safeText(contact.name, contact.username)}</h2>
+                            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-brand">Contact details</p>
+                            <h2 className="mt-1 text-2xl font-black tracking-tight text-slate-900">{safeText(contact.name, contact.username)}</h2>
                         </div>
                         <button onClick={onClose} className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-500 transition hover:bg-slate-50 hover:text-slate-950">
                             <X className="h-4 w-4" />
@@ -5349,25 +5349,25 @@ function ContactDetailDrawer({
                     </div>
 
                     <div className="rounded-card border border-slate-100 bg-white p-4 shadow-rest">
-                        <h3 className="text-sm font-semibold text-slate-900">Captured data</h3>
+                        <h3 className="text-sm font-black text-slate-900">Captured data</h3>
                         <div className="mt-3 grid gap-2">
                             {contact.capturedFields.map((field) => (
                                 <div key={field.label} className="flex items-center justify-between gap-3 rounded-control bg-slate-50 px-3 py-2">
-                                    <span className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{field.label}</span>
-                                    <span className="min-w-0 truncate text-right text-xs font-semibold text-slate-700">{safeText(field.value, "Unknown")}</span>
+                                    <span className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{field.label}</span>
+                                    <span className="min-w-0 truncate text-right text-xs font-black text-slate-700">{safeText(field.value, "Unknown")}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
 
                     <div className="rounded-card border border-slate-100 bg-white p-4 shadow-rest">
-                        <h3 className="text-sm font-semibold text-slate-900">Recent activity</h3>
+                        <h3 className="text-sm font-black text-slate-900">Recent activity</h3>
                         <div className="mt-4 space-y-4">
                             {contact.timeline.map((item, index) => (
                                 <div key={`${item.label}-${index}`} className="flex gap-3">
                                     <span className={cx("mt-1 h-2.5 w-2.5 shrink-0 rounded-full", contactTimelineTone(item.tone))} />
                                     <div>
-                                        <p className="text-sm font-semibold text-slate-800">{item.label}</p>
+                                        <p className="text-sm font-black text-slate-800">{item.label}</p>
                                         <p className="mt-0.5 text-xs font-bold text-slate-400">{item.time}</p>
                                     </div>
                                 </div>
@@ -5376,20 +5376,20 @@ function ContactDetailDrawer({
                     </div>
 
                     <div className="grid gap-2">
-                        <button onClick={onCopyUsername} className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        <button onClick={onCopyUsername} className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white text-sm font-black text-slate-700 transition hover:bg-slate-50">
                             <Copy className="h-4 w-4" />
                             Copy username
                         </button>
-                        <button onClick={onCopyEmail} className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                        <button onClick={onCopyEmail} className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white text-sm font-black text-slate-700 transition hover:bg-slate-50">
                             <Mail className="h-4 w-4" />
                             Copy email
                         </button>
-                        <button onClick={onExport} className="inline-flex h-11 items-center justify-center gap-2 rounded-card bg-brand text-sm font-semibold text-white transition hover:bg-brand-hover">
+                        <button onClick={onExport} className="inline-flex h-11 items-center justify-center gap-2 rounded-card bg-brand text-sm font-black text-white transition hover:bg-brand-hover">
                             <Download className="h-4 w-4" />
                             Export contact
                         </button>
                         {contact.profileUrl && (
-                            <a href={contact.profileUrl} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-card bg-slate-950 text-sm font-semibold text-white transition hover:bg-slate-800">
+                            <a href={contact.profileUrl} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-card bg-slate-950 text-sm font-black text-white transition hover:bg-slate-800">
                                 <ExternalLink className="h-4 w-4" />
                                 Open Instagram profile
                             </a>
@@ -5404,8 +5404,8 @@ function ContactDetailDrawer({
 function DrawerInfo({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
     return (
         <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</span>
-            <span className={cx("min-w-0 truncate text-right text-sm font-semibold", muted ? "text-slate-400" : "text-slate-700")}>{value}</span>
+            <span className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{label}</span>
+            <span className={cx("min-w-0 truncate text-right text-sm font-black", muted ? "text-slate-400" : "text-slate-700")}>{value}</span>
         </div>
     );
 }
@@ -5465,13 +5465,13 @@ function InboxPage({ activity }: { activity: LogEntry[] }) {
                 <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-brand/10 blur-3xl" />
                 <div className="pointer-events-none absolute -bottom-24 left-10 h-52 w-52 rounded-full bg-brand/5 blur-3xl" />
                 <div className="relative mx-auto flex max-w-2xl flex-col items-center text-center">
-                    <span className="inline-flex h-8 items-center rounded-full bg-brand-soft px-3 text-2xs font-semibold uppercase tracking-[0.12em] text-brand ring-1 ring-brand/15">
+                    <span className="inline-flex h-8 items-center rounded-full bg-brand-soft px-3 text-[11px] font-black uppercase tracking-[0.12em] text-brand ring-1 ring-brand/15">
                         Coming soon
                     </span>
                     <span className="mt-6 flex h-16 w-16 items-center justify-center rounded-card bg-slate-950 text-white shadow-raised">
                         <Inbox className="h-7 w-7" />
                     </span>
-                    <h2 className="mt-5 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">DMGennie Inbox is being prepared</h2>
+                    <h2 className="mt-5 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">DMGennie Inbox is being prepared</h2>
                     <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-500">
                         Soon you will be able to see Instagram conversations, automation replies, lead captures, and follow-ups in one clean workspace.
                     </p>
@@ -5486,17 +5486,17 @@ function InboxPage({ activity }: { activity: LogEntry[] }) {
                                 <span className="flex h-9 w-9 items-center justify-center rounded-control bg-white text-brand shadow-rest ring-1 ring-slate-100">
                                     {item.icon}
                                 </span>
-                                <p className="mt-3 text-sm font-semibold text-slate-900">{item.label}</p>
+                                <p className="mt-3 text-sm font-black text-slate-900">{item.label}</p>
                             </div>
                         ))}
                     </div>
 
                     <div className="mt-7 flex flex-col gap-2 sm:flex-row">
-                        <Link to="/pricing" className="inline-flex h-11 items-center justify-center gap-2 rounded-card bg-brand px-4 text-sm font-semibold text-white shadow-raised transition hover:-translate-y-0.5 hover:bg-brand-hover">
+                        <Link to="/pricing" className="inline-flex h-11 items-center justify-center gap-2 rounded-card bg-brand px-4 text-sm font-black text-white shadow-raised transition hover:-translate-y-0.5 hover:bg-brand-hover">
                             <Crown className="h-4 w-4" />
                             Get ready with Pro
                         </Link>
-                        <button className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50">
+                        <button className="inline-flex h-11 items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-4 text-sm font-black text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50">
                             <Bell className="h-4 w-4" />
                             Notify me
                         </button>
@@ -5730,7 +5730,7 @@ function AnalyticsPage({
                             setActiveTab(tab);
                         }}
                         className={cx(
-                            "whitespace-nowrap rounded-control px-4 py-2.5 text-sm font-semibold transition",
+                            "whitespace-nowrap rounded-control px-4 py-2.5 text-sm font-black transition",
                             activeTab === tab ? "bg-slate-950 text-white shadow-raised" : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
                         )}
                     >
@@ -5779,7 +5779,7 @@ function AnalyticsPage({
                                 <div className="hidden overflow-x-auto lg:block">
                                     <table className="w-full min-w-[900px] text-left">
                                         <thead>
-                                            <tr className="border-b border-slate-100 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">
+                                            <tr className="border-b border-slate-100 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">
                                                 <th className="px-3 py-3">Automation</th>
                                                 <th className="px-3 py-3">Trigger</th>
                                                 <th className="px-3 py-3">Keywords</th>
@@ -5799,7 +5799,7 @@ function AnalyticsPage({
                                                         <div className="flex items-center gap-3">
                                                             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-card bg-brand-soft text-brand"><Bot className="h-5 w-5" /></span>
                                                             <span className="min-w-0">
-                                                                <span className="block truncate text-sm font-semibold text-slate-950">{row.name}</span>
+                                                                <span className="block truncate text-sm font-black text-slate-950">{row.name}</span>
                                                                 <span className="block max-w-[260px] truncate text-xs font-semibold text-slate-500">{row.description}</span>
                                                             </span>
                                                         </div>
@@ -5807,15 +5807,15 @@ function AnalyticsPage({
                                                     <td className="px-3 py-4 text-sm font-bold text-slate-600">{row.trigger}</td>
                                                     <td className="px-3 py-4">
                                                         <div className="flex flex-wrap gap-1.5">
-                                                            {row.keywords.map((keyword) => <span key={keyword} className="rounded-full bg-slate-100 px-2 py-1 text-2xs font-semibold text-slate-600">+{keyword}</span>)}
+                                                            {row.keywords.map((keyword) => <span key={keyword} className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black text-slate-600">+{keyword}</span>)}
                                                         </div>
                                                     </td>
                                                     <AnalyticsNumberCell value={row.dms} />
                                                     <AnalyticsNumberCell value={row.clicks} />
-                                                    <td className="px-3 py-4 text-right text-sm font-semibold text-slate-700">{row.ctr}%</td>
+                                                    <td className="px-3 py-4 text-right text-sm font-black text-slate-700">{row.ctr}%</td>
                                                     <AnalyticsNumberCell value={row.leads} />
-                                                    <td className="px-3 py-4 text-right text-sm font-semibold text-emerald-600">{row.deliveryRate}%</td>
-                                                    <td className={cx("px-3 py-4 text-right text-sm font-semibold", row.failed ? "text-rose-600" : "text-slate-400")}>{formatMetric(row.failed)}</td>
+                                                    <td className="px-3 py-4 text-right text-sm font-black text-emerald-600">{row.deliveryRate}%</td>
+                                                    <td className={cx("px-3 py-4 text-right text-sm font-black", row.failed ? "text-rose-600" : "text-slate-400")}>{formatMetric(row.failed)}</td>
                                                     <td className="px-3 py-4"><StatusBadge status={row.status} /></td>
                                                 </tr>
                                             ))}
@@ -5827,7 +5827,7 @@ function AnalyticsPage({
                                         <button key={row.id} onClick={() => setSelectedAutomation(row)} className="rounded-card border border-slate-100 bg-white p-4 text-left shadow-rest transition hover:-translate-y-0.5 hover:shadow-rest">
                                             <div className="flex items-start justify-between gap-3">
                                                 <div>
-                                                    <p className="font-bold text-slate-950">{row.name}</p>
+                                                    <p className="font-black text-slate-950">{row.name}</p>
                                                     <p className="mt-1 text-sm font-semibold text-slate-500">{row.trigger}</p>
                                                 </div>
                                                 <StatusBadge status={row.status} />
@@ -5859,7 +5859,7 @@ function AnalyticsPage({
                             <div className="grid gap-3">
                                 {visibleContentRows.slice(0, 5).map((row) => <ContentPerformanceCard key={row.id} row={row} />)}
                                 {visibleContentRows.length > 5 && (
-                                    <button onClick={() => showToast("More content performance will load as Instagram sync grows.")} className="mx-auto mt-1 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Load More</button>
+                                    <button onClick={() => showToast("More content performance will load as Instagram sync grows.")} className="mx-auto mt-1 rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-black text-slate-600 transition hover:bg-slate-50">Load More</button>
                                 )}
                             </div>
                         ) : (
@@ -5923,7 +5923,7 @@ function AnalyticsPage({
                                 <div className="flex gap-3">
                                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-card bg-white text-amber-600 shadow-rest"><AlertTriangle className="h-5 w-5" /></span>
                                     <div>
-                                        <h3 className="font-bold text-slate-950">Account insights unavailable</h3>
+                                        <h3 className="font-black text-slate-950">Account insights unavailable</h3>
                                         <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Instagram may require additional permissions or enough account activity to show deeper account-level insights.</p>
                                         <div className="mt-4 flex flex-wrap gap-2">
                                             <SecondaryButton><RefreshCw className="h-4 w-4" /> Check permissions</SecondaryButton>
@@ -5976,7 +5976,7 @@ function AnalyticsPage({
                                             <div className="flex items-center gap-3">
                                                 <FallbackAvatar value={row.username} />
                                                 <div className="min-w-0 flex-1">
-                                                    <p className="truncate text-sm font-semibold text-slate-950">{row.username}</p>
+                                                    <p className="truncate text-sm font-black text-slate-950">{row.username}</p>
                                                     <p className="text-xs font-semibold text-slate-500">{row.comments} comments this period</p>
                                                 </div>
                                                 <SmallBadge label="Superfan" tone="gold" />
@@ -6011,7 +6011,7 @@ function AnalyticsPage({
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 12 }}
-                        className="fixed bottom-5 right-5 z-[70] rounded-card bg-slate-950 px-4 py-3 text-sm font-semibold text-white shadow-overlay"
+                        className="fixed bottom-5 right-5 z-[70] rounded-card bg-slate-950 px-4 py-3 text-sm font-black text-white shadow-overlay"
                     >
                         {toastMessage}
                     </motion.div>
@@ -6032,10 +6032,10 @@ function AnalyticsMetricCard({ icon, label, value, change, tone }: { icon: React
         <div className="rounded-card border border-white bg-white p-4 shadow-raised transition hover:-translate-y-0.5 hover:shadow-raised">
             <div className="flex items-start justify-between gap-3">
                 <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center rounded-card", tones[tone])}>{icon}</span>
-                <span className="rounded-full bg-slate-50 px-2 py-1 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">Live</span>
+                <span className="rounded-full bg-slate-50 px-2 py-1 text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">Live</span>
             </div>
-            <p className="mt-4 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <h3 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">{value}</h3>
+            <p className="mt-4 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <h3 className="mt-1 text-2xl font-black tracking-tight text-slate-950">{value}</h3>
             <p className="mt-1 text-xs font-bold text-slate-500">{change}</p>
         </div>
     );
@@ -6050,11 +6050,11 @@ function ProLockPanel({ title, copy, cta, onUpgrade }: { title: string; copy: st
                         <Lock className="h-5 w-5" />
                     </span>
                     <div>
-                        <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+                        <h3 className="text-base font-black text-slate-900">{title}</h3>
                         <p className="mt-1 max-w-2xl text-sm font-semibold leading-6 text-slate-500">{copy}</p>
                     </div>
                 </div>
-                <button onClick={onUpgrade} className={cx("inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold", goldCtaCls)}>
+                <button onClick={onUpgrade} className={cx("inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full px-4 text-sm font-black", goldCtaCls)}>
                     <Crown className={cx("h-4 w-4", goldCrownCls)} />
                     {cta}
                 </button>
@@ -6086,7 +6086,7 @@ function AnalyticsChartCard({
     return (
         <Panel
             title={title}
-            action={<span className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-500">{range}</span>}
+            action={<span className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-black text-slate-500">{range}</span>}
         >
             {hasData ? (
                 <div className="h-[280px]">
@@ -6109,14 +6109,14 @@ function AnalyticsChartCard({
 }
 
 function AnalyticsNumberCell({ value }: { value: number }) {
-    return <td className="px-3 py-4 text-right text-sm font-semibold text-slate-700">{formatMetric(value)}</td>;
+    return <td className="px-3 py-4 text-right text-sm font-black text-slate-700">{formatMetric(value)}</td>;
 }
 
 function CompactStat({ label, value }: { label: string; value: string }) {
     return (
         <div className="rounded-control bg-slate-50 p-2">
-            <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <p className="mt-0.5 text-sm font-semibold text-slate-950">{value}</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <p className="mt-0.5 text-sm font-black text-slate-950">{value}</p>
         </div>
     );
 }
@@ -6128,11 +6128,11 @@ function ContentPerformanceCard({ row }: { row: ContentPerformanceRow }) {
                 <div className={cx("h-14 w-14 shrink-0 rounded-card bg-gradient-to-br shadow-inner", row.color)} />
                 <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                        <p className="truncate text-sm font-semibold text-slate-950">{row.title}</p>
+                        <p className="truncate text-sm font-black text-slate-950">{row.title}</p>
                         <SmallBadge label={row.type} tone={row.type === "Reel" ? "purple" : row.type === "Carousel" ? "gold" : "gray"} />
                     </div>
                     <p className="mt-1 line-clamp-1 text-xs font-semibold text-slate-500">{row.caption}</p>
-                    <p className="mt-1 text-2xs font-semibold text-slate-400">{row.metric}</p>
+                    <p className="mt-1 text-[11px] font-black text-slate-400">{row.metric}</p>
                 </div>
             </div>
             <MiniMetric label="Comments" value={formatMetric(row.comments)} />
@@ -6148,8 +6148,8 @@ function ContentPerformanceCard({ row }: { row: ContentPerformanceRow }) {
 function MiniMetric({ label, value }: { label: string; value: string }) {
     return (
         <div className="rounded-control bg-slate-50 px-3 py-2 text-left md:text-center">
-            <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <p className="mt-0.5 text-sm font-semibold text-slate-800">{value}</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <p className="mt-0.5 text-sm font-black text-slate-800">{value}</p>
         </div>
     );
 }
@@ -6171,8 +6171,8 @@ function InsightRow({ icon, title, value, copy }: { icon: ReactNode; title: stri
         <div className="flex items-center gap-3 rounded-card border border-slate-100 bg-slate-50/70 p-3">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-card bg-white text-brand shadow-rest">{icon}</span>
             <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{title}</p>
-                <p className="mt-1 truncate text-sm font-semibold text-slate-950">{value}</p>
+                <p className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{title}</p>
+                <p className="mt-1 truncate text-sm font-black text-slate-950">{value}</p>
                 <p className="mt-0.5 text-xs font-semibold text-slate-500">{copy}</p>
             </div>
         </div>
@@ -6195,11 +6195,11 @@ function FailedDmHelpCard() {
         <div className="rounded-card border border-amber-100 bg-amber-50/70 p-4">
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div>
-                    <h3 className="font-bold text-slate-950">Troubleshooting Failed DMs</h3>
+                    <h3 className="font-black text-slate-950">Troubleshooting Failed DMs</h3>
                     <p className="mt-1 text-sm font-semibold text-slate-600">Common reasons and what DMGennie can help you review.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    {reasons.map((reason) => <span key={reason} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 ring-1 ring-amber-100">{reason}</span>)}
+                    {reasons.map((reason) => <span key={reason} className="rounded-full bg-white px-3 py-1.5 text-xs font-black text-amber-700 ring-1 ring-amber-100">{reason}</span>)}
                 </div>
             </div>
         </div>
@@ -6214,7 +6214,7 @@ function ActivityEventRow({ event, onCopy, onRetry }: { event: AnalyticsActivity
                 <div className="flex min-w-0 items-start gap-3">
                     <span className={cx("flex h-10 w-10 shrink-0 items-center justify-center rounded-card", config.className)}>{config.icon}</span>
                     <div className="min-w-0">
-                        <p className="text-sm font-semibold text-slate-950">{event.type} <span className="font-bold text-slate-500">to</span> {event.user}</p>
+                        <p className="text-sm font-black text-slate-950">{event.type} <span className="font-bold text-slate-500">to</span> {event.user}</p>
                         <p className="mt-1 text-xs font-semibold text-slate-500">{event.automation} · keyword +{event.keyword} · {event.timestamp}</p>
                         {event.errorReason && (
                             <p className="mt-2 rounded-control bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700">
@@ -6224,7 +6224,7 @@ function ActivityEventRow({ event, onCopy, onRetry }: { event: AnalyticsActivity
                     </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                    <span className={cx("rounded-full px-2.5 py-1 text-xs font-semibold", event.status === "Failed" ? "bg-rose-50 text-rose-700" : event.status === "Captured" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600")}>{event.status}</span>
+                    <span className={cx("rounded-full px-2.5 py-1 text-xs font-black", event.status === "Failed" ? "bg-rose-50 text-rose-700" : event.status === "Captured" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-600")}>{event.status}</span>
                     {event.status === "Failed" && <SecondaryButton onClick={onRetry}><RefreshCw className="h-4 w-4" /> Retry</SecondaryButton>}
                     <IconButton title="Copy event" onClick={onCopy}><Copy className="h-4 w-4" /></IconButton>
                 </div>
@@ -6236,8 +6236,8 @@ function ActivityEventRow({ event, onCopy, onRetry }: { event: AnalyticsActivity
 function CompactInsight({ label, value }: { label: string; value: string }) {
     return (
         <div className="rounded-card border border-slate-100 bg-slate-50/70 p-3">
-            <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <p className="mt-1 text-xl font-bold text-slate-950">{value}</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <p className="mt-1 text-xl font-black text-slate-950">{value}</p>
         </div>
     );
 }
@@ -6248,7 +6248,7 @@ function AudienceRow({ row }: { row: AudienceUserRow }) {
             <div className="flex min-w-0 items-center gap-3">
                 <FallbackAvatar value={row.username} />
                 <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-slate-950">{row.username}</p>
+                    <p className="truncate text-sm font-black text-slate-950">{row.username}</p>
                     <p className="truncate text-xs font-semibold text-slate-500">{row.name} · top keyword +{row.topKeyword}</p>
                 </div>
             </div>
@@ -6264,7 +6264,7 @@ function AudienceRow({ row }: { row: AudienceUserRow }) {
 function FallbackAvatar({ value }: { value: string }) {
     const initial = safeText(value, "D").replace("@", "").charAt(0).toUpperCase() || "D";
     return (
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-hover text-sm font-semibold text-white shadow-rest">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-hover text-sm font-black text-white shadow-rest">
             {initial}
         </span>
     );
@@ -6295,8 +6295,8 @@ function AutomationAnalyticsDrawer({
             >
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-400">Automation analytics</p>
-                        <h2 className="mt-1 text-2xl font-bold text-slate-950">{row.name}</h2>
+                        <p className="text-xs font-black uppercase tracking-[0.1em] text-slate-400">Automation analytics</p>
+                        <h2 className="mt-1 text-2xl font-black text-slate-950">{row.name}</h2>
                     </div>
                     <IconButton title="Close" onClick={onClose}><X className="h-5 w-5" /></IconButton>
                 </div>
@@ -6304,7 +6304,7 @@ function AutomationAnalyticsDrawer({
                 <div className="mt-5 rounded-card border border-slate-100 bg-slate-50/70 p-4">
                     <div className="flex items-center justify-between">
                         <StatusBadge status={row.status} />
-                        <span className="text-xs font-semibold text-slate-400">{row.lastActivity}</span>
+                        <span className="text-xs font-black text-slate-400">{row.lastActivity}</span>
                     </div>
                     <p className="mt-4 text-sm font-semibold leading-6 text-slate-600">{row.description}</p>
                 </div>
@@ -6326,7 +6326,7 @@ function AutomationAnalyticsDrawer({
                 </div>
 
                 <div className="mt-4 rounded-card border border-slate-100 p-4">
-                    <h3 className="font-bold text-slate-950">Mini timeline</h3>
+                    <h3 className="font-black text-slate-950">Mini timeline</h3>
                     <div className="mt-4 space-y-3">
                         <TimelineMini label="DM sent" value={formatMetric(row.dms)} tone="purple" />
                         <TimelineMini label="Link clicked" value={formatMetric(row.clicks)} tone="blue" />
@@ -6348,8 +6348,8 @@ function AutomationAnalyticsDrawer({
 function AnalyticsDetailRow({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex items-start justify-between gap-4">
-            <span className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</span>
-            <span className="max-w-[220px] text-right text-sm font-semibold text-slate-700">{safeText(value)}</span>
+            <span className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{label}</span>
+            <span className="max-w-[220px] text-right text-sm font-black text-slate-700">{safeText(value)}</span>
         </div>
     );
 }
@@ -6365,7 +6365,7 @@ function TimelineMini({ label, value, tone }: { label: string; value: string; to
         <div className="flex items-center gap-3">
             <span className={cx("h-2.5 w-2.5 rounded-full", tones[tone])} />
             <span className="flex-1 text-sm font-bold text-slate-600">{label}</span>
-            <span className="text-sm font-semibold text-slate-950">{value}</span>
+            <span className="text-sm font-black text-slate-950">{value}</span>
         </div>
     );
 }
@@ -6954,7 +6954,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
             tourKey="referral"
             action={
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex h-9 items-center rounded-full border border-emerald-100 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700">25% recurring commission</span>
+                    <span className="inline-flex h-9 items-center rounded-full border border-emerald-100 bg-emerald-50 px-3 text-xs font-black text-emerald-700">25% recurring commission</span>
                     <SecondaryButton onClick={() => setPublicPreviewOpen(true)}><ExternalLink className="h-4 w-4" /> View public page</SecondaryButton>
                 </div>
             }
@@ -6988,7 +6988,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                             type="button"
                             onClick={() => setActiveTab(tab)}
                             className={cx(
-                                "whitespace-nowrap rounded-control px-4 py-2 text-sm font-semibold transition",
+                                "whitespace-nowrap rounded-control px-4 py-2 text-sm font-black transition",
                                 activeTab === tab ? "bg-slate-950 text-white shadow-rest" : "text-slate-500 hover:bg-slate-50 hover:text-slate-950"
                             )}
                         >
@@ -7022,7 +7022,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                                         key={filter}
                                         type="button"
                                         onClick={() => setUserFilter(filter)}
-                                        className={cx("rounded-full px-3 py-2 text-xs font-semibold transition", userFilter === filter ? "bg-brand text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200")}
+                                        className={cx("rounded-full px-3 py-2 text-xs font-black transition", userFilter === filter ? "bg-brand text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200")}
                                     >
                                         {filter}
                                     </button>
@@ -7060,16 +7060,16 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                 <ModalShell onClose={() => setPublicPreviewOpen(false)}>
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <h3 className="text-2xl font-bold text-slate-950">Referral page preview</h3>
+                            <h3 className="text-2xl font-black text-slate-950">Referral page preview</h3>
                             <p className="mt-2 text-sm font-semibold leading-6 text-slate-500">This is how your referral link will look to users. Public referral routing can open this URL once the public page is connected.</p>
                         </div>
                         <IconButton title="Close" onClick={() => setPublicPreviewOpen(false)}><X className="h-5 w-5" /></IconButton>
                     </div>
                     <div className="mt-5 rounded-card border border-slate-200 bg-gradient-to-br from-brand-soft to-rose-50 p-5">
-                        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-brand">DMGennie referral</p>
-                        <h4 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">Automate Instagram DMs from comments</h4>
-                        <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-600">You were invited with referral code <span className="font-bold text-slate-950">{referralCode}</span>. Start free, then upgrade when you are ready.</p>
-                        <div className="mt-4 rounded-card bg-white p-3 text-sm font-semibold text-slate-700">{referralLink}</div>
+                        <p className="text-xs font-black uppercase tracking-[0.12em] text-brand">DMGennie referral</p>
+                        <h4 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Automate Instagram DMs from comments</h4>
+                        <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-600">You were invited with referral code <span className="font-black text-slate-950">{referralCode}</span>. Start free, then upgrade when you are ready.</p>
+                        <div className="mt-4 rounded-card bg-white p-3 text-sm font-black text-slate-700">{referralLink}</div>
                     </div>
                 </ModalShell>
             )}
@@ -7078,7 +7078,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                 <ModalShell onClose={() => setPayoutMethodOpen(false)}>
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <h3 className="text-2xl font-bold text-slate-950">Add payout method</h3>
+                            <h3 className="text-2xl font-black text-slate-950">Add payout method</h3>
                             <p className="mt-2 text-sm font-semibold text-slate-500">Add UPI or bank details to withdraw verified earnings.</p>
                         </div>
                         <IconButton title="Close" onClick={() => setPayoutMethodOpen(false)}><X className="h-5 w-5" /></IconButton>
@@ -7089,7 +7089,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                                 key={type}
                                 type="button"
                                 onClick={() => setPayoutDraft((draft) => ({ ...draft, type }))}
-                                className={cx("rounded-control px-4 py-2.5 text-sm font-semibold transition", payoutDraft.type === type ? "bg-white text-slate-950 shadow-rest" : "text-slate-500 hover:text-slate-950")}
+                                className={cx("rounded-control px-4 py-2.5 text-sm font-black transition", payoutDraft.type === type ? "bg-white text-slate-950 shadow-rest" : "text-slate-500 hover:text-slate-950")}
                             >
                                 {type}
                             </button>
@@ -7122,7 +7122,7 @@ function ReferralPage({ preview = false }: { preview?: boolean }) {
                 <ModalShell onClose={() => setPayoutRequestOpen(false)}>
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <h3 className="text-2xl font-bold text-slate-950">Request payout</h3>
+                            <h3 className="text-2xl font-black text-slate-950">Request payout</h3>
                             <p className="mt-2 text-sm font-semibold text-slate-500">Confirm your withdrawal request. Manual UPI / bank transfer is processed within 5 business days.</p>
                         </div>
                         <IconButton title="Close" onClick={() => setPayoutRequestOpen(false)}><X className="h-5 w-5" /></IconButton>
@@ -7164,15 +7164,15 @@ function ReferralHeroCard({
             <div className="bg-gradient-to-br from-slate-950 via-[#405DE6] to-brand p-5 text-white sm:p-6">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
-                        <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-2xs font-semibold uppercase tracking-[0.12em] text-white/75">Partner program</span>
-                        <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">Share DMGennie. Earn 25%.</h2>
+                        <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-white/75">Partner program</span>
+                        <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl">Share DMGennie. Earn 25%.</h2>
                         <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-white/70">Invite creators to DMGennie and earn 25% commission when they upgrade after their trial.</p>
                     </div>
                     <div className="rounded-card border border-white/15 bg-white/10 p-4 backdrop-blur">
                         <div className="flex items-center gap-3">
                             <FallbackAvatar value="@dmgennie.in" />
                             <div>
-                                <p className="text-sm font-semibold">{session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || 'Creator'}</p>
+                                <p className="text-sm font-black">{session?.user?.user_metadata?.full_name || session?.user?.email?.split('@')[0] || 'Creator'}</p>
                                 <p className="text-xs font-semibold text-white/60">Code: {referralCode}</p>
                             </div>
                         </div>
@@ -7182,7 +7182,7 @@ function ReferralHeroCard({
             <div className="p-5 sm:p-6">
                 <Label>Referral link</Label>
                 <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
-                    <div className="min-w-0 rounded-card border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">{referralLink}</div>
+                    <div className="min-w-0 rounded-card border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-black text-slate-700">{referralLink}</div>
                     <PrimaryButton onClick={onCopyLink}><Copy className="h-4 w-4" /> Copy Link</PrimaryButton>
                     <SecondaryButton onClick={onCopyCode}><Hash className="h-4 w-4" /> Copy Code</SecondaryButton>
                 </div>
@@ -7210,9 +7210,9 @@ function HowReferralWorks() {
             <div className="space-y-3">
                 {steps.map(([title, copy], index) => (
                     <div key={title} className="flex gap-3 rounded-card border border-slate-100 bg-slate-50/70 p-3">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-xs font-semibold text-brand shadow-rest">{index + 1}</span>
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-brand shadow-rest">{index + 1}</span>
                         <div>
-                            <h3 className="text-sm font-semibold text-slate-950">{title}</h3>
+                            <h3 className="text-sm font-black text-slate-950">{title}</h3>
                             <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">{copy}</p>
                         </div>
                     </div>
@@ -7232,8 +7232,8 @@ function ReferralMetricCard({ icon, label, value, helper, tone }: { icon: ReactN
     return (
         <div className="rounded-card border border-white bg-white p-4 shadow-raised">
             <span className={cx("flex h-9 w-9 items-center justify-center rounded-control", tones[tone])}>{icon}</span>
-            <p className="mt-3 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <p className="mt-1 text-2xl font-bold text-slate-950">{value}</p>
+            <p className="mt-3 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <p className="mt-1 text-2xl font-black text-slate-950">{value}</p>
             <p className="mt-1 text-xs font-semibold text-slate-500">{helper}</p>
         </div>
     );
@@ -7246,11 +7246,11 @@ function PayoutMethodPanel({ method, onAdd }: { method: PayoutMethodRecord | nul
                 <div className="rounded-card border border-emerald-100 bg-emerald-50/50 p-4">
                     <div className="flex items-start justify-between gap-4">
                         <div>
-                            <p className="text-sm font-semibold text-slate-950">{formatPayoutMethod(method)}</p>
+                            <p className="text-sm font-black text-slate-950">{formatPayoutMethod(method)}</p>
                             <p className="mt-1 text-xs font-semibold text-slate-500">Holder: {method.holderName}</p>
                             {method.ifsc && <p className="mt-1 text-xs font-semibold text-slate-500">IFSC: {method.ifsc}</p>}
                         </div>
-                        <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-emerald-700">{method.status}</span>
+                        <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-emerald-700">{method.status}</span>
                     </div>
                 </div>
             ) : (
@@ -7281,8 +7281,8 @@ function RequestPayoutPanel({
     return (
         <Panel title="Request Payout">
             <div className="rounded-card border border-slate-100 bg-slate-50/70 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">Withdrawable balance</p>
-                <p className="mt-2 text-4xl font-bold text-slate-950">{formatCurrency(withdrawableBalance)}</p>
+                <p className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">Withdrawable balance</p>
+                <p className="mt-2 text-4xl font-black text-slate-950">{formatCurrency(withdrawableBalance)}</p>
                 <div className="mt-4 grid gap-2">
                     <ReferralReviewRow label="Minimum payout" value="₹500" />
                     <ReferralReviewRow label="Payout method" value={payoutMethod ? formatPayoutMethod(payoutMethod) : "Not added"} />
@@ -7291,7 +7291,7 @@ function RequestPayoutPanel({
                 <button
                     type="button"
                     onClick={onRequest}
-                    className={cx("mt-5 inline-flex w-full items-center justify-center gap-2 rounded-card px-4 py-3 text-sm font-semibold transition", canRequest ? "bg-brand text-white shadow-raised hover:bg-brand-hover" : "bg-slate-200 text-slate-500 hover:bg-slate-300")}
+                    className={cx("mt-5 inline-flex w-full items-center justify-center gap-2 rounded-card px-4 py-3 text-sm font-black transition", canRequest ? "bg-brand text-white shadow-raised hover:bg-brand-hover" : "bg-slate-200 text-slate-500 hover:bg-slate-300")}
                 >
                     <CreditCard className="h-4 w-4" />
                     Request Payout
@@ -7310,7 +7310,7 @@ function ReferredUsersTable({ users, onCopyLink }: { users: ReferredUserRecord[]
         <>
             <div className="hidden overflow-x-auto rounded-card border border-slate-100 md:block">
                 <table className="min-w-[1040px] w-full text-left text-sm">
-                    <thead className="bg-slate-50 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">
+                    <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">
                         <tr>
                             {["User", "Signup Date", "Trial Status", "Subscription", "Plan", "First Payment", "Revenue", "Commission", "Status", "Last Activity"].map((heading) => <th key={heading} className="px-4 py-3">{heading}</th>)}
                         </tr>
@@ -7322,7 +7322,7 @@ function ReferredUsersTable({ users, onCopyLink }: { users: ReferredUserRecord[]
                                     <div className="flex items-center gap-3">
                                         <FallbackAvatar value={user.name} />
                                         <div>
-                                            <p className="font-bold text-slate-950">{user.name}</p>
+                                            <p className="font-black text-slate-950">{user.name}</p>
                                             <p className="text-xs font-semibold text-slate-500">{user.email}</p>
                                         </div>
                                     </div>
@@ -7330,10 +7330,10 @@ function ReferredUsersTable({ users, onCopyLink }: { users: ReferredUserRecord[]
                                 <td className="px-4 py-3 font-semibold text-slate-600">{user.signupDate}</td>
                                 <td className="px-4 py-3"><ReferralStatusPill status={user.trialStatus} /></td>
                                 <td className="px-4 py-3"><ReferralStatusPill status={user.subscriptionStatus} /></td>
-                                <td className="px-4 py-3 font-bold text-slate-700">{user.plan}</td>
+                                <td className="px-4 py-3 font-black text-slate-700">{user.plan}</td>
                                 <td className="px-4 py-3 font-semibold text-slate-600">{user.firstPaymentDate}</td>
-                                <td className="px-4 py-3 font-bold text-slate-950">{formatCurrency(user.totalRevenue)}</td>
-                                <td className="px-4 py-3 font-bold text-slate-950">{formatCurrency(user.commission)}</td>
+                                <td className="px-4 py-3 font-black text-slate-950">{formatCurrency(user.totalRevenue)}</td>
+                                <td className="px-4 py-3 font-black text-slate-950">{formatCurrency(user.commission)}</td>
                                 <td className="px-4 py-3"><ReferralStatusPill status={user.commissionStatus} /></td>
                                 <td className="px-4 py-3 font-semibold text-slate-500">{user.lastActivity}</td>
                             </tr>
@@ -7347,7 +7347,7 @@ function ReferredUsersTable({ users, onCopyLink }: { users: ReferredUserRecord[]
                         <div className="flex items-center gap-3">
                             <FallbackAvatar value={user.name} />
                             <div>
-                                <p className="font-bold text-slate-950">{user.name}</p>
+                                <p className="font-black text-slate-950">{user.name}</p>
                                 <p className="text-xs font-semibold text-slate-500">{user.email}</p>
                             </div>
                         </div>
@@ -7371,7 +7371,7 @@ function CommissionHistoryTable({ commissions }: { commissions: CommissionRecord
     return (
         <div className="overflow-x-auto rounded-card border border-slate-100">
             <table className="min-w-[900px] w-full text-left text-sm">
-                <thead className="bg-slate-50 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">
+                <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">
                     <tr>
                         {["Date", "Referred User", "Plan", "Payment Amount", "Rate", "Commission", "Status", "Available On", "Reference"].map((heading) => <th key={heading} className="px-4 py-3">{heading}</th>)}
                     </tr>
@@ -7380,11 +7380,11 @@ function CommissionHistoryTable({ commissions }: { commissions: CommissionRecord
                     {commissions.map((row) => (
                         <tr key={row.id} className="transition hover:bg-slate-50/70">
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.date}</td>
-                            <td className="px-4 py-3 font-bold text-slate-950">{row.referredUser}</td>
+                            <td className="px-4 py-3 font-black text-slate-950">{row.referredUser}</td>
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.subscriptionPlan}</td>
-                            <td className="px-4 py-3 font-bold text-slate-950">{formatCurrency(row.paymentAmount)}</td>
+                            <td className="px-4 py-3 font-black text-slate-950">{formatCurrency(row.paymentAmount)}</td>
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.commissionRate}%</td>
-                            <td className="px-4 py-3 font-bold text-slate-950">{formatCurrency(row.commissionAmount)}</td>
+                            <td className="px-4 py-3 font-black text-slate-950">{formatCurrency(row.commissionAmount)}</td>
                             <td className="px-4 py-3"><ReferralStatusPill status={row.status} /></td>
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.availableOn}</td>
                             <td className="px-4 py-3 font-mono text-xs font-bold text-slate-500">{row.paymentId}</td>
@@ -7403,7 +7403,7 @@ function PayoutHistoryTable({ payouts }: { payouts: PayoutRecord[] }) {
     return (
         <div className="overflow-x-auto rounded-card border border-slate-100">
             <table className="min-w-[760px] w-full text-left text-sm">
-                <thead className="bg-slate-50 text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">
+                <thead className="bg-slate-50 text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">
                     <tr>
                         {["Requested Date", "Amount", "Payout Method", "Status", "Processed Date", "Reference ID"].map((heading) => <th key={heading} className="px-4 py-3">{heading}</th>)}
                     </tr>
@@ -7412,7 +7412,7 @@ function PayoutHistoryTable({ payouts }: { payouts: PayoutRecord[] }) {
                     {payouts.map((row) => (
                         <tr key={row.id} className="transition hover:bg-slate-50/70">
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.requestedDate}</td>
-                            <td className="px-4 py-3 font-bold text-slate-950">{formatCurrency(row.amount)}</td>
+                            <td className="px-4 py-3 font-black text-slate-950">{formatCurrency(row.amount)}</td>
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.payoutMethod}</td>
                             <td className="px-4 py-3"><ReferralStatusPill status={row.status} /></td>
                             <td className="px-4 py-3 font-semibold text-slate-600">{row.processedDate}</td>
@@ -7448,7 +7448,7 @@ function ReferralFaq({ openIndex, onOpen }: { openIndex: number; onOpen: (index:
                         className="w-full rounded-card border border-slate-100 bg-slate-50/60 p-4 text-left transition hover:bg-slate-50"
                     >
                         <div className="flex items-center justify-between gap-4">
-                            <h3 className="text-sm font-semibold text-slate-950">{question}</h3>
+                            <h3 className="text-sm font-black text-slate-950">{question}</h3>
                             <ChevronDown className={cx("h-4 w-4 text-slate-400 transition", openIndex === index && "rotate-180")} />
                         </div>
                         {openIndex === index && <p className="mt-3 text-sm font-semibold leading-6 text-slate-500">{answer}</p>}
@@ -7461,7 +7461,7 @@ function ReferralFaq({ openIndex, onOpen }: { openIndex: number; onOpen: (index:
 
 function ReferralShareButton({ icon, label, onClick }: { icon: ReactNode; label: string; onClick: () => void }) {
     return (
-        <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-control border border-slate-200 bg-white px-3 py-2.5 text-xs font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-brand/25 hover:bg-brand-soft hover:text-brand">
+        <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-control border border-slate-200 bg-white px-3 py-2.5 text-xs font-black text-slate-700 transition hover:-translate-y-0.5 hover:border-brand/25 hover:bg-brand-soft hover:text-brand">
             {icon}
             {label}
         </button>
@@ -7482,7 +7482,7 @@ function ReferralReviewRow({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex items-center justify-between gap-4 rounded-control bg-white px-3 py-2.5 text-sm">
             <span className="font-bold text-slate-500">{label}</span>
-            <span className="text-right font-bold text-slate-950">{value}</span>
+            <span className="text-right font-black text-slate-950">{value}</span>
         </div>
     );
 }
@@ -7496,12 +7496,12 @@ function ReferralStatusPill({ status }: { status: string }) {
             : normalized.includes("refunded") || normalized.includes("reversed") || normalized.includes("failed") || normalized.includes("rejected") || normalized.includes("churned")
                 ? "bg-rose-50 text-rose-700 ring-rose-100"
                 : "bg-slate-100 text-slate-600 ring-slate-200";
-    return <span className={cx("inline-flex h-7 items-center rounded-full px-2.5 text-xs font-semibold ring-1", tone)}>{status}</span>;
+    return <span className={cx("inline-flex h-7 items-center rounded-full px-2.5 text-xs font-black ring-1", tone)}>{status}</span>;
 }
 
 function ReferralToast({ message }: { message: string }) {
     return (
-        <div className="fixed bottom-5 right-5 z-50 rounded-card border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-950 shadow-raised">
+        <div className="fixed bottom-5 right-5 z-50 rounded-card border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-950 shadow-raised">
             {message}
         </div>
     );
@@ -7719,7 +7719,7 @@ function SettingsPage(props: {
                                 key={item.key}
                                 onClick={() => props.onSettingsTab(item.key)}
                                 className={cx(
-                                    "flex min-w-max items-center gap-3 rounded-card px-4 py-2.5 text-left text-sm font-semibold transition lg:w-full",
+                                    "flex min-w-max items-center gap-3 rounded-card px-4 py-2.5 text-left text-sm font-black transition lg:w-full",
                                     props.settingsTab === item.key ? "bg-slate-950 text-white shadow-rest" : "text-slate-600 hover:bg-slate-50"
                                 )}
                             >
@@ -7730,12 +7730,12 @@ function SettingsPage(props: {
                     </div>
                 </Panel>
                 <div className="space-y-4">
-                    <Panel title={menu.find((item) => item.key === props.settingsTab)?.label || "Settings"} action={props.saved ? <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Saved</span> : undefined}>
+                    <Panel title={menu.find((item) => item.key === props.settingsTab)?.label || "Settings"} action={props.saved ? <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Saved</span> : undefined}>
                     {props.settingsTab === "profile" && (
                         <div className="space-y-5">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                 <div>
-                                    <h3 className="text-base font-semibold text-slate-950">Personal Information</h3>
+                                    <h3 className="text-base font-black text-slate-950">Personal Information</h3>
                                     <p className="mt-1 text-sm font-semibold text-slate-500">View and manage your basic account details.</p>
                                 </div>
                                 {!editingProfile && (
@@ -7748,14 +7748,14 @@ function SettingsPage(props: {
                             {!editingProfile ? (
                                 <div className="rounded-card border border-slate-100 bg-slate-50/70 p-4">
                                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand to-brand-hover text-lg font-bold text-white">
+                                        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand to-brand-hover text-lg font-black text-white">
                                             {(profileSaved.fullName || "Creator").charAt(0).toUpperCase()}
                                         </span>
                                         <div className="min-w-0 flex-1">
-                                            <h3 className="truncate text-lg font-bold text-slate-950">{profileSaved.fullName || "Creator"}</h3>
+                                            <h3 className="truncate text-lg font-black text-slate-950">{profileSaved.fullName || "Creator"}</h3>
                                             <p className="mt-1 truncate text-sm font-semibold text-slate-500">{profileSaved.email || "No email available"}</p>
                                         </div>
-                                        <span className="inline-flex h-7 w-fit items-center rounded-full bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 ring-1 ring-emerald-100">Active account</span>
+                                        <span className="inline-flex h-7 w-fit items-center rounded-full bg-emerald-50 px-3 text-xs font-black text-emerald-700 ring-1 ring-emerald-100">Active account</span>
                                     </div>
                                     <div className="mt-5 grid gap-3 md:grid-cols-3">
                                         <SettingsInfoTile label="Full name" value={profileSaved.fullName || "Creator"} />
@@ -7788,7 +7788,7 @@ function SettingsPage(props: {
                         <div className="space-y-5">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                 <div>
-                                    <h3 className="text-base font-semibold text-slate-950">Instagram Connections</h3>
+                                    <h3 className="text-base font-black text-slate-950">Instagram Connections</h3>
                                     <p className="mt-1 text-sm font-semibold text-slate-500">Manage your connected Instagram account for DM automation.</p>
                                 </div>
                             </div>
@@ -7796,14 +7796,14 @@ function SettingsPage(props: {
                                 <div className="rounded-card border border-slate-100 bg-white p-4 shadow-rest">
                                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                                         <div className="flex min-w-0 items-center gap-4">
-                                            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand to-brand-hover text-lg font-bold text-white shadow-rest">
+                                            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-card bg-gradient-to-br from-brand to-brand-hover text-lg font-black text-white shadow-rest">
                                                 {cleanHandle.charAt(0).toUpperCase() || "D"}
                                             </span>
                                             <div className="min-w-0">
                                                 <div className="flex flex-wrap items-center gap-2">
-                                                    <h3 className="truncate font-bold text-slate-950">{handle}</h3>
-                                                    <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-emerald-50 px-2 text-2xs font-semibold text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Connected</span>
-                                                    <span className="inline-flex h-6 items-center rounded-full bg-brand-soft px-2 text-2xs font-semibold text-brand">Meta API Active</span>
+                                                    <h3 className="truncate font-black text-slate-950">{handle}</h3>
+                                                    <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-emerald-50 px-2 text-[11px] font-black text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Connected</span>
+                                                    <span className="inline-flex h-6 items-center rounded-full bg-brand-soft px-2 text-[11px] font-black text-brand">Meta API Active</span>
                                                 </div>
                                                 <p className="mt-1 text-sm font-semibold text-slate-500">{typeof props.stats.followers === "number" ? `${formatMetric(props.stats.followers)} followers` : "Followers unavailable"} · Refresh to sync latest data</p>
                                                 <p className="mt-1 text-xs font-semibold text-slate-400">Connected through secure Meta OAuth. No Instagram password stored.</p>
@@ -7824,7 +7824,7 @@ function SettingsPage(props: {
                                     onAction={props.onConnect}
                                 />
                             )}
-                            <p className="px-1 text-xs font-semibold text-slate-400">Need to manage multiple Instagram accounts? That's available on Enterprise — <a href="mailto:support@dmgennie.in?subject=DMGennie%20Enterprise%20Plan" className="font-bold text-slate-600 underline">contact us</a>.</p>
+                            <p className="px-1 text-xs font-semibold text-slate-400">Need to manage multiple Instagram accounts? That's available on Enterprise — <a href="mailto:support@dmgennie.in?subject=DMGennie%20Enterprise%20Plan" className="font-black text-slate-600 underline">contact us</a>.</p>
                         </div>
                     )}
                     {props.settingsTab === "billing" && (
@@ -7832,8 +7832,8 @@ function SettingsPage(props: {
                             <div className="rounded-card border border-slate-100 bg-white p-5 shadow-rest">
                                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                                     <div>
-                                        <span className="inline-flex h-7 items-center rounded-full bg-slate-100 px-3 text-xs font-semibold text-slate-700">Starter</span>
-                                        <h3 className="mt-3 text-xl font-bold text-slate-950">Plan & Usage</h3>
+                                        <span className="inline-flex h-7 items-center rounded-full bg-slate-100 px-3 text-xs font-black text-slate-700">Starter</span>
+                                        <h3 className="mt-3 text-xl font-black text-slate-950">Plan & Usage</h3>
                                         <p className="mt-1 text-sm font-semibold text-slate-500">Your current plan, limits, and billing actions in one place.</p>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
@@ -7849,17 +7849,17 @@ function SettingsPage(props: {
                                 <div className="mt-5 rounded-card border border-emerald-100 bg-emerald-50/60 p-4">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                         <div>
-                                            <h3 className="font-bold text-slate-950">Subscription status</h3>
+                                            <h3 className="font-black text-slate-950">Subscription status</h3>
                                             <p className="mt-1 text-sm font-semibold text-slate-500">Trial active · No active paid subscription yet.</p>
                                         </div>
-                                        <button type="button" onClick={openPricing} className="inline-flex h-10 items-center justify-center rounded-control bg-white px-4 text-sm font-semibold text-emerald-700 ring-1 ring-emerald-100 transition hover:-translate-y-0.5">
+                                        <button type="button" onClick={openPricing} className="inline-flex h-10 items-center justify-center rounded-control bg-white px-4 text-sm font-black text-emerald-700 ring-1 ring-emerald-100 transition hover:-translate-y-0.5">
                                             Activate Subscription
                                         </button>
                                     </div>
                                 </div>
                             </div>
                             <div className="rounded-card border border-dashed border-slate-200 bg-slate-50/80 p-5 text-center">
-                                <h3 className="font-bold text-slate-950">No invoices found yet.</h3>
+                                <h3 className="font-black text-slate-950">No invoices found yet.</h3>
                                 <p className="mt-1 text-sm font-semibold text-slate-500">Invoices will appear here after your first paid subscription payment.</p>
                             </div>
                         </div>
@@ -7870,13 +7870,13 @@ function SettingsPage(props: {
                                 <div className="flex items-start gap-3">
                                     <ShieldCheck className="mt-1 h-6 w-6 shrink-0 text-emerald-600" />
                                     <div>
-                                        <h3 className="font-bold text-slate-950">Secure OAuth Authentication</h3>
+                                        <h3 className="font-black text-slate-950">Secure OAuth Authentication</h3>
                                         <p className="mt-1 text-sm font-semibold leading-6 text-slate-500">DMGennie uses official Meta OAuth for Instagram and never stores Instagram passwords.</p>
                                     </div>
                                 </div>
                             </div>
                             <div className="rounded-card border border-slate-100 bg-white p-4">
-                                <h3 className="font-bold text-slate-950">Password</h3>
+                                <h3 className="font-black text-slate-950">Password</h3>
                                 <p className="mt-1 text-sm font-semibold text-slate-500">Update your DMGennie account password for email login.</p>
                                 <div className="mt-4 grid gap-4 md:grid-cols-3">
                                     <Field label="Current password" type="password" value={passwordDraft.current} onChange={(value) => setPasswordDraft({ ...passwordDraft, current: value })} />
@@ -7892,7 +7892,7 @@ function SettingsPage(props: {
                             <div className="rounded-card border border-rose-100 bg-rose-50/50 p-5">
                                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                     <div>
-                                        <h3 className="font-bold text-rose-700">Danger Zone</h3>
+                                        <h3 className="font-black text-rose-700">Danger Zone</h3>
                                         <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Permanently delete your DMGennie account and all its data after re-confirming your identity. This cannot be undone.</p>
                                     </div>
                                     <DangerButton onClick={() => setDeleteOpen(true)}><Trash2 className="h-4 w-4" /> Delete DMGennie Account</DangerButton>
@@ -7923,9 +7923,9 @@ function SettingsPage(props: {
                             <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-card bg-rose-50 text-rose-600 ring-1 ring-rose-100">
                             <AlertTriangle className="h-6 w-6" />
                             </span>
-                            <h2 className="mt-5 text-2xl font-bold text-slate-950">Delete DMGennie Account?</h2>
+                            <h2 className="mt-5 text-2xl font-black text-slate-950">Delete DMGennie Account?</h2>
                             <p className="mx-auto mt-2 max-w-lg text-sm font-semibold leading-6 text-slate-500">
-                                This permanently deletes <span className="font-bold text-slate-700">{profileSaved.email || "your account"}</span> and all its automations, contacts, and activity. This cannot be undone.
+                                This permanently deletes <span className="font-black text-slate-700">{profileSaved.email || "your account"}</span> and all its automations, contacts, and activity. This cannot be undone.
                             </p>
                         </div>
                         <div className="mx-auto mt-6 max-w-md space-y-4">
@@ -7945,7 +7945,7 @@ function SettingsPage(props: {
                                 type="button"
                                 disabled={deletingAccount || (deleteHasPassword ? !deletePassword.trim() : !deleteConfirm.trim())}
                                 onClick={requestAccountDeletion}
-                                className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-rose-600 px-5 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-rose-600 px-5 text-sm font-black text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {deletingAccount ? <><RefreshCw className="h-4 w-4 animate-spin" /> Deleting...</> : <><Trash2 className="h-4 w-4" /> Delete account</>}
                             </button>
@@ -8082,7 +8082,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
         ["Why did a DM fail?", "Usually due to privacy or closed DMs."],
     ];
 
-    const sectionLabel = "block text-base font-semibold uppercase tracking-tighter text-slate-950 mb-4 ml-1";
+    const sectionLabel = "block text-[16px] font-[900] uppercase tracking-tighter text-slate-950 mb-4 ml-1";
 
     return (
         <div className="w-full max-w-[1500px] mx-auto">
@@ -8096,7 +8096,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                     <AlertCircle className="h-5 w-5 text-red-600" />
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="text-sm font-semibold text-slate-950 mb-1">Please Complete All Fields</h4>
+                                    <h4 className="text-sm font-black text-slate-950 mb-1">Please Complete All Fields</h4>
                                     <p className="text-xs font-medium text-slate-500">Make sure all required fields are filled in before submitting.</p>
                                 </div>
                                 <button 
@@ -8119,7 +8119,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                     <Check className="h-10 w-10 text-emerald-600" />
                                 </div>
                                 <div className="text-center">
-                                    <h3 className="text-2xl font-bold text-slate-950 mb-2">Message Sent!</h3>
+                                    <h3 className="text-2xl font-black text-slate-950 mb-2">Message Sent!</h3>
                                     <p className="text-sm font-medium text-slate-500">Your message has been submitted successfully. We'll get back to you soon!</p>
                                 </div>
                             </div>
@@ -8134,10 +8134,10 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                         <div className="w-full">
                             <div className="flex items-center justify-between mb-10">
                                 <div>
-                                    <h2 className="text-4xl font-bold uppercase tracking-tighter text-slate-950">Contact Us</h2>
+                                    <h2 className="text-4xl font-[900] uppercase tracking-tighter text-slate-950">Contact Us</h2>
                                     <p className="mt-1 text-base font-medium text-slate-400">We'd love to hear from you.</p>
                                 </div>
-                                <a href="tel:+910000000000" className="flex items-center gap-2 rounded-full border-2 border-slate-950 px-8 py-2.5 text-xs font-semibold uppercase tracking-widest hover:bg-slate-950 hover:text-white transition-all">
+                                <a href="tel:+910000000000" className="flex items-center gap-2 rounded-full border-2 border-slate-950 px-8 py-2.5 text-xs font-black uppercase tracking-widest hover:bg-slate-950 hover:text-white transition-all">
                                     <Headphones className="h-4 w-4" /> Call Us
                                 </a>
                             </div>
@@ -8189,11 +8189,11 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                                 {captchaStatus === 'loading' && <RefreshCw className="h-5 w-5 text-brand animate-spin" />}
                                                 {captchaStatus === 'checked' && <Check className="h-6 w-6 text-emerald-600 stroke-[4px]" />}
                                             </div>
-                                            <span className="text-sm font-normal text-[#222]">I'm not a robot</span>
+                                            <span className="text-[14px] font-normal text-[#222]">I'm not a robot</span>
                                         </div>
                                         <div className="flex flex-col items-center opacity-80">
                                             <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="recaptcha" className="h-8 w-8" />
-                                            <span className="text-2xs text-[#555] mt-0.5 font-medium">reCAPTCHA</span>
+                                            <span className="text-[8px] text-[#555] mt-0.5 font-medium">reCAPTCHA</span>
                                         </div>
                                     </div>
                                 </div>
@@ -8278,11 +8278,11 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                             <button 
                                 type="button" 
                                 onClick={handleCancel}
-                                className="px-12 py-4 rounded-card bg-slate-50 text-slate-500 font-semibold uppercase tracking-widest text-2xs hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-95"
+                                className="px-12 py-4 rounded-card bg-slate-50 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 hover:text-slate-600 transition-all active:scale-95"
                             >
                                 Cancel
                             </button>
-                            <button type="submit" className="px-28 py-5 rounded-card bg-brand text-white font-semibold uppercase tracking-widest text-2xs shadow-overlay hover:translate-y-[-2px] hover:brightness-105 transition-all active:scale-95 flex items-center gap-3">
+                            <button type="submit" className="px-28 py-5 rounded-card bg-brand text-white font-black uppercase tracking-widest text-[11px] shadow-overlay hover:translate-y-[-2px] hover:brightness-105 transition-all active:scale-95 flex items-center gap-3">
                                 Submit Message
                                 <Send className="h-5 w-5 opacity-80" />
                             </button>
@@ -8294,14 +8294,14 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                         {/* FAQ SECTION - HALF HEIGHT */}
                         <div className={`rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-raised flex-1 flex flex-col transition-all duration-300 ${showAllFaqs ? 'blur-sm opacity-50 pointer-events-none' : ''}`}>
                             <div className="flex items-center justify-between mb-6">
-                                <h3 className="text-lg font-bold text-slate-950 flex items-center gap-3">
+                                <h3 className="text-lg font-black text-slate-950 flex items-center gap-3">
                                     <CircleHelp className="h-5 w-5 text-brand" />
                                     Quick FAQ
                                 </h3>
                                 <button 
                                     type="button"
                                     onClick={() => setShowAllFaqs(true)}
-                                    className="text-xs font-semibold uppercase tracking-widest text-brand hover:text-brand-hover hover:bg-brand-soft px-4 py-2 rounded-full transition-all"
+                                    className="text-[12px] font-black uppercase tracking-widest text-brand hover:text-brand-hover hover:bg-brand-soft px-4 py-2 rounded-full transition-all"
                                 >
                                     See More
                                 </button>
@@ -8309,8 +8309,8 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                             <div className="space-y-6 flex-1 overflow-y-auto">
                                 {faqs.slice(0, 2).map(([question, answer], index) => (
                                     <div key={index} className="group cursor-default pb-4 border-b border-slate-100 last:border-0">
-                                        <h4 className="text-sm font-semibold text-slate-950 mb-1.5 group-hover:text-brand transition-colors leading-tight">{question}</h4>
-                                        <p className="text-xs font-bold leading-relaxed text-slate-400 group-hover:text-slate-600 transition-colors">{answer}</p>
+                                        <h4 className="text-[14px] font-black text-slate-950 mb-1.5 group-hover:text-brand transition-colors leading-tight">{question}</h4>
+                                        <p className="text-[12px] font-bold leading-relaxed text-slate-400 group-hover:text-slate-600 transition-colors">{answer}</p>
                                     </div>
                                 ))}
                             </div>
@@ -8319,7 +8319,7 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                         {/* SUPPORT JOURNEY SECTION - HALF HEIGHT */}
                         <div className={`rounded-[2.5rem] border border-slate-100 bg-white p-8 shadow-raised flex-1 flex flex-col justify-between transition-all duration-300 ${showAllFaqs ? 'blur-sm opacity-50 pointer-events-none' : ''}`}>
                             <div>
-                                <h3 className="text-lg font-bold text-slate-950 mb-8 flex items-center gap-3 text-center justify-center">
+                                <h3 className="text-lg font-black text-slate-950 mb-8 flex items-center gap-3 text-center justify-center">
                                     <span className="text-brand">Support Journey</span>
                                 </h3>
                                 <div className="flex flex-col items-center gap-6 relative flex-1 justify-center">
@@ -8329,21 +8329,21 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                         <div className="h-8 w-8 rounded-full bg-brand-soft flex items-center justify-center border-2 border-brand/25 text-brand shadow-raised">
                                             <Send className="h-3.5 w-3.5" />
                                         </div>
-                                        <p className="mt-2 text-2xs font-semibold uppercase text-slate-950">Sent</p>
+                                        <p className="mt-2 text-[11px] font-black uppercase text-slate-950">Sent</p>
                                     </div>
                                     
                                     <div className="relative z-10 flex flex-col items-center text-center">
                                         <div className="h-8 w-8 rounded-full bg-amber-50 flex items-center justify-center border-2 border-amber-200 text-amber-600 shadow-raised animate-pulse">
                                             <RefreshCw className="h-3.5 w-3.5" />
                                         </div>
-                                        <p className="mt-2 text-2xs font-semibold uppercase text-slate-950">Review</p>
+                                        <p className="mt-2 text-[11px] font-black uppercase text-slate-950">Review</p>
                                     </div>
                                     
                                     <div className="relative z-10 flex flex-col items-center text-center">
                                         <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center border-2 border-emerald-200 text-emerald-600 shadow-raised">
                                             <Check className="h-3.5 w-3.5" />
                                         </div>
-                                        <p className="mt-2 text-2xs font-semibold uppercase text-slate-950">Solved</p>
+                                        <p className="mt-2 text-[11px] font-black uppercase text-slate-950">Solved</p>
                                     </div>
                                 </div>
                             </div>
@@ -8359,14 +8359,14 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                         {showAllFaqs && (
                             <div className="absolute inset-0 rounded-[2.5rem] bg-white/95 backdrop-blur-md p-8 shadow-raised flex flex-col z-50 animate-in fade-in duration-300">
                                 <div className="flex items-center justify-between mb-6">
-                                    <h3 className="text-lg font-bold text-slate-950 flex items-center gap-3">
+                                    <h3 className="text-lg font-black text-slate-950 flex items-center gap-3">
                                         <CircleHelp className="h-5 w-5 text-brand" />
                                         All FAQs
                                     </h3>
                                     <button
                                         type="button"
                                         onClick={() => setShowAllFaqs(false)}
-                                        className="text-xs font-semibold uppercase tracking-widest text-slate-500 hover:text-slate-950 px-4 py-2 rounded-full hover:bg-slate-100 transition-all"
+                                        className="text-[12px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-950 px-4 py-2 rounded-full hover:bg-slate-100 transition-all"
                                     >
                                         Close
                                     </button>
@@ -8374,8 +8374,8 @@ function HelpPage({ query, openFaq, onQuery, onOpenFaq }: { query: string; openF
                                 <div className="space-y-6 overflow-y-auto flex-1 pr-2">
                                     {faqs.map(([question, answer], index) => (
                                         <div key={index} className="group cursor-default pb-4 border-b border-slate-100 last:border-0">
-                                            <h4 className="text-sm font-semibold text-slate-950 mb-1.5 group-hover:text-brand transition-colors leading-tight">{question}</h4>
-                                            <p className="text-xs font-bold leading-relaxed text-slate-400 group-hover:text-slate-600 transition-colors">{answer}</p>
+                                            <h4 className="text-[14px] font-black text-slate-950 mb-1.5 group-hover:text-brand transition-colors leading-tight">{question}</h4>
+                                            <p className="text-[12px] font-bold leading-relaxed text-slate-400 group-hover:text-slate-600 transition-colors">{answer}</p>
                                         </div>
                                     ))}
                                 </div>
@@ -8395,7 +8395,7 @@ function PageShell({ title, subtitle, action, tourKey, children }: { title: stri
             <header data-tour="page-header" className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:pr-28">
                 <div>
                     <div className="flex items-center gap-2">
-                        <h1 className="text-[28px] font-bold tracking-tight text-slate-950 sm:text-[32px]">{title}</h1>
+                        <h1 className="text-[28px] font-black tracking-tight text-slate-950 sm:text-[32px]">{title}</h1>
                         {tourKey && <TourReplayButton tourKey={tourKey} />}
                     </div>
                     <p className="mt-1 text-sm font-semibold text-slate-500">{subtitle}</p>
@@ -8426,7 +8426,7 @@ function Panel({ title, action, children }: { title?: string; action?: ReactNode
         <section className="rounded-card border border-white bg-white p-4 shadow-raised sm:p-5">
             {(title || action) && (
                 <div className="mb-4 flex items-center justify-between gap-4">
-                    {title && <h2 className="text-lg font-bold text-slate-950">{title}</h2>}
+                    {title && <h2 className="text-lg font-black text-slate-950">{title}</h2>}
                     {action}
                 </div>
             )}
@@ -8442,7 +8442,7 @@ function PrimaryButton({ children, onClick, compact, disabled }: { children: Rea
             onClick={onClick}
             disabled={disabled}
             className={cx(
-                "inline-flex items-center justify-center gap-2 rounded-card bg-brand text-sm font-semibold text-white shadow-raised transition hover:-translate-y-0.5 hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0",
+                "inline-flex items-center justify-center gap-2 rounded-card bg-brand text-sm font-black text-white shadow-raised transition hover:-translate-y-0.5 hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0",
                 compact ? "px-3.5 py-2" : "px-4 py-2.5"
             )}
         >
@@ -8452,11 +8452,11 @@ function PrimaryButton({ children, onClick, compact, disabled }: { children: Rea
 }
 
 function SecondaryButton({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
-    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50">{children}</button>;
+    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-card border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-700 transition hover:-translate-y-0.5 hover:bg-slate-50">{children}</button>;
 }
 
 function DangerButton({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
-    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-card border border-rose-200 bg-white px-4 py-2.5 text-sm font-semibold text-rose-600 transition hover:-translate-y-0.5 hover:bg-rose-50">{children}</button>;
+    return <button type="button" onClick={onClick} className="inline-flex items-center justify-center gap-2 rounded-card border border-rose-200 bg-white px-4 py-2.5 text-sm font-black text-rose-600 transition hover:-translate-y-0.5 hover:bg-rose-50">{children}</button>;
 }
 
 function SearchBox({ value, onChange, placeholder, compact = false }: { value: string; onChange: (value: string) => void; placeholder: string; compact?: boolean }) {
@@ -8470,7 +8470,7 @@ function SearchBox({ value, onChange, placeholder, compact = false }: { value: s
 
 function SelectBox({ value, onChange, options }: { value: string; onChange: (value: string) => void; options: string[] }) {
     return (
-        <select value={value} onChange={(e) => onChange(e.target.value)} className="rounded-card border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold capitalize text-slate-700 outline-none transition focus:border-brand/40 focus:ring-4 focus:ring-brand/10">
+        <select value={value} onChange={(e) => onChange(e.target.value)} className="rounded-card border border-slate-200 bg-white px-4 py-2.5 text-sm font-black capitalize text-slate-700 outline-none transition focus:border-brand/40 focus:ring-4 focus:ring-brand/10">
             {options.map((option) => <option key={option} value={option}>{option}</option>)}
         </select>
     );
@@ -8478,7 +8478,7 @@ function SelectBox({ value, onChange, options }: { value: string; onChange: (val
 
 function StatusBadge({ status }: { status: "Live" | "Paused" | "Draft" }) {
     const classes = status === "Live" ? "bg-emerald-50 text-emerald-700" : status === "Paused" ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-600";
-    return <span className={cx("inline-flex h-7 items-center rounded-full px-2.5 text-xs font-semibold", classes)}>{status}</span>;
+    return <span className={cx("inline-flex h-7 items-center rounded-full px-2.5 text-xs font-black", classes)}>{status}</span>;
 }
 
 function IconButton({ children, onClick, danger, title }: { children: ReactNode; onClick?: () => void; danger?: boolean; title?: string }) {
@@ -8489,15 +8489,15 @@ function EmptyState({ icon, title, copy, action, onAction }: { icon: ReactNode; 
     return (
         <div className="rounded-card border border-dashed border-slate-200 bg-slate-50/70 p-8 text-center">
             <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-card bg-white text-brand shadow-rest">{icon}</span>
-            <h3 className="mt-4 text-lg font-bold text-slate-950">{title}</h3>
+            <h3 className="mt-4 text-lg font-black text-slate-950">{title}</h3>
             <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-6 text-slate-500">{copy}</p>
-            {action && <button type="button" onClick={onAction} className="mt-5 rounded-card bg-brand px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-hover">{action}</button>}
+            {action && <button type="button" onClick={onAction} className="mt-5 rounded-card bg-brand px-4 py-2.5 text-sm font-black text-white transition hover:bg-brand-hover">{action}</button>}
         </div>
     );
 }
 
 function Label({ children }: { children: ReactNode }) {
-    return <label className="mb-1.5 block text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">{children}</label>;
+    return <label className="mb-1.5 block text-xs font-black uppercase tracking-[0.08em] text-slate-500">{children}</label>;
 }
 
 function Field({
@@ -8539,8 +8539,8 @@ function Field({
 function SettingsInfoTile({ label, value }: { label: string; value: string }) {
     return (
         <div className="rounded-card border border-white bg-white px-3.5 py-3 shadow-rest">
-            <p className="text-2xs font-semibold uppercase tracking-[0.08em] text-slate-400">{label}</p>
-            <p className="mt-1 truncate text-sm font-semibold text-slate-950">{value}</p>
+            <p className="text-[11px] font-black uppercase tracking-[0.08em] text-slate-400">{label}</p>
+            <p className="mt-1 truncate text-sm font-black text-slate-950">{value}</p>
         </div>
     );
 }
@@ -8549,8 +8549,8 @@ function UsageMiniCard({ title, value, progress }: { title: string; value: strin
     return (
         <div className="rounded-card border border-slate-100 bg-slate-50/70 p-4">
             <div className="flex items-center justify-between gap-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-400">{title}</p>
-                <span className="text-sm font-semibold text-slate-950">{value}</span>
+                <p className="text-xs font-black uppercase tracking-[0.08em] text-slate-400">{title}</p>
+                <span className="text-sm font-black text-slate-950">{value}</span>
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white">
                 <div className="h-full rounded-full bg-brand" style={{ width: `${Math.min(100, Math.max(0, progress))}%` }} />
@@ -8563,7 +8563,7 @@ function ToggleRow({ title, copy, active, onClick }: { title: string; copy: stri
     return (
         <div className="flex items-center justify-between gap-4 rounded-card border border-slate-100 bg-slate-50 p-4">
             <div>
-                <h3 className="font-bold">{title}</h3>
+                <h3 className="font-black">{title}</h3>
                 <p className="mt-1 text-sm font-medium text-slate-500">{copy}</p>
             </div>
             <button type="button" aria-label={`Toggle ${title}`} onClick={onClick} className={cx("relative h-7 w-12 rounded-full transition", active ? "bg-brand" : "bg-slate-300")}>

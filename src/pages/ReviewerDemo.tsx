@@ -42,7 +42,7 @@ export default function ReviewerDemo() {
           <div className="inline-flex items-center gap-2 bg-accent-blue/10 text-accent-blue text-sm font-semibold px-4 py-2 rounded-full mb-6">
             Meta App Review — Reviewer Guide
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-foreground mb-4">
             How DMGennie Works
           </h1>
           <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl">
@@ -111,7 +111,7 @@ export default function ReviewerDemo() {
           <div className="space-y-8">
             {testSteps.map((s) => (
               <div key={s.step} className="flex gap-6">
-                <div className="flex-shrink-0 text-4xl font-bold text-accent-blue/20 leading-none mt-1 w-12 text-right">
+                <div className="flex-shrink-0 text-4xl font-extrabold text-accent-blue/20 leading-none mt-1 w-12 text-right">
                   {s.step}
                 </div>
                 <div className="flex-1 pb-8 border-b border-border last:border-0">

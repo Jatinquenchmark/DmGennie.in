@@ -54,7 +54,7 @@ export function FeatureShowcase() {
                 <div className="mb-5 inline-flex h-12 w-12 items-center justify-center rounded-card bg-accent-blue/10 text-accent-blue">
                   <Icon className="h-6 w-6" />
                 </div>
-                <h2 className="mb-6 text-4xl font-bold leading-tight text-foreground sm:text-5xl lg:text-6xl">
+                <h2 className="mb-6 text-4xl font-black leading-tight text-foreground sm:text-5xl lg:text-6xl">
                   {item.title}
                 </h2>
                 <p className="mb-8 max-w-xl text-xl leading-relaxed text-muted-foreground">

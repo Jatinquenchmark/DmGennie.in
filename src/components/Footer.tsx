@@ -7,7 +7,7 @@ function FooterLogo() {
   return (
     <Link to="/" onClick={() => window.scrollTo(0, 0)} className="inline-flex items-center gap-2.5 group">
       <BrandMark size={30} />
-      <span className="text-lg font-bold tracking-tight text-slate-900 transition-colors group-hover:text-brand">DMGennie</span>
+      <span className="text-lg font-extrabold tracking-tight text-slate-900 transition-colors group-hover:text-brand">DMGennie</span>
     </Link>
   )
 }
@@ -50,7 +50,7 @@ export function Footer() {
       <div className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:linear-gradient(rgba(193,53,132,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(193,53,132,0.08)_1px,transparent_1px)] [background-size:42px_42px]" />
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand/25 to-transparent" />
       <div
-        className="pointer-events-none absolute bottom-2 left-1/2 w-full -translate-x-1/2 select-none text-center text-[12vw] font-bold leading-none tracking-tight text-brand/[0.06] dark:text-white/[0.05] sm:-bottom-1 sm:text-[11vw] lg:-bottom-3 lg:text-[9vw]"
+        className="pointer-events-none absolute bottom-2 left-1/2 w-full -translate-x-1/2 select-none text-center text-[12vw] font-black leading-none tracking-tight text-brand/[0.06] dark:text-white/[0.05] sm:-bottom-1 sm:text-[11vw] lg:-bottom-3 lg:text-[9vw]"
         aria-hidden="true"
       >
         DMGennie
@@ -106,14 +106,14 @@ export function Footer() {
                 />
               </span>
               <span>
-                <span className="block text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Secured by</span>
-                <span className="block text-sm font-semibold text-slate-900">ParameterX</span>
+                <span className="block text-xs font-black uppercase tracking-[0.14em] text-slate-500">Secured by</span>
+                <span className="block text-sm font-black text-slate-900">ParameterX</span>
               </span>
             </a>
           </div>
 
           <div className="lg:col-span-2">
-            <h3 className="mb-5 text-sm font-semibold uppercase tracking-[0.16em] text-brand">Product</h3>
+            <h3 className="mb-5 text-sm font-black uppercase tracking-[0.16em] text-brand">Product</h3>
             <ul className="space-y-3">
               {productLinks.map((l) => (
                 <li key={l.label}>
@@ -139,7 +139,7 @@ export function Footer() {
           </div>
 
           <div className="lg:col-span-2">
-            <h3 className="mb-5 text-sm font-semibold uppercase tracking-[0.16em] text-brand">Compare</h3>
+            <h3 className="mb-5 text-sm font-black uppercase tracking-[0.16em] text-brand">Compare</h3>
             <ul className="space-y-3">
               {compareLinks.map((l) => (
                 <li key={l.label}>
@@ -156,7 +156,7 @@ export function Footer() {
           </div>
 
           <div className="lg:col-span-3">
-            <h3 className="mb-5 text-sm font-semibold uppercase tracking-[0.16em] text-brand">Support</h3>
+            <h3 className="mb-5 text-sm font-black uppercase tracking-[0.16em] text-brand">Support</h3>
             <ul className="space-y-3">
               {supportLinks.map((l) => (
                 <li key={l.label}>

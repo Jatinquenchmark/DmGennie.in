@@ -40,7 +40,7 @@ function FlowNodeComponent({ data, selected }: NodeProps) {
       {spec.sources.length > 1 ? (
         <div className="flex justify-around border-t border-border px-2 py-1.5">
           {spec.sources.map((s) => (
-            <span key={s.id} className="relative text-2xs font-bold text-muted-foreground">
+            <span key={s.id} className="relative text-[10px] font-bold text-muted-foreground">
               {s.label}
               <Handle
                 type="source"

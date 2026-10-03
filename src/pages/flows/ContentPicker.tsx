@@ -78,7 +78,7 @@ export function ContentPicker({
                     </div>
                     <div className="p-2">
                       <p className="truncate text-xs font-bold">{media.title}</p>
-                      <p className="truncate text-2xs text-muted-foreground">{media.metric || media.type}</p>
+                      <p className="truncate text-[10px] text-muted-foreground">{media.metric || media.type}</p>
                     </div>
                     {on && <span className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-white"><Check className="h-3 w-3" /></span>}
                   </button>
